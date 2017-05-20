@@ -2,7 +2,7 @@
 
 // Chromatix TM 24/03/2017
 
-define( 'SLACKEMON_VERSION', '0.0.34' );
+define( 'SLACKEMON_VERSION', '0.0.35' );
 
 // Define default settings
 // These can all be overriden by placing each setting you want to override in your local config.php like this:

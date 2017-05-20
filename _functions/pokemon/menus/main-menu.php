@@ -238,7 +238,7 @@ function slackemon_back_to_menu_attachment() {
 function slackemon_get_latest_news() {
 
   $latest_news = [
-    ':open_mouth: Ooops! Happiness changes weren\'t sticking after battles. They now will, and Pokémon that have won battles previously have received a one-time boost. :thumbsup:',
+    
   ];
 
   return array_merge( SLACKEMON_ADDITIONAL_NEWS, $latest_news );

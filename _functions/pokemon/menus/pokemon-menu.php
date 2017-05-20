@@ -536,12 +536,18 @@ function slackemon_get_unfavourite_message( $action ) {
 
 } // Function slackemon_get_unfavourite_message
 
-function slackemon_get_battle_team_add_message( $action ) {
+function slackemon_get_battle_team_add_message( $action, $action_name = '' ) {
 
   $message = [];
   $message['text'] = $action->original_message->text;
   $message['attachments'] = $action->original_message->attachments;
 
+  // When adding at the Battle menu, we just need to reload the battle menu
+  if ( 'battle-team/add/from-battle-menu' === $action_name ) {
+    return slackemon_get_battle_menu();
+  }
+
+  // Otherwise, when adding at the Pokemon menu:
   // Now this is slightly complicated - we loop through each attachment, determining what to do with it.
   // If it's the current attachment, we loop through to find the 'add' button, and change it to 'remove'.
   // If it's not the current attachment and the battle team is now full, we loop through to find the 'add' button
@@ -572,12 +578,18 @@ function slackemon_get_battle_team_add_message( $action ) {
 
 } // Function slackemon_get_battle_team_add_message
 
-function slackemon_get_battle_team_remove_message( $action ) {
+function slackemon_get_battle_team_remove_message( $action, $action_name = '' ) {
 
   $message = [];
   $message['text'] = $action->original_message->text;
   $message['attachments'] = $action->original_message->attachments;
 
+  // When removing at the Battle menu, we just need to reload the battle menu
+  if ( 'battle-team/remove/from-battle-menu' === $action_name ) {
+    return slackemon_get_battle_menu();
+  }
+
+  // Otherwise, when removing at the Pokemon menu:
   // Like adding, this is also complicated, although a little more so. Again, we loop through each attachment.
   // If it's the current attachment, we loop through to find the 'remove' button, and change it to 'add'.
   // If it's not the current attachment and the battle team is now not full, we loop through to find the transfer
@@ -592,7 +604,7 @@ function slackemon_get_battle_team_remove_message( $action ) {
           $attachment->actions[ $inner_key ] = $action_button;
         }
       }
-    } else if ( ! slackemon_is_battle_team_full() ) {
+    } else if ( ! slackemon_is_battle_team_full() && isset( $attachment->actions ) ) {
       foreach ( $attachment->actions as $inner_key => $action_button ) {
         $spawn_ts = 0;
         if ( 'transfer' === $action_button->name ) {
@@ -601,7 +613,7 @@ function slackemon_get_battle_team_remove_message( $action ) {
           continue 2;
         }
       }
-      if ( $spawn_ts ) {
+      if ( isset( $spawn_ts ) && $spawn_ts ) {
         $attachment->actions[] = [
           'name' => 'battle-team/add',
           'text' => ':facepunch: Battle Team',

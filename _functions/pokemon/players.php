@@ -113,6 +113,23 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
 
 } // Function slackemon_get_player_data
 
+function slackemon_search_player_pokemon( $search_string, $user_id = USER_ID ) {
+
+  $player_data    = slackemon_get_player_data( $user_id );
+  $player_pokemon = $player_data->pokemon;
+
+  if ( $search_string ) {
+    $player_pokemon = array_filter( $player_pokemon, function( $_pokemon ) use ( $search_string ) {
+      if ( $search_string === substr( $_pokemon->name, 0, strlen( $search_string ) ) ) {
+        return true;
+      }
+    });
+  }
+
+  return $player_pokemon;
+
+} // Function slackemon_search_player_pokemon
+
 function slackemon_get_player_pokemon_data( $spawn_ts, $player_data = null, $user_id = USER_ID ) {
 
   if ( ! $player_data ) {

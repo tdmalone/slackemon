@@ -11,6 +11,51 @@ $is_desktop  = 'desktop' === slackemon_get_player_menu_mode();
 
 switch ( $action_name[0] ) {
 
+  // Adding Pokemon to the battle team, via the Battle menu
+  case 'battle-team':
+
+    if ( ! isset( $action_name[1] ) ) {
+      return;
+    }
+
+    // We only support the 'battle-team/add' action here for now
+    if ( 'add' !== $action_name[1] ) {
+      return;
+    }
+
+    $pokemon_collection = slackemon_search_player_pokemon( $action_value );
+
+    // Remove Pokemon that are already in the battle team, because we can't add them again!
+    $pokemon_collection = array_filter( $pokemon_collection, function( $_pokemon ) {
+      if ( ! $_pokemon->is_battle_team ) {
+        return true;
+      }
+    });
+
+    slackemon_sort_player_pokemon( $pokemon_collection, [ 'name', 'is_favourite', 'level', 'cp', 'ts' ] );
+
+    $options = [];
+
+    foreach ( $pokemon_collection as $_pokemon ) {
+
+      $options[] = [
+        'text' => (
+          ( $is_desktop ? ':' . $_pokemon->name . ': ' : '' ) .
+          pokedex_readable( $_pokemon->name ) .
+          ' (L' . floor( $_pokemon->level ) .
+          ')' .
+          ( $is_desktop   && $_pokemon->is_favourite ? ' :sparkling_heart:' : '' ) .
+          ( ! $is_desktop && $_pokemon->is_favourite ? ' *'                 : '' )
+        ),
+        'value' => $_pokemon->ts,
+      ];
+
+    } // Foreach pokemon
+
+    echo json_encode([ 'options' => $options ]);
+
+  break;
+
   // Item give/use/teach request
   case 'items':
 
@@ -21,19 +66,9 @@ switch ( $action_name[0] ) {
     $method  = $action_name[1]; // 'give', 'use', or 'teach'
     $item_id = $action_name[2];
 
-    $player_data        = slackemon_get_player_data();
-    $pokemon_collection = $player_data->pokemon;
+    $pokemon_collection = slackemon_search_player_pokemon( $action_value );
 
-    // Filter the user's Pokemon that match the so-far entered value
-    if ( $action_value ) {
-      $pokemon_collection = array_filter( $pokemon_collection, function( $_pokemon ) use ( $action_value ) {
-        if ( $action_value === substr( $_pokemon->name, 0, strlen( $action_value ) ) ) {
-          return true;
-        }
-      });
-    }
-
-    // Do we need to filter further based on who is actually eligible?
+    // Do we need to filter the collection based on who is actually eligible?
     switch ( $method ) {
 
       case 'teach':
@@ -86,18 +121,7 @@ switch ( $action_name[0] ) {
     } // Switch method
 
     // Sort by name, falling back to favourite status and then level, and finally catch ts
-    usort( $pokemon_collection, function( $pokemon1, $pokemon2 ) {
-      $compare = strcmp( $pokemon1->name, $pokemon2->name );
-      if ( $compare !== 0 ) {
-        return $compare > 0 ? 1 : -1; // Name
-      } else if ( $pokemon1->is_favourite !== $pokemon2->is_favourite ) {
-        return $pokemon2->is_favourite ? 1 : -1; // Is favourite fallback
-      } elseif ( $pokemon1->level !== $pokemon2->level ) {
-        return $pokemon1->level < $pokemon2->level ? 1 : -1; // Level fallback
-      } else {
-        return $pokemon1->ts < $pokemon2->ts ? 1 : -1; // Recent (catch ts) fallback
-      }
-    });
+    slackemon_sort_player_pokemon( $pokemon_collection, [ 'name', 'is_favourite', 'level', 'ts' ] );
 
     $options = [];
 
