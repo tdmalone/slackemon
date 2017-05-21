@@ -64,7 +64,7 @@ function send2slack( $message, $hook_url = '' ) {
       }
     }
 
-    $payload['username'] = isset( $payload['username'] ) ? $payload['username'] : 'Slashies Cron/Webhook Runner';
+    $payload['username'] = isset( $payload['username'] ) ? $payload['username'] : 'Slackémon Cron';
 
     if ( ! isset( $payload['icon_emoji'] ) && ! isset( $payload['icon_url'] ) ) {
       $payload['icon_url'] = INBOUND_URL . '/_images/cron.png';

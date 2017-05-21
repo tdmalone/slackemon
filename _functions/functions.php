@@ -96,7 +96,7 @@ function run_background_command( $path, $args, $additional_fields = [], $additio
 	if ( isset( $_POST['special_mode'] ) && 'RETURN' === $_POST['special_mode'] ) {
 		$timeout = false;
 	} else {
-		$timeout = SLASHIES_CURL_TIMEOUT;
+		$timeout = SLACKEMON_CURL_TIMEOUT;
 	}
 
 	// Build command data
@@ -156,18 +156,8 @@ function run_background_action( $path, $action, $callback_id ) {
 	$action_url .= str_replace( basename( $_SERVER['SCRIPT_NAME'] ), '', $_SERVER['SCRIPT_NAME'] );
 	$action_url .= $path;
 
-	// Should this action be handled by a development instance?
-	// TODO: Move these settings into config - see also ../actions.php
-	$original_callback_id = explode( '/', $action->callback_id );
-	switch( $original_callback_id[0] ) {
-	  case 'dev-tim': $alternative_action_handler = [ '/slashies/', '/slashies-tim/' ]; break;
-	}
-	if ( isset( $alternative_action_handler ) ) {
-		$action_url = str_replace( $alternative_action_handler[0], $alternative_action_handler[1], $action_url );
-	}
-
 	// Curl timeout - this is our trick to make PHP sort-of async
-	$timeout = SLASHIES_CURL_TIMEOUT;
+	$timeout = SLACKEMON_CURL_TIMEOUT;
 
 	// Prepare and send the action
 

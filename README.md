@@ -4,10 +4,19 @@ Inspired by Pokémon Go, now you can catch and battle Pokémon with your teammat
 
 **This program is very much a work in progress, and should be considered very *alpha*. If you have any questions you're welcome to log an issue, but please be aware that code may be messy/incomplete, and some things may not work. In addition, not all mechanics are implemented yet.**
 
+## Screenshots
+
+Coming soon!
+
+## Features
+
+Coming soon!
+
 ## Requirements
 
 * A web server running PHP7
 * Access to a Slack organisation (if a free organisation, installing this will take up 1 of your 10 integrations)
+* **Optional:** An API key for OpenWeatherMap, to enable weather features based on real-world weather
 * **Optional:** An AWS S3 bucket for better performance when caching image assets
 
 ## Setup
@@ -32,14 +41,19 @@ Setup of Slackémon is not quick. This may be worked on further in the future. F
         * users.profile:read
         * users:read
     1. At the top of the page, click the button to install the app to your team, giving it the permissions it asks for. Make a note of your OAuth Access Token.
-1. TODO: Add steps for installing custom Pokémon emoji
+1. TODO: Add steps for installing custom Pokémon emoji, including type emoji
 1. TODO: Add steps for setting up Slackémon config file
+1. TODO: Add steps for setting up cron
+
+## Future enhancements
+
+Coming soon!
 
 ## Acknowledgements
 
-Slackémon was first and foremost inspired by [Pokémon Go](http://www.pokemongo.com/). It borrows a few mechanics from Pokémon Go (mainly for simplicity), but as time goes on the aim is to be more truthful to the original Pokémon games wherever possible.
+Slackémon was first and foremost inspired by [Pokémon Go](http://www.pokemongo.com/). It borrows a few mechanics from Pokémon Go (mainly for simplicity), but as time goes on the aim is to be more true to the original Pokémon games wherever possible.
 
-The idea of doing this on Slack came from rvinluan's [bot for having Pokemon battles in Slack](https://github.com/rvinluan/slack-pokemon). Inspiration has also been gleaned from [Pokémon Showdown](http://pokemonshowdown.com/) - and I will no doubt be making use of their battle data to further expand the moves Slackémon Go can deal with!
+The idea of doing this on Slack came from Robert Vinluan's [bot for having Pokemon battles in Slack](https://github.com/rvinluan/slack-pokemon). Inspiration has also been gleaned from [Pokémon Showdown](http://pokemonshowdown.com/) - and I will no doubt be making use of their battle data to further expand the moves Slackémon Go can deal with!
 
 Thank you to those who have done the hard yards in bringing together Pokémon sprites, particularly [PokeCSS](https://github.com/metaunicorn/pokecss-media).
 
