@@ -6,7 +6,11 @@ Inspired by Pokémon Go, now you can catch and battle Pokémon with your teammat
 
 ## Screenshots
 
-Coming soon!
+<a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/spawn.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/spawn.png" alt="Pokemon spawn" height="250"></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/wild-battle.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/wild-battle.png" alt="Achievements screen" height="250"></a>
+
+<a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/pokemon-menu.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/pokemon-menu.png" alt="Achievements screen" height="430"></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/achievements.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/achievements.png" alt="Achievements screen" height="430"></a>
+
+More screenshots can be found in the `_images/screenshots/` folder.
 
 ## Features
 
