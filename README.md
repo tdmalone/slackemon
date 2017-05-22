@@ -1,4 +1,4 @@
-# slackemon
+# Slackémon Go
 
 Inspired by Pokémon Go, now you can catch and battle Pokémon with your teammates on Slack!
 
@@ -41,7 +41,8 @@ Setup of Slackémon is not quick. This may be worked on further in the future. F
         * users.profile:read
         * users:read
     1. At the top of the page, click the button to install the app to your team, giving it the permissions it asks for. Make a note of your OAuth Access Token.
-1. TODO: Add steps for installing custom Pokémon emoji, including type emoji
+1. TODO: Add steps for installing custom emoji, including Pokémon & type emoji
+1. TODO: Add steps for cloning [PokeCSS](https://github.com/metaunicorn/pokecss-media) to your install
 1. TODO: Add steps for setting up Slackémon config file
 1. TODO: Add steps for setting up cron
 
