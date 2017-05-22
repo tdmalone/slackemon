@@ -1,5 +1,7 @@
 # Slackémon Go
 
+[![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Inspired by Pokémon Go, now you can catch and battle Pokémon with your teammates on Slack!
 
 **This program is very much a work in progress, and should be considered very *alpha*. If you have any questions you're welcome to log an issue, but please be aware that code may be messy/incomplete, and some things may not work. In addition, not all mechanics are implemented yet.**
