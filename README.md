@@ -14,7 +14,19 @@ More screenshots can be found in the `_images/screenshots/` folder.
 
 ## Features
 
-Coming soon!
+* Catch randomly spawned wild Pokémon and build your collection
+* 'Travel' to different regions in the Pokémon world to find different wild Pokémon
+* Battle wild Pokémon to make them easier to catch, and to level up your own Pokémon
+* Battle your teammates to see who is the strongest!
+* Compete with your teammates to see who can fill their Pokédex first
+* Pick up randomly spawned items 'found on the ground': teach your Pokémon new moves, and evolve some Pokémon!
+* Support for evolution based on level, happiness, time of day, and item use
+* Tools to manage your Pokémon collection
+* Live weather integration causes a higher chance of eg. water Pokémon spawns during rain
+* Add custom logic to control when legendary Pokémon can spawn
+* Implements IVs, EVs, happiness, natures and growth rates
+* Implements damage moves with PP, damage class, STAB, type effectiveness, recoil and drain
+* Fainted, damaged and low-PP Pokémon auto-heal after an amount of time
 
 ## Requirements
 
@@ -25,7 +37,7 @@ Coming soon!
 
 ## Setup
 
-Setup of Slackémon is not quick. This may be worked on further in the future. For now, there are quite a few steps!
+Setup of Slackémon is _not_ quick. This may be worked on further in the future. For now, there are quite a few steps!
 
 1. Download/clone/etc. the contents of this repository, and put it on a web server somewhere that runs PHP7.
 1. Log in to your Slack team, and visit https://api.slack.com/apps?new_app=1 to create a new App. You can call it whatever you like, but 'Slackémon' usually works best!
@@ -52,7 +64,11 @@ Setup of Slackémon is not quick. This may be worked on further in the future. F
 
 ## Future enhancements
 
-Coming soon!
+Future enhancement ideas are progressively being added to the [Projects](https://github.com/tdmalone/slackemon/projects) section.
+
+## User guide
+
+A user guide will progressively be written at [this repo's wiki](https://github.com/tdmalone/slackemon/wiki).
 
 ## Acknowledgements
 
