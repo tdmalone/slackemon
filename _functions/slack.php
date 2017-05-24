@@ -3,7 +3,7 @@
 // TM 20/03/2017
 // Slack API specific functions
 
-/** Send a message to a Slack incoming webhook (including one given in response to a slash command). */
+/** Send a message to a Slack incoming webhook, given in response to a slash command or action invocation. */
 function send2slack( $message, $hook_url = '' ) {
   global $action, $data_folder;
 
@@ -45,7 +45,7 @@ function send2slack( $message, $hook_url = '' ) {
     }
   }
 
-  // If we've been run through the cron/webhooks, modify the payload to send to the correct user
+  // If we've been run through cron, modify the payload to send to the correct user
   // We'll also set the default cron username and icon at this point, if one hasn't already been set above
   if ( isset( $_POST['special_mode'] ) && 'AUTORUN' === $_POST['special_mode'] ) {
 
@@ -77,11 +77,9 @@ function send2slack( $message, $hook_url = '' ) {
 
     if ( defined( 'RESPONSE_URL' ) && ! isset( $payload['channel'] ) ) {
       $hook_url = RESPONSE_URL;
-    } else if ( defined( 'GENERIC_WEBHOOK' ) ) {
-      $hook_url = GENERIC_WEBHOOK;
     } else {
-      $hook_url = GENERIC_WEBHOOKS[ array_keys( GENERIC_WEBHOOKS )[0] ];
-    }   
+      return false;
+    }  
 
   }
 
@@ -103,10 +101,7 @@ function send2slack( $message, $hook_url = '' ) {
 } // Function send2slack
 
 /**
- * Send a message to a Slack channel using the Web API's chat.postMessage method, rather than an incoming webhook.
- *
- * If you want to both control the channel you send to (and your username/icon) PLUS include message buttons, then
- * this is the method you need to use (with an auth token granted to a Slack app).
+ * Send a message to a Slack channel using the Web API's chat.postMessage method, rather than an response_url webhook.
  */
 function post2slack( $payload ) {
   global $data_folder;
@@ -115,7 +110,7 @@ function post2slack( $payload ) {
   $endpoint = $api_base . '/chat.postMessage';
 
   // Add Slack API token
-  $payload['token'] = SLACK_USERS[ SLACK[ TEAM_ID ]['service_user'] ]['credentials']['slack']['key'];
+  $payload['token'] = SERVICES['slack']['key'];
 
   // Attempt to include a username and icon, if we have one
   // Note that responses to Slack app response_url's, username and icon replacements are ignored
@@ -198,7 +193,25 @@ function get_user_avatar_url( $user_id = USER_ID ) {
 
   return false;
 
-} // Function get_user_full_name
+} // Function get_user_avatar_url
+
+/**
+ * Gets a user's e-mail address, either from the local config if set, or falling back to the Slack API.
+ */
+function get_user_email_address( $user_id = USER_ID ) {
+
+  if ( defined( 'SLACK_USERS' ) && isset( SLACK_USERS[ $user_id ]['email_address'] ) ) {
+    return SLACK_USERS[ $user_id ]['email_address'];
+  }
+
+  $user = get_slack_user( $user_id );
+  if ( $user && isset( $user->profile->email ) ) {
+    return $user->profile->email;
+  }
+
+  return false;
+
+} // Function get_user_email_address
 
 /** Gets a Slack user's data from the Slack API. Cached for a day. */
 function get_slack_user( $user_id = USER_ID ) {
@@ -208,11 +221,7 @@ function get_slack_user( $user_id = USER_ID ) {
     return $_cached_slack_user_data[ $user_id ];
   }
 
-  $slack_token = SLACK_USERS[ SLACK[ TEAM_ID ]['service_user'] ]['credentials']['slack']['key'];
-  $slack_users = json_decode( get_cached_url(
-    'https://slack.com/api/users.list?token=' . $slack_token,
-    [ 'expiry_age' => DAY_IN_SECONDS ]
-  ) )->members;
+  $slack_users = get_slack_users();
 
   foreach( $slack_users as $user ) {
     if ( $user->id === $user_id ) {
@@ -228,14 +237,17 @@ function get_slack_user( $user_id = USER_ID ) {
 /** Gets ALL Slack user data from the Slack API. Cached for a day. */
 function get_slack_users() {
 
-  $slack_token = SLACK_USERS[ SLACK[ TEAM_ID ]['service_user'] ]['credentials']['slack']['key'];
+  if ( ! SERVICES['slack']['key'] ) {
+    return [];
+  }
+
   $slack_users = json_decode( get_cached_url(
-    'https://slack.com/api/users.list?token=' . $slack_token,
+    'https://slack.com/api/users.list?token=' . SERVICES['slack']['key'],
     [ 'expiry_age' => DAY_IN_SECONDS ]
   ) )->members;
 
   return $slack_users;
 
-} // Function get_slack_user
+} // Function get_slack_users
 
 // The end!

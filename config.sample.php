@@ -44,15 +44,15 @@ define( 'CRON_TOKEN', 'XXXXXXXXXXXXXXXXXXXX' );
 // Cron schedule (will only work if cron.php is run every minute by your system)
 define( 'CRON_SCHEDULE', [
 
-	[ '*', '*', '*', '*', '*', [ '/slackemon maybe-spawn', 		 'UXXXXXXXX' ] ], // Runs every minute
-	[ '*', '*', '*', '*', '*', [ '/slackemon battle-updates', 	 'UXXXXXXXX' ] ], // Runs every minute
-	[ '1', '1', '*', '*', '*', [ '/slackemon happiness-updates', 'UXXXXXXXX' ] ], // Runs once a day
+	[ '*', '*', '*', '*', '*', [ '/slackemon maybe-spawn', 		 'UXXXXXXXX', 'TXXXXXXXX' ] ], // Runs every minute
+	[ '*', '*', '*', '*', '*', [ '/slackemon battle-updates', 	 'UXXXXXXXX', 'TXXXXXXXX' ] ], // Runs every minute
+	[ '1', '1', '*', '*', '*', [ '/slackemon happiness-updates', 'UXXXXXXXX', 'TXXXXXXXX' ] ], // Runs once a day
 
-	//[ '*', '*', '*', '*', '*', [ '/command', 'UXXXXXXXX' ] ], // Runs every minute
+	//[ '*', '*', '*', '*', '*', [ '/command', 'UXXXXXXXX', 'TXXXXXXXX' ] ], // Runs every minute
 		
 	// The format is almost just like normal crons:
 	//
-	// 		[ 'MIN', 'HOUR', 'DATE', 'MONTH', 'DAY', [ '/COMMAND ARGS', 'USER-ID' ] ],
+	// 		[ 'MIN', 'HOUR', 'DATE', 'MONTH', 'DAY', [ '/COMMAND ARGS', 'USER-ID', 'TEAM-ID' ] ],
 	//
 	// For an individual Slashie to support cron, it MUST send through user_id and special_mode as POST vars when it
 	// calls its subcommand. Immediate responses echo'ed out in a Slashie will NOT be returned to the user for cronned
@@ -61,7 +61,7 @@ define( 'CRON_SCHEDULE', [
 
 ]); // CRON_SCHEDULE
 
-// The URL that cron & webhooks use to trigger commands
+// The URL used for the image cache and for cron to trigger commands
 // PLEASE INCLUDE THE TRAILING SLASH
 define( 'INBOUND_URL', 'https://example.com/slackemon/' );
 

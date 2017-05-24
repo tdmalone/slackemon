@@ -3,7 +3,7 @@
 // TM 28/01/2017
 // Functions that handle automation of Slackemon, generally via cron
 
-function run_automated_slashie( $command, $user_id, $options = [] ) {
+function run_automated_command( $command, $user_id, $team_id, $options = [] ) {
 
 	// Prepare the command and its arguments
 	$command_parts = explode( ' ', $command );
@@ -11,7 +11,6 @@ function run_automated_slashie( $command, $user_id, $options = [] ) {
 	$text = isset( $command_parts[1] ) ? join( ' ', array_slice( $command_parts, 1 ) ) : '';
 
 	// Get the team ID & command token
-	$team_id = SLACK_USERS[ $user_id ]['team_id'];
 	$token = SLACK_TOKENS_BY_COMMAND[ $team_id ][ $command ];
 
 	// Prepare options
@@ -23,16 +22,16 @@ function run_automated_slashie( $command, $user_id, $options = [] ) {
 
 		// The usual expected data
 		// Reference: https://api.slack.com/slash-commands#triggering_a_command
-		'token'		 	 	 => $token,
-		'team_id' 		 => $team_id,
-		'team_domain'  => '', // Unknown when autorun
-		'channel_id' 	 => '', // Unknown when autorun
-		'channel_name' => '', // Unknown when autorun
-		'user_id' 		 => $user_id,
-		'user_name' 	 => '', // Unknown when autorun
-		'command' 		 => $command,
-		'text' 				 => $text,
-		'response_url' => GENERIC_WEBHOOKS[ $team_id ],
+		'token'			=> $token,
+		'team_id' 		=> $team_id,
+		'team_domain' 	=> '', // Unknown when autorun
+		'channel_id'	=> '', // Unknown when autorun
+		'channel_name'	=> '', // Unknown when autorun
+		'user_id'		=> $user_id,
+		'user_name'		=> '', // Unknown when autorun
+		'command'		=> $command,
+		'text'			=> $text,
+		'response_url'	=> GENERIC_WEBHOOKS[ $team_id ],
 
 		// Our own custom data
 
@@ -52,13 +51,10 @@ function run_automated_slashie( $command, $user_id, $options = [] ) {
 	curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
 	$result = curl_exec( $ch );
 
-	// DEBUG ONLY - potential security risk as the token will be exposed
-	//preint( $params );
-
 	// Return the initial result of the automated command to the caller
 	return $result;
 
-} // Function run_automated_slashie
+} // Function run_automated_command
 
 function check_cron_value( $requested, $current ) {
 

@@ -5,8 +5,8 @@
 
 // Before starting, determine if we're receiving an inbound action or option request from our Slack app
 $payload = json_decode( file_get_contents( 'php://input' ) );
-if ( ! $payload && isset( $_POST['payload'] ) ) {
-	$payload = json_decode( $_POST['payload'] );
+if ( ! $payload && isset( $_REQUEST['payload'] ) ) {
+	$payload = json_decode( $_REQUEST['payload'] );
 }
 
 if ( $payload ) {
@@ -28,12 +28,12 @@ require_once( __DIR__ . '/init.php' );
 
 // Init the once-off, entry-point stuff
 define( 'COMMAND', ( // Support a command alias, or fallback to the directly defined command
-	isset( SLASH_COMMANDS[ $_POST['command'] ]['alias_of'] ) ?
-	SLASH_COMMANDS[ $_POST['command'] ]['alias_of'] :
-	$_POST['command']
+	defined( 'SLASH_COMMANDS' ) && isset( SLASH_COMMANDS[ $_REQUEST['command'] ]['alias_of'] ) ?
+	SLASH_COMMANDS[ $_REQUEST['command'] ]['alias_of'] :
+	$_REQUEST['command']
 ));
 define( 'MAINTAINER', ( // Support per-command maintainers, or fallback to global maintainers
-	isset( SLASH_COMMANDS[ COMMAND ]['maintainer'][ TEAM_ID ] ) ?
+	defined( 'SLASH_COMMANDS' ) && isset( SLASH_COMMANDS[ COMMAND ]['maintainer'][ TEAM_ID ] ) ?
 	SLASH_COMMANDS[ COMMAND ]['maintainer'][ TEAM_ID ] :
 	GLOBAL_MAINTAINERS[ TEAM_ID ]
 ));

@@ -28,7 +28,7 @@ function change_data_folder( $new_data_folder ) {
 function check_subcommands( $allowed_subcommands = [], $welcome_message = '' ) {
 
 	// Convert the arguments to lowercase & remove excess spaces
-	$args = explode( ' ', strtolower( preg_replace( '/\s+/', ' ', $_POST['text'] ) ) );
+	$args = explode( ' ', strtolower( preg_replace( '/\s+/', ' ', $_REQUEST['text'] ) ) );
 
 	if ( $welcome_message ) {
 		if ( ! count( $args ) || ! $args[0] || ! in_array( $args[0], $allowed_subcommands ) ) {
@@ -54,7 +54,7 @@ function get_command_settings( $command = COMMAND ) {
   	}
 
 	// Do we have a non-standard location for config.json?
-	if ( isset( SLASH_COMMANDS[ $command ]['entry_point'] ) ) {
+	if ( defined( 'SLASH_COMMANDS' ) && isset( SLASH_COMMANDS[ $command ]['entry_point'] ) ) {
 		$config_filename = __DIR__ . '/../' . dirname( SLASH_COMMANDS[ $command ]['entry_point'] ) . '/config.json';
 	} else {
 		$config_filename = __DIR__ . '/../' . substr( $command, 1 ) . '/config.json';
@@ -68,7 +68,7 @@ function get_command_settings( $command = COMMAND ) {
 	}
 
 	// Do we have a user config?
-	if ( isset( SLASH_COMMANDS[ $command ] ) ) {
+	if ( defined( 'SLASH_COMMANDS' ) && isset( SLASH_COMMANDS[ $command ] ) ) {
 		$user_config = SLASH_COMMANDS[ $command ];
 	} else {
 		$user_config = [];
@@ -93,7 +93,7 @@ function run_background_command( $path, $args, $additional_fields = [], $additio
 
 	// Should we timeout quickly? Because Slack requires a 3-second response, this is the default. However, custom
 	// implementations outside of Slack may want to wait and get the output.
-	if ( isset( $_POST['special_mode'] ) && 'RETURN' === $_POST['special_mode'] ) {
+	if ( isset( $_REQUEST['special_mode'] ) && 'RETURN' === $_REQUEST['special_mode'] ) {
 		$timeout = false;
 	} else {
 		$timeout = SLACKEMON_CURL_TIMEOUT;
@@ -106,20 +106,19 @@ function run_background_command( $path, $args, $additional_fields = [], $additio
 		// Reference: https://api.slack.com/slash-commands#triggering_a_command
 		'token'        => SLACK_TOKENS_BY_COMMAND[ TEAM_ID ][ COMMAND ],
 		'team_id'      => TEAM_ID,
-		'team_domain'  => $_POST['team_domain'],
-		'channel_id'   => $_POST['channel_id'],
-		'channel_name' => $_POST['channel_name'],
+		'team_domain'  => $_REQUEST['team_domain'],
+		'channel_id'   => $_REQUEST['channel_id'],
+		'channel_name' => $_REQUEST['channel_name'],
 		'user_id'      => USER_ID,
-		'user_name'    => $_POST['user_name'],
+		'user_name'    => $_REQUEST['user_name'],
 		'command'      => COMMAND,
-		'text'         => $_POST['text'],
+		'text'         => $_REQUEST['text'],
 		'response_url' => RESPONSE_URL,
 		
 		// Pass through our own custom data
 		'args'         => $args,
 		'maintainer'   => MAINTAINER,
-		'special_mode' => isset( $_POST['special_mode'] ) ? $_POST['special_mode'] : '', // For cron/webhook runs
-		'run_mode'     => isset( $_POST['run_mode'] )     ? $_POST['run_mode']     : 'slack', // For run mode logging
+		'special_mode' => isset( $_REQUEST['special_mode'] ) ? $_REQUEST['special_mode'] : '', // For cron runs
 		
 	];
 

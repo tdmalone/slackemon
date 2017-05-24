@@ -1,0 +1,7 @@
+{
+  "name": "Slackémon",
+  "description": "Inspired by Pokémon Go, now you can collect Pokémon and battle your teammates on Slack!",
+  "repository": "https://github.com/tdmalone/slackemon",
+  "logo": "https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/emoji/pokeball.png",
+  "keywords": ["php", "slack", "pokemon"]
+}

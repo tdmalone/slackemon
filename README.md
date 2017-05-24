@@ -1,10 +1,12 @@
-# Slackémon Go
+# Slackémon
 
 [![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy) (Heroku deployment is IN TESTING)
+
 Inspired by Pokémon Go, now you can catch and battle Pokémon with your teammates on Slack!
 
-**This program is very much a work in progress, and should be considered very *alpha*. If you have any questions you're welcome to log an issue, but please be aware that code may be messy/incomplete, and some things may not work. In addition, not all mechanics are implemented yet.**
+**This program is very much a WORK IN PROGRESS, and should be considered very *ALPHA*. If you have any questions you're welcome to log an issue, but please be aware that code may be messy/incomplete, and some things may not work. In addition, not all mechanics are implemented yet.**
 
 ## Screenshots
 
@@ -44,6 +46,7 @@ More screenshots can be found in the `_images/screenshots/` folder.
 Setup of Slackémon is _not_ quick. This may be worked on further in the future. For now, there are quite a few steps!
 
 1. Download/clone/etc. the contents of this repository, and put it on a web server somewhere that runs PHP7.
+    * Alternatively you can [deploy directly to Heroku](https://heroku.com/deploy)
 1. Log in to your Slack team, and visit https://api.slack.com/apps?new_app=1 to create a new App. You can call it whatever you like, but 'Slackémon' usually works best!
     1. From your App control page, take note of your App's 'token'
 1. Set up Slack's Interactive Messages
@@ -69,7 +72,7 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
     1. For the Slack key, enter the oAuth token you received when setting up the Slack app on your team
     1. **Optional**: To enable real-world weather integration, sign up for a free account at [OpenWeatherMap](http://openweathermap.org) and place your API key in as the Weather key
     1. Make up a random token to use to authenticate the cron runner - you'll need this again soon
-    1. Enter your user ID in the required place for each of the cron runs (if you have the capacity to set up a service user, it can be a good idea to use that here instead)
+    1. Enter your user ID and team ID in the required place for each of the cron runs (if you have the capacity to set up a service user, it can be a good idea to use that here instead)
     1. Adjust the cron schedule if you like:
         * Battle updates *must* happen every minute - changing this can cause turn reminders to be missed during PVP battles
         * The `maybe-spawn` command is designed to run every minute, as it chooses whether to spawn or not based on chance. However, you can limit the hours/days etc. as you desire, for example to cause spawns to only occur outside business hours if you wish your team to focus on their work.
@@ -97,7 +100,7 @@ A user guide will progressively be written at [this repo's wiki](https://github.
 
 Slackémon was first and foremost inspired by [Pokémon Go](http://www.pokemongo.com/). It borrows a few mechanics from Pokémon Go (mainly for simplicity), but as time goes on the aim is to be more true to the original Pokémon games wherever possible.
 
-The idea of doing this on Slack came from Robert Vinluan's [bot for having Pokemon battles in Slack](https://github.com/rvinluan/slack-pokemon). Inspiration has also been gleaned from [Pokémon Showdown](http://pokemonshowdown.com/) - and I will no doubt be making use of their battle data to further expand the moves Slackémon Go can deal with!
+The idea of doing this on Slack came from Robert Vinluan's [bot for having Pokemon battles in Slack](https://github.com/rvinluan/slack-pokemon). Inspiration has also been gleaned from [Pokémon Showdown](http://pokemonshowdown.com/) - and I will no doubt be making use of their battle data to further expand the moves Slackémon can deal with!
 
 Thank you to those who have done the hard yards in bringing together Pokémon sprites, particularly [PokeCSS](https://github.com/metaunicorn/pokecss-media).
 
@@ -105,7 +108,7 @@ Thank you to my co-worker [Julian](http://github.com/juz501), who has been my ma
 
 Thanks to [Slack](http://slack.com) for maintaining a well-documented, open API and inviting collaboration on their platform.
 
-Last but not least, this project would never have happened without the extensive work undertaken by Paul Hallet with [Pokéapi](http://pokeapi.co). Working on Slackémon has been fun rather than painful, thanks to the rich collection of readibly accessible data that Paul has collected and structured. Thank you!
+Last but not least, this project would never have happened without the extensive work undertaken by Paul Hallet at [Pokéapi](http://pokeapi.co). Working on Slackémon has been fun rather than painful, thanks to the rich collection of readibly accessible data that Paul and his team have collected and structured. Thank you!
 
 ## License
 

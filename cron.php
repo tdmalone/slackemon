@@ -14,7 +14,7 @@ if (
 	( ! isset( $_GET['token'] ) || CRON_TOKEN !== $_GET['token'] )
 ) {
 	http_response_code( 403 );
-	exit( 'Not authorised [C].' );
+	exit( 'Not authorised for this cron request.' );
 }
 
 // Set the current time and date parameters
@@ -44,9 +44,10 @@ foreach ( CRON_SCHEDULE as $item ) {
 	// Prepare data
 	$command = $item[5][0];
 	$user_id = $item[5][1];
+	$team_id = $item[5][2];
 
 	// Run the command, and output the initial result back to the cron caller
-	$result = run_automated_slashie( $command, $user_id, [ 'run_mode' => 'cron' ] );
+	$result = run_automated_command( $command, $user_id, $team_id, [ 'run_mode' => 'cron' ] );
 	echo $result;
 
 } // Foreach CRON_SCHEDULE $item

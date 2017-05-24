@@ -6,6 +6,37 @@
 require( __DIR__ . '/slack.php'	 );
 require( __DIR__ . '/pokemon/pokemon.php' );
 
+/** Get a URL using curl, and return the result. TODO: Allow e-mail/version/etc. here to be changed in config. */
+function get_url( $url, $options = [] ) {
+
+	// Get the maintainer's e-mail, or fallback to the Slackemon developer's e-mail address if not available
+	$maintainer_email = defined( 'MAINTAINER' ) ? get_user_email_address( MAINTAINER ) : 'tdmalone@gmail.com';
+
+	$ch = curl_init();
+	curl_setopt( $ch, CURLOPT_URL, $url );
+	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+	curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false ); // TODO: See http://php.net/manual/en/function.curl-setopt.php#110457
+	curl_setopt( $ch, CURLOPT_USERAGENT, 'Slackemon for Slack (' . $maintainer_email . ')' );
+
+	if ( isset( $options['curl_options'] ) ) {
+		foreach( $options['curl_options'] as $key => $value ) {
+			curl_setopt( $ch, $key, $value );
+		}
+	}
+
+	$result = curl_exec( $ch );
+
+	if ( false === $result ) {
+    send2slack( ':no_entry: ' . curl_error( $ch ) . "\n" . '_' . $url . '_' ); // Send errors to Slack
+    curl_close( $ch );
+    exit();
+  }
+
+	curl_close( $ch );
+	return $result;
+	
+} // Function get_url
+
 /** Easily manage cache of individual URLs. */
 function get_cached_url( $url, $options = [] ) {
 	global $data_folder;

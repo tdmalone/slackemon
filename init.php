@@ -14,6 +14,9 @@ define( 'MONTH_IN_SECONDS',  30 * DAY_IN_SECONDS    );
 define( 'YEAR_IN_SECONDS',  365 * DAY_IN_SECONDS    );
 
 // Require local config
+if ( ! file_exists( __DIR__ . '/config.php' ) ) {
+	exit( 'Missing local config file. Have you copied the sample config?' );
+}
 require_once( __DIR__ . '/config.php' );
 
 // Check that this request is authorised
@@ -21,12 +24,12 @@ require_once( __DIR__ . '/config.php' );
 // does its own authorisation!
 if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
 
-	if ( isset( $event ) || isset( $action ) || isset( $options_request ) ) {
+	if ( isset( $action ) || isset( $options_request ) ) {
 
-		// Event or action auth
+		// Action or options request auth
 
-		$auth_data   = isset( $event ) ? $event   : ( isset( $action ) ? $action   : $options_request  );
-		$auth_reason = isset( $event ) ? 'events' : ( isset( $action ) ? 'actions' : 'options' );
+		$auth_data   = isset( $action ) ? $action   : $options_request;
+		$auth_reason = isset( $action ) ? 'actions' : 'options';
 
 		if (
 			! isset( $auth_data->token ) ||
@@ -37,7 +40,10 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
 			SLACK_TOKENS[ $auth_data->token ][ 'team_id' ] !== $auth_data->team->id
 		) {
 			http_response_code( 403 );
-			exit( 'Not authorised [E].' );
+			exit(
+				'Not authorised for this action or options request. ' .
+				'Check that your app token has been configured properly.'
+			);
 		}
 
 	} else {
@@ -45,19 +51,22 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
 		// General slash command auth
 
 		if (
-			! isset( $_POST['token'] ) ||
-			! array_key_exists( $_POST['token'], SLACK_TOKENS ) ||
-			SLACK_TOKENS[ $_POST['token'] ]['team_id'] !== $_POST['team_id'] ||
+			! isset( $_REQUEST['token'] ) ||
+			! array_key_exists( $_REQUEST['token'], SLACK_TOKENS ) ||
+			SLACK_TOKENS[ $_REQUEST['token'] ]['team_id'] !== $_REQUEST['team_id'] ||
 			(
-				isset( SLACK_TOKENS[ $_POST['token'] ]['commands'] ) &&
-				! in_array( $_POST['command'], SLACK_TOKENS[ $_POST['token'] ]['commands'] )
+				isset( SLACK_TOKENS[ $_REQUEST['token'] ]['commands'] ) &&
+				! in_array( $_REQUEST['command'], SLACK_TOKENS[ $_REQUEST['token'] ]['commands'] )
 			) || (
-				isset( SLACK_TOKENS[ $_POST['token'] ]['command'] ) &&
-				SLACK_TOKENS[ $_POST['token'] ]['command'] !== $_POST['command']
+				isset( SLACK_TOKENS[ $_REQUEST['token'] ]['command'] ) &&
+				SLACK_TOKENS[ $_REQUEST['token'] ]['command'] !== $_REQUEST['command']
 			)
 		) {
 			http_response_code( 403 );
-			exit( 'Not authorised [I].' );
+			exit(
+				'Not authorised for this command invocation. ' .
+				'Check that your app token has been configured properly.'
+			);
 		}
 	}
 } // If not SKIP_AUTH
@@ -69,25 +78,22 @@ require_once( __DIR__ . '/_functions/functions.php' );
 change_data_folder( $data_folder );
 
 // Define our constants (slash command invocation mode)
-if ( ! defined( 'USER_ID' ) && isset( $_POST['user_id'] ) ) {
+if ( ! defined( 'USER_ID' ) && isset( $_REQUEST['user_id'] ) ) {
 
 	// Set some Slack defaults right away
-	define( 'TEAM_ID',      $_POST['team_id']      );
-	define( 'USER_ID',      $_POST['user_id']      );
-	define( 'RESPONSE_URL', $_POST['response_url'] );
-
-	// Set custom variables that we know we now have access to
-	define( 'GENERIC_WEBHOOK', GENERIC_WEBHOOKS[ TEAM_ID ] );
+	define( 'TEAM_ID',      $_REQUEST['team_id']      );
+	define( 'USER_ID',      $_REQUEST['user_id']      );
+	define( 'RESPONSE_URL', $_REQUEST['response_url'] );
 
 	// Determine if other custom variables have already been set, and if so, assign them, if not, index.php will set them
-	if ( ! defined( 'MAINTAINER' ) && isset( $_POST['maintainer'] ) ) {
+	if ( ! defined( 'MAINTAINER' ) && isset( $_REQUEST['maintainer'] ) ) {
 
 		if ( isset( SLACK_USERS[ USER_ID ] ) ) {
 			define( 'USER', SLACK_USERS[ USER_ID ] );
 		}
 
-		define( 'MAINTAINER', $_POST['maintainer'] );
-		define( 'COMMAND',    $_POST['command']    );
+		define( 'MAINTAINER', $_REQUEST['maintainer'] );
+		define( 'COMMAND',    $_REQUEST['command']    );
 		
 	}
 
@@ -105,9 +111,6 @@ if ( ! defined( 'USER_ID' ) && ( isset( $action->user ) || isset( $options_reque
 	if ( isset( $request->response_url ) ) {
 		define( 'RESPONSE_URL', $request->response_url );
 	}
-
-	// Set custom variables that we know we now have access to
-	define( 'GENERIC_WEBHOOK', GENERIC_WEBHOOKS[ TEAM_ID ] );
 
 	if ( isset( SLACK_USERS[ USER_ID ] ) ) {
 		define( 'USER', SLACK_USERS[ USER_ID ] );
