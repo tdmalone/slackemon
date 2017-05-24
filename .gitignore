@@ -1,3 +1,4 @@
 /.data/
 /.image-cache/
+/vendor/
 /config.php
