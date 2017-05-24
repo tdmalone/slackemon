@@ -44,6 +44,10 @@ define( 'CRON_TOKEN', 'XXXXXXXXXXXXXXXXXXXX' );
 // Cron schedule (will only work if cron.php is run every minute by your system)
 define( 'CRON_SCHEDULE', [
 
+	[ '*', '*', '*', '*', '*', [ '/slackemon maybe-spawn', 		 'UXXXXXXXX' ] ], // Runs every minute
+	[ '*', '*', '*', '*', '*', [ '/slackemon battle-updates', 	 'UXXXXXXXX' ] ], // Runs every minute
+	[ '1', '1', '*', '*', '*', [ '/slackemon happiness-updates', 'UXXXXXXXX' ] ], // Runs once a day
+
 	//[ '*', '*', '*', '*', '*', [ '/command', 'UXXXXXXXX' ] ], // Runs every minute
 		
 	// The format is almost just like normal crons:
@@ -61,26 +65,28 @@ define( 'CRON_SCHEDULE', [
 // PLEASE INCLUDE THE TRAILING SLASH
 define( 'INBOUND_URL', 'https://example.com/slackemon/' );
 
-// The number of seconds that will be waited for when calling a background command/action
-// You will usually want 1 second for this, but some servers may need longer
-// Keep in mind that too long will cause Slack itself to timeout (it allows up to 3 seconds for the *total* roundtrip)
-define( 'SLACKEMON_CURL_TIMEOUT', 1 );
-
 // Configure the image cache - two methods are supported; either local, or via an AWS S3 bucket (or you can disable)
 // You should use the AWS option unless you are hosting Slackemon on a suitably fast server/connection
 // If using the local option, please ensure your INBOUND_URL is correct!
 define( 'SLACKEMON_IMAGE_CACHE', [
+
 	'method' 	 => 'local', // 'aws', 'local', or 'disabled'
 	'folder' 	 => __DIR__ . '/.image-cache', // Please start with __DIR__ then a slash, and don't end with a slash
+
+	// Only required if using 'aws' above
 	'aws_id' 	 => 'XXXXXXXXXXXXXXXXXXXX',
 	'aws_secret' => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 	'aws_region' => 'us-east-1', // 'us-east-1' is recommended, as it is the same region Slack uses!
 	'aws_bucket' => 'slackemon',
+
 ]);
 
 // Default timezone
 // User specific timezones are not yet supported
 date_default_timezone_set( 'Australia/Melbourne' );
+
+// Weather location (default is Melbourne, Australia)
+define( 'SLACKEMON_WEATHER_LAT_LON', '-37.81,144.96' );
 
 // Default monetary locale
 // Used for displaying the correct currency formatting

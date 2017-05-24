@@ -11,7 +11,6 @@ define( 'SLACKEMON_VERSION', '0.0.34' );
 $_slackemon_constant_defaults = [
 
   // This can be useful to change in local development config, to send action data to another predefined location
-  // See ../actions.php for more information including pre-set action handler prefixes
   'ACTION_CALLBACK_ID'     => 'slackemon',
 
   'ADDITIONAL_NEWS'        => [],
@@ -27,6 +26,12 @@ $_slackemon_constant_defaults = [
   'BATTLE_FLEE_MULTIPLIER' => 3,
 
   'BATTLE_TEAM_SIZE'       => 3,
+
+  // The number of seconds that will be waited for when calling a background command/action
+  // You will usually want 1 second for this, but some servers may need longer
+  // Keep in mind that too long will cause Slack itself to timeout (it allows up to 3 seconds for the *total* roundtrip)
+  'CURL_TIMEOUT'           => 1,
+
   'DATE_FORMAT'            => 'D jS M \a\t g:ia',
   'DEFAULT_REGION'         => 'kanto',
 
