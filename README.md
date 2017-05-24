@@ -46,6 +46,7 @@ More screenshots can be found in the `_images/screenshots/` folder.
 Setup of Slackémon is _not_ quick. This may be worked on further in the future. For now, there are quite a few steps!
 
 1. Download/clone/etc. the contents of this repository, and put it on a web server somewhere that runs PHP7.
+    * Alternatively you can deploy it locally with docker [create wiki page]()
     * Alternatively you can [deploy directly to Heroku](https://heroku.com/deploy)
 1. Log in to your Slack team, and visit https://api.slack.com/apps?new_app=1 to create a new App. You can call it whatever you like, but 'Slackémon' usually works best!
     1. From your App control page, take note of your App's 'token'
