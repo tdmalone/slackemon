@@ -1,5 +1,5 @@
-.data
-.image-cache
-vendor
-config.php
+/.data/
+/.image-cache/
+/vendor/
+/config.php
 .env
