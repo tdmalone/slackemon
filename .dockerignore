@@ -1,0 +1,7 @@
+.env
+.env.example
+composer.json
+composer.lock
+Dockerfile
+README.md
+.gitignore

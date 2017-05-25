@@ -2,3 +2,4 @@
 /.image-cache/
 /vendor/
 /config.php
+.env
