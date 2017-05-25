@@ -3,101 +3,75 @@
 // TM 09/12/2016
 // Config options for Slackemon
 
-// A reminder that Slackemon requires PHP7. Much of this config file assigns arrays as values to constants, which
-// is not supported on prior versions of PHP.
+// Although Slackemon installs only officially support one Slack team at present, it is not far away from supporting
+// multiple teams on one install. Many of the config constants below therefore contain a team ID in the constant name.
 
-define( 'SLACK_TOKENS', [
+// ENSURE YOU COPY THIS FILE TO CONFIG.PHP BEFORE YOU EDIT IT.
+// Configuration via environment variables is also available. If you want to use env vars instead, there is no need to
+// copy or edit this file - just ensure you define each of the constants referenced below.
 
-	// Slack App token
-	// Please enter your token in place of the XXXXXXXXXXXXXXXXXXXXXXXX, and enter your team_id also
-	// Make sure 'actions' and 'options' are set to true so that these validate for your app also
-	'XXXXXXXXXXXXXXXXXXXXXXXX' => [
-		'team_id' => 'TXXXXXXXX',
-		'actions' => true,
-		'options' => true,
-		'commands' => [
-			'/slackemon',
-		],
-	],
+// Slack App token
+define( 'SLACK_TOKEN_TXXXXXXXX', 'XXXXXXXXXXXXXXXXXXXXXXXX' );
 
-]);
-
-// The username of the global team maintainer, who people can be directed to contact for help when
-// errors occur. The array key is the team ID; the value is the user ID.
-define( 'GLOBAL_MAINTAINERS', [
-	'TXXXXXXXX' => 'UXXXXXXXX',
-]);
+// The Slack user ID of the team maintainer, who people can be directed to contact for help when errors occur.
+define( 'MAINTAINER_TXXXXXXXX', 'UXXXXXXXX' );
 
 // API keys for accessing external services
-define( 'SERVICES', [
-
-	'slack'   => [ 'key' => '' ],
-	'weather' => [ 'key' => '' ],
-	
-]);
+define( 'SLACK_KEY__TXXXXXXXX', 'xoxp-0000000000-000000000000-000000000000-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' );
+define( 'WEATHER_KEY', 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' ); // Optional
 
 // Set a random token that cron.php will check for before running
-// When you cron cron.php, make sure you send the token too - eg. cron.php?token=XXXXXXXXXXXXXXXXXXXX
-// This protects the cron from being invoked by another source, which could result in multiple command runs
+// When you cron cron.php, make sure you send the token too - eg. cron.php?token=XXXXX or `php cron.php --token=XXXXX`
+// This protects the cron from being invoked by another source
 define( 'CRON_TOKEN', 'XXXXXXXXXXXXXXXXXXXX' );
 
-// Cron schedule (will only work if cron.php is run every minute by your system)
+// Cron schedule (will only work if cron.php is run every minute by your system; see above)
+// TODO: AN ENVIRONMENT VARIABLE ALTERNATIVE FOR THE CRON SCHEDULE DOES NOT YET EXIST
 define( 'CRON_SCHEDULE', [
 
 	[ '*', '*', '*', '*', '*', [ '/slackemon maybe-spawn', 		 'UXXXXXXXX', 'TXXXXXXXX' ] ], // Runs every minute
 	[ '*', '*', '*', '*', '*', [ '/slackemon battle-updates', 	 'UXXXXXXXX', 'TXXXXXXXX' ] ], // Runs every minute
 	[ '1', '1', '*', '*', '*', [ '/slackemon happiness-updates', 'UXXXXXXXX', 'TXXXXXXXX' ] ], // Runs once a day
-
-	//[ '*', '*', '*', '*', '*', [ '/command', 'UXXXXXXXX', 'TXXXXXXXX' ] ], // Runs every minute
 		
-	// The format is almost just like normal crons:
-	//
-	// 		[ 'MIN', 'HOUR', 'DATE', 'MONTH', 'DAY', [ '/COMMAND ARGS', 'USER-ID', 'TEAM-ID' ] ],
-	//
-	// For an individual Slashie to support cron, it MUST send through user_id and special_mode as POST vars when it
-	// calls its subcommand. Immediate responses echo'ed out in a Slashie will NOT be returned to the user for cronned
-	// commands. If this behaviour is desired outside of a subcommand, please use send2slack() rather than echo() when
-	// writing the command.
-
-]); // CRON_SCHEDULE
-
-// The URL used for the image cache and for cron to trigger commands
-// PLEASE INCLUDE THE TRAILING SLASH
-define( 'INBOUND_URL', 'https://example.com/slackemon/' );
-
-// Configure the image cache - two methods are supported; either local, or via an AWS S3 bucket (or you can disable)
-// You should use the AWS option unless you are hosting Slackemon on a suitably fast server/connection
-// If using the local option, please ensure your INBOUND_URL is correct!
-define( 'SLACKEMON_IMAGE_CACHE', [
-
-	'method' 	 => 'local', // 'aws', 'local', or 'disabled'
-	'folder' 	 => __DIR__ . '/.image-cache', // Please start with __DIR__ then a slash, and don't end with a slash
-
-	// Only required if using 'aws' above
-	'aws_id' 	 => 'XXXXXXXXXXXXXXXXXXXX',
-	'aws_secret' => 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-	'aws_region' => 'us-east-1', // 'us-east-1' is recommended, as it is the same region Slack uses!
-	'aws_bucket' => 'slackemon',
+	// The format is almost just like normal crons, and supports * / and - values:
+	// [ 'MIN', 'HOUR', 'DATE', 'MONTH', 'DAY', [ '/COMMAND ARGS', 'USER-ID', 'TEAM-ID' ] ],
 
 ]);
 
+// The URL used for the image cache (if caching locally) and for cron to trigger commands
+// PLEASE INCLUDE THE TRAILING SLASH
+define( 'INBOUND_URL', 'https://example.com/slackemon/' );
+
+// Configure the data cache/store - two methods are support; either local, or via an AWS S3 bucket
+// Local is recommended, unless you're hosting on a service with a ephemeral filesystem
+// The data cache cannot be disabled - it is required to run Slackemon
+define( 'DATA_CACHE_METHOD', 'local' ); // 'aws' or 'local'
+define( 'DATA_CACHE_FOLDER', __DIR__ . '/.data' ); // Only required if using local
+define( 'DATA_CACHE_BUCKET', 'slackemon-data'   ); // Only required if using aws
+
+// Configure the image cache - two methods are supported; either local, or via an AWS S3 bucket (or you can disable).
+// You should use the AWS option unless you are hosting Slackemon on a suitably fast server/connection.
+// Please do NOT disable the image cache unless doing so for a short time for testing - otherwise it will cause unfair
+// load for the external resources that Slackemon uses.
+define( 'IMAGE_CACHE_METHOD', 'local' ); // 'aws', 'local', or 'disabled'
+define( 'IMAGE_CACHE_FOLDER', __DIR__ . '/.image-cache' ); // Only required if using local
+define( 'IMAGE_CACHE_BUCKET', 'slackemon-images'        ); // Only required if using aws
+
+// AWS access details
+// Only required if using 'aws' for either the data cache or image cache above
+define( 'AWS_ID',     'XXXXXXXXXXXXXXXXXXXX' );
+define( 'AWS_SECRET', 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' );
+define( 'AWS_REGION', 'us-east-1' ); // 'us-east-1' is recommended, as it is the same region Slack uses!
+
 // Default timezone
 // User specific timezones are not yet supported
-date_default_timezone_set( 'Australia/Melbourne' );
+define( 'DEFAULT_TIMEZONE', 'Australia/Melbourne' );
 
 // Weather location (default is Melbourne, Australia)
 define( 'SLACKEMON_WEATHER_LAT_LON', '-37.81,144.96' );
 
 // Default monetary locale
 // Used for displaying the correct currency formatting
-setlocale( LC_MONETARY, 'en_AU' );
-
-// Global data folder
-// If you change this, you might need to update .gitignore, so generally best to leave it!
-//
-// Please keep in mind:
-// - Bad things may happen if you don't start the data folder with __DIR__
-// - After the __DIR__, use a slash, but don't end with a slash
-$data_folder = __DIR__ . '/.data';
+define( 'DEFAULT_MONETARY_LOCALE', 'en_AU' );
 
 // The end!

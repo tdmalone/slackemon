@@ -13,11 +13,19 @@ define( 'WEEK_IN_SECONDS',    7 * DAY_IN_SECONDS    );
 define( 'MONTH_IN_SECONDS',  30 * DAY_IN_SECONDS    );
 define( 'YEAR_IN_SECONDS',  365 * DAY_IN_SECONDS    );
 
-// Require local config
-if ( ! file_exists( __DIR__ . '/config.php' ) ) {
+// Require local config, or get config from environment variables
+if ( file_exists( __DIR__ . '/config.php' ) ) {
+	require_once( __DIR__ . '/config.php' );
+} else {
+	exit( 'Missing local config file. Have you copied the sample config?' );
+} else {
 	exit( 'Missing local config file. Have you copied the sample config?' );
 }
-require_once( __DIR__ . '/config.php' );
+
+// Set some config variables in stone
+date_default_timezone_set( DEFAULT_TIMEZONE );
+setlocale( LC_MONETARY, DEFAULT_MONETARY_LOCALE );
+$data_folder = DATA_CACHE_FOLDER;
 
 // Check that this request is authorised
 // Authorisation can be skipped by the calling file by setting SKIP_AUTH to true - this should only be done if the file

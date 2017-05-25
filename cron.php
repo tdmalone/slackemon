@@ -19,10 +19,10 @@ if (
 
 // Set the current time and date parameters
 define( 'MINUTE', (int) date( 'i' ) );
-define( 'HOUR', (int) date( 'G' ) );
-define( 'DATE', (int) date( 'j' ) );
-define( 'MONTH', (int) date( 'n' ) );
-define( 'DAY', (int) date( 'w' ) );
+define( 'HOUR',   (int) date( 'G' ) );
+define( 'DATE',   (int) date( 'j' ) );
+define( 'MONTH',  (int) date( 'n' ) );
+define( 'DAY',    (int) date( 'w' ) );
 
 // Output the current time and date environment
 echo MINUTE . ' ' . HOUR . ' ' . DATE . ' ' . MONTH . ' ' . DAY;
