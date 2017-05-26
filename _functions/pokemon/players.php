@@ -78,30 +78,19 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
 
   // Version migrations for player data
 
-  // v0.0.34
-  // - Add bonus happiness increases to Pokemon based on total EVs, due to bug with happiness not sticking after battles
-  if ( '0.0.34' !== $player_data->version ) {
+  // v0.0.36
+  // - Now that spawned Pokemon are correctly saved with their species name rather than variety name, fix any previously
+  //   caught Deoxys
+  if ( '0.0.36' !== $player_data->version ) {
 
-    $player_data->version = '0.0.34';
+    $player_data->version = '0.0.36';
 
     foreach ( $player_data->pokemon as $_pokemon ) {
 
-      if ( ! isset( $_pokemon->evs ) ) {
-        continue;
+      if ( 'deoxys-normal' === $_pokemon->name ) {
+        $_pokemon->name    = 'deoxys';
+        $_pokemon->variety = 'deoxys-normal';
       }
-
-      $evs = slackemon_get_combined_evs( $_pokemon->evs );
-
-      // For each 10 EVs, assume a level up occurred, and therefore add happiness points
-      // See battles.php for more about how happiness is added
-      if ( $_pokemon->happiness < 100 ) {
-        $_pokemon->happiness += $evs / 10 * 5;
-      } else if ( $_pokemon->happiness < 200 ) {
-        $_pokemon->happiness += $evs / 10 * 3;
-      } else {
-        $_pokemon->happiness += $evs / 10 * 2;
-      }
-      $_pokemon->happiness = min( 255, $_pokemon->happiness );
 
     }
 
