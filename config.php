@@ -1,37 +1,54 @@
 <?php
 
 // TM 09/12/2016
-// Config options for Slackemon
+// Apply Slackemon config
 
-// Although Slackemon installs only officially support one Slack team at present, it is not far away from supporting
-// multiple teams on one install. Many of the config constants below therefore contain a team ID in the constant name.
+$SLACKEMON_SLACK_TOKEN        = getenv( 'SLACKEMON_SLACK_TOKEN' );
+$SLACKEMON_SLACK_TEAM_ID      = getenv( 'SLACKEMON_SLACK_TEAM_ID' );
+$SLACKEMON_SLACK_MAINTAINER   = getenv( 'SLACKEMON_SLACK_MAINTAINER' );
 
-// ENSURE YOU COPY THIS FILE TO CONFIG.PHP BEFORE YOU EDIT IT.
-// Configuration via environment variables is also available. If you want to use env vars instead, there is no need to
-// copy or edit this file - just ensure you define each of the constants referenced below.
+$SLACKEMON_SLACK_KEY          = getenv( 'SLACKEMON_SLACK_KEY' );
+$SLACKEMON_OPENWEATHERMAP_KEY = getenv( 'SLACKEMON_OPENWEATHERMAP_KEY' );
 
-$SLACKEMON_SLACK_TOKEN = getenv('SLACKEMON_SLACK_TOKEN');
-$SLACKEMON_SLACK_TEAM_ID = getenv('SLACKEMON_SLACK_TEAM_ID');
-$SLACKEMON_SLACK_GLOBAL_MAINTAINER = getenv('SLACKEMON_SLACK_GLOBAL_MAINTAINER');
-$SLACKEMON_CRON_TOKEN = getenv('SLACKEMON_CRON_TOKEN');
-$SLACKEMON_AWS_ID = getenv('SLACKEMON_AWS_ID');
-$SLACKEMON_AWS_SECRET = getenv('SLACKEMON_AWS_SECRET');
-$SLACKEMON_OPENWEATHERMAP_TOKEN = getenv('SLACKEMON_OPENWEATHERMAP_TOKEN');
+$SLACKEMON_CRON_TOKEN         = getenv( 'SLACKEMON_CRON_TOKEN' );
 
-if (!($SLACKEMON_SLACK_TOKEN && $SLACKEMON_SLACK_TEAM_ID && $SLACKEMON_SLACK_GLOBAL_MAINTAINER && $SLACKEMON_CRON_TOKEN && $SLACKEMON_AWS_ID && $SLACKEMON_AWS_SECRET && $SLACKEMON_OPENWEATHERMAP_TOKEN)) {
+$SLACKEMON_INBOUND_URL        = getenv( 'SLACKEMON_INBOUND_URL' );
+
+$SLACKEMON_DATA_CACHE_METHOD  = getenv( 'SLACKEMON_DATA_CACHE_METHOD' );
+$SLACKEMON_DATA_CACHE_FOLDER  = getenv( 'SLACKEMON_DATA_CACHE_FOLDER' );
+$SLACKEMON_DATA_CACHE_BUCKET  = getenv( 'SLACKEMON_DATA_CACHE_BUCKET' );
+
+$SLACKEMON_IMAGE_CACHE_METHOD = getenv( 'SLACKEMON_IMAGE_CACHE_METHOD' );
+$SLACKEMON_IMAGE_CACHE_FOLDER = getenv( 'SLACKEMON_IMAGE_CACHE_FOLDER' );
+$SLACKEMON_IMAGE_CACHE_BUCKET = getenv( 'SLACKEMON_IMAGE_CACHE_BUCKET' );
+
+$SLACKEMON_AWS_ID             = getenv( 'SLACKEMON_AWS_ID' );
+$SLACKEMON_AWS_SECRET         = getenv( 'SLACKEMON_AWS_SECRET' );
+$SLACKEMON_AWS_REGION         = getenv( 'SLACKEMON_AWS_REGION' );
+
+$SLACKEMON_TIMEZONE           = getenv( 'SLACKEMON_TIMEZONE' );
+$SLACKEMON_WEATHER_LAT_LON    = getenv( 'SLACKEMON_WEATHER_LAT_LON' );
+$SLACKEMON_MONETARY_LOCALE    = getenv( 'SLACKEMON_MONETARY_LOCALE' );
+
+if ( ! ( $SLACKEMON_SLACK_TOKEN && $SLACKEMON_SLACK_TEAM_ID && $SLACKEMON_SLACK_GLOBAL_MAINTAINER && $SLACKEMON_CRON_TOKEN && $SLACKEMON_AWS_ID && $SLACKEMON_AWS_SECRET && $SLACKEMON_OPENWEATHERMAP_TOKEN ) ) {
+
     // If one of the above fields is false, try to fetch it from Dotenv
     require __DIR__ . '/vendor/autoload.php';
-    $dotenv = new Dotenv\Dotenv(__DIR__);
-    $dotenv->load();
+    $dotenv = new Dotenv\Dotenv();
+    if ( getenv( 'APP_ENV' ) === 'development' ) {
+        $dotenv->load( __DIR__ );
+    }
+
     // Assign variable from newly populated env
-    $SLACKEMON_SLACK_TOKEN = getenv('SLACKEMON_SLACK_TOKEN');
-    $SLACKEMON_SLACK_TEAM_ID = getenv('SLACKEMON_SLACK_TEAM_ID');
-    $SLACKEMON_SLACK_GLOBAL_MAINTAINER = getenv('SLACKEMON_SLACK_GLOBAL_MAINTAINER');
-    $SLACKEMON_CRON_TOKEN = getenv('SLACKEMON_CRON_TOKEN');
-    $SLACKEMON_AWS_ID = getenv('SLACKEMON_AWS_ID');
-    $SLACKEMON_AWS_SECRET = getenv('SLACKEMON_AWS_SECRET');
-    $SLACKEMON_OPENWEATHERMAP_TOKEN = getenv('SLACKEMON_OPENWEATHERMAP_TOKEN');
+    $SLACKEMON_SLACK_TOKEN             = getenv( 'SLACKEMON_SLACK_TOKEN' );
+    $SLACKEMON_SLACK_TEAM_ID           = getenv( 'SLACKEMON_SLACK_TEAM_ID' );
+    $SLACKEMON_SLACK_GLOBAL_MAINTAINER = getenv( 'SLACKEMON_SLACK_GLOBAL_MAINTAINER' );
+    $SLACKEMON_CRON_TOKEN              = getenv( 'SLACKEMON_CRON_TOKEN' );
+    $SLACKEMON_AWS_ID                  = getenv( 'SLACKEMON_AWS_ID' );
+    $SLACKEMON_AWS_SECRET              = getenv( 'SLACKEMON_AWS_SECRET' );
+    $SLACKEMON_OPENWEATHERMAP_TOKEN    = getenv( 'SLACKEMON_OPENWEATHERMAP_TOKEN' );
     # print('Loaded from Dotenv lib');
+
 } else {
     # print('Loaded from memory');
 }
