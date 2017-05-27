@@ -384,6 +384,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
 
     $message['attachments'][] = [
       'text' => (
+        ( $is_desktop ? ':' . $pokemon->name . ': ' : '' ) .
         '*' .
         pokedex_readable( $pokemon->name, false ) .
         slackemon_get_gender_symbol( $pokemon->gender ) . ' ' .

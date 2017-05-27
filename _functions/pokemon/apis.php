@@ -133,8 +133,10 @@ function slackemon_get_item_data( $item_name_or_id ) {
   if ( $item_data ) {
 
     // Potential item category rewrite
-    $item_data->original_category_name = $item_data->category->name;
-    $item_data->category->name = slackemon_rewrite_item_category( $item_data->category->name, $item_data );
+    if ( isset( $item_data->category->name ) ) {
+      $item_data->original_category_name = $item_data->category->name;
+      $item_data->category->name = slackemon_rewrite_item_category( $item_data->category->name, $item_data );
+    }
 
     // Supplementary item data
     $supplementary_item_data = slackemon_get_supplementary_item_data();
