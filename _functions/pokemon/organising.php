@@ -472,7 +472,11 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     $attachment_actions = [
       [
         'name'  => $pokemon->is_favourite ? 'unfavourite' : 'favourite',
-        'text'  => $pokemon->is_favourite ? ':sparkling_heart:' : ':blue_heart:',
+        'text'  => (
+          $is_desktop ?
+          ( $pokemon->is_favourite ? ':sparkling_heart:' : ':blue_heart:' ) :
+          ( $pokemon->is_favourite ? ':sparkling_heart: Unfavourite' : ':blue_heart: Favourite' )
+        ),
         'type'  => 'button',
         'value' => $pokemon->ts,
         'style' => $pokemon->is_favourite ? 'primary' : '',

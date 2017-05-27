@@ -420,7 +420,11 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
       'actions' => [
         [
           'name'  => $pokemon->is_favourite ? 'unfavourite' : 'favourite',
-          'text'  => $pokemon->is_favourite ? ':sparkling_heart:' : ':blue_heart:',
+          'text'  => (
+            $is_desktop ?
+            ( $pokemon->is_favourite ? ':sparkling_heart:' : ':blue_heart:' ) :
+            ( $pokemon->is_favourite ? ':sparkling_heart: Favourite' : ':blue_heart: Favourite' )
+          ),
           'type'  => 'button',
           'value' => $pokemon->ts,
           'style' => $pokemon->is_favourite ? 'primary' : '',
@@ -493,13 +497,15 @@ function slackemon_get_favourite_message( $action ) {
   $message['text'] = $action->original_message->text;
   $message['attachments'] = $action->original_message->attachments;
 
+  $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
+
   // Loop through each attachment. If the current attachment, find the 'favourite' button, & change it to 'unfavourite'.
   foreach ( $message['attachments'] as $outer_key => $attachment ) {
     if ( $outer_key === $action->attachment_id - 1 ) {
       foreach ( $attachment->actions as $inner_key => $action_button ) {
         if ( $action_button->name === 'favourite' ) {
           $action_button->name = 'unfavourite';
-          $action_button->text = ':sparkling_heart:';
+          $action_button->text = ':sparkling_heart:' . ( $is_desktop ? '' : ' Favourite' );
           $action_button->style = 'primary';
           $attachment->actions[ $inner_key ] = $action_button;
         }
@@ -518,13 +524,15 @@ function slackemon_get_unfavourite_message( $action ) {
   $message['text'] = $action->original_message->text;
   $message['attachments'] = $action->original_message->attachments;
 
+  $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
+
   // Like adding, loop through each attachment and change the 'unfavourite' button to 'favourite' :)
   foreach ( $message['attachments'] as $outer_key => $attachment ) {
     if ( $outer_key === $action->attachment_id - 1 ) {
       foreach ( $attachment->actions as $inner_key => $action_button ) {
         if ( 'unfavourite' === $action_button->name ) {
           $action_button->name = 'favourite';
-          $action_button->text = ':blue_heart:';
+          $action_button->text = ':blue_heart:' . ( $is_desktop ? '' : ' Favourite' );
           $action_button->style = '';
           $attachment->actions[ $inner_key ] = $action_button;
         }
