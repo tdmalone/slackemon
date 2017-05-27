@@ -18,8 +18,6 @@ if ( file_exists( __DIR__ . '/config.php' ) ) {
 	require_once( __DIR__ . '/config.php' );
 } else {
 	exit( 'Missing local config file. Have you copied the sample config?' );
-} else {
-	exit( 'Missing local config file. Have you copied the sample config?' );
 }
 
 // Set some config variables in stone

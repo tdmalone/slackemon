@@ -10,6 +10,13 @@
 // Configuration via environment variables is also available. If you want to use env vars instead, there is no need to
 // copy or edit this file - just ensure you define each of the constants referenced below.
 
+// require __DIR__ . '/vendor/autoload.php';
+
+// use Dotenv\Dotenv;
+
+// $dotenv = new Dotenv(__DIR__);
+// $dotenv->load();
+
 // Slack App token
 define( 'SLACK_TOKEN_TXXXXXXXX', 'XXXXXXXXXXXXXXXXXXXXXXXX' );
 

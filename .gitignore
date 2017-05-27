@@ -4,3 +4,4 @@
 /config.php
 .DS_Store
 .env
+/composer.phar
