@@ -907,7 +907,19 @@ function slackemon_do_bulk_transfer( $user_id = USER_ID ) {
   $pokemon_to_transfer = [];
   foreach ( $collection as $collection_data ) {
     foreach ( $collection_data['pokemon'] as $pokemon ) {
-      if ( $pokemon['transfer'] && ! $pokemon['data']->is_favourite && ! $pokemon['data']->is_battle_team ) {
+
+      // Don't transfer a favourite or battle team Pokemon
+      if ( $pokemon['data']->is_favourite || $pokemon['data']->is_battle_team ) {
+        continue;
+      }
+
+      // Don't transfer a Pokemon holding an item
+      if ( isset( $pokemon['data']->held_item ) && $pokemon['data']->held_item ) {
+        continue;
+      }
+
+      // Go ahead and transfer a Pokemon marked as such!
+      if ( $pokemon['transfer'] ) {
         $pokemon_to_transfer[] = $pokemon['data']->ts;
       }
     }
