@@ -978,7 +978,7 @@ function slackemon_change_pokemon_held_item( $item_id, $spawn_ts, $user_id = USE
  * Sorts a player's Pokemon collection by one or more criteria.
  * Returns a boolean indicating whether the sort was successful.
  */
-function slackemon_sort_player_pokemon( $player_pokemon, $sort_by ) {
+function slackemon_sort_player_pokemon( &$player_pokemon, $sort_by ) {
 
   // Accept a string as well as an array
   if ( is_string( $sort_by ) ) {
@@ -995,7 +995,7 @@ function slackemon_sort_player_pokemon( $player_pokemon, $sort_by ) {
       } else if ( is_numeric( $pokemon1->{ $sort_criteria } ) ) {
         return $pokemon1->{ $sort_criteria } < $pokemon2->{ $sort_criteria } ? 1 : -1;
       } else if ( is_string( $pokemon1->{ $sort_criteria } ) ) {
-        $compare = strcmp( $pokemon1->name, $pokemon2->name );
+        $compare = strcmp( $pokemon1->{ $sort_criteria }, $pokemon2->{ $sort_criteria } );
         if ( $compare !== 0 ) {
           return $compare > 0 ? 1 : -1;
         }
