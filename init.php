@@ -13,17 +13,13 @@ define( 'WEEK_IN_SECONDS',    7 * DAY_IN_SECONDS    );
 define( 'MONTH_IN_SECONDS',  30 * DAY_IN_SECONDS    );
 define( 'YEAR_IN_SECONDS',  365 * DAY_IN_SECONDS    );
 
-// Require local config, or get config from environment variables
-if ( file_exists( __DIR__ . '/config.php' ) ) {
-	require_once( __DIR__ . '/config.php' );
-} else {
-	exit( 'Missing local config file. Have you copied the sample config?' );
-}
+// Get config from environment variables
+require_once( __DIR__ . '/config.php' );
 
 // Set some config variables in stone
-date_default_timezone_set( DEFAULT_TIMEZONE );
-setlocale( LC_MONETARY, DEFAULT_MONETARY_LOCALE );
-$data_folder = DATA_CACHE_FOLDER;
+date_default_timezone_set( SLACKEMON_TIMEZONE );
+setlocale( LC_MONETARY, SLACKEMON_MONETARY_LOCALE );
+$data_folder = SLACKEMON_DATA_CACHE_FOLDER;
 
 // Check that this request is authorised
 // Authorisation can be skipped by the calling file by setting SKIP_AUTH to true - this should only be done if the file
@@ -38,12 +34,10 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
 		$auth_reason = isset( $action ) ? 'actions' : 'options';
 
 		if (
-			! isset( $auth_data->token ) ||
+			! isset( $auth_data->token    ) ||
 			! isset( $auth_data->team->id ) ||
-			! array_key_exists( $auth_data->token, SLACK_TOKENS ) ||
-			! isset( SLACK_TOKENS[ $auth_data->token ][ $auth_reason ] ) ||
-			! SLACK_TOKENS[ $auth_data->token ][ $auth_reason ] ||
-			SLACK_TOKENS[ $auth_data->token ][ 'team_id' ] !== $auth_data->team->id
+			SLACKEMON_SLACK_TOKEN   !== $auth_data->token ||
+			SLACKEMON_SLACK_TEAM_ID !== $auth_data->team->id
 		) {
 			http_response_code( 403 );
 			exit(
@@ -58,15 +52,8 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
 
 		if (
 			! isset( $_REQUEST['token'] ) ||
-			! array_key_exists( $_REQUEST['token'], SLACK_TOKENS ) ||
-			SLACK_TOKENS[ $_REQUEST['token'] ]['team_id'] !== $_REQUEST['team_id'] ||
-			(
-				isset( SLACK_TOKENS[ $_REQUEST['token'] ]['commands'] ) &&
-				! in_array( $_REQUEST['command'], SLACK_TOKENS[ $_REQUEST['token'] ]['commands'] )
-			) || (
-				isset( SLACK_TOKENS[ $_REQUEST['token'] ]['command'] ) &&
-				SLACK_TOKENS[ $_REQUEST['token'] ]['command'] !== $_REQUEST['command']
-			)
+			SLACKEMON_SLACK_TOKEN   !== $_REQUEST['token'] ||
+			SLACKEMON_SLACK_TEAM_ID !== $_REQUEST['team_id']
 		) {
 			http_response_code( 403 );
 			exit(
@@ -93,19 +80,13 @@ if ( ! defined( 'USER_ID' ) && isset( $_REQUEST['user_id'] ) ) {
 
 	// Determine if other custom variables have already been set, and if so, assign them, if not, index.php will set them
 	if ( ! defined( 'MAINTAINER' ) && isset( $_REQUEST['maintainer'] ) ) {
-
-		if ( isset( SLACK_USERS[ USER_ID ] ) ) {
-			define( 'USER', SLACK_USERS[ USER_ID ] );
-		}
-
 		define( 'MAINTAINER', $_REQUEST['maintainer'] );
 		define( 'COMMAND',    $_REQUEST['command']    );
-		
 	}
 
 }
 
-// Define our constants (interactive message mode)
+// Define our constants (action / options request mode)
 if ( ! defined( 'USER_ID' ) && ( isset( $action->user ) || isset( $options_request->user ) ) ) {
 
 	$request = isset( $action ) ? $action : $options_request;
@@ -118,17 +99,8 @@ if ( ! defined( 'USER_ID' ) && ( isset( $action->user ) || isset( $options_reque
 		define( 'RESPONSE_URL', $request->response_url );
 	}
 
-	if ( isset( SLACK_USERS[ USER_ID ] ) ) {
-		define( 'USER', SLACK_USERS[ USER_ID ] );
-	}
-
 	define( 'COMMAND',    '/' . ( isset( $callback_id ) ? $callback_id[0] : $request->callback_id ) );
-
-	define( 'MAINTAINER', ( // Support per-command maintainers, or fallback to global maintainers
-		isset( SLASH_COMMANDS[ COMMAND ]['maintainer'][ TEAM_ID ] ) ?
-		SLASH_COMMANDS[ COMMAND ]['maintainer'][ TEAM_ID ] :
-		GLOBAL_MAINTAINERS[ TEAM_ID ]
-	));
+	define( 'MAINTAINER', SLACKEMON_MAINTAINER );
 
 }
 
