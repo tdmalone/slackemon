@@ -47,9 +47,8 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
 
 1. Download/clone/etc. the contents of this repository, and put it on a web server somewhere that runs PHP7.
     * Alternatively you can [deploy it locally with Docker](https://github.com/tdmalone/slackemon/wiki/Installing-with-Docker)
-    * Alternatively you can [deploy directly to Heroku](https://heroku.com/deploy)
-1. Log in to your Slack team, and visit https://api.slack.com/apps?new_app=1 to create a new App. You can call it whatever you like, but 'Slackémon' usually works best!
-    1. From your App control page, take note of your App's 'token'
+    * You can also [deploy directly to Heroku](https://heroku.com/deploy) **(currently in testing)**
+1. Log in to your Slack team, and visit https://api.slack.com/apps?new_app=1 to create a new App. You can call it whatever you like, but 'Slackémon' usually works best! You can then proceed to set up the app features through Slack's interface.
 1. Set up Slack's Interactive Messages
     1. From your App control page, under Features in the sidebar, click Interactive Messages
     1. For the Request URL and Options URL, enter the address where you are hosting Slackémon (eg. http://example.com/slackemon)
@@ -65,24 +64,10 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
         * chat:write:bot
         * users.profile:read
         * users:read
-    1. At the top of the page, click the button to install the app to your team, giving it the permissions it asks for. Make a note of your OAuth Access Token.
-1. Set up your local configuration file
-    1. Copy `config.sample.php` to `config.php`
-    1. Put your Slack App's token in the marked space, and add your team ID too (your team ID is 9 characters, starts with T, and can be found in the URL of ....)
-    1. In the `GLOBAL_MAINTAINERS` constant, enter your team ID and _your_ Slack user ID as the maintainer (you can find your user ID at ...)
-    1. For the Slack key, enter the oAuth token you received when setting up the Slack app on your team
-    1. **Optional**: To enable real-world weather integration, sign up for a free account at [OpenWeatherMap](http://openweathermap.org) and place your API key in as the Weather key
-    1. Make up a random token to use to authenticate the cron runner - you'll need this again soon
-    1. Enter your user ID and team ID in the required place for each of the cron runs (if you have the capacity to set up a service user, it can be a good idea to use that here instead)
-    1. Adjust the cron schedule if you like:
-        * Battle updates *must* happen every minute - changing this can cause turn reminders to be missed during PVP battles
-        * The `maybe-spawn` command is designed to run every minute, as it chooses whether to spawn or not based on chance. However, you can limit the hours/days etc. as you desire, for example to cause spawns to only occur outside business hours if you wish your team to focus on their work.
-        * Happiness updates are designed to happen once a day, but nothing bad will happen if you do it more often: happiness will just grow quicker!
-    1. Set the `INBOUND_URL` to the public URL where your instance of Slackémon can be accessed
-    1. Configure your image caching options, if you don't wish to cache locally
-        * Using AWS is recommended, but if you have good hosting you should be fine with the local cache
-        * Please do not disable the cache except for testing, otherwise you will put an unfair burden on those who host the images
-    1. Set your timezone, lat/lon for real-world weather, monetary locale (the latter is used for displaying the value of items)
+    1. Click Save Changes, then at the top of the page, click the button to install the app to your team, giving it the permissions it asks for. Make a note of your OAuth Access Token.
+        * _At this point, if you are on a free Slack team, Slackémon will take up one of your 10 available integrations. If you have already used your 10 integrations, you'll need to completely remove one at `https://YOUR-DOMAIN.slack.com/apps/manage` before you can add Slackémon - or alternatively, upgrade to a paid Slack plan._
+1. Head back to the 'Basic Information' page for your app, and scroll down to your app's credentials section. Make a note of the _Verification Token_.
+1. Set up your environment variables, either by copying `.env.example` to `.env` (development mode only - see instructions in the file), or setting the variables within your environment (recommended). Either way, see the `.env.example` file for instructions on the variables to set.
 1. In your system's crontab (eg. `crontab -e` on a Linux machine, or find the Cron option in your hosting control panel), set up `cron.php` to run every minute, sending through the cron token you created earlier.
     * If you're invoking via the command line, you can use eg. `php /path/to/cron.php --token=XXXXXXXXXXXXXXXXXXXX`
     * If you're invoking via a GET request, you can use eg. `http://example.com/slackemon/cron.php?token=XXXXXXXXXXXXXXXXXXXX`
@@ -101,11 +86,11 @@ A user guide will progressively be written at [this repo's wiki](https://github.
 
 Slackémon was first and foremost inspired by [Pokémon Go](http://www.pokemongo.com/). It borrows a few mechanics from Pokémon Go (mainly for simplicity), but as time goes on the aim is to be more true to the original Pokémon games wherever possible.
 
-The idea of doing this on Slack came from Robert Vinluan's [bot for having Pokemon battles in Slack](https://github.com/rvinluan/slack-pokemon). Inspiration has also been gleaned from [Pokémon Showdown](http://pokemonshowdown.com/) - and I will no doubt be making use of their battle data to further expand the moves Slackémon can deal with!
+The idea of doing this on Slack came from Robert Vinluan's [bot for having Pokemon battles in Slack](https://github.com/rvinluan/slack-pokemon). Inspiration and some battle move data has also been gleaned from [Pokémon Showdown](http://pokemonshowdown.com/).
 
 Thank you to those who have done the hard yards in bringing together Pokémon sprites, particularly [PokeCSS](https://github.com/metaunicorn/pokecss-media).
 
-Thank you to my co-worker [Julian](http://github.com/juz501), who has been my main playmate in testing (and competing with!) this on our company Slack organisation at [Chromatix](https://www.chromatix.com.au).
+Thank you to my co-worker [Julian](http://github.com/juz501), who has been my main playmate in testing (and competing with!) this on our company Slack organisation at [Chromatix](https://www.chromatix.com.au), and to [Alessandro Pezzè](https://github.com/Naramsim) for being the first 'stranger contributor' to jump on board the project :). You can see the full list of contributors in the `CONTRIBUTORS.md` file.
 
 Thanks to [Slack](http://slack.com) for maintaining a well-documented, open API and inviting collaboration on their platform.
 
@@ -113,4 +98,20 @@ Last but not least, this project would never have happened without the extensive
 
 ## License
 
-This project is licensed under version 3 of the GNU Public License. See `LICENSE` for full details.
+```Slackémon - Catch and battle Pokémon with your teammates on Slack!
+Copyright (C) 2016-2017, Tim Malone
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.```
+
+See `LICENSE` for full details on the GPLv3 license.

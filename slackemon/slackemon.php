@@ -25,8 +25,8 @@ $attachments = [
   [
     'text' => (
 
-      ':pokeball: *Welcome to Slackémon Go!*' . "\n\n" .
-      'Slackémon Go is a Pokémon Go-inspired game for :slack:. Once you start playing, Pokémon randomly appear on ' .
+      ':pokeball: *Welcome to Slackémon!*' . "\n\n" .
+      'Slackémon is a Pokémon Go-inspired game for :slack:. Once you start playing, Pokémon randomly appear on ' .
       'Slack - and you\'ll have a short time to catch them before they run away!' . "\n\n" .
       'Using slash commands, you can then manage your Pokémon collection - and even use them in battle against ' .
       'other trainers.'

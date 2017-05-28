@@ -8,6 +8,6 @@ $callback_id = $action->callback_id;
 require_once( __DIR__ . '/init.php' );
 
 // Handle the action
-require( __DIR__ . '/' . $callback_id[0] . '/actions.php' );
+require( __DIR__ . '/' . $callback_id . '/actions.php' );
 
 // The end!
