@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy) (Heroku deployment is IN TESTING)
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy) **(in testing - see Setup below for other deployment methods)**
 
 Inspired by Pokémon Go, now you can catch and battle Pokémon with your teammates on Slack!
 
@@ -98,8 +98,8 @@ Last but not least, this project would never have happened without the extensive
 
 ## License
 
-```Slackémon - Catch and battle Pokémon with your teammates on Slack!
-Copyright (C) 2016-2017, Tim Malone
+Slackémon - Catch and battle Pokémon with your teammates on Slack  
+Copyright (C) 2016-2017, [Tim Malone](https://github.com/tdmalone)
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -111,7 +111,4 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.```
-
-See `LICENSE` for full details on the GPLv3 license.
+See `LICENSE` or <https://www.gnu.org/licenses/gpl-3.0.html> for the full text of the License.
