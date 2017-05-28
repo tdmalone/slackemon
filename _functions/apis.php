@@ -100,7 +100,7 @@ function get_cached_url( $url, $options = [] ) {
 function get_cached_image_url( $image_url, $options = [] ) {
 
 	// Simply return the requested URL directly if the image cache is disabled
-	if ( ! defined( 'SLACKEMON_IMAGE_CACHE' ) || 'disabled' === SLACKEMON_IMAGE_CACHE['method'] ) {
+	if ( 'disabled' === SLACKEMON_IMAGE_CACHE_METHOD ) {
 		return $image_url;
 	}
 
@@ -114,10 +114,10 @@ function get_cached_image_url( $image_url, $options = [] ) {
 	$basename  = basename( parse_url( $image_url, PHP_URL_PATH ) ); // Limit filename to most relevant URL portion
 	$basename  = preg_replace( '/[^A-Za-z0-9\.]/', '', $basename ); // Make sure filename doesn't have unsafe characters
 	$basename  = substr( $basename, 0, 50 ); // Make sure filename isn't too long
-	$filename  = $folder . '/' . $hash . '-' . $basename . ( 'aws' === SLACKEMON_IMAGE_CACHE['method'] ? '.aws' : '' );
+	$filename  = $folder . '/' . $hash . '-' . $basename . ( 'aws' === SLACKEMON_IMAGE_CACHE_METHOD ? '.aws' : '' );
 	
 	// If the 'local' option is in use, this is where the image will be found
-	$local_url  = INBOUND_URL . '.image-cache/' . substr( $hash, 0, 1 ) . '/' . $hash . '-' . $basename;
+	$local_url  = SLACKEMON_INBOUND_URL . '.image-cache/' . substr( $hash, 0, 1 ) . '/' . $hash . '-' . $basename;
 
 	// If the 'aws' option is in use, this is the location the object will be stored at
 	$remote_key = 'image-cache/' . substr( $hash, 0, 1 ) . '/' . $hash . '-' . $basename;
@@ -125,7 +125,7 @@ function get_cached_image_url( $image_url, $options = [] ) {
 	// Does image exist in local cache? Return the URL now - either the local URL, or the remote URL stored in the file
 	if ( file_exists( $filename ) ) {
 		log_cache_event( $image_url, $filename, 'image-hit' );
-		return 'local' === SLACKEMON_IMAGE_CACHE['method'] ? $local_url : file_get_contents( $filename );
+		return 'local' === SLACKEMON_IMAGE_CACHE_METHOD ? $local_url : file_get_contents( $filename );
 	}
 
 	// Make sure full cache folder exists
@@ -143,7 +143,7 @@ function get_cached_image_url( $image_url, $options = [] ) {
 	}
 	log_cache_event( $image_url, $filename, 'image-miss' );
 
-	switch ( SLACKEMON_IMAGE_CACHE['method'] ) {
+	switch ( SLACKEMON_IMAGE_CACHE_METHOD ) {
 
 		case 'local':
 
@@ -162,22 +162,22 @@ function get_cached_image_url( $image_url, $options = [] ) {
 
 			$s3 = new Aws\S3\S3Client([
 				'version' => 'latest',
-				'region'  => SLACKEMON_IMAGE_CACHE['aws_region'],
+				'region'  => SLACKEMON_AWS_REGION,
 				'credentials' => [
-		        'key'    => SLACKEMON_IMAGE_CACHE['aws_id'],
-		        'secret' => SLACKEMON_IMAGE_CACHE['aws_secret'],
+		        'key'    => SLACKEMON_AWS_ID,
+		        'secret' => SLACKEMON_AWS_SECRET,
 		    ],
 			]);
 
 			try {
 				$result = $s3->putObject([
-					'Bucket' => SLACKEMON_IMAGE_CACHE['aws_bucket'],
+					'Bucket' => SLACKEMON_IMAGE_CACHE_BUCKET,
 					'Key'    => $remote_key,
 					'Body'   => $image_data,
 					'ACL'    => 'public-read',
 					'Metadata' => [
 						'original_url' => $image_url,
-						'uploaded_by'  => INBOUND_URL,
+						'uploaded_by'  => SLACKEMON_INBOUND_URL,
 					],
 					'CacheControl' => YEAR_IN_SECONDS,
 				]);
