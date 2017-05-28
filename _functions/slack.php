@@ -110,7 +110,7 @@ function post2slack( $payload ) {
   $endpoint = $api_base . '/chat.postMessage';
 
   // Add Slack API token
-  $payload['token'] = SERVICES['slack']['key'];
+  $payload['token'] = SLACKEMON_SLACK_KEY;
 
   // Attempt to include a username and icon, if we have one
   // Note that responses to Slack app response_url's, username and icon replacements are ignored
@@ -237,12 +237,12 @@ function get_slack_user( $user_id = USER_ID ) {
 /** Gets ALL Slack user data from the Slack API. Cached for a day. */
 function get_slack_users() {
 
-  if ( ! SERVICES['slack']['key'] ) {
+  if ( ! SLACKEMON_SLACK_KEY ) {
     return [];
   }
 
   $slack_users = json_decode( get_cached_url(
-    'https://slack.com/api/users.list?token=' . SERVICES['slack']['key'],
+    'https://slack.com/api/users.list?token=' . SLACKEMON_SLACK_KEY,
     [ 'expiry_age' => DAY_IN_SECONDS ]
   ) )->members;
 
