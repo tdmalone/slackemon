@@ -47,7 +47,7 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
 
 1. Download/clone/etc. the contents of this repository, and put it on a web server somewhere that runs PHP7.
     * Alternatively you can [deploy it locally with Docker](https://github.com/tdmalone/slackemon/wiki/Installing-with-Docker)
-    * You can also [deploy directly to Heroku](https://heroku.com/deploy) **(currently in testing)**
+    * You can also [deploy directly to Heroku](https://heroku.com/deploy) ([instructions here](https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku)) **(currently in testing)**
 1. Log in to your Slack team, and visit https://api.slack.com/apps?new_app=1 to create a new App. You can call it whatever you like, but 'Slackémon' usually works best! You can then proceed to set up the app features through Slack's interface.
 1. Set up Slack's Interactive Messages
     1. From your App control page, under Features in the sidebar, click Interactive Messages
