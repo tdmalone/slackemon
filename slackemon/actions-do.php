@@ -7,22 +7,6 @@ $action = json_decode( $_POST['action'] );
 require_once( __DIR__ . '/../init.php' );
 change_data_folder( $data_folder . '/pokedex' );
 
-// Check if a Toggl timer is active
-if ( slackemon_is_player_toggl() ) {
-
-  send2slack([
-    'text' => (
-      ':disappointed: *Sorry, during business hours you cannot use Slackémon while a :toggl: Toggl timer ' .
-      'is running.*' . "\n" .
-      'Once you stop any active timer, notifications will resume within 5 minutes.'
-    ),
-    'replace_original' => 'true',
-  ]);
-
-  exit();
-
-}
-
 $action_name  = $action->actions[0]->name;
 $action_value = ( // We support both message buttons, and the newer message menus
   isset( $action->actions[0]->value ) ?

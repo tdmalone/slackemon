@@ -10,7 +10,7 @@ require( __DIR__ . '/pokemon/pokemon.php' );
 function get_url( $url, $options = [] ) {
 
 	// Get the maintainer's e-mail, or fallback to the Slackemon developer's e-mail address if not available
-	$maintainer_email = defined( 'MAINTAINER' ) ? get_user_email_address( MAINTAINER ) : 'tdmalone@gmail.com';
+	$maintainer_email = 'tdmalone@gmail.com';
 
 	$ch = curl_init();
 	curl_setopt( $ch, CURLOPT_URL, $url );
