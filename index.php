@@ -27,16 +27,8 @@ if ( $payload ) {
 require_once( __DIR__ . '/init.php' );
 
 // Init the once-off, entry-point stuff
-define( 'COMMAND', ( // Support a command alias, or fallback to the directly defined command
-	defined( 'SLASH_COMMANDS' ) && isset( SLASH_COMMANDS[ $_REQUEST['command'] ]['alias_of'] ) ?
-	SLASH_COMMANDS[ $_REQUEST['command'] ]['alias_of'] :
-	$_REQUEST['command']
-));
-define( 'MAINTAINER', ( // Support per-command maintainers, or fallback to global maintainers
-	defined( 'SLASH_COMMANDS' ) && isset( SLASH_COMMANDS[ COMMAND ]['maintainer'][ TEAM_ID ] ) ?
-	SLASH_COMMANDS[ COMMAND ]['maintainer'][ TEAM_ID ] :
-	GLOBAL_MAINTAINERS[ TEAM_ID ]
-));
+define( 'COMMAND', $_REQUEST['command'] );
+define( 'MAINTAINER', SLACKEMON_MAINTAINER );
 
 // Get the settings for this command
 $command_settings = get_command_settings();

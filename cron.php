@@ -17,14 +17,26 @@ if (
 	exit( 'Not authorised for this cron request.' );
 }
 
+// Cron schedule
+define( 'CRON_SCHEDULE', [
+
+	[ '*', '*', '*', '*', '*', '/slackemon maybe-spawn'  	  ], // Runs every minute
+	[ '*', '*', '*', '*', '*', '/slackemon battle-updates'    ], // Runs every minute
+	[ '1', '1', '*', '*', '*', '/slackemon happiness-updates' ], // Runs once a day
+		
+	// The format is almost just like normal crons, and supports * / and - values:
+	// [ 'MIN', 'HOUR', 'DATE', 'MONTH', 'DAY', '/COMMAND ARGS' ],
+
+]);
+
 // Set the current time and date parameters
 define( 'MINUTE', (int) date( 'i' ) );
-define( 'HOUR', (int) date( 'G' ) );
-define( 'DATE', (int) date( 'j' ) );
-define( 'MONTH', (int) date( 'n' ) );
-define( 'DAY', (int) date( 'w' ) );
+define( 'HOUR',   (int) date( 'G' ) );
+define( 'DATE',   (int) date( 'j' ) );
+define( 'MONTH',  (int) date( 'n' ) );
+define( 'DAY',    (int) date( 'w' ) );
 
-// Output the current time and date environment
+// Output the current time and date
 echo MINUTE . ' ' . HOUR . ' ' . DATE . ' ' . MONTH . ' ' . DAY;
 
 // Check schedule, and run commands if it's time
@@ -42,9 +54,9 @@ foreach ( CRON_SCHEDULE as $item ) {
 	}
 
 	// Prepare data
-	$command = $item[5][0];
-	$user_id = $item[5][1];
-	$team_id = $item[5][2];
+	$command = $item[5];
+	$user_id = SLACKEMON_MAINTAINER;
+	$team_id = SLACKEMON_SLACK_TEAM_ID;
 
 	// Run the command, and output the initial result back to the cron caller
 	$result = run_automated_command( $command, $user_id, $team_id, [ 'run_mode' => 'cron' ] );

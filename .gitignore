@@ -1,4 +1,6 @@
 /.data/
 /.image-cache/
 /vendor/
-/config.php
+.DS_Store
+.env
+/composer.phar
