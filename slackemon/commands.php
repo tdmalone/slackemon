@@ -31,39 +31,21 @@ if ( isset( $args[0] ) && 'spawn' === $args[0] ) {
 
 if ( slackemon_is_player() ) {
 
-  // Check whether a Toggl timer is running, skipping the cache because the user may have run this directly after
-  // stopping their timer.
-  if ( slackemon_is_player_toggl( USER_ID, true ) ) {
+  // Force empty the DND cache
+  slackemon_is_player_dnd( USER_ID, true );
 
-    send2slack([
-      'text' => (
-        ':disappointed: *Sorry, during business hours you cannot use Slackemon while a :toggl: Toggl timer ' .
-        'is running.*' . "\n" .
-        'Once you stop any active timer, notifications will resume within 5 minutes.'
-      ),
-    ]);
+  $message = slackemon_get_main_menu();
+  $message['channel'] = USER_ID;
 
-    exit();
-
-  } else {
-
-    // Force empty the DND cache
-    slackemon_is_player_dnd( USER_ID, true );
-
-    $message = slackemon_get_main_menu();
-    $message['channel'] = USER_ID;
-
-    if ( 'directmessage' !== $_POST['channel_name'] ) {
-      echo '*Welcome to Slackemon!*' . "\n" . 'See your direct messages for the Slackemon menu. :simple_smile:';
-    }
-
-    // We need to use post2slack here so that we have a fully modifiable message we can access via the action payloads'
-    // original_message parameter - otherwise, with an emphermal slash command message, we don't have that access.
-    post2slack( $message );
-
-    exit();
-
+  if ( 'directmessage' !== $_POST['channel_name'] ) {
+    echo '*Welcome to Slackemon!*' . "\n" . 'See your direct messages for the Slackemon menu. :simple_smile:';
   }
+
+  // We need to use post2slack here so that we have a fully modifiable message we can access via the action payloads'
+  // original_message parameter - otherwise, with an emphermal slash command message, we don't have that access.
+  post2slack( $message );
+
+  exit();
 
 }
 

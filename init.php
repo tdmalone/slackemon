@@ -3,6 +3,10 @@
 // TM 28/01/2017
 // Initialise the Slackemon environment, including authentication
 
+// Activate error logging
+ini_set( 'log_errors', '1' );
+ini_set( 'error_log', __DIR__ . '/error_log' );
+
 // Define time-based constants
 // HT: https://core.trac.wordpress.org/browser/tags/4.7.3/src/wp-includes/default-constants.php#L107
 define( 'HALF_A_MINUTE',     30 );
