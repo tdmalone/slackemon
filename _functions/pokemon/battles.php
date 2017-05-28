@@ -144,7 +144,8 @@ function slackemon_get_top_pokemon_list( $user_id = USER_ID ) {
 function slackemon_send_battle_invite( $invitee_id, $action, $inviter_id = USER_ID ) {
 
   $inviter_player_data = slackemon_get_player_data( $inviter_id );
-  $inviter_user_data = get_slack_user( $inviter_id );
+  $inviter_user_data   = get_slack_user( $inviter_id );
+  $is_desktop          = 'desktop' === slackemon_get_player_menu_mode( $inviter_id );
 
   $invite_ts = time();
 
@@ -231,9 +232,9 @@ function slackemon_send_battle_invite( $invitee_id, $action, $inviter_id = USER_
     slackemon_save_battle_data( $invite_data, $battle_hash, 'invite' );
 
     if ( post2slack( $invitee_message ) ) {
-      $invitee_full_name = get_user_full_name( $invitee_id );
-      $inviter_message = slackemon_update_triggering_attachment(
-        ':white_check_mark: A battle invitation has been sent to *' . $invitee_full_name . '*.' . "\n" .
+      $invitee_name     = $is_desktop ? get_user_full_name( $invitee_id ) : get_user_first_name( $invitee_id );
+      $inviter_message  = slackemon_update_triggering_attachment(
+        ':white_check_mark: An invitation has been sent to *' . $invitee_name . '*.' . "\n" .
         'I\'ll let you know when they respond!',
         $action,
         false
@@ -274,7 +275,7 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
 
         // Inviter response
         $message = slackemon_update_triggering_attachment(
-          ':x: *You have cancelled the battle invite sent to ' . get_user_first_name( $invite_data->invitee_id ) . '.*',
+          ':x:  *Ok, your battle invite has been cancelled.*',
           $action,
           false
         );
@@ -342,7 +343,14 @@ function slackemon_get_battle_team_status_attachment( $user_id = USER_ID, $mode 
 
   }
 
-  if ( $faint_count === SLACKEMON_BATTLE_TEAM_SIZE ) {
+  if ( 'inviter' === $mode && ! slackemon_is_battle_team_full( $user_id ) ) {
+    $pretext = (
+      ':medal: Winning Slackémon battles will level-up your Pokémon - ' .
+      'making them stronger _and_ getting you closer to evolving them.' . "\n" .
+      ':arrow_right: *To send a battle challenge, you first need to choose your Battle Team ' .
+      'of ' . SLACKEMON_BATTLE_TEAM_SIZE . '!*'
+    );
+  } else if ( $faint_count === SLACKEMON_BATTLE_TEAM_SIZE ) {
     $pretext = (
       ':exclamation: *Your battle team has fainted!*' . "\n" .
       (

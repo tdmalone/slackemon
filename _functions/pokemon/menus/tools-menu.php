@@ -84,7 +84,8 @@ function slackemon_get_bulk_transfer_menu( $do_transfers = false ) {
       'Pokemon with branched evolutions (eg. :eevee: Eevee and :poliwag: Poliwag) are currently not handled by this tool.' . "\n\n" :
       ''
     ) .
-    '*This tool will _not_ transfer favourite or battle team Pokémon.* :sparkling_heart: :facepunch:' . "\n" .
+    '*This tool will _not_ transfer favourite, battle team, or item-holding Pokémon.* ' .
+    ':sparkling_heart: :facepunch: :gift:' . "\n" .
     'When using this tool you will receive *half the normal XP* for each transfer.' . "\n\n"
   );
 
@@ -101,15 +102,17 @@ function slackemon_get_bulk_transfer_menu( $do_transfers = false ) {
     foreach ( $collection_data['pokemon'] as $pokemon ) {
 
       $total_count++;
-      if ( $pokemon['transfer'] ) { $transfer_count++; }
 
       if ( $pokemon['transfer'] ) {
         if ( $pokemon['data']->is_favourite ) {
           $_emoji = ':sparkling_heart:';
         } else if ( $pokemon['data']->is_battle_team ) {
           $_emoji = ':facepunch:';
+        } else if ( isset( $pokemon['data']->held_item ) && $pokemon['data']->held_item ) {
+          $_emoji = ':gift:';
         } else {
           $_emoji = ':x:';
+          $transfer_count++; // We actually will only transfer if the above conditions aren't true
         }
       } else {
         $_emoji = ':white_check_mark:';

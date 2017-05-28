@@ -44,11 +44,11 @@ function slackemon_get_achievements_menu( $current_page ) {
   );
 
   foreach( $sorted_pokedex_page as $entry ) {
-    $pokemon = slackemon_get_pokemon_data( $entry->id );
-    $readable_name = pokedex_readable( $pokemon->name );
+    $species_data = slackemon_get_pokemon_species_data( $entry->id );
+    $readable_name = pokedex_readable( $species_data->name );
     $gender_symbols = [ '♂', '♀' ];
     $message['text'] .= (
-      ( $entry->caught ? ':' . $pokemon->name . ':' : ':grey_question:' ) . ' ' .
+      ( $entry->caught ? ':' . $species_data->name . ':' : ':grey_question:' ) . ' ' .
       '#' . $entry->id . ' - ' . 
       '*' . $readable_name . '*' .
       ( ! $is_desktop && in_array( substr( $readable_name, -1, 1 ), $gender_symbols ) ? '' : ' ' ) . '- ' .

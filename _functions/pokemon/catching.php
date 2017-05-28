@@ -45,10 +45,12 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
 
     array_pop( $message['attachments'] );
     
-    $active_battle = slackemon_get_user_active_battles( $user_id )[0];
-    $battle_result = 'catch' === $force_battle_result ? 'won' : 'lost';
+    $active_battle   = slackemon_get_user_active_battles( $user_id )[0];
+    $battle_result   = 'catch' === $force_battle_result ? 'won' : 'lost';
     $award_battle_xp = 'catch' === $force_battle_result ? true : false;
-    $battle_message = slackemon_complete_battle( $battle_result, $active_battle->hash, $user_id, $award_battle_xp, false );
+    $battle_message  = slackemon_complete_battle( $battle_result, $active_battle->hash, $user_id, $award_battle_xp, false );
+
+    $battle_pokemon = slackemon_get_battle_current_pokemon( $active_battle->hash, $user_id );
 
   }
 
@@ -145,7 +147,16 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
           'type' => 'button',
           'value' => $spawn_ts,
           'style' => 'primary',
-        ], [
+        ], (
+          $from_battle ?
+          [
+            'name' => 'pokemon/view/caught/battle',
+            'text' => ':eye: View ' . pokedex_readable( $battle_pokemon->name ),
+            'type' => 'button',
+            'value' => $battle_pokemon->ts,
+          ] :
+          []
+        ), [
           'name' => 'menu',
           'text' => ':leftwards_arrow_with_hook: Main Menu',
           'type' => 'button',

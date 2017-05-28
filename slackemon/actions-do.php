@@ -71,11 +71,13 @@ switch ( $action_name ) {
   case 'pokemon/view': // Viewing a Pokemon's data from the Pokemon menu
   case 'pokemon/view/caught': // Viewing a Pokemon's data immediately after catching it
   case 'pokemon/view/caught/battle': // Viewing a Pokemon's data immediately after catching it after a battle...whew!
+  case 'pokemon/view/from-battle-menu':
     $spawn_ts = $action_value;
     $message = slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action );
   break;
 
   case 'pokemon/stats':
+  case 'pokemon/stats/from-battle-menu':
     $message = slackemon_get_pokemon_view_message( $action_value, $action_name, $action, true );
   break;
 
@@ -262,15 +264,17 @@ switch ( $action_name ) {
   break;
 
   case 'battle-team/add':
+  case 'battle-team/add/from-battle-menu':
     $spawn_ts = $action_value;
     slackemon_add_to_battle_team( $spawn_ts );
-    $message = slackemon_get_battle_team_add_message( $action );
+    $message = slackemon_get_battle_team_add_message( $action, $action_name );
   break;
 
   case 'battle-team/remove':
+  case 'battle-team/remove/from-battle-menu':
     $spawn_ts = $action_value;
     slackemon_remove_from_battle_team( $spawn_ts );
-    $message = slackemon_get_battle_team_remove_message( $action );
+    $message = slackemon_get_battle_team_remove_message( $action, $action_name );
   break;
 
   case 'evolve':

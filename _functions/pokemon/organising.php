@@ -375,7 +375,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
 
     $attachment_actions = [
       [
-        'name'  => 'pokemon/view',
+        'name'  => 'pokemon/view' . ( 'pokemon/stats/from-battle-menu' === $action_name ? '/from-battle-menu' : '' ),
         'text'  => ':arrow_backward: Back',
         'type'  => 'button',
         'value' => $pokemon->ts,
@@ -472,16 +472,25 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     $attachment_actions = [
       [
         'name'  => $pokemon->is_favourite ? 'unfavourite' : 'favourite',
-        'text'  => $pokemon->is_favourite ? ':sparkling_heart:' : ':blue_heart:',
+        'text'  => (
+          $is_desktop ?
+          ( $pokemon->is_favourite ? ':sparkling_heart:' : ':blue_heart:' ) :
+          ( $pokemon->is_favourite ? ':sparkling_heart: Unfavourite' : ':blue_heart: Favourite' )
+        ),
         'type'  => 'button',
         'value' => $pokemon->ts,
         'style' => $pokemon->is_favourite ? 'primary' : '',
       ], [
-        'name'  => 'pokemon/stats',
+        'name'  => 'pokemon/stats' . ( 'pokemon/view/from-battle-menu' === $action_name ? '/from-battle-menu' : '' ),
         'text'  => ':part_alternation_mark: More',
         'type'  => 'button',
         'value' => $pokemon->ts,
-      ], [
+      ]
+    ];
+
+    if ( 'pokemon/view/from-battle-menu' !== $action_name ) {
+
+      $attachment_actions[] = [
         'name'  => 'transfer',
         'text'  => ':outbox_tray: Transfer',
         'type'  => 'button',
@@ -490,7 +499,9 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
           'title' => 'Are you sure?',
           'text'  => 'Are you sure you want to transfer this Pokémon? This cannot be undone.',
         ],
-      ], (
+      ];
+
+      $attachment_actions[] = (
         count( $evolution_possibilities ) ?
         [
           'name' => 'evolve',
@@ -505,7 +516,9 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
           'type'  => 'button',
           'value' => $pokemon->ts,
         ] : []
-      ), (
+      );
+
+      $attachment_actions[] = (
         $is_battle_team || ! slackemon_is_battle_team_full() ?
         [
           'name'  => 'battle-team/' . ( $is_battle_team ? 'remove' : 'add' ),
@@ -514,9 +527,9 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
           'value' => $pokemon->ts,
           'style' => $is_battle_team ? 'primary' : '',
         ] : []
-      ),
-    ];
-
+      );
+    
+    } // If not viewing from battle menu
   } // If more_stats / else
 
   $message['attachments'][ $action->attachment_id - 1 ] = [
@@ -715,7 +728,7 @@ function slackemon_is_battle_team_full( $user_id = USER_ID ) {
 
 } // Function slackemon_is_battle_team_full
 
-function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false ) {
+function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false, $exclude_random_fillers = false ) {
 
   $pokemon_collection = slackemon_get_player_data( $user_id )->pokemon;
   $battle_team = [];
@@ -735,6 +748,10 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
   // If our battle team is too big, we need to remove Pokemon from it
   while ( count( $battle_team ) > SLACKEMON_BATTLE_TEAM_SIZE ) {
     array_pop( $battle_team );
+  }
+
+  if ( $exclude_random_fillers ) {
+    return $battle_team;
   }
 
   // If our battle team isn't full, we need to fill it with random additions
@@ -894,7 +911,19 @@ function slackemon_do_bulk_transfer( $user_id = USER_ID ) {
   $pokemon_to_transfer = [];
   foreach ( $collection as $collection_data ) {
     foreach ( $collection_data['pokemon'] as $pokemon ) {
-      if ( $pokemon['transfer'] && ! $pokemon['data']->is_favourite && ! $pokemon['data']->is_battle_team ) {
+
+      // Don't transfer a favourite or battle team Pokemon
+      if ( $pokemon['data']->is_favourite || $pokemon['data']->is_battle_team ) {
+        continue;
+      }
+
+      // Don't transfer a Pokemon holding an item
+      if ( isset( $pokemon['data']->held_item ) && $pokemon['data']->held_item ) {
+        continue;
+      }
+
+      // Go ahead and transfer a Pokemon marked as such!
+      if ( $pokemon['transfer'] ) {
         $pokemon_to_transfer[] = $pokemon['data']->ts;
       }
     }
@@ -948,5 +977,39 @@ function slackemon_change_pokemon_held_item( $item_id, $spawn_ts, $user_id = USE
   return slackemon_save_player_data( $player_data, $user_id );
 
 } // Function slackemon_change_pokemon_held_item
+
+/**
+ * Sorts a player's Pokemon collection by one or more criteria.
+ * Returns a boolean indicating whether the sort was successful.
+ */
+function slackemon_sort_player_pokemon( &$player_pokemon, $sort_by ) {
+
+  // Accept a string as well as an array
+  if ( is_string( $sort_by ) ) {
+    $sort_by = [ $sort_by ];
+  }
+
+  $result = usort( $player_pokemon, function( $pokemon1, $pokemon2 ) use ( $sort_by ) {
+    foreach ( $sort_by as $sort_criteria ) {
+
+      if ( is_bool( $pokemon1->{ $sort_criteria } ) ) {
+        if ( $pokemon1->{ $sort_criteria } !== $pokemon2->{ $sort_criteria } ) {
+          return $pokemon2->{ $sort_criteria } ? 1 : -1;
+        }
+      } else if ( is_numeric( $pokemon1->{ $sort_criteria } ) ) {
+        return $pokemon1->{ $sort_criteria } < $pokemon2->{ $sort_criteria } ? 1 : -1;
+      } else if ( is_string( $pokemon1->{ $sort_criteria } ) ) {
+        $compare = strcmp( $pokemon1->{ $sort_criteria }, $pokemon2->{ $sort_criteria } );
+        if ( $compare !== 0 ) {
+          return $compare > 0 ? 1 : -1;
+        }
+      }
+
+    } // Foreach sort_criteria
+  });
+
+  return $result;
+
+} // Function slackemon_sort_player_pokemon
 
 // The end!

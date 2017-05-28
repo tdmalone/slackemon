@@ -286,7 +286,7 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
     'ts'        => $timestamp,
     'region'    => $region,
     'trigger'   => $trigger,
-    'name'      => $pokemon->name,
+    'name'      => $species->name,
     'types'     => $types,
     'gender'    => $gender,
     'is_shiny'  => false,
@@ -310,6 +310,11 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
     ],
     'users'     => new stdClass(),
   ];
+
+  // Support different Pokemon varieties - eg. Deoxys/Wormadam
+  if ( $pokemon->name !== $species->name ) {
+    $spawn['variety'] = $pokemon->name;
+  }
 
   if ( slackemon_save_spawn_data( $spawn ) ) {
     slackemon_notify_spawn( $spawn );

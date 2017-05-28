@@ -14,21 +14,7 @@ function slackemon_get_battle_menu() {
     'attachments' => [],
   ];
 
-  if ( slackemon_is_battle_team_full() ) {
-
-    $message['attachments'] = slackemon_get_battle_menu_attachments();
-
-  } else {
-
-    $message['text'] .= (
-      ':medal: Winning Slackémon battles will level-up your Pokémon - ' .
-      'making them stronger _and_ getting you closer to evolving them.' . "\n" .
-      ':arrow_right: *To send a battle challenge, you need to first choose your Battle Team ' .
-      'of ' . SLACKEMON_BATTLE_TEAM_SIZE . ': visit your Pokémon page from the main menu!*'
-    );
-
-  }
-
+  $message['attachments'] = slackemon_get_battle_menu_attachments();
   $message['attachments'][] = slackemon_back_to_menu_attachment();
 
   return $message;
@@ -38,69 +24,50 @@ function slackemon_get_battle_menu() {
 function slackemon_get_battle_menu_attachments() {
 
   $attachments = [];
-  $battle_team = slackemon_get_battle_team();
+  $battle_team = slackemon_get_battle_team( USER_ID, false, true );
   $is_desktop  = 'desktop' === slackemon_get_player_menu_mode();
 
   $faint_count = 0;
 
   foreach ( $battle_team as $pokemon ) {
 
-    $species_data = slackemon_get_pokemon_species_data( $pokemon->pokedex );
-
-    $attachments[] = [
-      'text' => (
-        '*' .
-        ( 0 == $pokemon->hp ? ':skull: ' : '' ) .
-        ( pokedex_is_legendary( $pokemon->pokedex ) ? ':star2: ' : '' ) .
-        pokedex_readable( $pokemon->name, false ) .
-        slackemon_get_gender_symbol( $pokemon->gender ) .
-        ( $is_desktop ? '  •  ' : ' •  ' ) .
-        $pokemon->cp . ' CP' . '  •  ' .
-        'L ' . $pokemon->level . '     ' .
-        slackemon_emojify_types( join( ' ' , $pokemon->types ), false ) .
-        '*' . "\n" .
-        (
-          $is_desktop ?
-          'Won ' . $pokemon->battles->won . ' of ' . $pokemon->battles->participated . ' trainer battles' . "\n" :
-          "\n"
-        ) .
-        slackemon_readable_moveset( $pokemon->moves, $pokemon->types, true, true )
-      ),
-      'footer' => (
-        'Attack ' . $pokemon->stats->attack . ' • ' .
-        'Defense ' . $pokemon->stats->defense . ' • ' .
-        'HP ' . floor( $pokemon->hp ) . '/' . $pokemon->stats->hp .
-        (
-          0 == $pokemon->hp ?
-          ( $is_desktop ? ':black_small_square:' : ' !!!' ) :
-          ''
-        ) . (
-          $pokemon->hp > 0 && $pokemon->hp < $pokemon->stats->hp ?
-          ( $is_desktop ? ':small_orange_diamond:' : ' !!!' ) :
-          ''
-        ) .
-        ( $is_desktop ? '' : ' • Won ' . $pokemon->battles->won . ' of ' . $pokemon->battles->participated )
-      ),
-      'color' => $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : '',
-      'thumb_url' => (
-        $is_desktop ?
-        get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/' . $pokemon->name . '.gif' ) :
-        ''
-      ),
-    ];
+    $attachments[] = slackemon_get_battle_menu_pokemon_attachment( $pokemon );
 
     if ( 0 == $pokemon->hp ) {
       $faint_count++;
     }
 
+  } // Foreach battle_team pokemon
+
+  // Add attachments to add new Pokemon to the team
+  if ( count( $battle_team ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
+    for ( $i = count( $battle_team ); $i < SLACKEMON_BATTLE_TEAM_SIZE; $i++ ) {
+
+      if ( SLACKEMON_BATTLE_TEAM_SIZE - 1 === $i ) {
+        $count_helper = 'one more';
+      } else if ( $i > count( $battle_team ) ) {
+        $count_helper = 'another';
+      } else {
+        $count_helper = 'a';
+      }
+
+      $attachments[] = slackemon_get_battle_menu_add_attachment( $count_helper );
+
+    }
   }
 
+  // Add the battle team status attachment at the start
   array_unshift( $attachments, slackemon_get_battle_team_status_attachment() );
 
   $online_players      = slackemon_get_player_ids([ 'active_only' => true, 'skip_current_user' => true ]);
   $outstanding_invites = slackemon_get_user_outstanding_invites();
 
   if ( $faint_count === SLACKEMON_BATTLE_TEAM_SIZE && ! count( $outstanding_invites ) ) {
+    return $attachments;
+  }
+
+  // Don't allow the player to proceed with sending an invite if their battle team isn't full
+  if ( ! slackemon_is_battle_team_full( USER_ID, false, true ) && ! count( $outstanding_invites ) ) {
     return $attachments;
   }
 
@@ -171,6 +138,11 @@ function slackemon_get_battle_menu_attachments() {
 
   } else if ( count( $online_players ) ) {
 
+    // Line spacer
+    $attachments[] = [
+      'pretext' => ' ' . "\n" . ' ',
+    ];
+
     $attachments[] = [
       'pretext' => ':arrow_right: *Please choose your opponent:*',
       'color' => '#333333',
@@ -195,6 +167,11 @@ function slackemon_get_battle_menu_attachments() {
     }
 
   } else {
+
+    // Line spacer
+    $attachments[] = [
+      'pretext' => ' ' . "\n" . ' ',
+    ];
 
     $attachments[] = [
       'pretext' => (
@@ -251,5 +228,91 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID 
   return $attachment;
 
 } // Function slackemon_get_player_battle_attachment
+
+function slackemon_get_battle_menu_pokemon_attachment( $pokemon ) {
+
+  $species_data = slackemon_get_pokemon_species_data( $pokemon->pokedex );
+  $combined_evs = slackemon_get_combined_evs( $pokemon->evs );
+  $is_desktop   = 'desktop' === slackemon_get_player_menu_mode();
+
+  $attachment = [
+    'text' => (
+      '*' .
+      ( 0 == $pokemon->hp ? ':skull: ' : '' ) .
+      ( pokedex_is_legendary( $pokemon->pokedex ) ? ':star2: ' : '' ) .
+      pokedex_readable( $pokemon->name, false ) .
+      slackemon_get_gender_symbol( $pokemon->gender ) .
+      ( $is_desktop ? '  •  ' : ' •  ' ) .
+      $pokemon->cp . ' CP' . '  •  ' .
+      'L ' . $pokemon->level .
+      ( $is_desktop ? '  •  ' . $combined_evs . ' EV' . ( 1 === $combined_evs ? '' : 's' ) : '' ) . '     ' .
+      slackemon_emojify_types( join( ' ' , $pokemon->types ), false ) .
+      '*' .
+      ( $is_desktop ? "\n" : "\n\n" ) .
+      slackemon_readable_moveset( $pokemon->moves, $pokemon->types, true, true )
+    ),
+    'footer' => (
+      'Attack ' . $pokemon->stats->attack . ' • ' .
+      'Defense ' . $pokemon->stats->defense . ' • ' .
+      'HP ' . floor( $pokemon->hp ) . '/' . $pokemon->stats->hp .
+      (
+        0 == $pokemon->hp ?
+        ( $is_desktop ? ':black_small_square:' : ' !!!' ) :
+        ''
+      ) . (
+        $pokemon->hp > 0 && $pokemon->hp < $pokemon->stats->hp ?
+        ( $is_desktop ? ':small_orange_diamond:' : ' !!!' ) :
+        ''
+      ) .
+      ( $is_desktop ? ' • ' : "\n" ) .
+      'Sp Attk '    . $pokemon->stats->{'special-attack'}  . ' • ' .
+      'Sp Defense ' . $pokemon->stats->{'special-defense'} . ' • ' .
+      'Speed '      . $pokemon->stats->speed
+    ),
+    'actions' => [
+      [
+        'name'  => 'pokemon/view/from-battle-menu',
+        'text'  => ':eye: View Info',
+        'type'  => 'button',
+        'value' => $pokemon->ts,
+      ], [
+        'name'  => 'battle-team/remove/from-battle-menu',
+        'text'  => ':x: Remove',
+        'type'  => 'button',
+        'value' => $pokemon->ts,
+      ],
+    ],
+    'color' => $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : '',
+    'thumb_url' => (
+      $is_desktop ?
+      get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/' . $pokemon->name . '.gif' ) :
+      ''
+    ),
+  ];
+
+  return $attachment;
+
+} // Function slackemon_get_battle_menu_pokemon_attachment
+
+function slackemon_get_battle_menu_add_attachment( $count_helper = 'a' ) {
+
+   $attachment = [
+    'text'      => '*Select ' . $count_helper . ' Pokémon to add to your battle team:*',
+    'color'     => '#333333',
+    'mrkdwn_in' => [ 'text' ],
+    'actions'   => [
+      [
+        'name' => 'battle-team/add/from-battle-menu',
+        'text' => 'Choose a Pokémon...',
+        'type' => 'select',
+        'data_source' => 'external',
+        'min_query_length' => 1,
+      ]
+    ],
+  ];
+
+  return $attachment;
+
+} // Function slackemon_get_battle_menu_add_attachment
 
 // The end!
