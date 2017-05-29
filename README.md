@@ -2,19 +2,19 @@
 
 [![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy) **(in testing - see Setup below for other deployment methods)**
-
 Inspired by Pokémon Go, now you can catch and battle Pokémon with your teammates on Slack!
 
-**This program is very much a WORK IN PROGRESS, and should be considered very *ALPHA*. If you have any questions you're welcome to log an issue, but please be aware that code may be messy/incomplete, and some things may not work. In addition, not all mechanics are implemented yet.**
+**This program is very much a WORK IN PROGRESS, and should be considered very *ALPHA*. If you have any questions you're welcome to log an issue, but please be aware that code may be messy/incomplete, and some things may not work. In addition, not all mechanics are implemented yet. We're getting there!**
+
+[![Deploy to Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)  
+[Full Heroku deployment instructions](https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku)  
+Scroll down for more setup options
 
 ## Screenshots
 
 <a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/spawn.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/spawn.png" alt="Pokemon spawn" height="250"></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/wild-battle.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/wild-battle.png" alt="Achievements screen" height="250"></a>
 
-<a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/pokemon-menu.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/pokemon-menu.png" alt="Achievements screen" height="430"></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/achievements.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/achievements.png" alt="Achievements screen" height="430"></a>
-
-More screenshots can be found in the `_images/screenshots/` folder.
+[More screenshots](https://github.com/tdmalone/slackemon/tree/master/_images/screenshots)
 
 ## Features
 
@@ -36,10 +36,10 @@ More screenshots can be found in the `_images/screenshots/` folder.
 
 ## Requirements
 
-* A web server running PHP7
+* A web environment running PHP7
 * Access to a Slack organisation (if a free organisation, installing this will take up 1 of your 10 integrations)
-* **Optional:** An API key for OpenWeatherMap, to enable weather features based on real-world weather
-* **Optional:** An AWS S3 bucket for better performance when caching image assets
+* **Optional:** An API key for [OpenWeatherMap](http://openweathermap.org), to enable weather features based on real-world weather
+* **Optional:** An [AWS S3](https://aws.amazon.com/s3/) bucket for better performance when caching image assets
 
 ## Setup
 
@@ -47,7 +47,7 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
 
 1. Download/clone/etc. the contents of this repository, and put it on a web server somewhere that runs PHP7.
     * Alternatively you can [deploy it locally with Docker](https://github.com/tdmalone/slackemon/wiki/Installing-with-Docker)
-    * You can also [deploy directly to Heroku](https://heroku.com/deploy) ([instructions here](https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku)) **(currently in testing)**
+    * You can also [deploy directly to Heroku](https://heroku.com/deploy) ([instructions here](https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku))
 1. Log in to your Slack team, and visit https://api.slack.com/apps?new_app=1 to create a new App. You can call it whatever you like, but 'Slackémon' usually works best! You can then proceed to set up the app features through Slack's interface.
 1. Set up Slack's Interactive Messages
     1. From your App control page, under Features in the sidebar, click Interactive Messages
