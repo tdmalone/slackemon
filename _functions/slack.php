@@ -39,7 +39,7 @@ function send2slack( $message, $hook_url = '' ) {
       if ( preg_match( '/:.*?:/', $command_settings['icon'] ) ) {
         $payload['icon_emoji'] = $command_settings['icon'];
       } else if ( file_exists( __DIR__ . '/../_images/' . $command_settings['icon'] ) ) {
-        $payload['icon_url'] = INBOUND_URL . '/_images/' . $command_settings['icon'];
+        $payload['icon_url'] = SLACKEMON_INBOUND_URL . '/_images/' . $command_settings['icon'];
       }
 
     }
@@ -49,25 +49,15 @@ function send2slack( $message, $hook_url = '' ) {
   // We'll also set the default cron username and icon at this point, if one hasn't already been set above
   if ( isset( $_POST['special_mode'] ) && 'AUTORUN' === $_POST['special_mode'] ) {
 
-    // If a channel hasn't been set in our payload, we will work out the best one
-    // If this is being called by a service user, send to the debug channel (if defined)
-    // Otherwise, send straight back to the user who called it
+    // If a channel hasn't been set in our payload, send straight back to the user who called the command
     if ( ! isset( $payload['channel'] ) ) {
-      if (
-        isset( SLACK[ TEAM_ID ]['service_user'] ) &&
-        isset( SLACK[ TEAM_ID ]['debug_channel'] ) &&
-        $_POST['user_id'] === SLACK[ TEAM_ID ]['service_user']
-      ) {
-        $payload['channel'] = SLACK[ TEAM_ID ]['debug_channel'];
-      } else {
-        $payload['channel'] = $_POST['user_id'];
-      }
+      $payload['channel'] = $_POST['user_id'];
     }
 
     $payload['username'] = isset( $payload['username'] ) ? $payload['username'] : 'Slackémon Cron';
 
     if ( ! isset( $payload['icon_emoji'] ) && ! isset( $payload['icon_url'] ) ) {
-      $payload['icon_url'] = INBOUND_URL . '/_images/cron.png';
+      $payload['icon_url'] = SLACKEMON_INBOUND_URL . '/_images/cron.png';
     }
 
   }
@@ -128,7 +118,7 @@ function post2slack( $payload ) {
       if ( preg_match( '/:.*?:/', $command_settings['icon'] ) ) {
         $payload['icon_emoji'] = $command_settings['icon'];
       } else if ( file_exists( __DIR__ . '/../_images/' . $command_settings['icon'] ) ) {
-        $payload['icon_url'] = INBOUND_URL . '/_images/' . $command_settings['icon'];
+        $payload['icon_url'] = SLACKEMON_INBOUND_URL . '/_images/' . $command_settings['icon'];
       }
 
     }

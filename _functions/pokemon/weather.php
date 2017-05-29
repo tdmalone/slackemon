@@ -7,7 +7,11 @@ function slackemon_get_weather( $cache_options = [] ) {
 
   // Documentation at http://openweathermap.org/current
 
-  if ( ! isset( SERVICES['weather']['key'] ) ) {
+  if (
+    ! defined( 'SLACKEMON_OPENWEATHERMAP_KEY' ) ||
+    ! SLACKEMON_OPENWEATHERMAP_KEY ||
+    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' === SLACKEMON_OPENWEATHERMAP_KEY
+  ) {
     return false;
   }
 
@@ -22,7 +26,7 @@ function slackemon_get_weather( $cache_options = [] ) {
     'lat' => $coords[0],
     'lon' => $coords[1],
     'units' => 'metric',
-    'appid' => SERVICES['weather']['key'],
+    'appid' => SLACKEMON_OPENWEATHERMAP_KEY,
   ];
 
   $weather = get_cached_url( $endpoint . '?' . http_build_query( $params ), $cache_options );

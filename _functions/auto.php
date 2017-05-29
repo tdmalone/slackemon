@@ -11,7 +11,7 @@ function run_automated_command( $command, $user_id, $team_id, $options = [] ) {
 	$text = isset( $command_parts[1] ) ? join( ' ', array_slice( $command_parts, 1 ) ) : '';
 
 	// Get the team ID & command token
-	$token = SLACK_TOKENS_BY_COMMAND[ $team_id ][ $command ];
+	$token = SLACKEMON_SLACK_TOKEN;
 
 	// Prepare options
 	$options['return_result'] = isset( $options['return_result'] ) ? $options['return_result'] : false;
@@ -31,7 +31,7 @@ function run_automated_command( $command, $user_id, $team_id, $options = [] ) {
 		'user_name'		=> '', // Unknown when autorun
 		'command'		=> $command,
 		'text'			=> $text,
-		'response_url'	=> GENERIC_WEBHOOKS[ $team_id ],
+		'response_url'	=> false,
 
 		// Our own custom data
 
@@ -43,9 +43,9 @@ function run_automated_command( $command, $user_id, $team_id, $options = [] ) {
 
 	];
 
-	// Run the command - requires INBOUND_URL to be defined in config.php
+	// Run the command
 	$ch = curl_init();
-	curl_setopt( $ch, CURLOPT_URL, INBOUND_URL );
+	curl_setopt( $ch, CURLOPT_URL, SLACKEMON_INBOUND_URL );
 	curl_setopt( $ch, CURLOPT_POSTFIELDS, $params );
 	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 	curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );

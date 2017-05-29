@@ -127,7 +127,7 @@ function slackemon_get_region_message( $new_region_name ) {
           )
         ),
         'color' => '#333333',
-        'image_url' => get_cached_image_url( INBOUND_URL . '_images/slackemon-' . $new_region_name . '.png' ),
+        'image_url' => get_cached_image_url( SLACKEMON_INBOUND_URL . '_images/slackemon-' . $new_region_name . '.png' ),
       ],
       slackemon_back_to_menu_attachment(),
     ],
