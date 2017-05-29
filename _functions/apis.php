@@ -9,14 +9,13 @@ require( __DIR__ . '/pokemon/pokemon.php' );
 /** Get a URL using curl, and return the result. TODO: Allow e-mail/version/etc. here to be changed in config. */
 function get_url( $url, $options = [] ) {
 
-	// Get the maintainer's e-mail, or fallback to the Slackemon developer's e-mail address if not available
-	$maintainer_email = 'tdmalone@gmail.com';
+	$user_agent = 'Slackemon for Slack v' . SLACKEMON_VERSION . ' (https://github.com/tdmalone/slackemon)';
 
 	$ch = curl_init();
 	curl_setopt( $ch, CURLOPT_URL, $url );
 	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 	curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false ); // TODO: See http://php.net/manual/en/function.curl-setopt.php#110457
-	curl_setopt( $ch, CURLOPT_USERAGENT, 'Slackemon for Slack (' . $maintainer_email . ')' );
+	curl_setopt( $ch, CURLOPT_USERAGENT, $user_agent );
 
 	if ( isset( $options['curl_options'] ) ) {
 		foreach( $options['curl_options'] as $key => $value ) {
