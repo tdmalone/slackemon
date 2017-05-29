@@ -47,7 +47,7 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
 
 1. Download/clone/etc. the contents of this repository, and put it on a web server somewhere that runs PHP7.
     * Alternatively you can [deploy it locally with Docker](https://github.com/tdmalone/slackemon/wiki/Installing-with-Docker)
-    * You can also [deploy directly to Heroku](https://heroku.com/deploy) ([instructions here](https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku))
+    * You can also [deploy directly to Heroku](https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku)
 1. Log in to your Slack team, and visit https://api.slack.com/apps?new_app=1 to create a new App. You can call it whatever you like, but 'Slackémon' usually works best! You can then proceed to set up the app features through Slack's interface.
 1. Set up Slack's Interactive Messages
     1. From your App control page, under Features in the sidebar, click Interactive Messages
@@ -67,12 +67,13 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
     1. Click Save Changes, then at the top of the page, click the button to install the app to your team, giving it the permissions it asks for. Make a note of your OAuth Access Token.
         * _At this point, if you are on a free Slack team, Slackémon will take up one of your 10 available integrations. If you have already used your 10 integrations, you'll need to completely remove one at `https://YOUR-DOMAIN.slack.com/apps/manage` before you can add Slackémon - or alternatively, upgrade to a paid Slack plan._
 1. Head back to the 'Basic Information' page for your app, and scroll down to your app's credentials section. Make a note of the _Verification Token_.
+   * You may also like to set up an icon for your app to make messages from it look slightly nicer - [this Pokéball](https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/emoji/pokeball.png) makes a good icon!
 1. Set up your environment variables, either by copying `.env.example` to `.env` (development mode only - see instructions in the file), or setting the variables within your environment (recommended). Either way, see the `.env.example` file for instructions on the variables to set.
 1. In your system's crontab (eg. `crontab -e` on a Linux machine, or find the Cron option in your hosting control panel), set up `cron.php` to run every minute, sending through the cron token you created earlier.
     * If you're invoking via the command line, you can use eg. `php /path/to/cron.php --token=XXXXXXXXXXXXXXXXXXXX`
     * If you're invoking via a GET request, you can use eg. `http://example.com/slackemon/cron.php?token=XXXXXXXXXXXXXXXXXXXX`
 1. TODO: Add steps for installing custom emoji, including Pokémon & type emoji
-1. TODO: Add steps for cloning [PokeCSS](https://github.com/metaunicorn/pokecss-media) to your install
+1. TODO: Add steps for forking and linking to [PokeCSS Media](https://github.com/tdmalone/pokecss-media)
 
 ## Future enhancements
 
