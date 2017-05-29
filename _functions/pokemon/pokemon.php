@@ -19,7 +19,10 @@ $_slackemon_constant_defaults = [
 
   // Includes additional team news on the Slackemon home screen
   'ADDITIONAL_NEWS'        => [],
-  'ANIMATED_GIF_BASE'      => 'https://assets-lmcrhbacy2s.stackpathdns.com/img/pokemon/animated',
+
+  // The base URL used for all animated Pokemon sprite GIFs
+  'ANIMATED_GIF_BASE'      => 'https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon',
+
   'AVAILABLE_REGIONS'      => [ 'kanto' ],
   'BANNED_HOURS'           => [], // TODO - This is not yet implemented
 

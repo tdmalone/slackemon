@@ -1739,7 +1739,7 @@ function slackemon_get_battle_pokemon_attachment( $pokemon, $player_id, $battle_
   // If Pokemon hasn't fainted, show the animated sprite
   // If it has fainted, show the front static sprite if a wild battle (because it's catchable), otherwise back static
   if ( $pokemon->hp ) {
-    $image_url = SLACKEMON_ANIMATED_GIF_BASE . '/' . $pokemon->name . '.gif';
+    $image_url = SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif';
   } else if ( 'wild' === $battle_data->type ) {
     $pokemon_data = slackemon_get_pokemon_data( $pokemon->pokedex );
     $image_url = (

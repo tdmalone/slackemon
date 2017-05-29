@@ -285,7 +285,7 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon ) {
     'color' => $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : '',
     'thumb_url' => (
       $is_desktop ?
-      get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/' . $pokemon->name . '.gif' ) :
+      get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' ) :
       ''
     ),
   ];

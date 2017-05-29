@@ -41,7 +41,7 @@ function slackemon_get_travel_menu() {
 	    ),
 	    'thumb_url' => (
         $is_desktop ?
-        get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/' . $random_pokemon_name . '.gif' ) :
+        get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $random_pokemon_name . '.gif' ) :
         ''
       ),
 	    'color' => $random_pokemon_color,
