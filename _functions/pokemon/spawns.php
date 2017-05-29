@@ -387,7 +387,7 @@ function slackemon_notify_spawn( $spawn ) {
         ),
         'mrkdwn_in' => [ 'pretext', 'text' ],
         'color' => slackemon_get_color_as_hex( $species_data->color->name ),
-        'image_url' => get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/' . $spawn['name'] . '.gif' ),
+        'image_url' => get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $spawn['name'] . '.gif' ),
       ], [
         'color' => slackemon_get_color_as_hex( $species_data->color->name ),
         'fields' => [

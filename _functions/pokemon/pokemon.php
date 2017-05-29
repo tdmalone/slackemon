@@ -13,10 +13,18 @@ $_slackemon_constant_defaults = [
   // This can be useful to change in local development config, to send action data to another predefined location
   'ACTION_CALLBACK_ID'     => 'slackemon',
 
+  // If you need to deploy Slackemon, or different instances of it, at a different slash command
+  // TODO: These needs implementing
+  'SLASH_COMMAND'          => '/slackemon',
+
+  // Includes additional team news on the Slackemon home screen
   'ADDITIONAL_NEWS'        => [],
-  'ANIMATED_GIF_BASE'      => 'https://assets-lmcrhbacy2s.stackpathdns.com/img/pokemon/animated',
+
+  // The base URL used for all animated Pokemon sprite GIFs
+  'ANIMATED_GIF_BASE'      => 'https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon',
+
   'AVAILABLE_REGIONS'      => [ 'kanto' ],
-  'BANNED_HOURS'           => [],
+  'BANNED_HOURS'           => [], // TODO - This is not yet implemented
 
   // 1 in X chance of flee. For wild battles, chance is multipled by Y and divided by wild Pokemon's remaining HP.
   // eg. Normal catch: 1 in 3 chance of flee.
@@ -42,6 +50,7 @@ $_slackemon_constant_defaults = [
   'EXCLUDED_POKEMON'       => [ 132 ], // Ditto - need to decide how we deal with Transform in battle
 
   'ALLOW_LEGENDARY_WEATHER_SPAWNS' => true,
+  'ITEM_SPAWN_CHANCE'      => 5, // Chance out of 100 of spawning an item instead of a Pokemon
 
   'EXP_GAIN_MODIFIER'      => 1,
   'FLEE_TIME_LIMIT'        => MINUTE_IN_SECONDS * 5,
@@ -54,15 +63,10 @@ $_slackemon_constant_defaults = [
   'POKEDEX_PER_PAGE'       => 20,
   'MAX_KNOWN_MOVES'        => 4,
 
+  // If enabled, sends debugging messages to the configured maintainer during spawns and battles
+  // Sometimes useful when doing further development on these features
   'BATTLE_DEBUG'           => false,
   'SPAWN_DEBUG'            => false,
-
-  'ITEM_SPAWN_CHANCE'      => 5, // Chance out of 100 of spawning an item instead of a Pokemon
-
-  // Change this to make weather info reflect your local area
-  // You can get your lat lon from eg. Google Maps
-  // Default is Melbourne, Australia
-  'WEATHER_LAT_LON'        => '-37.81,144.96',
 
 ];
 

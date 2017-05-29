@@ -558,7 +558,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     'fields'  => $attachment_fields,
     'footer'  => $attachment_footer,
     'actions' => $attachment_actions,
-    'image_url' => get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/' . $pokemon->name . '.gif' ),
+    'image_url' => get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' ),
   ];
 
   // If this is being displayed immediately after a catch, remove the original spawn data & add a main menu link
