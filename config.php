@@ -4,10 +4,10 @@
 // Apply Slackemon config
 
 // If running in development, attempt to load environment variables from .env file
-if ( file_exists( './.env' ) && getenv( 'APP_ENV' ) === 'development' ) {
+if ( file_exists( __DIR__ . '/.env' ) && getenv( 'APP_ENV' ) === 'development' ) {
     require __DIR__ . '/vendor/autoload.php';
-    $dotenv = new Dotenv\Dotenv();
-    $dotenv->load( __DIR__ );
+    $dotenv = new Dotenv\Dotenv( __DIR__ );
+    $dotenv->load();
 }
 
 define( 'SLACKEMON_SLACK_TOKEN',        getenv( 'SLACKEMON_SLACK_TOKEN'        ) );
