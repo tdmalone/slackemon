@@ -9,16 +9,16 @@ require_once( __DIR__ . '/init.php' );
 
 // AUTH: Check if the cron token was set
 if (
-	( ! isset( $argv[1] ) || '--token=' . CRON_TOKEN !== $argv[1] ) &&
-	( ! isset( $_POST['token'] ) || CRON_TOKEN !== $_POST['token'] ) &&
-	( ! isset( $_GET['token'] ) || CRON_TOKEN !== $_GET['token'] )
+	( ! isset( $argv[1] ) || '--token=' . SLACKEMON_CRON_TOKEN !== $argv[1] ) &&
+	( ! isset( $_POST['token'] ) || SLACKEMON_CRON_TOKEN !== $_POST['token'] ) &&
+	( ! isset( $_GET['token'] ) || SLACKEMON_CRON_TOKEN !== $_GET['token'] )
 ) {
 	http_response_code( 403 );
 	exit( 'Not authorised for this cron request.' );
 }
 
 // Cron schedule
-define( 'CRON_SCHEDULE', [
+define( 'SLACKEMON_CRON_SCHEDULE', [
 
 	[ '*', '*', '*', '*', '*', '/slackemon maybe-spawn'  	  ], // Runs every minute
 	[ '*', '*', '*', '*', '*', '/slackemon battle-updates'    ], // Runs every minute
@@ -40,7 +40,7 @@ define( 'DAY',    (int) date( 'w' ) );
 echo MINUTE . ' ' . HOUR . ' ' . DATE . ' ' . MONTH . ' ' . DAY;
 
 // Check schedule, and run commands if it's time
-foreach ( CRON_SCHEDULE as $item ) {
+foreach ( SLACKEMON_CRON_SCHEDULE as $item ) {
 
 	// Decide whether to skip this item if it doesn't match every condition
 	if (
@@ -62,6 +62,6 @@ foreach ( CRON_SCHEDULE as $item ) {
 	$result = run_automated_command( $command, $user_id, $team_id, [ 'run_mode' => 'cron' ] );
 	echo $result;
 
-} // Foreach CRON_SCHEDULE $item
+} // Foreach SLACKEMON_CRON_SCHEDULE $item
 
 // The end!

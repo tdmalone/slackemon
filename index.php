@@ -28,7 +28,6 @@ require_once( __DIR__ . '/init.php' );
 
 // Init the once-off, entry-point stuff
 define( 'COMMAND', $_REQUEST['command'] );
-define( 'MAINTAINER', SLACKEMON_MAINTAINER );
 
 // Get the settings for this command
 $command_settings = get_command_settings();
@@ -46,7 +45,7 @@ if ( isset( $command_settings['entry_point'] ) && file_exists( $command_settings
 	require( $default_entry_point );
 	exit();
 } else {
-	exit( 'Oops! Command instructions could not be found. Please contact <@' . MAINTAINER . '> for help.' );
+	exit( 'Oops! Command instructions could not be found. Please contact <@' . SLACKEMON_MAINTAINER . '> for help.' );
 }
 
 // The end!

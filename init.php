@@ -83,8 +83,7 @@ if ( ! defined( 'USER_ID' ) && isset( $_REQUEST['user_id'] ) ) {
 	define( 'RESPONSE_URL', $_REQUEST['response_url'] );
 
 	// Determine if other custom variables have already been set, and if so, assign them, if not, index.php will set them
-	if ( ! defined( 'MAINTAINER' ) && isset( $_REQUEST['maintainer'] ) ) {
-		define( 'MAINTAINER', $_REQUEST['maintainer'] );
+	if ( ! defined( 'COMMAND' ) && isset( $_REQUEST['command'] ) ) {
 		define( 'COMMAND',    $_REQUEST['command']    );
 	}
 
@@ -104,7 +103,6 @@ if ( ! defined( 'USER_ID' ) && ( isset( $action->user ) || isset( $options_reque
 	}
 
 	define( 'COMMAND',    '/' . ( isset( $callback_id ) ? $callback_id[0] : $request->callback_id ) );
-	define( 'MAINTAINER', SLACKEMON_MAINTAINER );
 
 }
 

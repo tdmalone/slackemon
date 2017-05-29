@@ -53,12 +53,7 @@ function get_command_settings( $command = COMMAND ) {
     	return $_cached_command_settings[ $command ];
   	}
 
-	// Do we have a non-standard location for config.json?
-	if ( defined( 'SLASH_COMMANDS' ) && isset( SLASH_COMMANDS[ $command ]['entry_point'] ) ) {
-		$config_filename = __DIR__ . '/../' . dirname( SLASH_COMMANDS[ $command ]['entry_point'] ) . '/config.json';
-	} else {
-		$config_filename = __DIR__ . '/../' . substr( $command, 1 ) . '/config.json';
-	}
+	$config_filename = __DIR__ . '/../' . substr( $command, 1 ) . '/config.json';
 
 	// Do we have a default config?
 	if ( file_exists( $config_filename ) ) {
@@ -67,17 +62,7 @@ function get_command_settings( $command = COMMAND ) {
 		$default_config = [];
 	}
 
-	// Do we have a user config?
-	if ( defined( 'SLASH_COMMANDS' ) && isset( SLASH_COMMANDS[ $command ] ) ) {
-		$user_config = SLASH_COMMANDS[ $command ];
-	} else {
-		$user_config = [];
-	}
-
-	// Merge both configs together, with user overriding default
-	$config = array_merge( $default_config, $user_config );
-
-	$_cached_command_settings[ $command ] = $config;
+	$_cached_command_settings[ $command ] = $default_config;
 	return $config;
 
 } // Function get_command_settings
@@ -117,7 +102,7 @@ function run_background_command( $path, $args, $additional_fields = [], $additio
 		
 		// Pass through our own custom data
 		'args'         => $args,
-		'maintainer'   => MAINTAINER,
+		'maintainer'   => SLACKEMON_MAINTAINER,
 		'special_mode' => isset( $_REQUEST['special_mode'] ) ? $_REQUEST['special_mode'] : '', // For cron runs
 		
 	];

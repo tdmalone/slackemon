@@ -50,7 +50,7 @@ function slackemon_spawn_debug( $message ) {
 
   send2slack([
     'text' => $message,
-    'channel' => MAINTAINER,
+    'channel' => SLACKEMON_MAINTAINER,
   ]);
 
 } // Function slackemon_spawn_debug

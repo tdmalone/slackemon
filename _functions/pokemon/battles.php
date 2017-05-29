@@ -1979,7 +1979,7 @@ function slackemon_battle_has_ended_message() {
     'text' => (
       ':open_mouth: *Oops! It appears this battle may have ended!*' . "\n" .
       'If this doesn\'t seem right to you, check with your battle opponent. If you think something may be wrong ' .
-      'with Slackémon, please chat to <@' . MAINTAINER . '>.'
+      'with Slackémon, please chat to <@' . SLACKEMON_MAINTAINER . '>.'
     ),
     'attachments' => [
       slackemon_back_to_menu_attachment()
@@ -1996,7 +1996,7 @@ function slackemon_battle_debug( $message ) {
 
   send2slack([
     'text' => $message,
-    'channel' => MAINTAINER,
+    'channel' => SLACKEMON_MAINTAINER,
   ]);
 
 } // Function slackemon_battle_debug
