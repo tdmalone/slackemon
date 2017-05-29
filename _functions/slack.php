@@ -200,10 +200,6 @@ function get_user_avatar_url( $user_id = USER_ID ) {
  */
 function get_user_email_address( $user_id = USER_ID ) {
 
-  if ( defined( 'SLACK_USERS' ) && isset( SLACK_USERS[ $user_id ]['email_address'] ) ) {
-    return SLACK_USERS[ $user_id ]['email_address'];
-  }
-
   $user = get_slack_user( $user_id );
   if ( $user && isset( $user->profile->email ) ) {
     return $user->profile->email;

@@ -297,8 +297,7 @@ function slackemon_is_player_active( $user_id = USER_ID ) {
   if (
     slackemon_is_player_muted( $user_id ) ||
     slackemon_is_player_in_battle( $user_id ) ||
-    slackemon_is_player_dnd( $user_id ) ||
-    slackemon_is_player_toggl( $user_id )
+    slackemon_is_player_dnd( $user_id )
   ) {
     return false;
   }
@@ -316,7 +315,7 @@ function slackemon_is_player_dnd( $user_id = USER_ID, $skip_cache = false ) {
     $endpoint = $api_base . '/dnd.info';
 
     $payload = [
-      'token' => SLACK_USERS[ SLACK[ TEAM_ID ]['service_user'] ]['credentials']['slack']['key'],
+      'token' => SLACKEMON_SLACK_KEY,
       'user' => $user_id,
     ];
 
@@ -343,43 +342,6 @@ function slackemon_is_player_dnd( $user_id = USER_ID, $skip_cache = false ) {
   return $_cached_slackemon_dnd[ $user_id ];
 
 } // Function slackemon_is_player_dnd
-
-function slackemon_is_player_toggl( $user_id = USER_ID, $skip_cache = false ) {
-  global $_cached_slackemon_toggl;
-
-  if ( ! function_exists( 'get_from_toggl' ) ) {
-    return false;
-  }
-
-  if (
-    isset( SLACK_USERS[ $user_id ]['credentials']['toggl'] ) &&
-    date( 'N' ) <= 5 && date( 'H' ) >= 8 && date( 'H' ) <= 18
-  ) {
-
-    if ( ! isset( $_cached_slackemon_toggl[ $user_id ] ) ) {
-
-      $currentTimer = get_from_toggl(
-        '',
-        '/api/v8/time_entries/current',
-        ( $skip_cache ? 1 : MINUTE_IN_SECONDS * 5 ), // 1 second if skipping cache, so that it still saves
-        SLACK_USERS[ $user_id ]['credentials']['toggl']['api_key']
-      );
-
-      if ( isset( $currentTimer->data ) && $currentTimer->data->wid == get_toggl_workspace_id( $user_id ) ) {
-        $_cached_slackemon_toggl[ $user_id ] = true;
-      } else {
-        $_cached_slackemon_toggl[ $user_id ] = false;
-      }
-
-    }
-
-  } else {
-    $_cached_slackemon_toggl[ $user_id ] = false;
-  }
-
-  return $_cached_slackemon_toggl[ $user_id ];
-
-} // Function slackemon_is_player_toggl
 
 function slackemon_get_player_menu_mode( $user_id = USER_ID ) {
 

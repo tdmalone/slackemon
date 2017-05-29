@@ -4,3 +4,4 @@
 .DS_Store
 .env
 /composer.phar
+error_log

@@ -104,7 +104,7 @@ function run_background_command( $path, $args, $additional_fields = [], $additio
 
 		// Pass through all the usual expected data
 		// Reference: https://api.slack.com/slash-commands#triggering_a_command
-		'token'        => SLACK_TOKENS_BY_COMMAND[ TEAM_ID ][ COMMAND ],
+		'token'        => SLACKEMON_SLACK_TOKEN,
 		'team_id'      => TEAM_ID,
 		'team_domain'  => $_REQUEST['team_domain'],
 		'channel_id'   => $_REQUEST['channel_id'],
