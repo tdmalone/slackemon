@@ -44,11 +44,11 @@ foreach ( SLACKEMON_CRON_SCHEDULE as $item ) {
 
 	// Decide whether to skip this item if it doesn't match every condition
 	if (
-		! check_cron_value( $item[0], MINUTE ) ||
-		! check_cron_value( $item[1], HOUR ) ||
-		! check_cron_value( $item[2], DATE ) ||
-		! check_cron_value( $item[3], MONTH ) ||
-		! check_cron_value( $item[4], DAY )
+		! slackemon_check_cron_value( $item[0], MINUTE ) ||
+		! slackemon_check_cron_value( $item[1], HOUR ) ||
+		! slackemon_check_cron_value( $item[2], DATE ) ||
+		! slackemon_check_cron_value( $item[3], MONTH ) ||
+		! slackemon_check_cron_value( $item[4], DAY )
 	) {
 		continue;
 	}
@@ -59,7 +59,7 @@ foreach ( SLACKEMON_CRON_SCHEDULE as $item ) {
 	$team_id = SLACKEMON_SLACK_TEAM_ID;
 
 	// Run the command, and output the initial result back to the cron caller
-	$result = run_automated_command( $command, $user_id, $team_id, [ 'run_mode' => 'cron' ] );
+	$result = slackemon_run_automated_command( $command, $user_id, $team_id, [ 'run_mode' => 'cron' ] );
 	echo $result;
 
 } // Foreach SLACKEMON_CRON_SCHEDULE $item

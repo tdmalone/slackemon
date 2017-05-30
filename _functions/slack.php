@@ -133,7 +133,7 @@ function post2slack( $payload ) {
     }
   }, $payload );
 
-  $response = get_url( $endpoint . '?' . http_build_query( $payload ) );
+  $response = slackemon_get_url( $endpoint . '?' . http_build_query( $payload ) );
   file_put_contents( $data_folder . '/last-post2slack-result', $response );
 
   return $response;

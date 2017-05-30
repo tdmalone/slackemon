@@ -7,7 +7,7 @@ require( __DIR__ . '/slack.php'	 );
 require( __DIR__ . '/pokemon/pokemon.php' );
 
 /** Get a URL using curl, and return the result. TODO: Allow e-mail/version/etc. here to be changed in config. */
-function get_url( $url, $options = [] ) {
+function slackemon_get_url( $url, $options = [] ) {
 
 	$user_agent = 'Slackemon for Slack v' . SLACKEMON_VERSION . ' (https://github.com/tdmalone/slackemon)';
 
@@ -34,7 +34,7 @@ function get_url( $url, $options = [] ) {
 	curl_close( $ch );
 	return $result;
 	
-} // Function get_url
+} // Function slackemon_get_url
 
 /** Easily manage cache of individual URLs. */
 function get_cached_url( $url, $options = [] ) {
@@ -67,7 +67,7 @@ function get_cached_url( $url, $options = [] ) {
 
 	if ( file_exists( $filename ) && file_get_contents( $filename ) && ! $is_cache_expired ) {
 
-		log_cache_event( $url, $filename, 'hit' );
+		slackemon_log_cache_event( $url, $filename, 'hit' );
 		$data = file_get_contents( $filename );
 		
 	} else {
@@ -86,9 +86,9 @@ function get_cached_url( $url, $options = [] ) {
 			$real_url = $url;
 		}
 
-		log_cache_event( $url, $filename, $is_cache_expired ? 'expired' : 'miss' );
+		slackemon_log_cache_event( $url, $filename, $is_cache_expired ? 'expired' : 'miss' );
 
-		$data = get_url( $real_url, $options );
+		$data = slackemon_get_url( $real_url, $options );
 		file_put_contents( $filename, $data );
 
 	}
@@ -104,7 +104,7 @@ function get_cached_image_url( $image_url, $options = [] ) {
 	}
 
 	if ( ! $image_url ) {
-		log_cache_event( $image_url, '', 'image-error-missing-url' );
+		slackemon_log_cache_event( $image_url, '', 'image-error-missing-url' );
 		return false;
 	}
 
@@ -123,7 +123,7 @@ function get_cached_image_url( $image_url, $options = [] ) {
 
 	// Does image exist in local cache? Return the URL now - either the local URL, or the remote URL stored in the file
 	if ( file_exists( $filename ) ) {
-		log_cache_event( $image_url, $filename, 'image-hit' );
+		slackemon_log_cache_event( $image_url, $filename, 'image-hit' );
 		return 'local' === SLACKEMON_IMAGE_CACHE_METHOD ? $local_url : file_get_contents( $filename );
 	}
 
@@ -135,12 +135,12 @@ function get_cached_image_url( $image_url, $options = [] ) {
 	// Get image and store it before returning the local URL
 	// TODO: If using AWS, check if the remote_key exists first, then just store the ObjectURL locally instead of
 	//       getting and uploading the image again
-	$image_data = get_url( $image_url );
+	$image_data = slackemon_get_url( $image_url );
 	if ( ! $image_data ) {
-		log_cache_event( $image_url, $filename, 'image-error-no-data-at-url' );
+		slackemon_log_cache_event( $image_url, $filename, 'image-error-no-data-at-url' );
 		return false;
 	}
-	log_cache_event( $image_url, $filename, 'image-miss' );
+	slackemon_log_cache_event( $image_url, $filename, 'image-miss' );
 
 	switch ( SLACKEMON_IMAGE_CACHE_METHOD ) {
 
@@ -183,7 +183,7 @@ function get_cached_image_url( $image_url, $options = [] ) {
 			} catch ( Aws\S3\Exception\S3Exception $e ) {
 
 				// Log an event and return the original image URL in case of exception
-				log_cache_event( $image_url, $filename, 'image-error-aws-exception' );
+				slackemon_log_cache_event( $image_url, $filename, 'image-error-aws-exception' );
 				return $image_url;
 
 			}
@@ -195,16 +195,16 @@ function get_cached_image_url( $image_url, $options = [] ) {
 
 		break; // Case aws
 
-	} // Switch image cache method
+	} // Switch SLACKEMON_IMAGE_CACHE_METHOD
 } // Function get_cached_image_url
 
 /** Simple function to log cache events. */
-function log_cache_event( $url, $filename, $cache_status ) {
+function slackemon_log_cache_event( $url, $filename, $cache_status ) {
 
 	// TODO
 
 	return;
 
-} // Function log_cache_event
+} // Function slackemon_log_cache_event
 
 // The end!
