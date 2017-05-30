@@ -329,7 +329,7 @@ function slackemon_get_user_teachable_pokemon( $move_name, $cache_mode = '', $us
 
   if ( 'force_update_cache' !== $cache_mode && file_exists( $cache_filename ) ) {
     if ( 'force_use_cache' === $cache_mode || filemtime( $cache_filename ) > time() - MINUTE_IN_SECONDS * 5 ) {
-      $user_teachable_pokemon = json_decode( file_get_contents( $cache_filename ) );
+      $user_teachable_pokemon = json_decode( slackemon_file_get_contents( $cache_filename ) );
       return $user_teachable_pokemon;
     }
   }
@@ -362,7 +362,7 @@ function slackemon_get_user_teachable_pokemon( $move_name, $cache_mode = '', $us
 
   }
 
-  file_put_contents( $cache_filename, json_encode( $user_teachable_pokemon ) );
+  slackemon_file_put_contents( $cache_filename, json_encode( $user_teachable_pokemon ) );
 
   return $user_teachable_pokemon;
 

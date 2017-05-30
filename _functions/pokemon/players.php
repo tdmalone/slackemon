@@ -47,7 +47,7 @@ function slackemon_save_player_data( $player_data, $user_id = USER_ID ) {
   $player_filename = $data_folder . '/' . $user_id . '.player';
 
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
-  return file_put_contents( $player_filename, json_encode( $player_data ) );
+  return slackemon_file_put_contents( $player_filename, json_encode( $player_data ) );
 
 } // Function slackemon_save_player_data
 
@@ -66,7 +66,7 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
     return false;
   }
 
-  $player_data = json_decode( file_get_contents( $player_filename ) );
+  $player_data = json_decode( slackemon_file_get_contents( $player_filename ) );
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
 
   // Ensure player is not caught in a cancelled region if the available regions change

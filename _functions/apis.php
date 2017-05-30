@@ -109,6 +109,12 @@ function slackemon_file_put_contents( $filename, $data ) {
 	} // Switch SLACKEMON_DATA_CACHE_METHOD
 } // Function file_put_contents
 
+function slackemon_file_exists( ) {
+
+	// TODO
+
+} // Function slackemon_file_exists
+
 /** Get a URL using curl, and return the result. TODO: Allow e-mail/version/etc. here to be changed in config. */
 function slackemon_get_url( $url, $options = [] ) {
 
@@ -168,10 +174,10 @@ function get_cached_url( $url, $options = [] ) {
 		$is_cache_expired = true;
 	}
 
-	if ( file_exists( $filename ) && file_get_contents( $filename ) && ! $is_cache_expired ) {
+	if ( file_exists( $filename ) && slackemon_file_get_contents( $filename ) && ! $is_cache_expired ) {
 
 		slackemon_log_cache_event( $url, $filename, 'hit' );
-		$data = file_get_contents( $filename );
+		$data = slackemon_file_get_contents( $filename );
 		
 	} else {
 
@@ -192,7 +198,7 @@ function get_cached_url( $url, $options = [] ) {
 		slackemon_log_cache_event( $url, $filename, $is_cache_expired ? 'expired' : 'miss' );
 
 		$data = slackemon_get_url( $real_url, $options );
-		file_put_contents( $filename, $data );
+		slackemon_file_put_contents( $filename, $data );
 
 	}
 
@@ -227,7 +233,7 @@ function get_cached_image_url( $image_url, $options = [] ) {
 	// Does image exist in local cache? Return the URL now - either the local URL, or the remote URL stored in the file
 	if ( file_exists( $filename ) ) {
 		slackemon_log_cache_event( $image_url, $filename, 'image-hit' );
-		return 'local' === SLACKEMON_IMAGE_CACHE_METHOD ? $local_url : file_get_contents( $filename );
+		return 'local' === SLACKEMON_IMAGE_CACHE_METHOD ? $local_url : slackemon_file_get_contents( $filename );
 	}
 
 	// Make sure full cache folder exists
@@ -292,7 +298,7 @@ function get_cached_image_url( $image_url, $options = [] ) {
 			}
 
 			$remote_url = $result['ObjectURL'];
-			file_put_contents( $filename, $remote_url );
+			slackemon_file_put_contents( $filename, $remote_url );
 
 			return $remote_url;
 

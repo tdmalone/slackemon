@@ -1844,7 +1844,7 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
     return false;
   }
 
-  $battle_data = json_decode( file_get_contents( $battle_filename ) );
+  $battle_data = json_decode( slackemon_file_get_contents( $battle_filename ) );
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
 
   return $battle_data;
@@ -1860,7 +1860,7 @@ function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
     return false;
   }
 
-  $invite_data = json_decode( file_get_contents( $invite_filename ) );
+  $invite_data = json_decode( slackemon_file_get_contents( $invite_filename ) );
 
   if ( $remove_invite ) {
     unlink( $invite_filename );
@@ -1881,7 +1881,7 @@ function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage =
   }
 
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
-  return file_put_contents( $battle_filename, json_encode( $battle_data ) );
+  return slackemon_file_put_contents( $battle_filename, json_encode( $battle_data ) );
 
 } // Function slackemon_get_battle_data
 
@@ -1914,7 +1914,7 @@ function slackemon_get_all_active_battles() {
   $active_battles = [];
 
   foreach ( $battles as $battle_filename ) {
-    $battle_data = json_decode( file_get_contents( $battle_filename ) );
+    $battle_data = json_decode( slackemon_file_get_contents( $battle_filename ) );
     $active_battles[] = $battle_data;
   }
 
@@ -1929,7 +1929,7 @@ function slackemon_get_user_active_battles( $user_id = USER_ID ) {
   $user_battles = [];
 
   foreach ( $battles as $battle_filename ) {
-    $battle_data = json_decode( file_get_contents( $battle_filename ) );
+    $battle_data = json_decode( slackemon_file_get_contents( $battle_filename ) );
     if ( isset( $battle_data->users->{ $user_id } ) ) {
       $user_battles[] = $battle_data;
     }
@@ -1946,7 +1946,7 @@ function slackemon_get_user_complete_battles( $user_id = USER_ID ) {
   $user_battles = [];
 
   foreach ( $battles as $battle_filename ) {
-    $battle_data = json_decode( file_get_contents( $battle_filename ) );
+    $battle_data = json_decode( slackemon_file_get_contents( $battle_filename ) );
     if ( isset( $battle_data->users->{ $user_id } ) ) {
       $user_battles[] = $battle_data;
     }
@@ -1963,7 +1963,7 @@ function slackemon_get_user_outstanding_invites( $user_id = USER_ID ) {
   $user_invites = [];
 
   foreach ( $invites as $invite_filename ) {
-    $invite_data = json_decode( file_get_contents( $invite_filename ) );
+    $invite_data = json_decode( slackemon_file_get_contents( $invite_filename ) );
     if ( $user_id === $invite_data->inviter_id || $user_id === $invite_data->invitee_id ) {
       $user_invites[] = $invite_data;
     }
