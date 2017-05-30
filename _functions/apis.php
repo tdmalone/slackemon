@@ -5,8 +5,22 @@
 
 require_once( __DIR__ . '/slack.php' );
 
+// Set up AWS access if we are going to be using it
 if ( 'aws' === SLACKEMON_DATA_CACHE_METHOD || 'aws' === SLACKEMON_IMAGE_CACHE_METHOD ) {
+
 	require_once( __DIR__ . '/vendor/autoload.php' );
+
+	global $slackemon_s3;
+
+	$slackemon_s3 = new Aws\S3\S3Client([
+		'version' => 'latest',
+		'region'  => SLACKEMON_AWS_REGION,
+		'credentials' => [
+        	'key'    => SLACKEMON_AWS_ID,
+        	'secret' => SLACKEMON_AWS_SECRET,
+    	],
+	]);
+
 }
 
 /**
@@ -27,16 +41,19 @@ function slackemon_file_get_contents( $filename ) {
 
 		case 'aws':
 
+			global $slackemon_s3;
 			$remote_key = slackemon_calculate_hash( $filename )['path'];
 
 			try {
-				$result = $s3->getObject([
+				$result = $slackemon_s3->getObject([
 					'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
 					'Key'    => $remote_key,
 				]);
 			} catch ( Aws\S3\Exception\S3Exception $e ) {
 
-				slackemon_log_cache_event(); // TODO
+				// TODO: Need some sort of error handling here
+
+				slackemon_log_cache_event( '', $hash['filename'], 'file-get-error-aws-exception' );
 				return false;
 
 			}
@@ -73,19 +90,11 @@ function slackemon_file_put_contents( $filename, $data ) {
 
 		case 'aws':
 
+			global $slackemon_s3;
 			$remote_key = slackemon_calculate_hash( $filename )['path'];
 
-			$s3 = new Aws\S3\S3Client([
-				'version' => 'latest',
-				'region'  => SLACKEMON_AWS_REGION,
-				'credentials' => [
-		        	'key'    => SLACKEMON_AWS_ID,
-		        	'secret' => SLACKEMON_AWS_SECRET,
-		    	],
-			]);
-
 			try {
-				$result = $s3->putObject([
+				$result = $slackemon_s3->putObject([
 					'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
 					'Key'    => $remote_key,
 					'Body'   => $data,
@@ -97,7 +106,9 @@ function slackemon_file_put_contents( $filename, $data ) {
 				]);
 			} catch ( Aws\S3\Exception\S3Exception $e ) {
 
-				slackemon_log_cache_event(); // TODO
+				// TODO: Need some sort of error handling here
+
+				slackemon_log_cache_event( '', $hash['filename'], 'file-put-error-aws-exception' );
 				return false;
 
 			}
@@ -127,9 +138,10 @@ function slackemon_file_exists( $filename ) {
 
 		case 'aws':
 
+			global $slackemon_s3;
 			$remote_key = slackemon_calculate_hash( $filename )['path'];
 
-			// TODO
+			return $slackemon_s3->doesObjectExist( SLACKEMON_DATA_CACHE_BUCKET, $remote_key );
 
 		break; // Case aws
 
@@ -154,9 +166,24 @@ function slackemon_filemtime( $filename ) {
 
 		case 'aws':
 
+			global $slackemon_s3;
 			$remote_key = slackemon_calculate_hash( $filename )['path'];
 
-			// TODO
+			try {
+				$result = $slackemon_s3->headObject([
+					'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
+					'Key'    => $remote_key,
+				]);
+			} catch ( Aws\S3\Exception\S3Exception $e ) {
+
+				// TODO: Need some sort of error handling here
+
+				slackemon_log_cache_event( '', $hash['filename'], 'file-mtime-error-aws-exception' );
+				return false;
+
+			}
+
+			return date_timestamp_get( $result['LastModified'] );
 
 		break; // Case aws
 
@@ -202,53 +229,56 @@ function get_cached_url( $url, $options = [] ) {
 		$url, $data_folder, isset( $options['curl_options'] ) ? $options['curl_options'] : []
 	);
 
-	// Make sure full cache folder exists
-	if ( ! is_dir( $hash['folder'] ) ) {
+	// Make sure full cache folder exists (if using the local data cache method)
+	if ( 'local' === SLACKEMON_DATA_CACHE_METHOD && ! is_dir( $hash['folder'] ) ) {
 		mkdir( $hash['folder'], 0777, true );
 	}
+
+	$file_exists = slackemon_file_exists( $hash['filename'] );
 
 	// By default, the cache does not expire, unless an optional parameter is provided setting the age
 	$is_cache_expired = false;
 	if (
 		isset( $options['expiry_age'] ) &&
 		$options['expiry_age'] &&
-		slackemon_file_exists( $hash['filename'] ) &&
+		$file_exists &&
 		slackemon_filemtime( $hash['filename'] ) < time() - $options['expiry_age']
 	) {
 		$is_cache_expired = true;
 	}
 
-	if (
-		slackemon_file_exists( $hash['filename'] ) &&
-		slackemon_file_get_contents( $hash['filename'] ) &&
-		! $is_cache_expired
-	) {
+	if ( $file_exists && ! $is_cache_expired ) {
 
-		slackemon_log_cache_event( $url, $hash['filename'], 'hit' );
 		$data = slackemon_file_get_contents( $hash['filename'] );
-		
-	} else {
 
-		// Allow a waiting message to be sent, if requested
-		if ( isset( $options['alert_if_uncached'] ) && $options['alert_if_uncached'] ) {
-			send2slack( 'Updating my cache, won\'t be a moment...' );
-		}
-
-		// Allow a 'real URL' to be provided, useful for including eg. an access token which may need separating from
-		// the cache. Take care when providing this that the query will always return the same information even if
-		// auth'ed against a different user - i.e. it should be specific to the *organisation* and not a specific *user*.
-		if ( isset( $options['real_url'] ) && $options['real_url'] ) {
-			$real_url = $options['real_url'];
+		if ( $data ) {
+			slackemon_log_cache_event( $url, $hash['filename'], 'hit' );
+			return $data;
 		} else {
-			$real_url = $url;
+			slackemon_log_cache_event( $url, $hash['filename'], 'empty' );
 		}
-
-		slackemon_log_cache_event( $url, $hash['filename'], $is_cache_expired ? 'expired' : 'miss' );
-
-		$data = slackemon_get_url( $real_url, $options );
-		slackemon_file_put_contents( $hash['filename'], $data );
-
 	}
+
+	// If we've got here, the file doesn't exist, is empty, or has expired, so we need to retrieve, store, and return it
+
+	// Allow a waiting message to be sent, if requested
+	if ( isset( $options['alert_if_uncached'] ) && $options['alert_if_uncached'] ) {
+		send2slack( 'Updating my cache, won\'t be a moment...' );
+	}
+
+	// Allow a 'real URL' to be provided, useful for including eg. an access token which may need separating from
+	// the cache. Take care when providing this that the query will always return the same information even if
+	// auth'ed against a different user - i.e. it should be specific to the *organisation* and not a specific *user*.
+	if ( isset( $options['real_url'] ) && $options['real_url'] ) {
+		$real_url = $options['real_url'];
+	} else {
+		$real_url = $url;
+	}
+
+	slackemon_log_cache_event( $url, $hash['filename'], $is_cache_expired ? 'expired' : 'miss' );
+
+	$data = slackemon_get_url( $real_url, $options );
+	slackemon_file_put_contents( $hash['filename'], $data );
 
 	return $data;
 
@@ -281,7 +311,7 @@ function get_cached_image_url( $image_url ) {
 		return 'local' === SLACKEMON_IMAGE_CACHE_METHOD ? $local_url : file_get_contents( $hash['filename'] );
 	}
 
-	// Make sure full cache folder exists
+	// Make sure full local cache folder exists
 	if ( ! is_dir( $hash['folder'] ) ) {
 		mkdir( $hash['folder'], 0777, true );
 	}
@@ -311,17 +341,10 @@ function get_cached_image_url( $image_url ) {
 
 			// Store the image data in AWS, then store and return the AWS URL
 
-			$s3 = new Aws\S3\S3Client([
-				'version' => 'latest',
-				'region'  => SLACKEMON_AWS_REGION,
-				'credentials' => [
-		        	'key'    => SLACKEMON_AWS_ID,
-		        	'secret' => SLACKEMON_AWS_SECRET,
-		    	],
-			]);
+			global $slackemon_s3;
 
 			try {
-				$result = $s3->putObject([
+				$result = $slackemon_s3->putObject([
 					'Bucket' => SLACKEMON_IMAGE_CACHE_BUCKET,
 					'Key'    => $remote_key,
 					'Body'   => $image_data,
