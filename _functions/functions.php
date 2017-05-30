@@ -3,11 +3,14 @@
 // TM 12/12/2016
 // Helper functions for Slackemon
 
-// Other function files
-require_once( __DIR__ . '/apis.php' );
-require_once( __DIR__ . '/auto.php' );
+// Other helper function files
+require_once( __DIR__ . '/apis.php'  );
+require_once( __DIR__ . '/auto.php'  );
 require_once( __DIR__ . '/color.php' );
-require_once( __DIR__ . '/time.php' );
+require_once( __DIR__ . '/time.php'  );
+
+// Entry point for main Slackemon functions
+require_once( __DIR__ . '/pokemon/pokemon.php' );
 
 /** A quick function to change the data folder, and create it if it doesn't exist. */
 function change_data_folder( $new_data_folder ) {

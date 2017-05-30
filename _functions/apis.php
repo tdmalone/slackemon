@@ -3,8 +3,65 @@
 // TM 27/01/2017
 // Functions to abstract access to commonly used APIs, including curl
 
-require( __DIR__ . '/slack.php'	 );
-require( __DIR__ . '/pokemon/pokemon.php' );
+require_once( __DIR__ . '/slack.php' );
+
+/**
+ * Semi drop-in replacement for PHP's file_get_contents (only supports the required arguments for now) which abstracts
+ * access to either the local file system or an external data store, depending on SLACKEMON_DATA_CACHE_METHOD.
+ *
+ * @link http://php.net/file_get_contents
+ */
+function slackemon_file_get_contents( $filename ) {
+
+	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+
+		case 'local':
+
+			return file_get_contents( $filename );
+
+		break; // Case local
+
+		case 'aws':
+
+			// TODO
+
+		break; // Case aws
+
+	} // Switch SLACKEMON_DATA_CACHE_METHOD
+
+} // Function slackemon_file_get_contents
+
+/**
+ * Semi drop-in replacement for PHP's file_put_contents (only supports the required arguments for now) which abstracts
+ * access to either the local file system or an external data store, depending on SLACKEMON_DATA_CACHE_METHOD.
+ *
+ * NOTE: Does not support stream resources for the $data param if an external data store is used.
+ *
+ * @link http://php.net/file_put_contents
+ */
+function slackemon_file_put_contents( $filename, $data ) {
+
+	// Support $data being an array, like file_put_contents() does
+	if ( is_array( $data ) ) {
+		$data = implode( '', $data );
+	}
+
+	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+
+		case 'local':
+
+			return file_put_contents( $filename, $data );
+
+		break; // Case local
+
+		case 'aws':
+
+			// TODO
+
+		break; // Case aws
+
+	} // Switch SLACKEMON_DATA_CACHE_METHOD
+} // Function file_put_contents
 
 /** Get a URL using curl, and return the result. TODO: Allow e-mail/version/etc. here to be changed in config. */
 function slackemon_get_url( $url, $options = [] ) {
