@@ -23,12 +23,27 @@ function slackemon_file_get_contents( $filename ) {
 
 		case 'aws':
 
-			// TODO
+			$remote_key = md5( $filename ); // TODO
+
+			require_once( __DIR__ . '/aws/aws.phar' );
+
+			try {
+				$result = $s3->getObject([
+					'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
+					'Key'    => $remote_key,
+				]);
+			} catch ( Aws\S3\Exception\S3Exception $e ) {
+
+				slackemon_log_cache_event(); // TODO
+				return false;
+
+			}
+
+			return $result['Body'];
 
 		break; // Case aws
 
 	} // Switch SLACKEMON_DATA_CACHE_METHOD
-
 } // Function slackemon_file_get_contents
 
 /**
@@ -56,7 +71,38 @@ function slackemon_file_put_contents( $filename, $data ) {
 
 		case 'aws':
 
-			// TODO
+			$remote_key = md5( $filename ); // TODO
+
+			require_once( __DIR__ . '/aws/aws.phar' );
+
+			$s3 = new Aws\S3\S3Client([
+				'version' => 'latest',
+				'region'  => SLACKEMON_AWS_REGION,
+				'credentials' => [
+		        	'key'    => SLACKEMON_AWS_ID,
+		        	'secret' => SLACKEMON_AWS_SECRET,
+		    	],
+			]);
+
+			try {
+				$result = $s3->putObject([
+					'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
+					'Key'    => $remote_key,
+					'Body'   => $data,
+					'ACL'    => 'bucket-owner-full-control',
+					'Metadata' => [
+						'original_filename' => $filename,
+						'uploaded_by'       => SLACKEMON_INBOUND_URL,
+					],
+				]);
+			} catch ( Aws\S3\Exception\S3Exception $e ) {
+
+				slackemon_log_cache_event(); // TODO
+				return false;
+
+			}
+
+			return $result;
 
 		break; // Case aws
 
@@ -220,9 +266,9 @@ function get_cached_image_url( $image_url, $options = [] ) {
 				'version' => 'latest',
 				'region'  => SLACKEMON_AWS_REGION,
 				'credentials' => [
-		        'key'    => SLACKEMON_AWS_ID,
-		        'secret' => SLACKEMON_AWS_SECRET,
-		    ],
+		        	'key'    => SLACKEMON_AWS_ID,
+		        	'secret' => SLACKEMON_AWS_SECRET,
+		    	],
 			]);
 
 			try {
