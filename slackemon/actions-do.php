@@ -3,7 +3,7 @@
 // Chromatix TM 24/03/2017
 // Deferred landing point for interactive message actions in Slackemon
 
-$action = json_decode( $_POST['action'] );
+$action = json_decode( $_REQUEST['action'] );
 require_once( __DIR__ . '/../init.php' );
 change_data_folder( $data_folder . '/pokedex' );
 

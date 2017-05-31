@@ -8,7 +8,7 @@ require_once( __DIR__ . '/slack.php' );
 // Set up AWS access if we are going to be using it
 if ( 'aws' === SLACKEMON_DATA_CACHE_METHOD || 'aws' === SLACKEMON_IMAGE_CACHE_METHOD ) {
 
-	require_once( __DIR__ . '/vendor/autoload.php' );
+	require_once( __DIR__ . '/../vendor/autoload.php' );
 
 	global $slackemon_s3;
 
@@ -27,6 +27,9 @@ if ( 'aws' === SLACKEMON_DATA_CACHE_METHOD || 'aws' === SLACKEMON_IMAGE_CACHE_ME
  * Semi drop-in replacement for PHP's file_get_contents (only supports the required arguments for now) which abstracts
  * access to either the local file system or an external data store, depending on SLACKEMON_DATA_CACHE_METHOD.
  *
+ * DO NOT USE THIS FUNCTION FOR IMAGE CACHING. Image caching relies on its own method, and still needs local access
+ * even when images are stored remotely.
+ *
  * @link http://php.net/file_get_contents
  */
 function slackemon_file_get_contents( $filename ) {
@@ -34,10 +37,8 @@ function slackemon_file_get_contents( $filename ) {
 	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
 
 		case 'local':
-
 			return file_get_contents( $filename );
-
-		break; // Case local
+		break;
 
 		case 'aws':
 
@@ -71,6 +72,9 @@ function slackemon_file_get_contents( $filename ) {
  *
  * NOTE: Does not support stream resources for the $data param if an external data store is used.
  *
+ * DO NOT USE THIS FUNCTION FOR IMAGE CACHING. Image caching relies on its own method, and still needs local access
+ * even when images are stored remotely.
+ *
  * @link http://php.net/file_put_contents
  */
 function slackemon_file_put_contents( $filename, $data ) {
@@ -83,10 +87,8 @@ function slackemon_file_put_contents( $filename, $data ) {
 	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
 
 		case 'local':
-
 			return file_put_contents( $filename, $data );
-
-		break; // Case local
+		break;
 
 		case 'aws':
 
@@ -124,6 +126,9 @@ function slackemon_file_put_contents( $filename, $data ) {
  * Drop-in replacement for PHP's file_exists, which abstracts access to either the local file system or an external
  * data store, depending on SLACKEMON_DATA_CACHE_METHOD.
  *
+ * DO NOT USE THIS FUNCTION FOR IMAGE CACHING. Image caching relies on its own method, and still needs local access
+ * even when images are stored remotely.
+ *
  * @link http://php.net/file_exists
  */
 function slackemon_file_exists( $filename ) {
@@ -131,10 +136,8 @@ function slackemon_file_exists( $filename ) {
 	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
 
 		case 'local':
-
 			return file_exists( $filename );
-
-		break; // Case local
+		break;
 
 		case 'aws':
 
@@ -143,7 +146,7 @@ function slackemon_file_exists( $filename ) {
 
 			return $slackemon_s3->doesObjectExist( SLACKEMON_DATA_CACHE_BUCKET, $remote_key );
 
-		break; // Case aws
+		break;
 
 	} // Switch SLACKEMON_DATA_CACHE_METHOD
 } // Function slackemon_file_exists
@@ -159,10 +162,8 @@ function slackemon_filemtime( $filename ) {
 	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
 
 		case 'local':
-
 			return filemtime( $filename );
-
-		break; // Case local
+		break;
 
 		case 'aws':
 
@@ -210,10 +211,10 @@ function slackemon_get_url( $url, $options = [] ) {
 	$result = curl_exec( $ch );
 
 	if ( false === $result ) {
-    send2slack( ':no_entry: ' . curl_error( $ch ) . "\n" . '_' . $url . '_' ); // Send errors to Slack
-    curl_close( $ch );
-    exit();
-  }
+		send2slack( ':no_entry: ' . curl_error( $ch ) . "\n" . '_' . $url . '_' ); // Send errors to Slack
+		curl_close( $ch );
+		exit();
+	}
 
 	curl_close( $ch );
 	return $result;
@@ -302,9 +303,6 @@ function get_cached_image_url( $image_url ) {
 	// If the 'local' option is in use, this is where the image will be found
 	$local_url = SLACKEMON_INBOUND_URL . $hash['path'];
 
-	// If the 'aws' option is in use, this is the location the object will be stored at
-	$remote_key = $hash['path'];
-
 	// Does image exist in local cache? Return the URL now - either the local URL, or the remote URL stored in the file
 	if ( file_exists( $hash['filename'] ) ) {
 		slackemon_log_cache_event( $image_url, $hash['filename'], 'image-hit' );
@@ -316,56 +314,75 @@ function get_cached_image_url( $image_url ) {
 		mkdir( $hash['folder'], 0777, true );
 	}
 
-	// Get image and store it before returning the local URL
-	// TODO: If using AWS, check if the remote_key exists first, then just store the ObjectURL locally instead of
-	//       getting and uploading the image again
-	$image_data = slackemon_get_url( $image_url );
-	if ( ! $image_data ) {
-		slackemon_log_cache_event( $image_url, $hash['filename'], 'image-error-no-data-at-url' );
-		return false;
-	}
-	slackemon_log_cache_event( $image_url, $hash['filename'], 'image-miss' );
-
 	switch ( SLACKEMON_IMAGE_CACHE_METHOD ) {
 
 		case 'local':
 
 			// Store the image data locally, and return the local URL
+	
+			$image_data = slackemon_get_url( $image_url );
 
+			if ( ! $image_data ) {
+				slackemon_log_cache_event( $image_url, $hash['filename'], 'image-error-no-data-at-url' );
+				return false;
+			}
+			
+			slackemon_log_cache_event( $image_url, $hash['filename'], 'image-miss' );
 			file_put_contents( $hash['filename'], $image_data );
+
 			return $local_url;
 
 		break; // Case local
 
 		case 'aws':
 
-			// Store the image data in AWS, then store and return the AWS URL
-
 			global $slackemon_s3;
 
-			try {
-				$result = $slackemon_s3->putObject([
-					'Bucket' => SLACKEMON_IMAGE_CACHE_BUCKET,
-					'Key'    => $remote_key,
-					'Body'   => $image_data,
-					'ACL'    => 'public-read',
-					'Metadata' => [
-						'original_url' => $image_url,
-						'uploaded_by'  => SLACKEMON_INBOUND_URL,
-					],
-					'CacheControl' => YEAR_IN_SECONDS,
-				]);
-			} catch ( Aws\S3\Exception\S3Exception $e ) {
+			$remote_key = $hash['path'];
 
-				// Log an event and return the original image URL in case of exception
-				slackemon_log_cache_event( $image_url, $hash['filename'], 'image-error-aws-exception' );
-				return $image_url;
+			// Check if the remote_key exists first, before we potentially get and upload the image again
+
+			if ( $slackemon_s3->doesObjectExist( SLACKEMON_DATA_CACHE_BUCKET, $remote_key ) ) {
+
+				$remote_url = $slackemon_s3->getObjectUrl( SLACKEMON_IMAGE_CACHE_BUCKET, $remote_key );
+				slackemon_log_cache_event( $image_url, $hash['filename'], 'image-soft-miss' );
+
+			} else {
+
+				$image_data = slackemon_get_url( $image_url );
+
+				if ( ! $image_data ) {
+					slackemon_log_cache_event( $image_url, $hash['filename'], 'image-error-no-data-at-url' );
+					return false;
+				}
+
+				try {
+					$result = $slackemon_s3->putObject([
+						'Bucket' => SLACKEMON_IMAGE_CACHE_BUCKET,
+						'Key'    => $remote_key,
+						'Body'   => $image_data,
+						'ACL'    => 'public-read',
+						'Metadata' => [
+							'original_url' => $image_url,
+							'uploaded_by'  => SLACKEMON_INBOUND_URL,
+						],
+						'CacheControl' => YEAR_IN_SECONDS,
+					]);
+				} catch ( Aws\S3\Exception\S3Exception $e ) {
+
+					// Log an event and return the original image URL in case of exception
+					slackemon_log_cache_event( $image_url, $hash['filename'], 'image-error-aws-exception' );
+					return $image_url;
+
+				}
+
+				$remote_url = $result['ObjectURL'];
+				slackemon_log_cache_event( $image_url, $hash['filename'], 'image-miss' );
 
 			}
 
-			// Now that the image is stored on AWS, get the AWS URL and store it locally so we can use that next time
-			$remote_url = $result['ObjectURL'];
-			slackemon_file_put_contents( $hash['filename'], $remote_url );
+			// Store the AWS URL locally so we can use it next time
+			file_put_contents( $hash['filename'], $remote_url );
 
 			return $remote_url;
 

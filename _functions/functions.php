@@ -147,7 +147,6 @@ function run_background_action( $path, $action, $callback_id ) {
 	$timeout = SLACKEMON_CURL_TIMEOUT;
 
 	// Prepare and send the action
-
 	$post_data = [ 'action' => json_encode( $action ), 'callback_id' => $callback_id ];
 	
 	$ch = curl_init();
