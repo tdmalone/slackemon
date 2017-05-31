@@ -1021,11 +1021,15 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
 
   // Move the battle file for completion, if it hasn't been done already by the user that ran this function first
   global $data_folder;
-  if ( file_exists( $data_folder . '/battles/' . $battle_hash . '.battle' ) ) {
+  if ( slackemon_file_exists( $data_folder . '/battles/' . $battle_hash . '.battle' ) ) {
+
+    // TODO: Need to wrap rename function below for AWS data store (will need to delete and recreate file)
+
     rename(
       $data_folder . '/battles/' . $battle_hash . '.battle',
       $data_folder . '/battles/' . $battle_hash . '.complete'
     );
+
   }
 
   // Modify trainer battle stats
@@ -1836,9 +1840,9 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
     return $_cached_slackemon_battle_data[ $battle_hash ];
   }
 
-  if ( $allow_completed_battle && file_exists( $data_folder . '/battles/' . $battle_hash . '.complete' ) ) {
+  if ( $allow_completed_battle && slackemon_file_exists( $data_folder . '/battles/' . $battle_hash . '.complete' ) ) {
     $battle_filename = $data_folder . '/battles/' . $battle_hash . '.complete';
-  } else if ( file_exists( $data_folder . '/battles/' . $battle_hash . '.battle' ) ) {
+  } else if ( slackemon_file_exists( $data_folder . '/battles/' . $battle_hash . '.battle' ) ) {
     $battle_filename = $data_folder . '/battles/' . $battle_hash . '.battle';
   } else {
     return false;
@@ -1854,7 +1858,7 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
 function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
   global $data_folder;
 
-  if ( file_exists( $data_folder . '/battles/' . $battle_hash . '.invite' ) ) {
+  if ( slackemon_file_exists( $data_folder . '/battles/' . $battle_hash . '.invite' ) ) {
     $invite_filename = $data_folder . '/battles/' . $battle_hash . '.invite';
   } else {
     return false;
@@ -1863,7 +1867,11 @@ function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
   $invite_data = json_decode( slackemon_file_get_contents( $invite_filename ) );
 
   if ( $remove_invite ) {
+
+    // TODO: Need to wrap deletion when AWS data store is used
+
     unlink( $invite_filename );
+    
   }
 
   return $invite_data;

@@ -8,9 +8,9 @@ require_once( __DIR__ . '/slack.php' );
 // Set up AWS access if we are going to be using it
 if ( 'aws' === SLACKEMON_DATA_CACHE_METHOD || 'aws' === SLACKEMON_IMAGE_CACHE_METHOD ) {
 
-	require_once( __DIR__ . '/../vendor/autoload.php' );
-
 	global $slackemon_s3;
+
+	require_once( __DIR__ . '/aws/aws.phar' );
 
 	$slackemon_s3 = new Aws\S3\S3Client([
 		'version' => 'latest',
@@ -54,10 +54,18 @@ function slackemon_file_get_contents( $filename ) {
 
 				// TODO: Need some sort of error handling here
 
-				slackemon_log_cache_event( '', $hash['filename'], 'file-get-error-aws-exception' );
+				slackemon_log_cache_event(
+					'',
+					$hash['filename'],
+					'file-get-error-aws-exception',
+					$e->getAwsErrorMessage()
+				);
+
 				return false;
 
 			}
+
+			slackemon_log_cache_event( '', $filename, 'aws-file-get', $remote_key );
 
 			return $result['Body'];
 
@@ -110,10 +118,18 @@ function slackemon_file_put_contents( $filename, $data ) {
 
 				// TODO: Need some sort of error handling here
 
-				slackemon_log_cache_event( '', $hash['filename'], 'file-put-error-aws-exception' );
+				slackemon_log_cache_event(
+					'',
+					$hash['filename'],
+					'file-put-error-aws-exception',
+					$e->getAwsErrorMessage()
+				);
+
 				return false;
 
 			}
+
+			slackemon_log_cache_event( '', $filename, 'aws-file-put', $remote_key );
 
 			return $result;
 
@@ -179,7 +195,13 @@ function slackemon_filemtime( $filename ) {
 
 				// TODO: Need some sort of error handling here
 
-				slackemon_log_cache_event( '', $hash['filename'], 'file-mtime-error-aws-exception' );
+				slackemon_log_cache_event(
+					'',
+					$hash['filename'],
+					'file-mtime-error-aws-exception',
+					$e->getAwsErrorMessage()
+				);
+
 				return false;
 
 			}
@@ -301,11 +323,11 @@ function get_cached_image_url( $image_url ) {
 	$hash['filename'] .= ( 'aws' === SLACKEMON_IMAGE_CACHE_METHOD ? '.aws' : '' );
 	
 	// If the 'local' option is in use, this is where the image will be found
-	$local_url = SLACKEMON_INBOUND_URL . $hash['path'];
+	$local_url = SLACKEMON_INBOUND_URL . SLACKEMON_IMAGE_CACHE_FOLDER . '/' . $hash['path'];
 
 	// Does image exist in local cache? Return the URL now - either the local URL, or the remote URL stored in the file
 	if ( file_exists( $hash['filename'] ) ) {
-		slackemon_log_cache_event( $image_url, $hash['filename'], 'image-hit' );
+		slackemon_log_cache_event( $image_url, $hash['filename'], 'image-hit', $local_url );
 		return 'local' === SLACKEMON_IMAGE_CACHE_METHOD ? $local_url : file_get_contents( $hash['filename'] );
 	}
 
@@ -342,7 +364,7 @@ function get_cached_image_url( $image_url ) {
 
 			// Check if the remote_key exists first, before we potentially get and upload the image again
 
-			if ( $slackemon_s3->doesObjectExist( SLACKEMON_DATA_CACHE_BUCKET, $remote_key ) ) {
+			if ( $slackemon_s3->doesObjectExist( SLACKEMON_IMAGE_CACHE_BUCKET, $remote_key ) ) {
 
 				$remote_url = $slackemon_s3->getObjectUrl( SLACKEMON_IMAGE_CACHE_BUCKET, $remote_key );
 				slackemon_log_cache_event( $image_url, $hash['filename'], 'image-soft-miss' );
@@ -371,7 +393,14 @@ function get_cached_image_url( $image_url ) {
 				} catch ( Aws\S3\Exception\S3Exception $e ) {
 
 					// Log an event and return the original image URL in case of exception
-					slackemon_log_cache_event( $image_url, $hash['filename'], 'image-error-aws-exception' );
+
+					slackemon_log_cache_event(
+						$image_url,
+						$hash['filename'],
+						'image-error-aws-exception',
+						$e->getAwsErrorMessage()
+					);
+
 					return $image_url;
 
 				}
@@ -414,7 +443,7 @@ function slackemon_calculate_hash( $url_or_filename, $base_dir = '', $context_da
 	$basename  = basename( parse_url( $url_or_filename, PHP_URL_PATH ) ); // Limit filename to most relevant URL portion
 	$basename  = preg_replace( '/[^A-Za-z0-9\.]/', '', $basename ); // Make sure filename doesn't have unsafe characters
 	$basename  = substr( $basename, 0, 50 ); // Make sure filename isn't too long
-	$filename  = $folder . '/' . $basename . '-' . $hash;
+	$filename  = $folder . '/' . $hash . '-' . $basename;
 
 	return [
 		'hash' 		=> $hash,
@@ -427,9 +456,10 @@ function slackemon_calculate_hash( $url_or_filename, $base_dir = '', $context_da
 } // Function slackemon_calculate_hash
 
 /** Simple function to log cache events. */
-function slackemon_log_cache_event( $url, $filename, $cache_status ) {
+function slackemon_log_cache_event( $url, $filename, $cache_status, $additional_info = '' ) {
 
 	// TODO
+	error_log( $url . ' - ' . $filename . ' - ' . $cache_status . ' - ' . $additional_info );
 
 	return;
 

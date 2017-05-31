@@ -7,7 +7,7 @@ function slackemon_is_player( $user_id = USER_ID ) {
   global $data_folder;
   $player_filename = $data_folder . '/' . $user_id . '.player';
 
-  if ( ! file_exists( $player_filename ) ) {
+  if ( ! slackemon_file_exists( $player_filename ) ) {
     return false;
   }
 
@@ -61,7 +61,7 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
   $player_filename = $data_folder . '/' . $user_id . '.player';
 
   // If we couldn't find the player file, store a trace to discover how we got here
-  if ( ! file_exists( $player_filename ) ) {
+  if ( ! slackemon_file_exists( $player_filename ) ) {
     file_put_contents( $data_folder . '/backtrace-' . $user_id, print_r( debug_backtrace(), true ) );
     return false;
   }

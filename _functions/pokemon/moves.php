@@ -327,7 +327,7 @@ function slackemon_get_user_teachable_pokemon( $move_name, $cache_mode = '', $us
     mkdir( $cache_folder, 0777, true );
   }
 
-  if ( 'force_update_cache' !== $cache_mode && file_exists( $cache_filename ) ) {
+  if ( 'force_update_cache' !== $cache_mode && slackemon_file_exists( $cache_filename ) ) {
     if ( 'force_use_cache' === $cache_mode || filemtime( $cache_filename ) > time() - MINUTE_IN_SECONDS * 5 ) {
       $user_teachable_pokemon = json_decode( slackemon_file_get_contents( $cache_filename ) );
       return $user_teachable_pokemon;
