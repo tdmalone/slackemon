@@ -43,7 +43,6 @@ function slackemon_file_get_contents( $filename ) {
 		case 'aws':
 
 			global $slackemon_s3;
-			$remote_key = slackemon_calculate_hash( $filename )['path'];
 
 			try {
 				$result = $slackemon_s3->getObject([
@@ -56,7 +55,7 @@ function slackemon_file_get_contents( $filename ) {
 
 				slackemon_log_cache_event(
 					'',
-					$hash['filename'],
+					slackemon_get_s3_key( $filename ),
 					'file-get-error-aws-exception',
 					$e->getAwsErrorMessage()
 				);
@@ -101,12 +100,11 @@ function slackemon_file_put_contents( $filename, $data ) {
 		case 'aws':
 
 			global $slackemon_s3;
-			$remote_key = slackemon_calculate_hash( $filename )['path'];
 
 			try {
 				$result = $slackemon_s3->putObject([
 					'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
-					'Key'    => $remote_key,
+					'Key'    => slackemon_get_s3_key( $filename ),
 					'Body'   => $data,
 					'ACL'    => 'bucket-owner-full-control',
 					'Metadata' => [
@@ -158,9 +156,7 @@ function slackemon_file_exists( $filename ) {
 		case 'aws':
 
 			global $slackemon_s3;
-			$remote_key = slackemon_calculate_hash( $filename )['path'];
-
-			return $slackemon_s3->doesObjectExist( SLACKEMON_DATA_CACHE_BUCKET, $remote_key );
+			return $slackemon_s3->doesObjectExist( SLACKEMON_DATA_CACHE_BUCKET, slackemon_get_s3_key( $filename ) );
 
 		break;
 
@@ -184,12 +180,11 @@ function slackemon_filemtime( $filename ) {
 		case 'aws':
 
 			global $slackemon_s3;
-			$remote_key = slackemon_calculate_hash( $filename )['path'];
 
 			try {
 				$result = $slackemon_s3->headObject([
 					'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
-					'Key'    => $remote_key,
+					'Key'    => slackemon_get_s3_key( $filename ),
 				]);
 			} catch ( Aws\S3\Exception\S3Exception $e ) {
 
@@ -212,6 +207,116 @@ function slackemon_filemtime( $filename ) {
 
 	} // Switch SLACKEMON_DATA_CACHE_METHOD
 } // Function slackemon_filemtime
+
+/** Semi drop-in replacement for PHP's rename() function, supporting S3. No support for the third $context parameter. */
+function slackemon_rename( $old_filename, $new_filename ) {
+
+	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+
+		case 'local':
+			return rename( $filename );
+		break;
+
+		case 'aws':
+
+			global $slackemon_s3;
+
+			// TODO: Need to track return values of each step here, and skip the next step and return false on failure
+			// Possibly should also, if the unlink fails, undo the put.
+
+			$data = slackemon_file_get_contents( $old_filename );
+			slackemon_file_put_contents( $new_filename, $data );
+			slackemon_unlink( $old_filename );
+
+			return true;
+
+		break; // Case aws
+
+	} // Switch SLACKEMON_DATA_CACHE_METHOD
+} // Function slackemon_rename
+
+/** Semi drop-in replacement for PHP's unlink() function, supporting S3. No support for the second $context parameter. */
+function slackemon_unlink( $filename ) {
+
+	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+
+		case 'local':
+			return unlink( $filename );
+		break;
+
+		case 'aws':
+
+			global $slackemon_s3;
+
+			try {
+				$result = $slackemon_s3->deleteObject([
+					'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
+					'Key'    => slackemon_get_s3_key( $filename ),
+				]);
+			} catch ( Aws\S3\Exception\S3Exception $e ) {
+
+				// TODO: Need some sort of error handling here
+
+				slackemon_log_cache_event(
+					'',
+					$hash['filename'],
+					'unlink-error-aws-exception',
+					$e->getAwsErrorMessage()
+				);
+
+				return false;
+
+			}
+
+			return true;
+
+		break; // Case aws
+
+	} // Switch SLACKEMON_DATA_CACHE_METHOD
+} // Function slackemon_unlink
+
+/** Sort of a replacement for PHP's glob() function, that supports S3's prefixes search if using S3 as the data cache. */
+function slackemon_get_files_by_prefix( $prefix ) {
+
+	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+
+		case 'local':
+			return glob( $prefix . '*' );
+		break;
+
+		case 'aws':
+
+			global $slackemon_s3;
+
+			try {
+				$result = $slackemon_s3->listObjectsV2([
+					'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
+					'Prefix' => $prefix,
+				]);
+			} catch ( Aws\S3\Exception\S3Exception $e ) {
+
+				// TODO: Need some sort of error handling here
+
+				slackemon_log_cache_event(
+					'',
+					$hash['filename'],
+					'list-objects-aws-exception',
+					$e->getAwsErrorMessage()
+				);
+
+				return false;
+
+			}
+
+			return array_map( function( $object ) {
+				return $object['Key'];
+			}, $result['Contents'] );
+
+		break; // Case aws
+
+	} // Switch SLACKEMON_DATA_CACHE_METHOD
+
+} // Function slackemon_get_files_by_prefix
 
 /** Get a URL using curl, and return the result. */
 function slackemon_get_url( $url, $options = [] ) {
@@ -432,6 +537,7 @@ function get_cached_image_url( $image_url ) {
  * @return array
  */
 function slackemon_calculate_hash( $url_or_filename, $base_dir = '', $context_data = [] ) {
+	global $data_folder;
 
 	if ( ! $base_dir ) {
 		$base_dir = $data_folder;
@@ -455,11 +561,19 @@ function slackemon_calculate_hash( $url_or_filename, $base_dir = '', $context_da
 
 } // Function slackemon_calculate_hash
 
+/** Abstracts the method we use to calculate the key for S3 storage. */
+function slackemon_get_s3_key( $filename ) {
+	global $data_folder;
+
+	return trim( str_replace( $data_folder, '', $filename ), '/' );
+
+} // Function slackemon_get_s3_key
+
 /** Simple function to log cache events. */
 function slackemon_log_cache_event( $url, $filename, $cache_status, $additional_info = '' ) {
 
-	// TODO
-	error_log( $url . ' - ' . $filename . ' - ' . $cache_status . ' - ' . $additional_info );
+	// TODO: Implement some form of cache event logging here
+	//error_log( $url . ' - ' . $filename . ' - ' . $cache_status . ' - ' . $additional_info );
 
 	return;
 

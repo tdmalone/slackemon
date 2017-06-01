@@ -1021,13 +1021,11 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
 
   // Move the battle file for completion, if it hasn't been done already by the user that ran this function first
   global $data_folder;
-  if ( slackemon_file_exists( $data_folder . '/battles/' . $battle_hash . '.battle' ) ) {
+  if ( slackemon_file_exists( $data_folder . '/battles-active/' . $battle_hash . '.battle' ) ) {
 
-    // TODO: Need to wrap rename function below for AWS data store (will need to delete and recreate file)
-
-    rename(
-      $data_folder . '/battles/' . $battle_hash . '.battle',
-      $data_folder . '/battles/' . $battle_hash . '.complete'
+    slackemon_rename(
+      $data_folder . '/battles-active/' . $battle_hash . '.battle',
+      $data_folder . '/battles-complete/' . $battle_hash . '.complete'
     );
 
   }
@@ -1840,10 +1838,13 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
     return $_cached_slackemon_battle_data[ $battle_hash ];
   }
 
-  if ( $allow_completed_battle && slackemon_file_exists( $data_folder . '/battles/' . $battle_hash . '.complete' ) ) {
-    $battle_filename = $data_folder . '/battles/' . $battle_hash . '.complete';
-  } else if ( slackemon_file_exists( $data_folder . '/battles/' . $battle_hash . '.battle' ) ) {
-    $battle_filename = $data_folder . '/battles/' . $battle_hash . '.battle';
+  if (
+    $allow_completed_battle &&
+    slackemon_file_exists( $data_folder . '/battles-complete/' . $battle_hash . '.complete' )
+  ) {
+    $battle_filename = $data_folder . '/battles-complete/' . $battle_hash . '.complete';
+  } else if ( slackemon_file_exists( $data_folder . '/battles-active/' . $battle_hash . '.battle' ) ) {
+    $battle_filename = $data_folder . '/battles-active/' . $battle_hash . '.battle';
   } else {
     return false;
   }
@@ -1858,8 +1859,8 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
 function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
   global $data_folder;
 
-  if ( slackemon_file_exists( $data_folder . '/battles/' . $battle_hash . '.invite' ) ) {
-    $invite_filename = $data_folder . '/battles/' . $battle_hash . '.invite';
+  if ( slackemon_file_exists( $data_folder . '/battle-invites/' . $battle_hash . '.invite' ) ) {
+    $invite_filename = $data_folder . '/battle-invites/' . $battle_hash . '.invite';
   } else {
     return false;
   }
@@ -1867,11 +1868,7 @@ function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
   $invite_data = json_decode( slackemon_file_get_contents( $invite_filename ) );
 
   if ( $remove_invite ) {
-
-    // TODO: Need to wrap deletion when AWS data store is used
-
-    unlink( $invite_filename );
-    
+    slackemon_unlink( $invite_filename );
   }
 
   return $invite_data;
@@ -1881,7 +1878,13 @@ function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
 function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage = 'battle' ) {
   global $data_folder, $_cached_slackemon_battle_data;
 
-  $battle_filename = $data_folder . '/battles/' . $battle_hash . '.' . $battle_stage;
+  switch ( $battle_stage ) {
+    case 'battle':   $battle_folder = 'battles-active';   break;
+    case 'complete': $battle_folder = 'battles-complete'; break;
+    case 'invite':   $battle_folder = 'battle-invites';   break;
+  }
+
+  $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash . '.' . $battle_stage;
   $battle_folder = pathinfo( $battle_filename, PATHINFO_DIRNAME );
 
   if ( ! is_dir( $battle_folder ) ) {
@@ -1918,7 +1921,7 @@ function slackemon_maybe_record_battle_seen_pokemon( $player_id, $pokedex_id ) {
 function slackemon_get_all_active_battles() {
   global $data_folder;
 
-  $battles = glob( $data_folder . '/battles/*.battle' );
+  $battles = slackemon_get_files_by_prefix( $data_folder . '/battles-active/' );
   $active_battles = [];
 
   foreach ( $battles as $battle_filename ) {
@@ -1933,7 +1936,7 @@ function slackemon_get_all_active_battles() {
 function slackemon_get_user_active_battles( $user_id = USER_ID ) {
   global $data_folder;
 
-  $battles = glob( $data_folder . '/battles/*.battle' );
+  $battles = slackemon_get_files_by_prefix( $data_folder . '/battles-active/' );
   $user_battles = [];
 
   foreach ( $battles as $battle_filename ) {
@@ -1950,7 +1953,7 @@ function slackemon_get_user_active_battles( $user_id = USER_ID ) {
 function slackemon_get_user_complete_battles( $user_id = USER_ID ) {
   global $data_folder;
 
-  $battles = glob( $data_folder . '/battles/*.complete' );
+  $battles = slackemon_get_files_by_prefix( $data_folder . '/battles-complete/' );
   $user_battles = [];
 
   foreach ( $battles as $battle_filename ) {
@@ -1967,7 +1970,7 @@ function slackemon_get_user_complete_battles( $user_id = USER_ID ) {
 function slackemon_get_user_outstanding_invites( $user_id = USER_ID ) {
   global $data_folder;
 
-  $invites = glob( $data_folder . '/battles/*.invite' );
+  $invites = slackemon_get_files_by_prefix( $data_folder . '/battles-invites/' );
   $user_invites = [];
 
   foreach ( $invites as $invite_filename ) {

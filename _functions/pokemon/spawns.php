@@ -34,7 +34,7 @@ function slackemon_maybe_spawn( $trigger = [] ) {
 function slackemon_get_most_recent_spawn() {
   global $data_folder;
 
-  $spawns = glob( $data_folder . '/spawns/*.spawn' );
+  $spawns = slackemon_get_files_by_prefix( $data_folder . '/spawns/' );
   $most_recent_spawn = array_pop( $spawns );
 
   $data = slackemon_file_get_contents( $most_recent_spawn );
