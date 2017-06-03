@@ -35,7 +35,13 @@ function slackemon_file_get_contents( $filename ) {
 	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
 
 		case 'local':
-			return file_get_contents( $filename );
+
+			if ( slackemon_file_exists( $filename ) ) {
+				return file_get_contents( $filename );
+			} else {
+				return false;
+			}
+
 		break;
 
 		case 'aws':
@@ -45,7 +51,7 @@ function slackemon_file_get_contents( $filename ) {
 			try {
 				$result = $slackemon_s3->getObject([
 					'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
-					'Key'    => $remote_key,
+					'Key'    => slackemon_get_s3_key( $filename ),
 				]);
 			} catch ( Aws\S3\Exception\S3Exception $e ) {
 
@@ -62,7 +68,7 @@ function slackemon_file_get_contents( $filename ) {
 
 			}
 
-			slackemon_log_cache_event( '', $filename, 'aws-file-get', $remote_key );
+			slackemon_log_cache_event( '', $filename, 'aws-file-get', slackemon_get_s3_key( $filename ) );
 
 			return $result['Body'];
 
@@ -92,7 +98,15 @@ function slackemon_file_put_contents( $filename, $data ) {
 	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
 
 		case 'local':
+
+			// Make sure the folder exists first
+			$folder = pathinfo( $filename, PATHINFO_DIRNAME );
+			if ( ! is_dir( $folder ) ) {
+				mkdir( $folder, 0777, true );
+			}
+
 			return file_put_contents( $filename, $data );
+
 		break;
 
 		case 'aws':
@@ -125,7 +139,7 @@ function slackemon_file_put_contents( $filename, $data ) {
 
 			}
 
-			slackemon_log_cache_event( '', $filename, 'aws-file-put', $remote_key );
+			slackemon_log_cache_event( '', $filename, 'aws-file-put', slackemon_get_s3_key( $filename ) );
 
 			return $result;
 
@@ -152,10 +166,8 @@ function slackemon_file_exists( $filename ) {
 		break;
 
 		case 'aws':
-
 			global $slackemon_s3;
 			return $slackemon_s3->doesObjectExist( SLACKEMON_DATA_CACHE_BUCKET, slackemon_get_s3_key( $filename ) );
-
 		break;
 
 	} // Switch SLACKEMON_DATA_CACHE_METHOD
@@ -212,7 +224,7 @@ function slackemon_rename( $old_filename, $new_filename ) {
 	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
 
 		case 'local':
-			return rename( $filename );
+			return rename( $old_filename, $new_filename );
 		break;
 
 		case 'aws':
@@ -289,7 +301,7 @@ function slackemon_get_files_by_prefix( $prefix ) {
 			try {
 				$result = $slackemon_s3->listObjectsV2([
 					'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
-					'Prefix' => $prefix,
+					'Prefix' => slackemon_get_s3_key( $prefix ),
 				]);
 			} catch ( Aws\S3\Exception\S3Exception $e ) {
 

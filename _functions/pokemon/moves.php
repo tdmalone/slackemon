@@ -321,11 +321,6 @@ function slackemon_get_user_teachable_pokemon( $move_name, $cache_mode = '', $us
   global $data_folder;
 
   $cache_filename = $data_folder . '/moves/' . $user_id . '.' . $move_name . '.teachable';
-  $cache_folder   = pathinfo( $cache_filename, PATHINFO_DIRNAME );
-
-  if ( ! is_dir( $cache_folder ) ) {
-    mkdir( $cache_folder, 0777, true );
-  }
 
   if ( 'force_update_cache' !== $cache_mode && slackemon_file_exists( $cache_filename ) ) {
     if ( 'force_use_cache' === $cache_mode || filemtime( $cache_filename ) > time() - MINUTE_IN_SECONDS * 5 ) {

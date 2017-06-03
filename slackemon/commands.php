@@ -45,8 +45,40 @@ if ( slackemon_is_player() ) {
   // original_message parameter - otherwise, with an emphermal slash command message, we don't have that access.
   post2slack( $message );
 
-  exit();
+} else {
 
-}
+  // Not a player yet - onboarding time!
+
+  $attachments = [
+    [
+      'text' => (
+
+        ':pokeball: *Welcome to Slackémon!*' . "\n\n" .
+        'Slackémon is a Pokémon Go-inspired game for :slack:. Once you start playing, Pokémon randomly appear on ' .
+        'Slack - and you\'ll have a short time to catch them before they run away!' . "\n\n" .
+        'Using slash commands, you can then manage your Pokémon collection - and even use them in battle against ' .
+        'other trainers.'
+
+      ),
+      'mrkdwn_in' => [ 'text' ],
+    ], [
+      'title' => 'So, what are you waiting for?!',
+      'thumb_url' => get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/ampharos.gif' ),
+      'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
+      'actions' => [
+        [
+          'name' => 'onboarding',
+          'text' => 'Start playing now!',
+          'type' => 'button',
+          'value' => 'join',
+          'style' => 'primary',
+        ]
+      ],
+    ],
+  ];
+
+  send2slack([ 'attachments' => $attachments ]);
+
+} // If slackemon_is_player / else
 
 // The end!

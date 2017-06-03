@@ -140,12 +140,6 @@ function post2slack( $payload ) {
 
 } // Function post2slack
 
-/** Output a JSON payload directly in response to a Slack slash command. */
-function output2slack( $payload ) {
-  header( 'Content-type: application/json' );
-  echo json_encode( $payload );
-}
-
 /** Does what it says on the tin. */
 function get_user_full_name( $user_id = USER_ID ) {
 

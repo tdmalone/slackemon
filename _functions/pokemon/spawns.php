@@ -329,11 +329,6 @@ function slackemon_save_spawn_data( $spawn_data ) {
 
   $spawn_id = $spawn_data['ts'] . '-' . $spawn_data['region'];
   $spawn_filename = $data_folder . '/spawns/' . $spawn_id . '.spawn';
-  $spawn_folder = pathinfo( $spawn_filename, PATHINFO_DIRNAME );
-
-  if ( ! is_dir( $spawn_folder ) ) {
-    mkdir( $spawn_folder, 0777, true );
-  }
 
   $_cached_slackemon_spawn_data[ $spawn_id ] = $spawn_data;
   return slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ) );

@@ -1885,11 +1885,6 @@ function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage =
   }
 
   $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash . '.' . $battle_stage;
-  $battle_folder = pathinfo( $battle_filename, PATHINFO_DIRNAME );
-
-  if ( ! is_dir( $battle_folder ) ) {
-    mkdir( $battle_folder, 0777, true );
-  }
 
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
   return slackemon_file_put_contents( $battle_filename, json_encode( $battle_data ) );

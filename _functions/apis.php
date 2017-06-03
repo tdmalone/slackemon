@@ -44,11 +44,6 @@ function get_cached_url( $url, $options = [] ) {
 		$url, $data_folder, isset( $options['curl_options'] ) ? $options['curl_options'] : []
 	);
 
-	// Make sure full cache folder exists (if using the local data cache method)
-	if ( 'local' === SLACKEMON_DATA_CACHE_METHOD && ! is_dir( $hash['folder'] ) ) {
-		mkdir( $hash['folder'], 0777, true );
-	}
-
 	$file_exists = slackemon_file_exists( $hash['filename'] );
 
 	// By default, the cache does not expire, unless an optional parameter is provided setting the age
