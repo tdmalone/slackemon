@@ -3,7 +3,7 @@
 // TM 28/01/2017
 // Functions that handle automation of Slackemon, generally via cron
 
-function run_automated_command( $command, $user_id, $team_id, $options = [] ) {
+function slackemon_run_automated_command( $command, $user_id, $team_id, $options = [] ) {
 
 	// Prepare the command and its arguments
 	$command_parts = explode( ' ', $command );
@@ -54,9 +54,9 @@ function run_automated_command( $command, $user_id, $team_id, $options = [] ) {
 	// Return the initial result of the automated command to the caller
 	return $result;
 
-} // Function run_automated_command
+} // Function slackemon_run_automated_command
 
-function check_cron_value( $requested, $current ) {
+function slackemon_check_cron_value( $requested, $current ) {
 
 	// An asterisk always returns true
 	if ( '*' === $requested ) {
@@ -100,6 +100,6 @@ function check_cron_value( $requested, $current ) {
 	// If we've got here, it's not a match, so return false
 	return false;
 
-} // Function check_cron_value
+} // Function slackemon_check_cron_value
 
 // The end!

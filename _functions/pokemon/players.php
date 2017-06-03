@@ -5,9 +5,9 @@
 
 function slackemon_is_player( $user_id = USER_ID ) {
   global $data_folder;
-  $player_filename = $data_folder . '/' . $user_id . '.player';
+  $player_filename = $data_folder . '/players/' . $user_id . '.player';
 
-  if ( ! file_exists( $player_filename ) ) {
+  if ( ! slackemon_file_exists( $player_filename ) ) {
     return false;
   }
 
@@ -44,10 +44,10 @@ function slackemon_register_player( $user_id = USER_ID ) {
 function slackemon_save_player_data( $player_data, $user_id = USER_ID ) {
   global $data_folder, $_cached_slackemon_player_data;
 
-  $player_filename = $data_folder . '/' . $user_id . '.player';
+  $player_filename = $data_folder . '/players/' . $user_id . '.player';
 
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
-  return file_put_contents( $player_filename, json_encode( $player_data ) );
+  return slackemon_file_put_contents( $player_filename, json_encode( $player_data ) );
 
 } // Function slackemon_save_player_data
 
@@ -58,15 +58,15 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
     return $_cached_slackemon_player_data[ $user_id ];
   }
 
-  $player_filename = $data_folder . '/' . $user_id . '.player';
+  $player_filename = $data_folder . '/players/' . $user_id . '.player';
 
   // If we couldn't find the player file, store a trace to discover how we got here
-  if ( ! file_exists( $player_filename ) ) {
+  if ( ! slackemon_file_exists( $player_filename ) ) {
     file_put_contents( $data_folder . '/backtrace-' . $user_id, print_r( debug_backtrace(), true ) );
     return false;
   }
 
-  $player_data = json_decode( file_get_contents( $player_filename ) );
+  $player_data = json_decode( slackemon_file_get_contents( $player_filename ) );
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
 
   // Ensure player is not caught in a cancelled region if the available regions change
@@ -153,7 +153,7 @@ function slackemon_add_xp( $xp, $user_id = USER_ID ) {
 
 function slackemon_get_player_ids( $options = [] ) {
   global $data_folder;
-  $players = glob( $data_folder . '/*.player' );
+  $players = slackemon_get_files_by_prefix( $data_folder . '/players/' );
 
   // No players at all?
   if ( ! count( $players ) ) {
@@ -219,7 +219,7 @@ function slackemon_get_player_ids( $options = [] ) {
 function slackemon_cancel_player( $user_id = USER_ID ) {
   global $data_folder;
 
-  return unlink( $data_folder . '/' . $user_id . '.player' );
+  return slackemon_unlink( $data_folder . '/players/' . $user_id . '.player' );
 
 } // Function slackemon_cancel_player
 

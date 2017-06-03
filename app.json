@@ -1,7 +1,79 @@
 {
-  "name": "Slackémon",
+  "name":        "Slackémon",
   "description": "Inspired by Pokémon Go, now you can collect Pokémon and battle your teammates on Slack!",
-  "repository": "https://github.com/tdmalone/slackemon",
-  "logo": "https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/emoji/pokeball.png",
-  "keywords": ["php", "slack", "pokemon"]
+  "website":     "https://github.com/tdmalone/slackemon",
+  "repository":  "https://github.com/tdmalone/slackemon",
+  "logo":        "https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/emoji/pokeball.png",
+  "success_url": "https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku",
+  "image":       "heroku/php",
+  "keywords": [
+    "php",
+    "slack",
+    "pokemon"
+  ],
+  "env": {
+    "SLACKEMON_SLACK_TEAM_ID": {
+      "description": "Your Slack team ID",
+      "value": "TXXXXXXXX"
+    },
+    "SLACKEMON_SLACK_TOKEN": {
+      "description": "Token provided by Slack when installing to your team"
+    },
+    "SLACKEMON_SLACK_KEY": {
+      "description": "OAuth key provided by Slack when installing to your team"
+    },
+    "SLACKEMON_MAINTAINER": {
+      "description": "Your own Slack user ID",
+      "value": "UXXXXXXXX"
+    },
+    "SLACKEMON_CRON_TOKEN": {
+      "description": "Generated token to protect your cron endpoint",
+      "generator": "secret"
+    },
+    "SLACKEMON_INBOUND_URL": {
+      "description": "The URL of your app - please include the trailing slash",
+      "value": "https://YOUR-APP-NAME.herokuapp.com/"
+    },
+    "SLACKEMON_DATA_CACHE_METHOD": {
+      "description": "Defines where your data is stored - should be left as 'aws' on Heroku",
+      "value": "aws"
+    },
+    "SLACKEMON_IMAGE_CACHE_METHOD": {
+      "description": "Defines where your images are stored - should be left as 'aws' on Heroku",
+      "value": "aws"
+    },
+    "SLACKEMON_DATA_CACHE_BUCKET": {
+      "description": "The name of your AWS bucket for storing data"
+    },
+    "SLACKEMON_IMAGE_CACHE_BUCKET": {
+      "description": "The name of your AWS bucket for storing images"
+    },
+    "SLACKEMON_AWS_ID": {
+      "description": "Your AWS ID"
+    },
+    "SLACKEMON_AWS_SECRET": {
+      "description": "Your AWS secret"
+    },
+    "SLACKEMON_AWS_REGION": {
+      "description": "The region your AWS buckets are in - 'us-east-1' is recommended for best results",
+      "value": "us-east-1"
+    },
+    "SLACKEMON_OPENWEATHERMAP_KEY": {
+      "description": "To enable optional weather integrations, sign up for a free account at openweathermap.org",
+      "required": false
+    },
+    "SLACKEMON_WEATHER_LAT_LON": {
+      "description": "If enabling weather integration, set the real-world location you want to use in-game",
+      "value": "-37.81,144.96",
+      "required": false
+    }
+  },
+  "addons": [
+    "papertrail"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/php"
+    }
+  ]
 }

@@ -3,11 +3,15 @@
 // TM 12/12/2016
 // Helper functions for Slackemon
 
-// Other function files
-require_once( __DIR__ . '/apis.php' );
-require_once( __DIR__ . '/auto.php' );
+// Other helper function files
+require_once( __DIR__ . '/apis.php'  );
+require_once( __DIR__ . '/auto.php'  );
+require_once( __DIR__ . '/filesystem.php' );
 require_once( __DIR__ . '/color.php' );
-require_once( __DIR__ . '/time.php' );
+require_once( __DIR__ . '/time.php'  );
+
+// Entry point for main Slackemon functions
+require_once( __DIR__ . '/pokemon/pokemon.php' );
 
 /** A quick function to change the data folder, and create it if it doesn't exist. */
 function change_data_folder( $new_data_folder ) {
@@ -144,7 +148,6 @@ function run_background_action( $path, $action, $callback_id ) {
 	$timeout = SLACKEMON_CURL_TIMEOUT;
 
 	// Prepare and send the action
-
 	$post_data = [ 'action' => json_encode( $action ), 'callback_id' => $callback_id ];
 	
 	$ch = curl_init();

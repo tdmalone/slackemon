@@ -34,10 +34,10 @@ function slackemon_maybe_spawn( $trigger = [] ) {
 function slackemon_get_most_recent_spawn() {
   global $data_folder;
 
-  $spawns = glob( $data_folder . '/spawns/*.spawn' );
+  $spawns = slackemon_get_files_by_prefix( $data_folder . '/spawns/' );
   $most_recent_spawn = array_pop( $spawns );
 
-  $data = file_get_contents( $most_recent_spawn );
+  $data = slackemon_file_get_contents( $most_recent_spawn );
   return json_decode( $data );
 
 } // Function slackemon_get_most_recent_spawn
@@ -329,14 +329,9 @@ function slackemon_save_spawn_data( $spawn_data ) {
 
   $spawn_id = $spawn_data['ts'] . '-' . $spawn_data['region'];
   $spawn_filename = $data_folder . '/spawns/' . $spawn_id . '.spawn';
-  $spawn_folder = pathinfo( $spawn_filename, PATHINFO_DIRNAME );
-
-  if ( ! is_dir( $spawn_folder ) ) {
-    mkdir( $spawn_folder, 0777, true );
-  }
 
   $_cached_slackemon_spawn_data[ $spawn_id ] = $spawn_data;
-  return file_put_contents( $spawn_filename, json_encode( $spawn_data ) );
+  return slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ) );
 
 } // Function slackemon_save_spawn_data
 
@@ -351,7 +346,7 @@ function slackemon_get_spawn_data( $spawn_ts, $spawn_region, $user_id = USER_ID 
 
   $spawn_filename = $data_folder . '/spawns/' . $spawn_id . '.spawn';
 
-  $spawn_data = json_decode( file_get_contents( $spawn_filename ) );
+  $spawn_data = json_decode( slackemon_file_get_contents( $spawn_filename ) );
 
   // Assign user specific variables to the data
   if ( isset( $spawn_data->users->{ $user_id } ) ) {
@@ -606,7 +601,7 @@ function slackemon_record_spawn_for_user( $user_id, $spawn ) {
 
   // Store the calculated stats for this user
   $spawn_filename = $data_folder . '/spawns/' . $spawn['ts'] . '-' . $spawn['region'] . '.spawn';
-  $spawn_data = json_decode( file_get_contents( $spawn_filename ) );
+  $spawn_data = json_decode( slackemon_file_get_contents( $spawn_filename ) );
   $spawn_data->users->{ $user_id } = [
     'stats'   => $spawn['stats'],
     'level'   => $spawn['level'],
@@ -614,7 +609,7 @@ function slackemon_record_spawn_for_user( $user_id, $spawn ) {
     'cp'      => $spawn['cp'],
     'hp'      => $spawn['stats']['hp'],
   ];
-  file_put_contents( $spawn_filename, json_encode( $spawn_data ) );
+  slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ) );
 
   return slackemon_save_player_data( $player_data, $user_id );
 

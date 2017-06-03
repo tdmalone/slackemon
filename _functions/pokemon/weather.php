@@ -168,7 +168,7 @@ function slackemon_is_daytime( $cache_options = [] ) {
   $weather = slackemon_get_weather( $cache_options );
   $now = time();
 
-  // Best-guess mode (6am-6pm) if we don't have up-to-date weather data
+  // Best-guess mode (7am - 7pm) if we don't have up-to-date weather data
   if (
     ! isset( $weather->sys->sunrise ) ||
     ! isset( $weather->sys->sunset ) ||
@@ -177,7 +177,7 @@ function slackemon_is_daytime( $cache_options = [] ) {
     $weather->sys->sunrise > $now + DAY_IN_SECONDS ||
     $weather->sys->sunset  > $now + DAY_IN_SECONDS
   ) {
-    if ( date( 'H' ) >= 6 && date( 'H' ) <= 17 ) {
+    if ( date( 'H' ) >= 7 && date( 'H' ) <= 18 ) {
       return true;
     } else {
       return false;

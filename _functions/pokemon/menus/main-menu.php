@@ -63,16 +63,16 @@ function slackemon_get_main_menu() {
 
   $message = [
     'text' => (
-      ':pokeball: *Welcome to Slackémon Go, ' . get_user_first_name() . '!*'. "\n" .
+      ':pokeball: *Welcome to Slackémon, ' . get_user_first_name() . '!*'. "\n" .
       ':part_alternation_mark: ' . number_format( $player_data->xp ) . ' XP     ' .
       ( $is_desktop ? '' : '     ' ) .
       ':world_map: ' . pokedex_readable( slackemon_get_player_region() ) .
       ( $is_desktop ? '     ' : "\n" ) .
       (
         $weather_condition ?
-        $weather_emoji . ' ' . $weather_condition . ', ' . round( $weather->main->temp ) . '°' :
+        $weather_emoji . ' ' . $weather_condition . ', ' . round( $weather->main->temp ) . '°' . '     ' :
         ''
-      ) . '     ' . (
+      ) . (
         slackemon_is_daytime() ?
         ':sun_with_face: Daytime' . ( $weather ? ' til ' . date( 'g:ia', $weather->sys->sunset ) : '' ) :
         ':new_moon_with_face: Night-time' . ( $weather ? ' til ' . date( 'g:ia', $weather->sys->sunrise ) : '' )

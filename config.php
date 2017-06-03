@@ -5,7 +5,7 @@
 
 // If running in development, attempt to load environment variables from .env file
 if ( file_exists( __DIR__ . '/.env' ) && getenv( 'APP_ENV' ) === 'development' ) {
-    require __DIR__ . '/vendor/autoload.php';
+    require_once( __DIR__ . '/vendor/autoload.php' );
     $dotenv = new Dotenv\Dotenv( __DIR__ );
     $dotenv->load();
 }

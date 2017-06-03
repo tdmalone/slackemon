@@ -1,6 +1,7 @@
 {
     "require": {
         "php": ">=7.0.0",
-        "vlucas/phpdotenv": "^2.4"
+        "vlucas/phpdotenv": "^2.4",
+        "aws/aws-sdk-php": "^3.28"
     }
 }
