@@ -32,7 +32,7 @@ function change_data_folder( $new_data_folder ) {
 function check_subcommands( $allowed_subcommands = [], $welcome_message = '' ) {
 
 	// Convert the arguments to lowercase & remove excess spaces
-	$args = explode( ' ', strtolower( preg_replace( '/\s+/', ' ', $_REQUEST['text'] ) ) );
+	$args = explode( ' ', strtolower( preg_replace( '/\s+/', ' ', $_POST['text'] ) ) );
 
 	if ( $welcome_message ) {
 		if ( ! count( $args ) || ! $args[0] || ! in_array( $args[0], $allowed_subcommands ) ) {
@@ -67,7 +67,7 @@ function get_command_settings( $command = COMMAND ) {
 	}
 
 	$_cached_command_settings[ $command ] = $default_config;
-	return $config;
+	return $default_config;
 
 } // Function get_command_settings
 

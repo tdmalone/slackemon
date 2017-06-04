@@ -10,8 +10,7 @@ require_once( __DIR__ . '/init.php' );
 // AUTH: Check if the cron token was set
 if (
 	( ! isset( $argv[1] ) || '--token=' . SLACKEMON_CRON_TOKEN !== $argv[1] ) &&
-	( ! isset( $_POST['token'] ) || SLACKEMON_CRON_TOKEN !== $_POST['token'] ) &&
-	( ! isset( $_GET['token'] ) || SLACKEMON_CRON_TOKEN !== $_GET['token'] )
+	( ! isset( $_REQUEST['token'] ) || SLACKEMON_CRON_TOKEN !== $_REQUEST['token'] )
 ) {
 	http_response_code( 403 );
 	exit( 'Not authorised for this cron request.' );
