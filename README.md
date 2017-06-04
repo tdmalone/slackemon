@@ -1,5 +1,7 @@
 # Slackémon
 
+[![Build status](https://travis-ci.org/tdmalone/slackemon.svg?branch=master)](https://travis-ci.org/tdmalone/slackemon)
+[![Coverage status](https://coveralls.io/repos/github/tdmalone/slackemon/badge.svg?branch=master)](https://coveralls.io/github/tdmalone/slackemon?branch=master)
 [![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Inspired by Pokémon Go, now you can catch and battle Pokémon with your teammates on Slack!
@@ -68,7 +70,7 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
         * _At this point, if you are on a free Slack team, Slackémon will take up one of your 10 available integrations. If you have already used your 10 integrations, you'll need to completely remove one at `https://YOUR-DOMAIN.slack.com/apps/manage` before you can add Slackémon - or alternatively, upgrade to a paid Slack plan._
 1. Head back to the 'Basic Information' page for your app, and scroll down to your app's credentials section. Make a note of the _Verification Token_.
    * You may also like to set up an icon for your app to make messages from it look slightly nicer - [this Pokéball](https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/pokeball.png) makes a good icon!
-1. Set up your environment variables, either by copying `.env.example` to `.env` (development mode only - see instructions in the file), or setting the variables within your environment (recommended). Either way, see the `.env.example` file for instructions on the variables to set.
+1. Set up your environment variables, either by copying `.env.example` to `.env` (development mode only - see instructions in the file), or setting the variables within your environment (recommended). Either way, see [`.env.example`](https://github.com/tdmalone/slackemon/blob/master/.env.example) for instructions on the variables to set.
 1. In your system's crontab (eg. `crontab -e` on a Linux machine, or find the Cron option in your hosting control panel), set up `cron.php` to run every minute, sending through the cron token you created earlier.
     * If you're invoking via the command line, you can use eg. `php /path/to/cron.php --token=XXXXXXXXXXXXXXXXXXXX`
     * If you're invoking via a GET request, you can use eg. `http://example.com/slackemon/cron.php?token=XXXXXXXXXXXXXXXXXXXX`
@@ -91,7 +93,7 @@ The idea of doing this on Slack came from Robert Vinluan's [bot for having Pokem
 
 Thank you to those who have done the hard yards in bringing together Pokémon sprites, particularly [PokeCSS](https://github.com/metaunicorn/pokecss-media).
 
-Thank you to my co-worker [Julian](http://github.com/juz501), who has been my main playmate in testing (and competing with!) this on our company Slack organisation at [Chromatix](https://www.chromatix.com.au), and to [Alessandro Pezzè](https://github.com/Naramsim) for being the first 'stranger contributor' to jump on board the project :). You can see the full list of contributors in the `CONTRIBUTORS.md` file.
+Thank you to my co-worker [Julian](http://github.com/juz501), who has been my main playmate in testing (and competing with!) this on our company Slack organisation at [Chromatix](https://www.chromatix.com.au), and to [Alessandro Pezzè](https://github.com/Naramsim) for being the first 'stranger contributor' to jump on board the project :). You can see the full list of contributors in [`CONTRIBUTORS.md`](https://github.com/tdmalone/slackemon/blob/master/CONTRIBUTORS.md).
 
 Thanks to [Slack](http://slack.com) for maintaining a well-documented, open API and inviting collaboration on their platform.
 
@@ -112,4 +114,4 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
-See `LICENSE` or <https://www.gnu.org/licenses/gpl-3.0.html> for the full text of the License.
+See [`LICENSE`](https://github.com/tdmalone/slackemon/blob/master/LICENSE) or <https://www.gnu.org/licenses/gpl-3.0.html> for the full text of the License.
