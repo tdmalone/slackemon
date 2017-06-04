@@ -1,7 +1,32 @@
 {
-    "require": {
-        "php": ">=7.0.0",
-        "vlucas/phpdotenv": "^2.4",
-        "aws/aws-sdk-php": "^3.28"
+  "name":        "tdmalone/slackemon",
+  "description": "Inspired by Pokémon Go, now you can collect Pokémon and battle your teammates on Slack!",
+  "homepage":    "https://github.com/tdmalone/slackemon",
+  "license":     "GPL-3.0",
+  "authors": [
+    {
+      "name": "Tim Malone",
+      "email": "tdmalone@gmail.com",
+      "homepage": "https://github.com/tdmalone"
     }
+  ],
+  "support": {
+    "issues": "https://github.com/tdmalone/slackemon/issues",
+    "wiki": "https://github.com/tdmalone/slackemon/wiki",
+    "source": "https://github.com/tdmalone/slackemon"
+  },
+  "keywords": [
+    "php",
+    "slack",
+    "pokemon"
+  ],
+  "require": {
+    "php": ">=7.0.0",
+    "aws/aws-sdk-php": "^3.28"
+  },
+  "require-dev": {
+    "vlucas/phpdotenv": "^2.4",
+    "satooshi/php-coveralls": "dev-master",
+    "phpunit/phpunit": "^6.2"
+  }
 }

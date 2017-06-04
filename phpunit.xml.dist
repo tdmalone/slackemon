@@ -1,0 +1,45 @@
+<phpunit
+  colors="true"
+  convertErrorsToExceptions="true"
+  convertNoticesToExceptions="true"
+  convertWarningsToExceptions="true"
+  bootstrap="./index.php"
+>
+
+  <testsuites>
+    <testsuite name="SlackemonTestSuite">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+
+  <php>
+
+    <ini name="error_reporting" value="E_ALL" />
+
+    <env name="APP_ENV" value="testing" />
+
+    <env name="SLACKEMON_SLACK_TOKEN"   value="abcdefghijklmnop"      />
+    <env name="SLACKEMON_SLACK_TEAM_ID" value="T01234567"             />
+    <env name="SLACKEMON_SLACK_KEY"     value="xoxp-12345678901"      />
+    <env name="SLACKEMON_MAINTAINER"    value="U01234567"             />
+    <env name="SLACKEMON_CRON_TOKEN"    value="zyxwvutsrqponm"        />
+    <env name="SLACKEMON_INBOUND_URL"   value="https://example.com/"  />
+
+    <post name="token"    value="abcdefghijklmnop"  />
+    <post name="team_id"  value="T01234567"         />
+    <post name="command"  value="/slackemon"        />
+    <post name="text"     value="test"              />
+
+  </php>
+
+  <logging>
+    <log type="coverage-clover" target="tests/logs/clover.xml" />
+  </logging>
+
+  <filter>
+    <whitelist processUncoveredFilesFromWhitelist="true">
+      <directory suffix=".php">_functions</directory>
+    </whitelist>
+  </filter>
+
+</phpunit>

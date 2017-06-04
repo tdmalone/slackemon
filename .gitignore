@@ -4,4 +4,5 @@
 .DS_Store
 .env
 /composer.phar
+/tests/logs
 error_log
