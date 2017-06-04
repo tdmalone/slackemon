@@ -4,7 +4,7 @@
 // Apply Slackemon config
 
 // If running in development, attempt to load environment variables from .env file
-if ( file_exists( __DIR__ . '/.env' ) && getenv( 'APP_ENV' ) === 'development' ) {
+if ( file_exists( __DIR__ . '/.env' ) && 'development' === getenv( 'APP_ENV' ) ) {
     require_once( __DIR__ . '/vendor/autoload.php' );
     $dotenv = new Dotenv\Dotenv( __DIR__ );
     $dotenv->load();

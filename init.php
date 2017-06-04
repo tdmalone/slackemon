@@ -55,9 +55,9 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
 		// General slash command auth
 
 		if (
-			! isset( $_REQUEST['token'] ) ||
-			SLACKEMON_SLACK_TOKEN   !== $_REQUEST['token'] ||
-			SLACKEMON_SLACK_TEAM_ID !== $_REQUEST['team_id']
+			! isset( $_POST['token'] ) ||
+			SLACKEMON_SLACK_TOKEN   !== $_POST['token'] ||
+			SLACKEMON_SLACK_TEAM_ID !== $_POST['team_id']
 		) {
 			http_response_code( 403 );
 			exit(
@@ -75,16 +75,16 @@ require_once( __DIR__ . '/_functions/functions.php' );
 change_data_folder( $data_folder );
 
 // Define our constants (slash command invocation mode)
-if ( ! defined( 'USER_ID' ) && isset( $_REQUEST['user_id'] ) ) {
+if ( ! defined( 'USER_ID' ) && isset( $_POST['user_id'] ) ) {
 
 	// Set some Slack defaults right away
-	define( 'TEAM_ID',      $_REQUEST['team_id']      );
-	define( 'USER_ID',      $_REQUEST['user_id']      );
-	define( 'RESPONSE_URL', $_REQUEST['response_url'] );
+	define( 'TEAM_ID',      $_POST['team_id']      );
+	define( 'USER_ID',      $_POST['user_id']      );
+	define( 'RESPONSE_URL', $_POST['response_url'] );
 
 	// Determine if other custom variables have already been set, and if so, assign them, if not, index.php will set them
-	if ( ! defined( 'COMMAND' ) && isset( $_REQUEST['command'] ) ) {
-		define( 'COMMAND',    $_REQUEST['command']    );
+	if ( ! defined( 'COMMAND' ) && isset( $_POST['command'] ) ) {
+		define( 'COMMAND',    $_POST['command']    );
 	}
 
 }
