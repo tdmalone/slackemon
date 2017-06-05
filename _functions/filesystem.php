@@ -28,11 +28,13 @@ if ( 'aws' === SLACKEMON_DATA_CACHE_METHOD || 'aws' === SLACKEMON_IMAGE_CACHE_ME
  * DO NOT USE THIS FUNCTION FOR IMAGE CACHING. Image caching relies on its own method, and still needs local access
  * even when images are stored remotely.
  *
+ * @param string $filename Name of the file to read.
+ * @param string $purpose  The purpose of the read - 'cache' or 'store'. 
  * @link http://php.net/file_get_contents
  */
-function slackemon_file_get_contents( $filename ) {
+function slackemon_file_get_contents( $filename, $purpose = 'cache' ) {
 
-	switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+	switch ( slackemon_get_data_method( $purpose ) ) {
 
 		case 'local':
 
@@ -335,5 +337,21 @@ function slackemon_get_s3_key( $filename ) {
 	return trim( str_replace( $data_folder, '', $filename ), '/' );
 
 }
+
+/**
+ * Returns the appropriate data storage method based on the purpose of the request.
+ * In a practical sense, this allows us to use the same functions eg. slackemon_file_get_contents for both data caching
+ * and data storage, while sending through the purpose of our usage each time so the correct method is used.
+ */
+function slackemon_get_data_method( $purpose ) {
+
+	switch ( $purpose ) {
+		case 'cache': $method = SLACKEMON_DATA_CACHE_METHOD; break;
+		case 'store': $method = SLACKEMON_DATA_STORE_METHOD; break;
+	}
+
+	return $method;
+
+} // Function slackemon_get_data_method
 
 // The end!
