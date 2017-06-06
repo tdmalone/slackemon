@@ -41,7 +41,10 @@ function get_relative_time( $ts, $long = true ) {
                 return floor( $diff / 3600 ) . ' h' . ( $long ? 'ou' : '' ) . 'rs ago';
             }
         } else if ( 1 == $day_diff ) {
+
+            // TODO: 'Yesterday' is not always true here, this needs expanding
             return 'at ' . date( 'ga', $ts ) . ' yesterday';
+
         } else if ( $day_diff < 7 ) {
             return $day_diff . ' days ago';
         } else if ( $day_diff < 31 ) {
@@ -63,18 +66,29 @@ function get_relative_time( $ts, $long = true ) {
         $day_diff = floor( $diff / DAY_IN_SECONDS );
 
         if ( 0 == $day_diff ) {
-            if ( $diff < 120) { return 'in a min' . ( $long ? 'ute' : '' ); }
-            if ( $diff < 3600) { return 'in ' . floor($diff / 60) . ' min' . ( $long ? 'ute' : '' ) . 's'; }
-            if ( $diff < 7200) { return 'in an h' . ( $long ? 'ou' : '' ) . 'r'; }
-            if ( $diff < DAY_IN_SECONDS) { return 'in ' . floor($diff / 3600) . ' h' . ( $long ? 'ou' : '' ) . 'rs'; }
+            if ( $diff < 120) {
+                return 'in a min' . ( $long ? 'ute' : '' );
+            } else if ( $diff < 3600 ) {
+                return 'in ' . floor( $diff / 60 ) . ' min' . ( $long ? 'ute' : '' ) . 's';
+            } else if ( $diff < 7200 ) {
+                return 'in an h' . ( $long ? 'ou' : '' ) . 'r';
+            } else if ( $diff < DAY_IN_SECONDS ) {
+                return 'in ' . floor( $diff / 3600 ) . ' h' . ( $long ? 'ou' : '' ) . 'rs';
+            }
+        } else if ( 1 == $day_diff ) {
+            return 'tomorrow';
+        } else if ( $day_diff < 4 ) {
+            return date( 'l', $ts );
+        } else if ( $day_diff < 7 + ( 7 - date( 'w' ) ) ) {
+            return 'next week';
+        } else if ( ceil( $day_diff / 7 ) < 4 ) {
+            return 'in ' . ceil( $day_diff / 7 ) . ' weeks';
+        } else if ( date( 'n', $ts ) == date( 'n' ) + 1 ) {
+            return 'next month';
         }
 
-        if ( $day_diff == 1) { return 'tomorrow'; }
-        if ( $day_diff < 4) { return date('l', $ts); }
-        if ( $day_diff < 7 + (7 - date('w'))) { return 'next week'; }
-        if ( ceil($day_diff / 7) < 4) { return 'in ' . ceil($day_diff / 7) . ' weeks'; }
-        if ( date('n', $ts) == date('n') + 1) { return 'next month'; }
-
+        // Fallback displays the month and year if nothing else matched
+        // TODO: Implement month/year relativity instead of this fallback
         return date( 'F Y', $ts );
 
     }

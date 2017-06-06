@@ -28,7 +28,7 @@
     <post name="token"    value="abcdefghijklmnop"  />
     <post name="team_id"  value="T01234567"         />
     <post name="command"  value="/slackemon"        />
-    <post name="text"     value="test"              />
+    <post name="text"     value="unit-tests"        />
 
   </php>
 

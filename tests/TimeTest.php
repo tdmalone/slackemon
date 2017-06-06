@@ -52,6 +52,26 @@ final class TimeTest extends TestCase {
 		$this->assertEquals( get_relative_time( time() - 3600 * 2, false ), '2 hrs ago' );
 	}
 
+	public function testYesterday() {
+		$this->assertEquals( get_relative_time( '6am -1 day' ), 'at 6am yesterday' );
+	}
+
+	public function testMultipleDays() {
+		$this->assertEquals( get_relative_time( time() - 3600 * 24 * 2 ), '2 days ago' );
+	}
+
+	public function testOneWeek() {
+		$this->assertEquals( get_relative_time( time() - 3600 * 24 * 7 ), '1 week ago' );
+	}
+
+	public function testMultipleWeeks() {
+		$this->assertEquals( get_relative_time( time() - 3600 * 24 * 7 * 2 ), '2 weeks ago' );
+	}
+
+	public function testLastMonth() {
+		$this->assertEquals( get_relative_time( '-1 month' ), 'last month' );
+	}
+
 }
 
 // The end!
