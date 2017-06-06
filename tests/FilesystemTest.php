@@ -6,7 +6,7 @@ declare( strict_types = 1 );
 
 use PHPUnit\Framework\TestCase;
 
-final class LocalFilesystemTests extends TestCase {
+final class FilesystemTest extends TestCase {
 
 	public function testFileExists() {
 
