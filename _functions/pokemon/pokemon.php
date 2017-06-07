@@ -17,6 +17,10 @@ $_slackemon_constant_defaults = [
   // TODO: These needs implementing
   'SLASH_COMMAND'          => '/slackemon',
 
+  // Parameters sent to Slack to control the appearance of Slackemon messages
+  'USERNAME' => 'Slackémon',
+  'ICON'     => ':pokeball:',
+
   // Includes additional team news on the Slackemon home screen
   'ADDITIONAL_NEWS'        => [],
 

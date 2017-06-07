@@ -29,26 +29,12 @@ require_once( __DIR__ . '/init.php' );
 // Init the once-off, entry-point stuff
 define( 'COMMAND', $_POST['command'] );
 
-// Get the settings for this command
-$command_settings = get_command_settings();
-
-// Finally, check that we have an entry point defined for the command (or whether the default entry point exists),
-// and invoke it by requiring it
+// Finally, invoke the command by requiring it!
 
 $command_name = substr( COMMAND, 1 );
 $default_entry_point = __DIR__ . '/' . $command_name . '/' . $command_name . '.php';
 
-if ( isset( $command_settings['entry_point'] ) && file_exists( $command_settings['entry_point'] ) ) {
-
-	require( $command_settings['entry_point'] );
-
-	if ( isset( $_ENV['APP_ENV'] ) && 'testing' === $_ENV['APP_ENV'] ) {
-		// We're here to prevent exiting during a unit test
-	} else {
-		exit();
-	}
-
-} elseif ( file_exists( $default_entry_point ) ) {
+if ( file_exists( $default_entry_point ) ) {
 
 	require( $default_entry_point );
 
