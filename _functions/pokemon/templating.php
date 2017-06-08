@@ -291,9 +291,9 @@ function slackemon_get_pagination_attachment( $objects, $page_number, $action_na
 
     $attachment = [
       'fallback' => 'Page',
-      'color' => '#333333',
-      'actions' => $pagination_actions,
-      'footer' => (
+      'color'    => '#333333',
+      'actions'  => $pagination_actions,
+      'footer'   => (
         'Viewing ' . ( $items_per_page * ( $page_number - 1 ) + 1 ) . ' - ' .
         min( $total_objects, $items_per_page * $page_number ) .
         ' of ' . $total_objects
@@ -302,7 +302,7 @@ function slackemon_get_pagination_attachment( $objects, $page_number, $action_na
 
     return $attachment;
 
-  } // If pagination
+  } // If more than 1 page
 
   return [];
 
