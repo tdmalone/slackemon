@@ -49,28 +49,6 @@ function check_subcommands( $allowed_subcommands = [], $welcome_message = '' ) {
 	
 } // Function check_subcommands
 
-/** Gets settings defined for a command, initially in the command's config.json file but overridable in config.php. */
-function get_command_settings( $command = COMMAND ) {
-	global $_cached_command_settings;
-
-	if ( isset( $_cached_command_settings[ $command ] ) ) {
-    	return $_cached_command_settings[ $command ];
-  	}
-
-	$config_filename = __DIR__ . '/../' . substr( $command, 1 ) . '/config.json';
-
-	// Do we have a default config?
-	if ( file_exists( $config_filename ) ) {
-		$default_config = json_decode( file_get_contents( $config_filename ), true );
-	} else {
-		$default_config = [];
-	}
-
-	$_cached_command_settings[ $command ] = $default_config;
-	return $default_config;
-
-} // Function get_command_settings
-
 /** Run subcommand in the background while the main command returns a waiting response to Slack. */
 function run_background_command( $path, $args, $additional_fields = [], $additional_fields_as_json = false ) {
 

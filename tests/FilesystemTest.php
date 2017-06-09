@@ -6,14 +6,14 @@ declare( strict_types = 1 );
 
 use PHPUnit\Framework\TestCase;
 
-final class LocalFilesystemTests extends TestCase {
+final class FilesystemTest extends TestCase {
 
 	public function testFileExists() {
 
 		$testFilename = __DIR__ . '/test-filesystem-fileexists';
 		touch( $testFilename );
 
-		$this->assertEquals( slackemon_file_exists( $testFilename ), true );
+		$this->assertTrue( slackemon_file_exists( $testFilename ) );
 
 		unlink( __DIR__ . '/test-filesystem-fileexists' );
 
@@ -24,7 +24,7 @@ final class LocalFilesystemTests extends TestCase {
 		$testFilename = __DIR__ . '/test-filesystem-fileexists';
 		@unlink( $testFilename );
 
-		$this->assertEquals( slackemon_file_exists( $testFilename ), false );
+		$this->assertFalse( slackemon_file_exists( $testFilename ) );
 
 	}
 

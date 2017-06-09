@@ -27,19 +27,17 @@ function send2slack( $message, $hook_url = '' ) {
   // Note that in responses to Slack app response_url's, username and icon replacements are ignored by Slack
   if ( defined( 'COMMAND' ) ) {
 
-    $command_settings = get_command_settings();
-
-    if ( ! isset( $payload['username'] ) && isset( $command_settings['username'] ) ) {
-      $payload['username'] = $command_settings['username'];
+    if ( ! isset( $payload['username'] ) ) {
+      $payload['username'] = SLACKEMON_USERNAME;
     }
     
-    if ( ! isset( $payload['icon_emoji'] ) && ! isset( $payload['icon_url'] ) && isset( $command_settings['icon'] ) ) {
+    if ( ! isset( $payload['icon_emoji'] ) && ! isset( $payload['icon_url'] ) ) {
       
       // Set icon, supporting both emoji and relative _images directory URLs
-      if ( preg_match( '/:.*?:/', $command_settings['icon'] ) ) {
-        $payload['icon_emoji'] = $command_settings['icon'];
-      } else if ( file_exists( __DIR__ . '/../_images/' . $command_settings['icon'] ) ) {
-        $payload['icon_url'] = SLACKEMON_INBOUND_URL . '/_images/' . $command_settings['icon'];
+      if ( preg_match( '/:.*?:/', SLACKEMON_ICON ) ) {
+        $payload['icon_emoji'] = SLACKEMON_ICON;
+      } else if ( file_exists( __DIR__ . '/../_images/' . SLACKEMON_ICON ) ) {
+        $payload['icon_url'] = SLACKEMON_INBOUND_URL . '/_images/' . SLACKEMON_ICON;
       }
 
     }
@@ -106,19 +104,17 @@ function post2slack( $payload ) {
   // Note that responses to Slack app response_url's, username and icon replacements are ignored
   if ( defined( 'COMMAND' ) ) {
 
-    $command_settings = get_command_settings();
-
-    if ( ! isset( $payload['username'] ) && isset( $command_settings['username'] ) ) {
-      $payload['username'] = $command_settings['username'];
+    if ( ! isset( $payload['username'] ) ) {
+      $payload['username'] = SLACKEMON_USERNAME;
     }
     
-    if ( ! isset( $payload['icon_emoji'] ) && ! isset( $payload['icon_url'] ) && isset( $command_settings['icon'] ) ) {
+    if ( ! isset( $payload['icon_emoji'] ) && ! isset( $payload['icon_url'] ) ) {
       
       // Set icon, supporting both emoji and relative _images directory URLs
-      if ( preg_match( '/:.*?:/', $command_settings['icon'] ) ) {
-        $payload['icon_emoji'] = $command_settings['icon'];
-      } else if ( file_exists( __DIR__ . '/../_images/' . $command_settings['icon'] ) ) {
-        $payload['icon_url'] = SLACKEMON_INBOUND_URL . '/_images/' . $command_settings['icon'];
+      if ( preg_match( '/:.*?:/', SLACKEMON_ICON ) ) {
+        $payload['icon_emoji'] = SLACKEMON_ICON;
+      } else if ( file_exists( __DIR__ . '/../_images/' . SLACKEMON_ICON ) ) {
+        $payload['icon_url'] = SLACKEMON_INBOUND_URL . '/_images/' . SLACKEMON_ICON;
       }
 
     }
