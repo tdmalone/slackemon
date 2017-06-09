@@ -82,11 +82,11 @@ function slackemon_appraise_ivs( $ivs, $include_emoji = true, $abbrev = false ) 
   if ( 100 == $ivs_percentage ) {
     $ivs_appraisal = 'Perfect IVs'   . ( $include_emoji ? ' :heart_eyes:' : '');
   } else if ( $ivs_percentage >= 80 ) {
-    $ivs_appraisal = ( $abbrev ? 'Exc.' : 'Excellent' ) . ' IVs' . ( $include_emoji ? ' :tada:' : '');
+    $ivs_appraisal = ( $abbrev ? 'Exc.' : 'Excellent' ) . ' IVs' . ( $include_emoji ? ' :tada:' : '' );
   } else if ( $ivs_percentage >= 60 ) {
     $ivs_appraisal = 'Good IVs'      . ( $include_emoji ? ' :thumbsup:' : '');
   } else if ( $ivs_percentage >= 40 ) { // Emoji for this was :wavy_dash: but need something better...
-    $ivs_appraisal = ( $abbrev ? 'Avg' : 'Average' ) . ' IVs' . ( $include_emoji ? ' ' : '');
+    $ivs_appraisal = ( $abbrev ? 'Avg' : 'Average' ) . ' IVs' . ( $include_emoji ? ' :wavy_dash:' : '' );
   } else if ( $ivs_percentage >= 20 ) {
     $ivs_appraisal = 'Low IVs'       . ( $include_emoji ? ' :arrow_heading_down:' : '');
   } else if ( $ivs_percentage >= 0 ) {
@@ -99,6 +99,14 @@ function slackemon_appraise_ivs( $ivs, $include_emoji = true, $abbrev = false ) 
 
 } // Function slackemon_appraise_ivs
 
+/**
+ * Accepts a string of one or more Pokemon types, separated by a space, and turns them into emoji references,
+ * optionally removing the original text, and optionally placing the emoji _after_ that original text.
+ *
+ * @param string $type_string    A string containing one or more space-separated types eg. 'Fire' or 'Fire Water'.
+ * @param bool   $include_text   Whether or not to include the original text along with the emoji. Defaults to true.
+ * @param string $emoji_position If $include_text is true, whether to place the emoji 'before' or 'after' the text.
+ */
 function slackemon_emojify_types( $type_string, $include_text = true, $emoji_position = 'before' ) {
 
   $type_string = preg_replace_callback(
