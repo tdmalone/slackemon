@@ -20,4 +20,3 @@ notifications:
   - provider: Slack
     incoming_webhook:
       secure: Z/sBH2RXNief0BVgo2cazy1KoJMgpA0dZup/E2NMKM9Z40bWyoIK0+yRRJ8HFRxZCNGS+Kri7epYUWDb4QZ8QZHOBKyREESninj1ZM2YT3U=
-    channel: '@slackbot'
