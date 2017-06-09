@@ -1,7 +1,9 @@
 <?php
-
-// TM 28/01/2017
-// Initialise the Slackemon environment, including authentication.
+/**
+ * Initialises the Slackemon environment, including authentication.
+ *
+ * @package Slackemon
+ */
 
 // Activate error logging.
 ini_set( 'log_errors', '1' );

@@ -1,41 +1,31 @@
 <?xml version="1.0"?>
 <ruleset name="Slackemon">
 
-	<description>A custom coding standard for Slackémon based heavily on the WordPress standards, with some minor modifications for ease-of-use.</description>
+  <description>A custom coding standard for Slackémon based heavily on the WordPress standards, but with modifications for ease-of-use and for where the standards don't make sense outside of the WordPress context.</description>
 
-	<rule ref="WordPress">
-	
-		<!-- Git deals with line endings for us, so we don't need to worry -->
-		<exclude name="Generic.Files.LineEndings.InvalidEOLChar"/>
+  <rule ref="WordPress">
 
-		<!-- We need to be able to concat strings... -->
-		<exclude name="Generic.Strings.UnnecessaryStringConcat.Found"/>
+    <exclude name="Generic.WhiteSpace.DisallowSpaceIndent" />
+    
+    <exclude name="WordPress.CSRF.NonceVerification" />
+    <exclude name="WordPress.VIP.SuperGlobalInputUsage" />
+    <exclude name="WordPress.VIP.RestrictedFunctions" />
+    <exclude name="WordPress.VIP.TimezoneChange" />
+    <exclude name="WordPress.VIP.ValidatedSanitizedInput" />
+    <exclude name="WordPress.WP.AlternativeFunctions" />
 
-		<!-- A little annoying needing a full stop at the end of comments -->
-		<exclude name="Squiz.Commenting.InlineComment.InvalidEndChar"/>
+    <!-- <exclude name="PEAR.Functions.FunctionCallSignature" /> -->
 
-		<!-- It's ok having a blank line after a comment, right? -->
-		<exclude name="Squiz.Commenting.InlineComment.SpacingAfter"/>
+  </rule>
 
-		<!-- We're not operating in the specific WordPress environment, so some things don't make sense -->
-		<exclude name="WordPress.VIP.RestrictedVariables.cache_constraints"/>
-		<exclude name="WordPress.VIP.RestrictedFunctions.file_get_contents"/>
-		
-	</rule>
-	
-	<!-- Ignore blank lines when reporting on whitespace at end of lines, as text editors often insert automatic tabs to help with indentation -->
-	<!-- HT: https://github.com/squizlabs/PHP_CodeSniffer/issues/317#issuecomment-62462485 -->
-	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
-		<properties>
-			<property name="ignoreBlankLines" value="true"/>
-		</properties>
-	</rule>
-	
-	<!-- Make the indentation check require the 'exact' number of tabs, not 'at least' -->
-	<rule ref="Generic.WhiteSpace.ScopeIndent">
-		<properties>
-			<property name="exact" value="true"/>
-		</properties>
-	</rule>
-  
+  <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
+
+  <rule ref="Generic.WhiteSpace.ScopeIndent">
+    <properties>
+      <property name="exact" value="true" />
+      <property name="indent" value="2" />
+      <property name="tabIndent" value="false" />
+    </properties>
+  </rule>
+
 </ruleset>
