@@ -11,6 +11,7 @@ git:
 matrix:
   allow_failures:
     - php: nightly
+  fast_finish: true
 
 install:
   - curl -s http://getcomposer.org/installer | php
