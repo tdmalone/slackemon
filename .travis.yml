@@ -7,7 +7,7 @@ install:
 - curl -s http://getcomposer.org/installer | php
 - php composer.phar install --dev --no-interaction
 before_script:
-- find . -name '*.php' -type f | while read file;do php -l "${file}" || exit 1;done
+- find . -name '*.php' -type f ! -path './vendor/*' | while read file;do php -l "${file}" || exit 1;done
 script:
 - mkdir -p tests/logs
 - php vendor/bin/phpunit
