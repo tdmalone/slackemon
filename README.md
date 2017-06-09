@@ -1,8 +1,11 @@
 # Slackémon
 
+[![Latest Stable Version](https://poser.pugx.org/tdmalone/slackemon/v/stable)](https://github.com/tdmalone/slackemon/releases)
+[![License](https://poser.pugx.org/tdmalone/slackemon/license)](https://www.gnu.org/licenses/gpl-3.0.html)
 [![Build status](https://travis-ci.org/tdmalone/slackemon.svg?branch=master)](https://travis-ci.org/tdmalone/slackemon)
+[![Docker build status](https://img.shields.io/docker/build/tdmalone/slackemon.svg)](https://hub.docker.com/r/tdmalone/slackemon)
 [![Coverage status](https://coveralls.io/repos/github/tdmalone/slackemon/badge.svg?branch=master)](https://coveralls.io/github/tdmalone/slackemon?branch=master)
-[![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby)
 
 Inspired by Pokémon Go, now you can catch and battle Pokémon with your teammates on Slack!
 

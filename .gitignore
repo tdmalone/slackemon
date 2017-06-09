@@ -6,3 +6,5 @@
 /composer.phar
 /tests/logs
 error_log
+phpcs.xml
+phpunit.xml
