@@ -3,7 +3,7 @@ clone_folder: C:\projects\slackemon
 
 install:
   - ps: Set-Service wuauserv -StartupType Manual
-  - cinst -y php -i
+  - cinst -y php --version 7.0.9
   - cd c:\tools\php71
   - copy php.ini-production php.ini
   - cd C:\projects\slackemon
