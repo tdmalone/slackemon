@@ -14,7 +14,7 @@
     <exclude name="WordPress.VIP.ValidatedSanitizedInput" />
     <exclude name="WordPress.WP.AlternativeFunctions" />
 
-    <!-- <exclude name="PEAR.Functions.FunctionCallSignature" /> -->
+    <exclude name="PEAR.Functions.FunctionCallSignature" />
 
   </rule>
 
@@ -25,6 +25,14 @@
       <property name="exact" value="true" />
       <property name="indent" value="2" />
       <property name="tabIndent" value="false" />
+    </properties>
+  </rule>
+
+  <rule ref="SlackemonCodeStandards.Functions.FunctionCallSignature">
+    <properties>
+      <property name="exact" value="false" />
+      <property name="requiredSpacesAfterOpen" value="1" />
+      <property name="requiredSpacesBeforeClose" value="1" />
     </properties>
   </rule>
 
