@@ -17,22 +17,22 @@ final class FunctionTest extends TestCase {
 
 	public function testShortStringDoesNotTruncate() {
 		$string = 'This string is short';
-		$this->assertEquals( maybe_truncate( $string, strlen( $string ) ), $string );
+		$this->assertEquals( $string, maybe_truncate( $string, strlen( $string ) ) );
 	}
 
 	public function testStringConvertsToTitleCase() {
 		$string = 'writing unit tests';
-		$this->assertEquals( strtotitle( $string ), 'Writing Unit Tests' );
+		$this->assertEquals( 'Writing Unit Tests', strtotitle( $string ) );
 	}
 
 	public function testSmallWordsDoNotBecomeTitleCase() {
 		$string = 'writing unit of the tests';
-		$this->assertEquals( strtotitle( $string ), 'Writing Unit of the Tests' );
+		$this->assertEquals( 'Writing Unit of the Tests', strtotitle( $string ) );
 	}
 
 	public function testSmallWordAtStartOfSentenceBecomesTitleCase() {
 		$string = 'the test is here';
-		$this->assertEquals( strtotitle( $string ), 'The Test is Here' );
+		$this->assertEquals( 'The Test is Here', strtotitle( $string ) );
 	}
 
 }

@@ -4,6 +4,7 @@
   convertNoticesToExceptions="true"
   convertWarningsToExceptions="true"
   bootstrap="./index.php"
+  verbose="true"
 >
 
   <testsuites>
