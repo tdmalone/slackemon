@@ -2,8 +2,9 @@ shallow_clone: true
 clone_folder: C:\projects\slackemon
 
 install:
-  - ps: Set-Service wuauserv -StartupType Manual
-  - cinst -y php --version 7.0.9
+  - sc config wuauserv start= auto
+  - net start wuauserv
+  - cinst -y php
   - cd c:\tools\php71
   - copy php.ini-production php.ini
   - cd C:\projects\slackemon
@@ -19,3 +20,4 @@ notifications:
   - provider: Slack
     incoming_webhook:
       secure: Z/sBH2RXNief0BVgo2cazy1KoJMgpA0dZup/E2NMKM9Z40bWyoIK0+yRRJ8HFRxZCNGS+Kri7epYUWDb4QZ8QZHOBKyREESninj1ZM2YT3U=
+    channel: '@slackbot'
