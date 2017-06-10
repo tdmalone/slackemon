@@ -37,7 +37,7 @@ function slackemon_get_iv_percentage( $ivs ) {
 
   $ivs_percentage = floor( $ivs_total / $ivs_max * 100 );
 
-  return $ivs_percentage;
+  return intval( $ivs_percentage );
 
 } // Function slackemon_get_iv_percentage
 
@@ -146,7 +146,7 @@ function slackemon_calculate_cp( $stats ) {
     ( $stats->speed * 0.25 / 10 )
   );
 
-  return $cp;
+  return intval( $cp );
 
 } // Function slackemon_calculate_cp
 

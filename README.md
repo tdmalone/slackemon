@@ -48,8 +48,11 @@ Scroll down for more setup options
 Setup of Slackémon is _not_ quick. This may be worked on further in the future. For now, there are quite a few steps!
 
 1. Download/clone/etc. the contents of this repository, and put it on a web server somewhere that runs PHP7.
-    * Alternatively you can [deploy it locally with Docker](https://github.com/tdmalone/slackemon/wiki/Installing-with-Docker)
-    * You can also [deploy directly to Heroku](https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku)
+    * [Download ZIP](https://github.com/tdmalone/slackemon/archive/master.zip)
+    * Clone with Git: `git clone https://github.com/tdmalone/slackemon.git`
+    * Install with Composer: `composer require tdmalone/slackemon`
+    * [Deploy with Docker](https://github.com/tdmalone/slackemon/wiki/Installing-with-Docker)
+    * [Deploy with Heroku](https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku)
 1. Log in to your Slack team, and visit https://api.slack.com/apps?new_app=1 to create a new App. You can call it whatever you like, but 'Slackémon' usually works best! You can then proceed to set up the app features through Slack's interface.
 1. Set up Slack's Interactive Messages
     1. From your App control page, under Features in the sidebar, click Interactive Messages
@@ -74,12 +77,16 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
 1. In your system's crontab (eg. `crontab -e` on a Linux machine, or find the Cron option in your hosting control panel), set up `cron.php` to run every minute, sending through the cron token you created earlier.
     * If you're invoking via the command line, you can use eg. `php /path/to/cron.php --token=XXXXXXXXXXXXXXXXXXXX`
     * If you're invoking via a GET request, you can use eg. `http://example.com/slackemon/cron.php?token=XXXXXXXXXXXXXXXXXXXX`
+    * If you don't have access to cron, you can use a service such as [cron-job.org](https://cron-job.org)
 1. TODO: Add steps for installing custom emoji, including Pokémon & type emoji
-1. TODO: Add steps for forking and linking to [PokeCSS Media](https://github.com/tdmalone/pokecss-media)
+
+Well done, it's time to start playing! You should now be able to run `/slackemon` anywhere in your Slack team to start the quick user onboarding process 👍
 
 ## Future enhancements
 
 Future enhancement ideas are progressively being added to the [Projects](https://github.com/tdmalone/slackemon/projects) section.
+
+You can generally track what we're working on at moment through the [Milestones](https://github.com/tdmalone/slackemon/milestones).
 
 ## User guide
 

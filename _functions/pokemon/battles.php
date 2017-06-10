@@ -6,6 +6,12 @@
 // Cronned function (through /slackemon battle-updates) which should run every minute
 function slackemon_do_battle_updates() {
 
+  $active_players = slackemon_get_player_ids([ 'active_only' => true ]);
+  
+  if ( ! $active_players ) {
+    return;
+  }
+
   $now = time();
   $one_minute_ago          = $now - MINUTE_IN_SECONDS * 1;
   $two_minutes_ago         = $now - MINUTE_IN_SECONDS * 2;
@@ -16,7 +22,7 @@ function slackemon_do_battle_updates() {
   // First up, use this opportunity to check if any Pokemon need automatic reviving after battle
   // Pokemon will restore HP at a rate of 5% per minute (by default), after being fainted for 10 minutes
   // (also, because active_only is true, Pokemon will only restore if a user is online and NOT in another battle!)
-  foreach ( slackemon_get_player_ids([ 'active_only' => true ]) as $player_id ) {
+  foreach ( $active_players as $player_id ) {
 
     $player_data = slackemon_get_player_data( $player_id );
     $player_pokemon = $player_data->pokemon;
