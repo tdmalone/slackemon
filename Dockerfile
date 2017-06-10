@@ -36,6 +36,6 @@ USER root
 # Set up the cron job every minute, with the correct environment
 # then, start apache2 in foreground (https://github.com/docker-library/php/blob/76a1c5ca161f1ed6aafb2c2d26f83ec17360bc68/7.1/apache/Dockerfile#L205)
 CMD printenv > /etc/environment && \
-    echo "* * * * * php cron.php --token=$SLACKEMON_CRON_TOKEN" | crontab - && \
+    echo "* * * * * /usr/local/bin/php /var/www/html/cron.php" | crontab - && \
     cron && \
     apache2-foreground
