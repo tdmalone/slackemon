@@ -25,7 +25,7 @@ require_once( __DIR__ . '/config.php' );
 // Set some config variables in stone.
 date_default_timezone_set( SLACKEMON_TIMEZONE );
 setlocale( LC_MONETARY, SLACKEMON_MONETARY_LOCALE );
-$data_folder = __DIR__ . '/' . SLACKEMON_DATA_CACHE_FOLDER;
+$data_folder = __DIR__ . '/' . SLACKEMON_DATA_FOLDER;
 
 // Check that this request is authorised.
 // Authorisation can be skipped by the calling file by setting SKIP_AUTH to true - this should only be done if the file
