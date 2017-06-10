@@ -9,10 +9,10 @@ change_data_folder( $data_folder . '/pokedex' );
 $args = check_subcommands();
 if ( isset( $args[0] ) && 'unit-tests' === $args[0] ) {
 
-	// We're running tests, so don't run any background commands
-	
+  // We're running tests, so don't run any background commands
+  
 } else {
-	run_background_command( 'slackemon/commands.php', $args );
+  run_background_command( 'slackemon/commands.php', $args );
 }
 
 // The end!

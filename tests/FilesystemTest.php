@@ -8,25 +8,25 @@ use PHPUnit\Framework\TestCase;
 
 final class FilesystemTest extends TestCase {
 
-	public function testFileExists() {
+  public function testFileExists() {
 
-		$testFilename = __DIR__ . '/test-filesystem-fileexists';
-		touch( $testFilename );
+    $testFilename = __DIR__ . '/test-filesystem-fileexists';
+    touch( $testFilename );
 
-		$this->assertTrue( slackemon_file_exists( $testFilename ) );
+    $this->assertTrue( slackemon_file_exists( $testFilename ) );
 
-		unlink( __DIR__ . '/test-filesystem-fileexists' );
+    unlink( __DIR__ . '/test-filesystem-fileexists' );
 
-	}
+  }
 
-	public function testFileDoesNotExist() {
+  public function testFileDoesNotExist() {
 
-		$testFilename = __DIR__ . '/test-filesystem-fileexists';
-		@unlink( $testFilename );
+    $testFilename = __DIR__ . '/test-filesystem-fileexists';
+    @unlink( $testFilename );
 
-		$this->assertFalse( slackemon_file_exists( $testFilename ) );
+    $this->assertFalse( slackemon_file_exists( $testFilename ) );
 
-	}
+  }
 
 }
 
