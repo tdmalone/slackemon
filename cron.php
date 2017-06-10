@@ -7,9 +7,9 @@
 define( 'SKIP_AUTH', true );
 require_once( __DIR__ . '/init.php' );
 
-// AUTH: Check if the cron token was set
+// AUTH: Check if the cron token was set if running over the web
 if (
-  ( ! isset( $argv[1] ) || '--token=' . SLACKEMON_CRON_TOKEN !== $argv[1] ) &&
+  'cli' !== php_sapi_name() &&
   ( ! isset( $_REQUEST['token'] ) || SLACKEMON_CRON_TOKEN !== $_REQUEST['token'] )
 ) {
   http_response_code( 403 );
