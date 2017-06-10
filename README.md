@@ -80,6 +80,8 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
     * If you don't have access to cron, you can use a service such as [cron-job.org](https://cron-job.org)
 1. TODO: Add steps for installing custom emoji, including Pokémon & type emoji
 
+Well done, it's time to start playing! You should now be able to run `/slackemon` anywhere in your Slack team to start the quick user onboarding process 👍
+
 ## Future enhancements
 
 Future enhancement ideas are progressively being added to the [Projects](https://github.com/tdmalone/slackemon/projects) section.
