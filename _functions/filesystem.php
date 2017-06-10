@@ -5,8 +5,21 @@
  * @package Slackemon
  */
 
+// Set up Postgres access if we are going to be using it
+if ( 'postgres' === SLACKEMON_DATA_STORE_METHOD ) {
+
+  require_once( __DIR__ . '/database.php' );
+
+  slackemon_pg_connect();
+
+}
+
 // Set up AWS access if we are going to be using it
-if ( 'aws' === SLACKEMON_DATA_CACHE_METHOD || 'aws' === SLACKEMON_IMAGE_CACHE_METHOD ) {
+if (
+  'aws' === SLACKEMON_DATA_STORE_METHOD ||
+  'aws' === SLACKEMON_DATA_CACHE_METHOD ||
+  'aws' === SLACKEMON_IMAGE_CACHE_METHOD
+) {
 
   global $slackemon_s3;
 
@@ -25,16 +38,18 @@ if ( 'aws' === SLACKEMON_DATA_CACHE_METHOD || 'aws' === SLACKEMON_IMAGE_CACHE_ME
 
 /**
  * Semi drop-in replacement for PHP's file_get_contents (only supports the required arguments for now) which abstracts
- * access to either the local file system or an external data store, depending on SLACKEMON_DATA_CACHE_METHOD.
+ * access to either the local file system or an external data store, depending on SLACKEMON_DATA_CACHE/STORE_METHOD.
  *
  * DO NOT USE THIS FUNCTION FOR IMAGE CACHING. Image caching relies on its own method, and still needs local access
  * even when images are stored remotely.
  *
+ * @param string $filename Name of the file to read.
+ * @param string $purpose  The purpose of the read - 'cache' or 'store'.
  * @link http://php.net/file_get_contents
  */
-function slackemon_file_get_contents( $filename ) {
+function slackemon_file_get_contents( $filename, $purpose = 'cache' ) {
 
-  switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+  switch ( slackemon_get_data_method( $purpose ) ) {
 
     case 'local':
 
@@ -43,6 +58,14 @@ function slackemon_file_get_contents( $filename ) {
       } else {
         return false;
       }
+
+    break;
+
+    case 'postgres':
+
+      $key = slackemon_get_pg_key( $filename );
+
+      // TODO query
 
     break;
 
@@ -76,28 +99,31 @@ function slackemon_file_get_contents( $filename ) {
 
     break; // Case aws
 
-  } // Switch SLACKEMON_DATA_CACHE_METHOD
+  } // Switch slackemon_get_data_method
 } // Function slackemon_file_get_contents
 
 /**
  * Semi drop-in replacement for PHP's file_put_contents (only supports the required arguments for now) which abstracts
- * access to either the local file system or an external data store, depending on SLACKEMON_DATA_CACHE_METHOD.
+ * access to either the local file system or an external data store, depending on SLACKEMON_DATA_CACHE/STORE_METHOD.
  *
  * NOTE: Does not support stream resources for the $data param if an external data store is used.
  *
  * DO NOT USE THIS FUNCTION FOR IMAGE CACHING. Image caching relies on its own method, and still needs local access
  * even when images are stored remotely.
  *
+ * @param string $filename Name of the file to write to.
+ * @param string $data     The data to write to the file.
+ * @param string $purpose  The purpose of the write - 'cache' or 'store'. 
  * @link http://php.net/file_put_contents
  */
-function slackemon_file_put_contents( $filename, $data ) {
+function slackemon_file_put_contents( $filename, $data, $purpose = 'cache' ) {
 
   // Support $data being an array, like file_put_contents() does
   if ( is_array( $data ) ) {
     $data = implode( '', $data );
   }
 
-  switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+  switch ( slackemon_get_data_method( $purpose ) ) {
 
     case 'local':
 
@@ -108,6 +134,14 @@ function slackemon_file_put_contents( $filename, $data ) {
       }
 
       return file_put_contents( $filename, $data );
+
+    break;
+
+    case 'postgres':
+
+      $key = slackemon_get_pg_key( $filename );
+
+      // TODO query
 
     break;
 
@@ -157,14 +191,24 @@ function slackemon_file_put_contents( $filename, $data ) {
  * DO NOT USE THIS FUNCTION FOR IMAGE CACHING. Image caching relies on its own method, and still needs local access
  * even when images are stored remotely.
  *
+ * @param string $filename The filename to check existence of.
+ * @param string $purpose  The purpose of the check - 'cache' or 'store'.
  * @link http://php.net/file_exists
  */
-function slackemon_file_exists( $filename ) {
+function slackemon_file_exists( $filename, $purpose = 'cache' ) {
 
-  switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+  switch ( slackemon_get_data_method( $purpose ) ) {
 
     case 'local':
       return file_exists( $filename );
+    break;
+
+    case 'postgres':
+
+      $key = slackemon_get_pg_key( $filename );
+
+      // TODO query
+
     break;
 
     case 'aws':
@@ -179,14 +223,24 @@ function slackemon_file_exists( $filename ) {
  * Drop-in replacement for PHP's filemtime, which abstracts access to either the local file system or an external
  * data store, depending on SLACKEMON_DATA_CACHE_METHOD.
  *
+ * @param string $filename The filename to return the modified time of.
+ * @param string $purpose  The purpose of the file - 'cache' or 'store'.
  * @link http://php.net/filemtime
  */
-function slackemon_filemtime( $filename ) {
+function slackemon_filemtime( $filename, $purpose = 'cache' ) {
 
-  switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+  switch ( slackemon_get_data_method( $purpose ) ) {
 
     case 'local':
       return filemtime( $filename );
+    break;
+
+    case 'postgres':
+
+      $key = slackemon_get_pg_key( $filename );
+
+      // TODO query
+
     break;
 
     case 'aws':
@@ -220,13 +274,28 @@ function slackemon_filemtime( $filename ) {
   } // Switch SLACKEMON_DATA_CACHE_METHOD
 } // Function slackemon_filemtime
 
-/** Semi drop-in replacement for PHP's rename() function, supporting S3. No support for the third $context parameter. */
-function slackemon_rename( $old_filename, $new_filename ) {
+/**
+ * Semi drop-in replacement for PHP's rename() function, supporting S3. No support for the third $context parameter.
+ *
+ * @param string $old_filename The old filename.
+ * @param string $new_filename The new filename.
+ * @param string $purpose      The purpose of the files - 'cache' or 'store'.
+ * @link http://php.net/rename
+ */
+function slackemon_rename( $old_filename, $new_filename, $purpose = 'cache' ) {
 
-  switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+  switch ( slackemon_get_data_method( $purpose ) ) {
 
     case 'local':
       return rename( $old_filename, $new_filename );
+    break;
+
+    case 'postgres':
+
+      $key = slackemon_get_pg_key( $filename );
+
+      // TODO query
+
     break;
 
     case 'aws':
@@ -247,13 +316,27 @@ function slackemon_rename( $old_filename, $new_filename ) {
   } // Switch SLACKEMON_DATA_CACHE_METHOD
 } // Function slackemon_rename
 
-/** Semi drop-in replacement for PHP's unlink() function, supporting S3. No support for the second $context parameter. */
-function slackemon_unlink( $filename ) {
+/**
+ * Semi drop-in replacement for PHP's unlink() function, supporting S3. No support for the second $context parameter.
+ *
+ * @param string $filename The filename to remove.
+ * @param string $purpose  The purpose of the file - 'cache' or 'store'.
+ * @link http://php.net/unlink
+ */
+function slackemon_unlink( $filename, $purpose = 'cache' ) {
 
-  switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+  switch ( slackemon_get_data_method( $purpose ) ) {
 
     case 'local':
       return unlink( $filename );
+    break;
+
+    case 'postgres':
+
+      $key = slackemon_get_pg_key( $filename );
+
+      // TODO query
+
     break;
 
     case 'aws':
@@ -287,13 +370,27 @@ function slackemon_unlink( $filename ) {
   } // Switch SLACKEMON_DATA_CACHE_METHOD
 } // Function slackemon_unlink
 
-/** Sort of a replacement for PHP's glob() function, that supports S3's prefixes search if using S3 as the data cache. */
-function slackemon_get_files_by_prefix( $prefix ) {
+/**
+ * Sort of a replacement for PHP's glob() function, that supports S3's prefixes search if using S3 as the data cache.
+ *
+ * @param string $prefix  The filename prefix to search for.
+ * @param string $purpose The purpose of the search - 'cache' or 'store'.
+ * @link http://php.net/glob
+ */
+function slackemon_get_files_by_prefix( $prefix, $purpose = 'cache' ) {
 
-  switch ( SLACKEMON_DATA_CACHE_METHOD ) {
+  switch ( slackemon_get_data_method( $purpose ) ) {
 
     case 'local':
       return glob( $prefix . '*' );
+    break;
+
+    case 'postgres':
+
+      $key = slackemon_get_pg_key( $filename );
+
+      // TODO query
+
     break;
 
     case 'aws':
@@ -330,6 +427,18 @@ function slackemon_get_files_by_prefix( $prefix ) {
 
 } // Function slackemon_get_files_by_prefix
 
+/** Abstracts the method we use to convert a filename to a database table and row. */
+function slackemon_get_pg_key( $filename ) {
+  global $data_folder;
+
+  $trimmed = trim( str_replace( $data_folder, '', $filename ), '/' );
+
+  error_log( $trimmed );
+
+  return $trimmed;
+
+}
+
 /** Abstracts the method we use to calculate the key for S3 storage. */
 function slackemon_get_s3_key( $filename ) {
   global $data_folder;
@@ -337,5 +446,21 @@ function slackemon_get_s3_key( $filename ) {
   return trim( str_replace( $data_folder, '', $filename ), '/' );
 
 }
+
+/**
+ * Returns the appropriate data storage method based on the purpose of the request.
+ * In a practical sense, this allows us to use the same functions eg. slackemon_file_get_contents for both data caching
+ * and data storage, while sending through the purpose of our usage each time so the correct method is used.
+ */
+function slackemon_get_data_method( $purpose ) {
+
+  switch ( $purpose ) {
+    case 'cache': $method = SLACKEMON_DATA_CACHE_METHOD; break;
+    case 'store': $method = SLACKEMON_DATA_STORE_METHOD; break;
+  }
+
+  return $method;
+
+} // Function slackemon_get_data_method
 
 // The end!
