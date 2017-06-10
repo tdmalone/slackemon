@@ -1,7 +1,9 @@
 <?php
-
-// TM 20/03/2017
-// Slack API specific functions
+/**
+ * Slack API specific functions.
+ *
+ * @package Slackemon
+ */
 
 /** Send a message to a Slack incoming webhook, given in response to a slash command or action invocation. */
 function send2slack( $message, $hook_url = '' ) {

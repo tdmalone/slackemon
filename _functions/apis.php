@@ -1,8 +1,11 @@
 <?php
+/**
+ * Functions to abstract access to commonly used APIs, including curl.
+ *
+ * @package Slackemon
+ */
 
-// TM 27/01/2017
-// Functions to abstract access to commonly used APIs, including curl
-
+// Require additional API functions.
 require_once( __DIR__ . '/slack.php' );
 
 /** Get a URL using curl, and return the result. */

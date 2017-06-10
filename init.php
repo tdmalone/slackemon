@@ -6,6 +6,7 @@
  */
 
 // Activate error logging.
+// TODO: This should be defined elsewhere rather than changing at runtime.
 ini_set( 'log_errors', '1' );
 ini_set( 'error_log', __DIR__ . '/error_log' );
 
@@ -53,7 +54,7 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
 
   } else {
 
-    // General slash command auth
+    // General slash command auth.
 
     if (
       ! isset( $_POST['token'] ) ||
@@ -105,3 +106,5 @@ if ( ! defined( 'USER_ID' ) && ( isset( $action->user ) || isset( $options_reque
   define( 'COMMAND',    '/' . ( isset( $callback_id ) ? $callback_id[0] : $request->callback_id ) );
 
 }
+
+// The end!

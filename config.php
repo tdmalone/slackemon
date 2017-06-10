@@ -1,13 +1,15 @@
 <?php
+/**
+ * Assigns environment variable values to constants for easy access elsewhere.
+ *
+ * @package Slackemon
+ */
 
-// TM 09/12/2016
-// Apply Slackemon config
-
-// If running in development, attempt to load environment variables from .env file
+// If running in development, attempt to load environment variables from .env file.
 if ( file_exists( __DIR__ . '/.env' ) && 'development' === getenv( 'APP_ENV' ) ) {
-    require_once( __DIR__ . '/vendor/autoload.php' );
-    $dotenv = new Dotenv\Dotenv( __DIR__ );
-    $dotenv->load();
+  require_once( __DIR__ . '/vendor/autoload.php' );
+  $dotenv = new Dotenv\Dotenv( __DIR__ );
+  $dotenv->load();
 }
 
 define( 'SLACKEMON_SLACK_TOKEN',        getenv( 'SLACKEMON_SLACK_TOKEN'        ) );

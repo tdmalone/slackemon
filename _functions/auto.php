@@ -1,7 +1,9 @@
 <?php
-
-// TM 28/01/2017
-// Functions that handle automation of Slackemon, generally via cron
+/**
+ * Functions that handle automation of Slackemon, generally via cron.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_run_automated_command( $command, $user_id, $team_id, $options = [] ) {
 

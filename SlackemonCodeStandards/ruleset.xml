@@ -1,6 +1,58 @@
 <?xml version="1.0"?>
 <ruleset name="SlackemonCodeStandards">
 
-  
+  <description>A custom coding standard for Slackémon based heavily on the WordPress standards, but with modifications for ease-of-use and for where the standards don't make sense outside of the WordPress context.</description>
+
+  <rule ref="WordPress">
+
+    <exclude name="Generic.WhiteSpace.DisallowSpaceIndent" />
+    <exclude name="PEAR.Functions.FunctionCallSignature" />
+
+    <exclude name="Squiz.Commenting.InlineComment.SpacingAfter" />
+    <exclude name="Squiz.Commenting.LongConditionClosingComment.Invalid" />
+    
+    <exclude name="WordPress.Arrays.ArrayDeclarationSpacing" />
+    <exclude name="WordPress.CSRF.NonceVerification" />
+    <exclude name="WordPress.VIP.SuperGlobalInputUsage" />
+    <exclude name="WordPress.VIP.RestrictedFunctions" />
+    <exclude name="WordPress.VIP.TimezoneChange" />
+    <exclude name="WordPress.VIP.ValidatedSanitizedInput" />
+    <exclude name="WordPress.WhiteSpace.ControlStructureSpacing.BlankLineAfterEnd" />
+    <exclude name="WordPress.WhiteSpace.OperatorSpacing" />
+    <exclude name="WordPress.WP.AlternativeFunctions" />
+    <exclude name="WordPress.XSS.EscapeOutput" />
+
+  </rule>
+
+  <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
+
+  <rule ref="Generic.WhiteSpace.ScopeIndent">
+    <properties>
+      <property name="exact" value="true" />
+      <property name="indent" value="2" />
+      <property name="tabIndent" value="false" />
+    </properties>
+  </rule>
+
+  <rule ref="SlackemonCodeStandards.Arrays.ArrayDeclarationSpacing">
+    <properties>
+      <property name="exact" value="false" />
+    </properties>
+  </rule>
+
+  <rule ref="SlackemonCodeStandards.Functions.FunctionCallSignature">
+    <properties>
+      <property name="indent" value="2" />
+      <property name="exact" value="false" />
+      <property name="requiredSpacesAfterOpen" value="1" />
+      <property name="requiredSpacesBeforeClose" value="1" />
+    </properties>
+  </rule>
+
+  <rule ref="SlackemonCodeStandards.Whitespace.OperatorSpacing">
+    <properties>
+      <property name="exact" value="false" />
+    </properties>
+  </rule>
 
 </ruleset>

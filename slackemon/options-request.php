@@ -1,8 +1,11 @@
 <?php
+/**
+ * Provides the logic for responding to message menu option requests.
+ *
+ * @package Slackemon
+ */
 
-// Chromatix TM 09/05/2017
-// Provides the logic for responding to message menu option list requests
-
+// Set up the Slackemon environment.
 require_once( __DIR__ . '/../init.php' );
 change_data_folder( $data_folder . '/pokedex' );
 
@@ -11,14 +14,14 @@ $is_desktop  = 'desktop' === slackemon_get_player_menu_mode();
 
 switch ( $action_name[0] ) {
 
-  // Adding Pokemon to the battle team, via the Battle menu
+  // Adding Pokemon to the battle team, via the Battle menu.
   case 'battle-team':
 
     if ( ! isset( $action_name[1] ) ) {
       return;
     }
 
-    // We only support the 'battle-team/add' action here for now
+    // We only support the 'battle-team/add' action here for now.
     if ( 'add' !== $action_name[1] ) {
       return;
     }
@@ -26,11 +29,14 @@ switch ( $action_name[0] ) {
     $pokemon_collection = slackemon_search_player_pokemon( $action_value );
 
     // Remove Pokemon that are already in the battle team, because we can't add them again!
-    $pokemon_collection = array_filter( $pokemon_collection, function( $_pokemon ) {
-      if ( ! $_pokemon->is_battle_team ) {
-        return true;
+    $pokemon_collection = array_filter(
+      $pokemon_collection,
+      function( $_pokemon ) {
+        if ( ! $_pokemon->is_battle_team ) {
+          return true;
+        }
       }
-    });
+    );
 
     slackemon_sort_player_pokemon( $pokemon_collection, [ 'name', 'is_favourite', 'level', 'cp', 'ts' ] );
 
@@ -52,18 +58,18 @@ switch ( $action_name[0] ) {
 
     } // Foreach pokemon
 
-    echo json_encode([ 'options' => $options ]);
+    echo json_encode( [ 'options' => $options ] );
 
   break;
 
-  // Item give/use/teach request
+  // Item give/use/teach request.
   case 'items':
 
     if ( ! isset( $action_name[1] ) || ! isset( $action_name[2] ) ) {
       return;
     }
 
-    $method  = $action_name[1]; // 'give', 'use', or 'teach'
+    $method  = $action_name[1]; // 'give' 'use' or 'teach'.
     $item_id = $action_name[2];
 
     $pokemon_collection = slackemon_search_player_pokemon( $action_value );
@@ -80,11 +86,14 @@ switch ( $action_name[0] ) {
         $move_name = slackemon_get_machine_move_data( $item_id, true );
         $teachable_pokemon = slackemon_get_user_teachable_pokemon( $move_name, 'force_use_cache' );
 
-        $pokemon_collection = array_filter( $pokemon_collection, function( $_pokemon ) use ( $teachable_pokemon ) {
-          if ( in_array( $_pokemon->ts, $teachable_pokemon ) ) {
-            return true;
+        $pokemon_collection = array_filter(
+          $pokemon_collection,
+          function( $_pokemon ) use ( $teachable_pokemon ) {
+            if ( in_array( $_pokemon->ts, $teachable_pokemon ) ) {
+              return true;
+            }
           }
-        });
+        );
 
       break;
 
@@ -96,31 +105,34 @@ switch ( $action_name[0] ) {
 
         if ( isset( $item_data->{'supplementary-data'}->requirements ) ) {
 
-          $pokemon_collection = array_filter( $pokemon_collection, function( $_pokemon ) use ( $item_data ) {
-            foreach ( $item_data->{'supplementary-data'}->requirements as $entry ) {
+          $pokemon_collection = array_filter(
+            $pokemon_collection,
+            function( $_pokemon ) use ( $item_data ) {
+              foreach ( $item_data->{'supplementary-data'}->requirements as $entry ) {
 
-              $pass = true;
+                $pass = true;
 
-              foreach ( $entry as $key => $value ) {
-                if ( $_pokemon->{ $key } != $value ) {
-                  $pass = false;
-                  continue 2;
+                foreach ( $entry as $key => $value ) {
+                  if ( $_pokemon->{ $key } != $value ) {
+                    $pass = false;
+                    continue 2;
+                  }
                 }
-              }
 
-              if ( $pass ) {
-                return true;
-              }
+                if ( $pass ) {
+                  return true;
+                }
 
+              }
             }
-          });
+          );
         }
 
-      break; // Case 'use'
+      break; // Case 'use'.
 
     } // Switch method
 
-    // Sort by name, falling back to favourite status and then level, and finally catch ts
+    // Sort by name, falling back to favourite status and then level, and finally catch ts.
     slackemon_sort_player_pokemon( $pokemon_collection, [ 'name', 'is_favourite', 'level', 'ts' ] );
 
     $options = [];
@@ -164,10 +176,10 @@ switch ( $action_name[0] ) {
 
     } // Foreach pokemon
 
-    echo json_encode([ 'options' => $options ]);
+    echo json_encode( [ 'options' => $options ] );
 
-  break; // Case items
+  break; // Case items.
 
-} // Switch action_name[0]
+} // Switch action_name 0.
 
 // The end!
