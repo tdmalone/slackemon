@@ -1,9 +1,11 @@
+<?xml version="1.0"?>
 <phpunit
   colors="true"
   convertErrorsToExceptions="true"
   convertNoticesToExceptions="true"
   convertWarningsToExceptions="true"
   bootstrap="./index.php"
+  verbose="true"
 >
 
   <testsuites>
