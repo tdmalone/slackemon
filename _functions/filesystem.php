@@ -1,7 +1,9 @@
 <?php
-
-// TM 02/06/2017
-// Filesystem abstraction functions
+/**
+ * Filesystem abstraction functions.
+ *
+ * @package Slackemon
+ */
 
 // Set up AWS access if we are going to be using it
 if ( 'aws' === SLACKEMON_DATA_CACHE_METHOD || 'aws' === SLACKEMON_IMAGE_CACHE_METHOD ) {

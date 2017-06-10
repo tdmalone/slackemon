@@ -1,7 +1,9 @@
 <?php
-
-// TM 12/12/2016
-// Helper functions for Slackemon
+/**
+ * Generic helper functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 // Other helper function files
 require_once( __DIR__ . '/apis.php'  );

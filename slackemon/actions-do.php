@@ -1,17 +1,22 @@
 <?php
+/**
+ * Background-handler for for interactive message actions in Slackemon.
+ *
+ * @package Slackemon
+ */
 
-// Chromatix TM 24/03/2017
-// Deferred landing point for interactive message actions in Slackemon
-
+// Set up the Slackemon environment with the requested action data.
 $action = json_decode( $_REQUEST['action'] );
 require_once( __DIR__ . '/../init.php' );
 change_data_folder( $data_folder . '/pokedex' );
 
 $action_name  = $action->actions[0]->name;
-$action_value = ( // We support both message buttons, and the newer message menus
+
+// We support both message buttons, and the newer message menus.
+$action_value = (
   isset( $action->actions[0]->value ) ?
-  $action->actions[0]->value : // Message button value response
-  $action->actions[0]->selected_options[0]->value // Message menu value response
+  $action->actions[0]->value :                    // Message button value response.
+  $action->actions[0]->selected_options[0]->value // Message menu value response.
 );
 
 switch ( $action_name ) {
@@ -27,21 +32,27 @@ switch ( $action_name ) {
       case 'catch':
 
         $message = [
-          'attachments' => [[
-            'text' => (
-              '*You found a Pokémon!*' . "\n" .
-              'See your direct messages to continue.'
-            ),
-          ]],
+          'attachments' => [
+            [
+              'text' => (
+                '*You found a Pokémon!*' . "\n" .
+                'See your direct messages to continue.'
+              ),
+            ],
+          ],
         ];
 
         // A new player has joined - everyone gets a spawn!
-        slackemon_spawn([ 'type' => 'onboarding', 'user_id' => USER_ID ]);
+        $spawn_trigger = [
+          'type'    => 'onboarding',
+          'user_id' => USER_ID,
+        ];
+        slackemon_spawn( $spawn_trigger );
 
-      break; // Case catch
+      break; // Case catch.
 
     } // Switch action_value
-  break; // Case onboarding
+  break; // Case onboarding.
 
   case 'menu':
     $message = slackemon_get_main_menu();
@@ -115,7 +126,7 @@ switch ( $action_name ) {
       $message = slackemon_get_travel_menu();
     } else {
 
-      // Travelling to a specific region
+      // Travelling to a specific region.
       $region = $action_value;
       $message = slackemon_get_region_message( $region );
       slackemon_set_player_region( $region );
@@ -169,14 +180,13 @@ switch ( $action_name ) {
     $move_type    = $action_value[2];
 
     if ( 'swap' === $move_type ) {
-      $message = slackemon_offer_battle_swap( $battle_hash, USER_ID, true, $action );
-    } elseif ( 'first' === $move_type ) {
-      slackemon_do_battle_move( $move_name, $battle_hash, $action, true ); // First move for the battle
+      $return_full_battle_message = true;
+      $message = slackemon_offer_battle_swap( $battle_hash, USER_ID, $return_full_battle_message, $action );
     } else {
-      slackemon_do_battle_move( $move_name, $battle_hash, $action ); // Move within the battle
+      slackemon_do_battle_move( $move_name, $battle_hash, $action, 'first' === $move_type );
     }
 
-  break; // Case battles/move
+  break; // Case battles/move.
 
   case 'battles/swap/do':
     $action_value = explode( '/', $action_value );
@@ -190,7 +200,7 @@ switch ( $action_name ) {
     slackemon_end_battle( $battle_hash, 'surrender' );
   break;
 
-  case 'battles/complete': // Tally up battle stats etc. for the user
+  case 'battles/complete': // Tally up battle stats etc. for the user.
     $action_value = explode( '/', $action_value );
     $battle_hash = $action_value[0];
     $battle_result = $action_value[1];
@@ -202,11 +212,21 @@ switch ( $action_name ) {
   break;
 
   case 'mute':
+
     switch ( $action_value ) {
-      case 'mute':   slackemon_mute_player();   break;
-      case 'unmute': slackemon_unmute_player(); break;
+
+      case 'mute':
+        slackemon_mute_player();
+      break;
+
+      case 'unmute':
+        slackemon_unmute_player();
+      break;
+
     }
+
     $message = slackemon_get_main_menu();
+
   break;
 
   case 'menu_mode':
@@ -295,14 +315,14 @@ switch ( $action_name ) {
 
 } // Switch action_name
 
-// If there was no match, we might need to dig deeper into a dynamic action_name
+// If there was no match, we might need to dig deeper into a dynamic action_name.
 if ( isset( $no_match ) ) {
 
   $action_name = explode( '/', $action_name );
 
   switch ( $action_name[0] ) {
 
-    // Item give/use/teach requests, coming through after an options request
+    // Item give/use/teach requests, coming through after an options request.
     case 'items':
 
       $method   = $action_name[1];
@@ -325,9 +345,9 @@ if ( isset( $no_match ) ) {
 
       }
 
-    break; // Case 'items'
+    break; // Case 'items'.
 
-  } // Switch action_name[0]
+  } // Switch action_name 0.
 } // If no_match
 
 // If a message has been set, send it back to the user!

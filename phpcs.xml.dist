@@ -1,39 +1,29 @@
 <?xml version="1.0"?>
-<ruleset name="Slackemon">
+<ruleset>  
 
-  <description>A custom coding standard for Slackémon based heavily on the WordPress standards, but with modifications for ease-of-use and for where the standards don't make sense outside of the WordPress context.</description>
+  <!-- Automatically check all our PHP source files. -->
+  <file>./_functions</file>
+  <file>./slackemon</file>
+  <file>./tests</file>
+  <file>./actions.php</file>
+  <file>./config.php</file>
+  <file>./cron.php</file>
+  <file>./index.php</file>
+  <file>./init.php</file>
+  <file>./options-request.php</file>
 
-  <rule ref="WordPress">
+  <arg name="colors" />
+  <arg value="sp" />
 
-    <exclude name="Generic.WhiteSpace.DisallowSpaceIndent" />
-    
-    <exclude name="WordPress.CSRF.NonceVerification" />
-    <exclude name="WordPress.VIP.SuperGlobalInputUsage" />
-    <exclude name="WordPress.VIP.RestrictedFunctions" />
-    <exclude name="WordPress.VIP.TimezoneChange" />
-    <exclude name="WordPress.VIP.ValidatedSanitizedInput" />
-    <exclude name="WordPress.WP.AlternativeFunctions" />
+  <!-- Use the default Slackemon code standards, which are based on the WordPress standards with modifications. -->
+  <!-- Create a phpcs.xml file if you wish to change these standards further or adjust other phpcs settings. -->
+  <!-- See https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml for help. -->
+  <!-- Further help is also available at https://github.com/squizlabs/PHP_CodeSniffer/wiki/Advanced-Usage. -->
+  <rule ref="SlackemonCodeStandards"/>
 
-    <exclude name="PEAR.Functions.FunctionCallSignature" />
-
-  </rule>
-
-  <rule ref="Generic.WhiteSpace.DisallowTabIndent" />
-
-  <rule ref="Generic.WhiteSpace.ScopeIndent">
-    <properties>
-      <property name="exact" value="true" />
-      <property name="indent" value="2" />
-      <property name="tabIndent" value="false" />
-    </properties>
-  </rule>
-
-  <rule ref="SlackemonCodeStandards.Functions.FunctionCallSignature">
-    <properties>
-      <property name="exact" value="false" />
-      <property name="requiredSpacesAfterOpen" value="1" />
-      <property name="requiredSpacesBeforeClose" value="1" />
-    </properties>
+  <!-- Exclude some checks for tests, because test naming conventions must follow PHPUnit rules. -->
+  <rule ref="WordPress.Files.FileName">
+    <exclude-pattern>./tests</exclude-pattern>
   </rule>
 
 </ruleset>

@@ -1,13 +1,15 @@
 <?php
-
-// TM 30/01/2017
-// Time related helper functions for Slackemon
+/**
+ * Time related helper functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 /**
  * Gets a string representating a time relatively from now, eg. '2 minutes ago' or 'in 3 days'.
  *
- * @param int|string $ts The timestamp to compare with now. Also accepts a string in any format that strtotime() does.
- * @param bool $long Whether long names should be used for time units eg. minute rather than min. Defaults to true.
+ * @param int|string $ts   The timestamp to compare with now. Also accepts a string in any format that strtotime() does.
+ * @param bool       $long Whether long names should be used for time units eg. minute rather than min. Defaults to true.
  * @return string
  * @author Matthew Temple, Tim Malone
  * @link https://gist.github.com/mattytemple/3804571

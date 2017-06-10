@@ -3,10 +3,15 @@
  * PEAR_Sniffs_Functions_FunctionCallSignatureSniff
  *
  * Modified for use with Slackemon.
- * Integrates an additional option from Generic.WhiteSpace.ScopeIndent.
+ * - Integrates additional indenting option `$exact`.
  *
- * @author    Tim Malone <tdmalone@gmail.com>
+ * @author  Tim Malone <tdmalone@gmail.com>
+ * @package SlackemonCodeStandards
  */
+
+if ( ! class_exists( 'PEAR_Sniffs_Functions_FunctionCallSignatureSniff', true ) ) {
+  throw new PHP_CodeSniffer_Exception( 'Class PEAR_Sniffs_Functions_FunctionCallSignatureSniff not found' );
+}
 
 /**
  * PEAR_Sniffs_Functions_FunctionCallSignatureSniff.
@@ -45,7 +50,7 @@ class SlackemonCodeStandards_Sniffs_Functions_FunctionCallSignatureSniff extends
      *
      * @var bool
      */
-    public $exact = false;
+    public $exact = true;
 
     
     /**

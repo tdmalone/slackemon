@@ -10,10 +10,10 @@ final class FilesystemTest extends TestCase {
 
   public function testFileExists() {
 
-    $testFilename = __DIR__ . '/test-filesystem-fileexists';
-    touch( $testFilename );
+    $test_filename = __DIR__ . '/test-filesystem-fileexists';
+    touch( $test_filename );
 
-    $this->assertTrue( slackemon_file_exists( $testFilename ) );
+    $this->assertTrue( slackemon_file_exists( $test_filename ) );
 
     unlink( __DIR__ . '/test-filesystem-fileexists' );
 
@@ -21,10 +21,13 @@ final class FilesystemTest extends TestCase {
 
   public function testFileDoesNotExist() {
 
-    $testFilename = __DIR__ . '/test-filesystem-fileexists';
-    @unlink( $testFilename );
+    $test_filename = __DIR__ . '/test-filesystem-fileexists';
 
-    $this->assertFalse( slackemon_file_exists( $testFilename ) );
+    if ( file_exists( $test_filename ) ) {
+      unlink( $test_filename );
+    }
+
+    $this->assertFalse( slackemon_file_exists( $test_filename ) );
 
   }
 
