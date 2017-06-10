@@ -20,11 +20,7 @@ RUN apt-get update && apt-get install git zlib1g-dev cron nano vim libpq-dev -y 
     docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql && \
     docker-php-ext-install zip pdo pdo_pgsql pgsql
 
-# TODO: if pgsql doesn't work above try php7.0-pgsql in apt-get and add add another source for the package
-# RUN echo "deb http://ftp.de.debian.org/debian stretch main" >> /etc/apt/sources.list
-# HT: https://stackoverflow.com/a/41059369/1982136
-
-# Install package manager Composer
+# Install the Composer package manager
 RUN curl -s http://getcomposer.org/installer | php
 
 USER slackemon
