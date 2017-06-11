@@ -2,7 +2,7 @@
 .data
 .DS_Store
 .env
-.env.sample
+.env.example
 .git
 .gitignore
 .image-cache
