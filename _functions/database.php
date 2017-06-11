@@ -90,8 +90,7 @@ function slackemon_set_up_db() {
 function slackemon_pg_escape( $string ) {
   global $_slackemon_postgres_connection;
 
-  if ( ! function_exists( 'pg_escape_string' ) ) {
-    error_log( 'Postgres functions are not available.' );
+  if ( ! slackemon_is_pg_ready() ) {
     return false;
   }
 
@@ -102,8 +101,7 @@ function slackemon_pg_escape( $string ) {
 function slackemon_pg_query( $query ) {
   global $_slackemon_postgres_connection;
 
-  if ( ! function_exists( 'pg_query' ) ) {
-    error_log( 'Postgres functions are not available.' );
+  if ( ! slackemon_is_pg_ready() ) {
     return false;
   }
 
@@ -131,8 +129,7 @@ function slackemon_pg_query( $query ) {
 function slackemon_pg_connect() {
   global $_slackemon_postgres_connection;
 
-  if ( ! function_exists( 'pg_connect' ) ) {
-    error_log( 'Postgres functions are not available.' );
+  if ( ! slackemon_is_pg_ready( false ) ) {
     return false;
   }
 
@@ -170,17 +167,27 @@ function slackemon_pg_connect() {
 function slackemon_pg_close() {
   global $_slackemon_postgres_connection;
 
-  if ( ! function_exists( 'pg_close' ) ) {
-    error_log( 'Postgres functions are not available.' );
-    return false;
-  }
-
-  if ( ! $_slackemon_postgres_connection ) {
-    error_log( 'Postgres connection does not seem to have been made.' );
+  if ( ! slackemon_is_pg_ready() ) {
     return false;
   }
 
   pg_close( $_slackemon_postgres_connection );
+
+}
+
+function slackemon_is_pg_ready( $check_connection = true ) {
+
+  if ( ! function_exists( 'pg_connect' ) ) {
+    error_log( 'Postgres functions are not available.' );
+    return false;
+  }
+
+  if ( $check_connection && ! $_slackemon_postgres_connection ) {
+    error_log( 'Postgres connection does not seem to have been made.' );
+    return false;
+  }
+
+  return true;
 
 }
 
