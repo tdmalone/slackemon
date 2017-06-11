@@ -7,8 +7,8 @@ install:
   - choco install -y OpenSSL.Light php
   - cd c:\tools\php71
   - copy php.ini-production php.ini
-  - echo 'extension=php_openssl.dll' > php.ini
-  - echo 'extension_dir="ext"' > php.ini
+  - echo 'extension=php_openssl.dll' >> php.ini
+  - echo 'extension_dir="ext"' >> php.ini
   # Debug
   - type php.ini
   - php --ini
