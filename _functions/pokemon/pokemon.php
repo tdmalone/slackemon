@@ -70,8 +70,8 @@ $_slackemon_constant_defaults = [
   // If enabled, sends debugging messages to the configured maintainer during spawns and battles
   // Sometimes useful when doing further development on these features
   'BATTLE_DEBUG'           => false,
-  'SPAWN_DEBUG'            => true,
-  'DATABASE_DEBUG'         => true,
+  'SPAWN_DEBUG'            => false,
+  'DATABASE_DEBUG'         => false,
 
   // Database table prefix
   'TABLE_PREFIX'           => 'slackemon_',

@@ -493,7 +493,7 @@ function slackemon_get_files_by_prefix( $prefix, $purpose ) {
 
       $return = array_map(
         function( $filename ) use ( $key ) {
-          return $key['table'] . '/' . $filename[0];
+          return $key['table_raw'] . '/' . $filename[0];
         },
         $result
       );
@@ -565,8 +565,10 @@ function slackemon_get_pg_key( $filename ) {
   }
 
   $key = [
-    'table'    => slackemon_pg_escape( SLACKEMON_TABLE_PREFIX . $filename_parts['dirname'], 'identifier' ),
-    'filename' => slackemon_pg_escape( $filename_parts['filename'], 'string' ),
+    'table'        => slackemon_pg_escape( SLACKEMON_TABLE_PREFIX . $filename_parts['dirname'], 'identifier' ),
+    'filename'     => slackemon_pg_escape( $filename_parts['filename'], 'string' ),
+    'table_raw'    => $filename_parts['dirname'],
+    'filename_raw' => $filename_parts['filename'],
   ];
 
   slackemon_pg_debug( json_encode( $key ) );

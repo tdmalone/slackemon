@@ -108,7 +108,6 @@ function slackemon_pg_query( $query, $retries = 0 ) {
 
   while ( $row = pg_fetch_row( $result ) ) {
     $rows[] = $row;
-    slackemon_pg_debug( json_encode( $row ) );
   }
 
   return $rows;
@@ -189,7 +188,6 @@ function slackemon_is_pg_ready( $options = [] ) {
   }
 
   if ( $options['check_connection'] && ! $_slackemon_postgres_connection ) {
-    slackemon_pg_debug( 'Postgres connection does not seem to have been made.' );
     return false;
   }
 
