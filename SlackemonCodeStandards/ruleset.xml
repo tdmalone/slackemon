@@ -13,8 +13,10 @@
     
     <exclude name="WordPress.Arrays.ArrayDeclarationSpacing" />
     <exclude name="WordPress.CSRF.NonceVerification" />
-    <exclude name="WordPress.VIP.SuperGlobalInputUsage" />
+    <exclude name="WordPress.PHP.DevelopmentFunctions.error_log_error_log" />
+    <exclude name="WordPress.VIP.FileSystemWritesDisallow" />
     <exclude name="WordPress.VIP.RestrictedFunctions" />
+    <exclude name="WordPress.VIP.SuperGlobalInputUsage" />
     <exclude name="WordPress.VIP.TimezoneChange" />
     <exclude name="WordPress.VIP.ValidatedSanitizedInput" />
     <exclude name="WordPress.WhiteSpace.ControlStructureSpacing.BlankLineAfterEnd" />
