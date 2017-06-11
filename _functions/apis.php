@@ -47,7 +47,7 @@ function get_cached_url( $url, $options = [] ) {
     $url, $data_folder, isset( $options['curl_options'] ) ? $options['curl_options'] : []
   );
 
-  $file_exists = slackemon_file_exists( $hash['filename'] );
+  $file_exists = slackemon_file_exists( $hash['filename'], 'cache' );
 
   // By default, the cache does not expire, unless an optional parameter is provided setting the age
   $is_cache_expired = false;
@@ -55,14 +55,14 @@ function get_cached_url( $url, $options = [] ) {
     isset( $options['expiry_age'] ) &&
     $options['expiry_age'] &&
     $file_exists &&
-    slackemon_filemtime( $hash['filename'] ) < time() - $options['expiry_age']
+    slackemon_filemtime( $hash['filename'], 'cache' ) < time() - $options['expiry_age']
   ) {
     $is_cache_expired = true;
   }
 
   if ( $file_exists && ! $is_cache_expired ) {
 
-    $data = slackemon_file_get_contents( $hash['filename'] );
+    $data = slackemon_file_get_contents( $hash['filename'], 'cache' );
 
     if ( $data ) {
       slackemon_log_cache_event( $url, $hash['filename'], 'hit' );
@@ -91,7 +91,7 @@ function get_cached_url( $url, $options = [] ) {
   slackemon_log_cache_event( $url, $hash['filename'], $is_cache_expired ? 'expired' : 'miss' );
 
   $data = slackemon_get_url( $real_url, $options );
-  slackemon_file_put_contents( $hash['filename'], $data );
+  slackemon_file_put_contents( $hash['filename'], $data, 'cache' );
 
   return $data;
 

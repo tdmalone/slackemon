@@ -335,7 +335,7 @@ function slackemon_save_spawn_data( $spawn_data ) {
   global $data_folder, $_cached_slackemon_spawn_data;
 
   $spawn_id = $spawn_data['ts'] . '-' . $spawn_data['region'];
-  $spawn_filename = $data_folder . '/spawns/' . $spawn_id . '.spawn';
+  $spawn_filename = $data_folder . '/spawns/' . $spawn_id;
 
   $_cached_slackemon_spawn_data[ $spawn_id ] = $spawn_data;
   return slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store' );
@@ -351,7 +351,7 @@ function slackemon_get_spawn_data( $spawn_ts, $spawn_region, $user_id = USER_ID 
     return $_cached_slackemon_spawn_data[ $spawn_id . '-' . $user_id ];
   }
 
-  $spawn_filename = $data_folder . '/spawns/' . $spawn_id . '.spawn';
+  $spawn_filename = $data_folder . '/spawns/' . $spawn_id;
 
   $spawn_data = json_decode( slackemon_file_get_contents( $spawn_filename, 'store' ) );
 
@@ -607,7 +607,7 @@ function slackemon_record_spawn_for_user( $user_id, $spawn ) {
   }
 
   // Store the calculated stats for this user
-  $spawn_filename = $data_folder . '/spawns/' . $spawn['ts'] . '-' . $spawn['region'] . '.spawn';
+  $spawn_filename = $data_folder . '/spawns/' . $spawn['ts'] . '-' . $spawn['region'];
   $spawn_data = json_decode( slackemon_file_get_contents( $spawn_filename, 'store' ) );
   $spawn_data->users->{ $user_id } = [
     'stats'   => $spawn['stats'],

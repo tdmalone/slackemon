@@ -1027,11 +1027,12 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
 
   // Move the battle file for completion, if it hasn't been done already by the user that ran this function first
   global $data_folder;
-  if ( slackemon_file_exists( $data_folder . '/battles-active/' . $battle_hash . '.battle' ) ) {
+  if ( slackemon_file_exists( $data_folder . '/battles-active/' . $battle_hash, 'store' ) ) {
 
     slackemon_rename(
-      $data_folder . '/battles-active/' . $battle_hash . '.battle',
-      $data_folder . '/battles-complete/' . $battle_hash . '.complete'
+      $data_folder . '/battles-active/' . $battle_hash,
+      $data_folder . '/battles-complete/' . $battle_hash,
+      'store'
     );
 
   }
@@ -1846,16 +1847,16 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
 
   if (
     $allow_completed_battle &&
-    slackemon_file_exists( $data_folder . '/battles-complete/' . $battle_hash . '.complete' )
+    slackemon_file_exists( $data_folder . '/battles-complete/' . $battle_hash, 'store' )
   ) {
-    $battle_filename = $data_folder . '/battles-complete/' . $battle_hash . '.complete';
-  } else if ( slackemon_file_exists( $data_folder . '/battles-active/' . $battle_hash . '.battle' ) ) {
-    $battle_filename = $data_folder . '/battles-active/' . $battle_hash . '.battle';
+    $battle_filename = $data_folder . '/battles-complete/' . $battle_hash;
+  } else if ( slackemon_file_exists( $data_folder . '/battles-active/' . $battle_hash, 'store' ) ) {
+    $battle_filename = $data_folder . '/battles-active/' . $battle_hash;
   } else {
     return false;
   }
 
-  $battle_data = json_decode( slackemon_file_get_contents( $battle_filename ) );
+  $battle_data = json_decode( slackemon_file_get_contents( $battle_filename, 'store' ) );
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
 
   return $battle_data;
@@ -1865,16 +1866,16 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
 function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
   global $data_folder;
 
-  if ( slackemon_file_exists( $data_folder . '/battle-invites/' . $battle_hash . '.invite' ) ) {
-    $invite_filename = $data_folder . '/battle-invites/' . $battle_hash . '.invite';
+  if ( slackemon_file_exists( $data_folder . '/battle-invites/' . $battle_hash, 'store' ) ) {
+    $invite_filename = $data_folder . '/battle-invites/' . $battle_hash;
   } else {
     return false;
   }
 
-  $invite_data = json_decode( slackemon_file_get_contents( $invite_filename ) );
+  $invite_data = json_decode( slackemon_file_get_contents( $invite_filename, 'store' ) );
 
   if ( $remove_invite ) {
-    slackemon_unlink( $invite_filename );
+    slackemon_unlink( $invite_filename, 'store' );
   }
 
   return $invite_data;
@@ -1893,7 +1894,7 @@ function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage =
   $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash . '.' . $battle_stage;
 
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
-  return slackemon_file_put_contents( $battle_filename, json_encode( $battle_data ) );
+  return slackemon_file_put_contents( $battle_filename, json_encode( $battle_data ), 'store' );
 
 } // Function slackemon_get_battle_data
 
@@ -1922,11 +1923,11 @@ function slackemon_maybe_record_battle_seen_pokemon( $player_id, $pokedex_id ) {
 function slackemon_get_all_active_battles() {
   global $data_folder;
 
-  $battles = slackemon_get_files_by_prefix( $data_folder . '/battles-active/' );
+  $battles = slackemon_get_files_by_prefix( $data_folder . '/battles-active/', 'store' );
   $active_battles = [];
 
   foreach ( $battles as $battle_filename ) {
-    $battle_data = json_decode( slackemon_file_get_contents( $battle_filename ) );
+    $battle_data = json_decode( slackemon_file_get_contents( $battle_filename, 'store' ) );
     $active_battles[] = $battle_data;
   }
 
@@ -1937,11 +1938,11 @@ function slackemon_get_all_active_battles() {
 function slackemon_get_user_active_battles( $user_id = USER_ID ) {
   global $data_folder;
 
-  $battles = slackemon_get_files_by_prefix( $data_folder . '/battles-active/' );
+  $battles = slackemon_get_files_by_prefix( $data_folder . '/battles-active/', 'store' );
   $user_battles = [];
 
   foreach ( $battles as $battle_filename ) {
-    $battle_data = json_decode( slackemon_file_get_contents( $battle_filename ) );
+    $battle_data = json_decode( slackemon_file_get_contents( $battle_filename, 'store' ) );
     if ( isset( $battle_data->users->{ $user_id } ) ) {
       $user_battles[] = $battle_data;
     }
@@ -1954,11 +1955,11 @@ function slackemon_get_user_active_battles( $user_id = USER_ID ) {
 function slackemon_get_user_complete_battles( $user_id = USER_ID ) {
   global $data_folder;
 
-  $battles = slackemon_get_files_by_prefix( $data_folder . '/battles-complete/' );
+  $battles = slackemon_get_files_by_prefix( $data_folder . '/battles-complete/', 'store' );
   $user_battles = [];
 
   foreach ( $battles as $battle_filename ) {
-    $battle_data = json_decode( slackemon_file_get_contents( $battle_filename ) );
+    $battle_data = json_decode( slackemon_file_get_contents( $battle_filename, 'store' ) );
     if ( isset( $battle_data->users->{ $user_id } ) ) {
       $user_battles[] = $battle_data;
     }
@@ -1971,11 +1972,11 @@ function slackemon_get_user_complete_battles( $user_id = USER_ID ) {
 function slackemon_get_user_outstanding_invites( $user_id = USER_ID ) {
   global $data_folder;
 
-  $invites = slackemon_get_files_by_prefix( $data_folder . '/battles-invites/' );
+  $invites = slackemon_get_files_by_prefix( $data_folder . '/battles-invites/', 'store' );
   $user_invites = [];
 
   foreach ( $invites as $invite_filename ) {
-    $invite_data = json_decode( slackemon_file_get_contents( $invite_filename ) );
+    $invite_data = json_decode( slackemon_file_get_contents( $invite_filename, 'store' ) );
     if ( $user_id === $invite_data->inviter_id || $user_id === $invite_data->invitee_id ) {
       $user_invites[] = $invite_data;
     }

@@ -63,7 +63,7 @@ function slackemon_file_get_contents( $filename, $purpose ) {
 
     case 'local':
 
-      if ( slackemon_file_exists( $filename ) ) {
+      if ( slackemon_file_exists( $filename, $purpose ) ) {
         $return = file_get_contents( $filename );
       }
 
