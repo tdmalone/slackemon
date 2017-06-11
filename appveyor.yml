@@ -19,6 +19,7 @@ test_script:
   - cd C:\projects\slackemon
   - vendor\bin\phpunit.bat
 
+# http://help.appveyor.com/discussions/problems/4585
 build: off
 
 notifications:

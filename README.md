@@ -5,8 +5,8 @@
 [![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby)  
 [![Linux build status](https://travis-ci.org/tdmalone/slackemon.svg?branch=master)](https://travis-ci.org/tdmalone/slackemon)
 [![Windows build status](https://img.shields.io/appveyor/ci/TimMalone/slackemon.svg)](https://ci.appveyor.com/project/TimMalone/slackemon)
-[![Docker build status](https://img.shields.io/docker/build/tdmalone/slackemon.svg)](https://hub.docker.com/r/tdmalone/slackemon)
-[![Codacy code quality grade](https://img.shields.io/codacy/grade/229c6c8928db485fa87f7648d150dbd8/master.svg)](https://www.codacy.com/app/tdmalone/slackemon/)
+[![Docker build status](https://img.shields.io/docker/build/tdmalone/slackemon.svg)](https://hub.docker.com/r/tdmalone/slackemon/builds/)
+[![Codacy code quality grade](https://img.shields.io/codacy/grade/229c6c8928db485fa87f7648d150dbd8/master.svg)](https://www.codacy.com/app/tdmalone/slackemon/dashboard)
 [![Coverage status](https://img.shields.io/coveralls/tdmalone/slackemon/master.svg)](https://coveralls.io/github/tdmalone/slackemon?branch=master)
 
 Inspired by Pokémon Go, now you can catch and battle Pokémon with your teammates on Slack!
