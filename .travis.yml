@@ -1,16 +1,44 @@
 language: php
+
 php:
-- '7.0'
-- '7.1'
-- nightly
+  - '7.0'
+  - '7.1'
+  - nightly
+
+git:
+  depth: 1
+
+matrix:
+  allow_failures:
+    - php: nightly
+  fast_finish: true
+
 install:
-- curl -s http://getcomposer.org/installer | php
-- php composer.phar install --dev --no-interaction
+  - travis_retry curl -s http://getcomposer.org/installer | php
+  - travis_retry php composer.phar install --dev --no-interaction
+
+before_script:
+  # Lint all PHP files except for dependencies
+  - find . -name '*.php' -type f ! -path './vendor/*' | while read file;do php -l "${file}" || exit 1;done
+
 script:
-- mkdir -p tests/logs
-- php vendor/bin/phpunit
+  - mkdir -p tests/logs
+  - php vendor/bin/phpunit
+
 after_success:
-- travis_retry php vendor/bin/coveralls -v
+  - travis_retry php vendor/bin/coveralls -v
+  - travis_retry php vendor/bin/codacycoverage clover tests/logs/clover.xml
+
 notifications:
   slack:
-    secure: m2inJu16LhMQbAu8Z3gBwxuNU6emCDzIHObtmtoPS8ZevlJRfQj5Qi9EQSB4/AN1277aKg6kGi5B7cobaxWla5kWe6NCGKxFcpo099mZ3gB6sTPttz1E8XZbaEzast2oN+kRuiylJ7/XApiUfthrERpoeV9nBoGuuzTpfTNAzBT3ocC4wmNLDuT/UycBuN8uTgbU92CsKf41LP7m4IsOgCF7sC/tt2RogQNwfHoSjbsSSdn2FZdkA4n+hJRxz689z+Re4RCKzaZxJSoIFTn1ViNXyTOQF10brHrFBPKnqDfH0bC0rIC7RIaZ6s3rFrT/kb+AcScaHDbfS6tnC4Tl2TQtY4dUArIEstFIAgt9932TBRKsRdWO4m3nsRXbpKhLj6eVpC+ggVzsDFZ6QC6RBoO6v/XJyTyjwCHXOXWWXGrBqmKq3vz+71QO4j+CG2zGx/BPAVS45qx2nit/kXvCKifU66CuRvmejDz9aDpyRAZhnB/S7WJvXj9iCa6pgj+xreUm3Nif/ZGgyDEzdJCRQzwEP+nB0vxHX3yzraW25AUWahYLkAH1wKh39bc9YBFWzHsvcHX7sJZfJq9ZFpnbF33g4KdtRVqtRj//D32MTs9vzYFUNnqyJK5P5F94Kf78ZsGqIVt3q1Rw8jUCNVbDSHnBY1F0+JotT9eOU1ijadk=
+    rooms:
+      - secure: m2inJu16LhMQbAu8Z3gBwxuNU6emCDzIHObtmtoPS8ZevlJRfQj5Qi9EQSB4/AN1277aKg6kGi5B7cobaxWla5kWe6NCGKxFcpo099mZ3gB6sTPttz1E8XZbaEzast2oN+kRuiylJ7/XApiUfthrERpoeV9nBoGuuzTpfTNAzBT3ocC4wmNLDuT/UycBuN8uTgbU92CsKf41LP7m4IsOgCF7sC/tt2RogQNwfHoSjbsSSdn2FZdkA4n+hJRxz689z+Re4RCKzaZxJSoIFTn1ViNXyTOQF10brHrFBPKnqDfH0bC0rIC7RIaZ6s3rFrT/kb+AcScaHDbfS6tnC4Tl2TQtY4dUArIEstFIAgt9932TBRKsRdWO4m3nsRXbpKhLj6eVpC+ggVzsDFZ6QC6RBoO6v/XJyTyjwCHXOXWWXGrBqmKq3vz+71QO4j+CG2zGx/BPAVS45qx2nit/kXvCKifU66CuRvmejDz9aDpyRAZhnB/S7WJvXj9iCa6pgj+xreUm3Nif/ZGgyDEzdJCRQzwEP+nB0vxHX3yzraW25AUWahYLkAH1wKh39bc9YBFWzHsvcHX7sJZfJq9ZFpnbF33g4KdtRVqtRj//D32MTs9vzYFUNnqyJK5P5F94Kf78ZsGqIVt3q1Rw8jUCNVbDSHnBY1F0+JotT9eOU1ijadk=
+    template:
+      - "Build <%{build_url}|#%{build_number}> (<%{compare_url}|%{commit}>) of %{repository}:%{branch} by %{author}"
+      - "%{result} in %{duration}"
+      - "(%{commit_message})"
+
+env:
+  global:
+    # Codacy code coverage
+    secure: pS3d4tYot88iQu5AEvxg65EQlIzjuis0T1MkwOGfFNBnYtZg3aYqz4Q/hNIoVApAiE2dNVQPb6dfGoaGtNej6B0EvSGybyc/xmoltrF0NaS2AMxnyaop9Hqp1R91hMw/55w6sqhMx6rsbU+AERHpHF6W6TfQaPe554/84q47Q8LLkIm9yTPmiGTNrfRJExGw6PuMvqPV4huNa7XAr8HMxHnjljM+ONFkY54bwtkSKMOzRKBplyRi3+jOAUapq/HK2yNfWkryy/z/uoyxF5+P4Xpy75QMy5+Y0a3+SFMJdzoQRy6+iQELXC8ZqiubglXzTThhUihP5ptJaAGJIt4y7CBHFeAAPlknJxNjRXzz+e8uZY6m9biSjsmy0NT8yBUlVnIFZpzdu9UZaYVppy5XZ6NhFCPKFexRJgC5FIDgXGR7GpDQdDWAQFtiB+GT5IVfyrgW3Qv3p51vZ64k3NAGs5lyUTU8NRLO9uDrnDCUCu3SVTkV1rOwTvCgeMZxQ3ZX3aKjrgAd2c5POvlejiQZdQeAFBbjlO9CMfkFTQjuYT1wGL8QpaScvZuUaBstnwwzni3oVZvFSqTj9O5Lzn6g0DgRTCCYYb6IXqyuJuSqOqsNMPPxizR0rq4L4dnedluM3rO/PAfxPn9LhJD/jEws/5kFDXt86wIAezkQPygszco=

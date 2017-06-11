@@ -1,7 +1,9 @@
 <?php
-
-// TM 20/03/2017
-// Slack API specific functions
+/**
+ * Slack API specific functions.
+ *
+ * @package Slackemon
+ */
 
 /** Send a message to a Slack incoming webhook, given in response to a slash command or action invocation. */
 function send2slack( $message, $hook_url = '' ) {
@@ -129,8 +131,10 @@ function post2slack( $payload ) {
     }
   }, $payload );
 
-  $response = slackemon_get_url( $endpoint . '?' . http_build_query( $payload ) );
-  file_put_contents( $data_folder . '/last-post2slack-result', $response );
+  $response       = slackemon_get_url( $endpoint . '?' . http_build_query( $payload ) );
+  $debug_filename = $data_folder . '/last-post2slack-result';
+  $debug_data     = json_encode( $payload ) . PHP_EOL . PHP_EOL . $response;
+  file_put_contents( $debug_filename, $debug_data );
 
   return $response;
 

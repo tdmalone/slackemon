@@ -34,15 +34,19 @@
       "description": "The URL of your app - please include the trailing slash",
       "value": "https://YOUR-APP-NAME.herokuapp.com/"
     },
+    "SLACKEMON_DATA_STORE_METHOD": {
+      "description": "Defines where your data is stored - should be left as 'postgres' on Heroku",
+      "value": "postgres"
+    },
     "SLACKEMON_DATA_CACHE_METHOD": {
-      "description": "Defines where your data is stored - should be left as 'aws' on Heroku",
+      "description": "Defines where your data is cached - should be left as 'aws' on Heroku",
       "value": "aws"
     },
     "SLACKEMON_IMAGE_CACHE_METHOD": {
       "description": "Defines where your images are stored - should be left as 'aws' on Heroku",
       "value": "aws"
     },
-    "SLACKEMON_DATA_CACHE_BUCKET": {
+    "SLACKEMON_DATA_BUCKET": {
       "description": "The name of your AWS bucket for storing data"
     },
     "SLACKEMON_IMAGE_CACHE_BUCKET": {
@@ -69,7 +73,8 @@
     }
   },
   "addons": [
-    "papertrail"
+    "papertrail",
+    "postgres"
   ],
   "buildpacks": [
     {

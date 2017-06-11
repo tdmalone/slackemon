@@ -1,5 +1,7 @@
 FROM php:7.0-apache
 
+LABEL maintainer "tdmalone@gmail.com"
+
 COPY . /var/www/html
 WORKDIR /var/www/html
 
@@ -15,11 +17,12 @@ RUN chown -R www-data:www-data /var/www/html
 # Change permission to only user and group www-data
 RUN chmod -R 774 /var/www/html
 
-# Install git and zip, used by Composer, cron and nano
-RUN apt-get update && apt-get install git zlib1g-dev cron nano -y && \ 
-    docker-php-ext-install zip
+# Install git and zip, used by Composer; cron, nano, vim and finally postgres functions for PHP7
+RUN apt-get update && apt-get install git zlib1g-dev cron nano vim libpq-dev -y && \ 
+    docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql && \
+    docker-php-ext-install zip pdo pdo_pgsql pgsql
 
-# Install package manager Composer
+# Install the Composer package manager
 RUN curl -s http://getcomposer.org/installer | php
 
 USER slackemon

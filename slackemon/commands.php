@@ -1,37 +1,61 @@
 <?php
+/**
+ * Background-handler for incoming /slackemon Slash commands.
+ *
+ * @package Slackemon
+ */
 
-// Chromatix TM 24/03/2017
-
+// Set up the Slackemon environment.
 require_once( __DIR__ . '/../init.php' );
 change_data_folder( $data_folder . '/pokedex' );
 
 $args = $_POST['args'];
 
-// For cron
+// For cron.
 if ( isset( $args[0] ) && 'maybe-spawn' === $args[0] ) {
+
+  $spawn_trigger = [
+    'type'    => 'cron',
+    'user_id' => USER_ID,
+  ];
+
   slackemon_spawn_debug( 'Maybe spawning, please wait...' );
-  slackemon_maybe_spawn([ 'type' => 'cron', 'user_id' => USER_ID ]);
-  exit();
+  slackemon_maybe_spawn( $spawn_trigger );
+
+  slackemon_exit();
+
 }
 if ( isset( $args[0] ) && 'battle-updates' === $args[0] ) {
   slackemon_do_battle_updates();
-  exit();
+  slackemon_exit();
 }
 if ( isset( $args[0] ) && 'happiness-updates' === $args[0] ) {
   slackemon_do_happiness_updates();
-  exit();
+  slackemon_exit();
 }
 
-// For dev/debug only - instantly generate a spawn, including a particular Pokedex ID if desired
+// For dev/debug only - instantly generate a spawn, including a particular Pokedex ID if desired.
 if ( isset( $args[0] ) && 'spawn' === $args[0] ) {
+
+  $spawn_trigger = [
+    'type'    => 'manual',
+    'user_id' => USER_ID,
+  ];
+
+  $spawn_region     = slackemon_get_player_region();
+  $spawn_timestamp  = false;
+  $spawn_pokedex_id = isset( $args[1] ) ? $args[1] : false;
+
   slackemon_spawn_debug( 'Generating a spawn, please wait...' );
-  slackemon_spawn([ 'type' => 'manual', 'user_id' => USER_ID ], slackemon_get_player_region(), false, isset( $args[1] ) ? $args[1] : false );
-  exit();
+  slackemon_spawn( $spawn_trigger, $spawn_region, $spawn_timestamp, $spawn_pokedex_id );
+
+  slackemon_exit();
+
 }
 
 if ( slackemon_is_player() ) {
 
-  // Force empty the DND cache
+  // Force empty the DND cache.
   slackemon_is_player_dnd( USER_ID, true );
 
   $message = slackemon_get_main_menu();
@@ -77,8 +101,10 @@ if ( slackemon_is_player() ) {
     ],
   ];
 
-  send2slack([ 'attachments' => $attachments ]);
+  send2slack( [ 'attachments' => $attachments ] );
 
 } // If slackemon_is_player / else
+
+slackemon_exit();
 
 // The end!

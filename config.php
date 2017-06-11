@@ -1,13 +1,15 @@
 <?php
+/**
+ * Assigns environment variable values to constants for easy access elsewhere.
+ *
+ * @package Slackemon
+ */
 
-// TM 09/12/2016
-// Apply Slackemon config
-
-// If running in development, attempt to load environment variables from .env file
+// If running in development, attempt to load environment variables from .env file.
 if ( file_exists( __DIR__ . '/.env' ) && 'development' === getenv( 'APP_ENV' ) ) {
-    require_once( __DIR__ . '/vendor/autoload.php' );
-    $dotenv = new Dotenv\Dotenv( __DIR__ );
-    $dotenv->load();
+  require_once( __DIR__ . '/vendor/autoload.php' );
+  $dotenv = new Dotenv\Dotenv( __DIR__ );
+  $dotenv->load();
 }
 
 define( 'SLACKEMON_SLACK_TOKEN',        getenv( 'SLACKEMON_SLACK_TOKEN'        ) );
@@ -20,13 +22,17 @@ define( 'SLACKEMON_INBOUND_URL',        getenv( 'SLACKEMON_INBOUND_URL'        )
 
 define( 'SLACKEMON_OPENWEATHERMAP_KEY', getenv( 'SLACKEMON_OPENWEATHERMAP_KEY' ) );
 
+define( 'SLACKEMON_DATA_STORE_METHOD',  getenv( 'SLACKEMON_DATA_STORE_METHOD'  ) ?: 'local'               );
 define( 'SLACKEMON_DATA_CACHE_METHOD',  getenv( 'SLACKEMON_DATA_CACHE_METHOD'  ) ?: 'local'               );
-define( 'SLACKEMON_DATA_CACHE_FOLDER',  getenv( 'SLACKEMON_DATA_CACHE_FOLDER'  ) ?: '.data'               );
-define( 'SLACKEMON_DATA_CACHE_BUCKET',  getenv( 'SLACKEMON_DATA_CACHE_BUCKET'  ) ?: 'slackemon-data'      );
+
+define( 'SLACKEMON_DATA_FOLDER',        getenv( 'SLACKEMON_DATA_FOLDER'        ) ?: '.data'               );
+define( 'SLACKEMON_DATA_BUCKET',        getenv( 'SLACKEMON_DATA_BUCKET'        ) );
 
 define( 'SLACKEMON_IMAGE_CACHE_METHOD', getenv( 'SLACKEMON_IMAGE_CACHE_METHOD' ) ?: 'local'               );
 define( 'SLACKEMON_IMAGE_CACHE_FOLDER', getenv( 'SLACKEMON_IMAGE_CACHE_FOLDER' ) ?: '.image-cache'        );
-define( 'SLACKEMON_IMAGE_CACHE_BUCKET', getenv( 'SLACKEMON_IMAGE_CACHE_BUCKET' ) ?: 'slackemon-images'    );
+define( 'SLACKEMON_IMAGE_CACHE_BUCKET', getenv( 'SLACKEMON_IMAGE_CACHE_BUCKET' ) );
+
+define( 'SLACKEMON_DATABASE_URL',       getenv( 'SLACKEMON_DATABASE_URL'       ) ?: getenv( 'DATABASE_URL' ) );
 
 define( 'SLACKEMON_AWS_ID',             getenv( 'SLACKEMON_AWS_ID'             ) );
 define( 'SLACKEMON_AWS_SECRET',         getenv( 'SLACKEMON_AWS_SECRET'         ) );

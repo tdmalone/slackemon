@@ -1,7 +1,9 @@
 <?php
-
-// TM 21/01/2017
-// Color related function helpers
+/**
+ * Color related function helpers.
+ *
+ * @package Slackemon
+ */
 
 // HT: https://bavotasan.com/2011/convert-hex-color-to-rgb-using-php/
 function rgb2hex( $rgb ) {
