@@ -19,14 +19,14 @@ if ( $payload ) {
     $action = $payload;
     require_once( __DIR__ . '/actions.php' );
 
-    exit();
+    slackemon_exit();
 
   } elseif ( isset( $payload->action_ts ) && isset( $payload->callback_id ) ) {
 
     $options_request = $payload;
     require_once( __DIR__ . '/options-request.php' );
 
-    exit();
+    slackemon_exit();
 
   }
 }
@@ -51,5 +51,7 @@ if ( file_exists( $default_entry_point ) ) {
   echo 'Oops! Command instructions could not be found. Please contact <@' . SLACKEMON_MAINTAINER . '> for help.';
 
 }
+
+slackemon_exit();
 
 // The end!

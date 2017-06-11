@@ -28,6 +28,24 @@ function change_data_folder( $new_data_folder ) {
 }
 
 /**
+ * Like exit(), but ensures first that any open connections are closed and locks removed.
+ * MUST be called at the end of every run.
+ *
+ * @param string|int $status Passed directly through to PHP's exit() function.
+ * @link http://php.net/exit
+ */
+function slackemon_exit( $status = '' ) {
+  
+  // Close database connection if the database file was included
+  if ( function_exists( 'slackemon_pg_close' ) ) {
+    slackemon_pg_close();
+  }
+
+  exit( $status );
+
+}
+
+/**
  * A quick function to check whether a valid subcommand has been provided, returning the exploded arguments.
  * If a welcome message is also provided, that will be shown and processing will be exited IF subcommand is not valid.
  */
@@ -39,10 +57,10 @@ function check_subcommands( $allowed_subcommands = [], $welcome_message = '' ) {
   if ( $welcome_message ) {
     if ( ! count( $args ) || ! $args[0] || ! in_array( $args[0], $allowed_subcommands ) ) {
       if ( is_string( $welcome_message ) ) {
-        exit( $welcome_message );
+        slackemon_exit( $welcome_message );
       } else {
         header( 'Content-type: application/json' );
-        exit( json_encode( $welcome_message ) );
+        slackemon_exit( json_encode( $welcome_message ) );
       }
     }
   }
