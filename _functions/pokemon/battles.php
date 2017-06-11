@@ -1972,7 +1972,7 @@ function slackemon_get_user_complete_battles( $user_id = USER_ID ) {
 function slackemon_get_user_outstanding_invites( $user_id = USER_ID ) {
   global $data_folder;
 
-  $invites = slackemon_get_files_by_prefix( $data_folder . '/battles-invites/', 'store' );
+  $invites = slackemon_get_files_by_prefix( $data_folder . '/battles_invites/', 'store' );
   $user_invites = [];
 
   foreach ( $invites as $invite_filename ) {
