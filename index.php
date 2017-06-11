@@ -52,6 +52,9 @@ if ( file_exists( $default_entry_point ) ) {
 
 }
 
-slackemon_exit();
+// Exit, unless this is a test run
+if ( 'unit-tests' !== $_POST['text'] ) {
+  slackemon_exit();
+}
 
 // The end!
