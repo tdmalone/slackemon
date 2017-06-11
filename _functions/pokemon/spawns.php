@@ -7,7 +7,7 @@ function slackemon_maybe_spawn( $trigger = [] ) {
 
   // Don't generate a new spawn while another is still active
   $most_recent_spawn = slackemon_get_most_recent_spawn();
-  if ( $most_recent_spawn->ts >= time() - SLACKEMON_FLEE_TIME_LIMIT ) {
+  if ( $most_recent_spawn && $most_recent_spawn->ts >= time() - SLACKEMON_FLEE_TIME_LIMIT ) {
     slackemon_spawn_debug( 'Shouldn\'t spawn as last spawn was too recent, but will proceed for spawn debugging...' );
     if ( ! SLACKEMON_SPAWN_DEBUG ) {
       return false;
@@ -34,10 +34,15 @@ function slackemon_maybe_spawn( $trigger = [] ) {
 function slackemon_get_most_recent_spawn() {
   global $data_folder;
 
-  $spawns = slackemon_get_files_by_prefix( $data_folder . '/spawns/' );
+  $spawns = slackemon_get_files_by_prefix( $data_folder . '/spawns/', 'store' );
+
+  if ( ! count( $spawns ) ) {
+    return false;
+  }
+
   $most_recent_spawn = array_pop( $spawns );
 
-  $data = slackemon_file_get_contents( $most_recent_spawn );
+  $data = slackemon_file_get_contents( $most_recent_spawn, 'store' );
   return json_decode( $data );
 
 } // Function slackemon_get_most_recent_spawn
@@ -47,6 +52,8 @@ function slackemon_spawn_debug( $message ) {
   if ( ! SLACKEMON_SPAWN_DEBUG ) {
     return;
   }
+
+  error_log( $message );
 
   send2slack([
     'text' => $message,
@@ -331,7 +338,7 @@ function slackemon_save_spawn_data( $spawn_data ) {
   $spawn_filename = $data_folder . '/spawns/' . $spawn_id . '.spawn';
 
   $_cached_slackemon_spawn_data[ $spawn_id ] = $spawn_data;
-  return slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ) );
+  return slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store' );
 
 } // Function slackemon_save_spawn_data
 
@@ -346,7 +353,7 @@ function slackemon_get_spawn_data( $spawn_ts, $spawn_region, $user_id = USER_ID 
 
   $spawn_filename = $data_folder . '/spawns/' . $spawn_id . '.spawn';
 
-  $spawn_data = json_decode( slackemon_file_get_contents( $spawn_filename ) );
+  $spawn_data = json_decode( slackemon_file_get_contents( $spawn_filename, 'store' ) );
 
   // Assign user specific variables to the data
   if ( isset( $spawn_data->users->{ $user_id } ) ) {
@@ -601,7 +608,7 @@ function slackemon_record_spawn_for_user( $user_id, $spawn ) {
 
   // Store the calculated stats for this user
   $spawn_filename = $data_folder . '/spawns/' . $spawn['ts'] . '-' . $spawn['region'] . '.spawn';
-  $spawn_data = json_decode( slackemon_file_get_contents( $spawn_filename ) );
+  $spawn_data = json_decode( slackemon_file_get_contents( $spawn_filename, 'store' ) );
   $spawn_data->users->{ $user_id } = [
     'stats'   => $spawn['stats'],
     'level'   => $spawn['level'],
@@ -609,7 +616,7 @@ function slackemon_record_spawn_for_user( $user_id, $spawn ) {
     'cp'      => $spawn['cp'],
     'hp'      => $spawn['stats']['hp'],
   ];
-  slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ) );
+  slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store' );
 
   return slackemon_save_player_data( $player_data, $user_id );
 

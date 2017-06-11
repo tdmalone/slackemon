@@ -63,4 +63,6 @@ foreach ( SLACKEMON_CRON_SCHEDULE as $item ) {
 
 } // Foreach SLACKEMON_CRON_SCHEDULE $item
 
+slackemon_exit();
+
 // The end!
