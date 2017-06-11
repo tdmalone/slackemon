@@ -16,15 +16,30 @@ if ( $payload ) {
   // Action, or message menu options request?
   if ( isset( $payload->actions ) && count( $payload->actions ) ) {
 
+    // Set up Slackemon environment.
     $action = $payload;
-    require_once( __DIR__ . '/actions.php' );
+    require_once( __DIR__ . '/init.php' );
+
+    // Handle the action in the background.
+    $callback_id = $action->callback_id;
+    run_background_action( 'src/_actions.php', $action, $callback_id );
 
     slackemon_exit();
 
   } elseif ( isset( $payload->action_ts ) && isset( $payload->callback_id ) ) {
 
+    // Set up Slackemon environment.
     $options_request = $payload;
-    require_once( __DIR__ . '/options-request.php' );
+    require_once( __DIR__ . '/init.php' );
+
+    // Prepare for JSON output, which will happen within our request handler.
+    header( 'Content-Type: application/json' );
+
+    // Handle the options request.
+    $callback_id  = $options_request->callback_id;
+    $action_name  = $options_request->name;
+    $action_value = $options_request->value;
+    require_once( __DIR__ . '/src/_options.php' );
 
     slackemon_exit();
 
@@ -37,23 +52,9 @@ require_once( __DIR__ . '/init.php' );
 // Init the once-off, entry-point stuff.
 define( 'COMMAND', $_POST['command'] );
 
-// Finally, invoke the command by requiring it!
-
-$command_name = substr( COMMAND, 1 );
-$default_entry_point = __DIR__ . '/' . $command_name . '/' . $command_name . '.php';
-
-if ( file_exists( $default_entry_point ) ) {
-
-  require( $default_entry_point );
-
-} else {
-
-  echo 'Oops! Command instructions could not be found. Please contact <@' . SLACKEMON_MAINTAINER . '> for help.';
-
-}
-
-// Exit, unless this is a test run.
-if ( 'unit-tests' !== $_POST['text'] ) {
+// Run as a background command, as long as this isn't a test run.
+if ( ! isset( $args[0] ) || 'unit-tests' !== $args[0] ) {
+  run_background_command( 'src/_commands.php', $args );
   slackemon_exit();
 }
 
