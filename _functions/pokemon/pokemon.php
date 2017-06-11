@@ -18,8 +18,8 @@ $_slackemon_constant_defaults = [
   'SLASH_COMMAND'          => '/slackemon',
 
   // Parameters sent to Slack to control the appearance of Slackemon messages
-  'USERNAME' => 'Slackémon',
-  'ICON'     => ':pokeball:',
+  'USERNAME'               => 'Slackémon',
+  'ICON'                   => ':pokeball:',
 
   // Includes additional team news on the Slackemon home screen
   'ADDITIONAL_NEWS'        => [],
@@ -71,6 +71,10 @@ $_slackemon_constant_defaults = [
   // Sometimes useful when doing further development on these features
   'BATTLE_DEBUG'           => false,
   'SPAWN_DEBUG'            => false,
+  'DATABASE_DEBUG'         => false,
+
+  // Database table prefix
+  'TABLE_PREFIX'           => 'slackemon_',
 
 ];
 

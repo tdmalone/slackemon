@@ -5,15 +5,15 @@
  * @package Slackemon
  */
 
+// Entry point for main Slackemon functions
+require_once( __DIR__ . '/pokemon/pokemon.php' );
+
 // Other helper function files
 require_once( __DIR__ . '/apis.php'  );
 require_once( __DIR__ . '/auto.php'  );
 require_once( __DIR__ . '/filesystem.php' );
 require_once( __DIR__ . '/color.php' );
 require_once( __DIR__ . '/time.php'  );
-
-// Entry point for main Slackemon functions
-require_once( __DIR__ . '/pokemon/pokemon.php' );
 
 /** A quick function to change the data folder, and create it if it doesn't exist. */
 function change_data_folder( $new_data_folder ) {
@@ -24,6 +24,24 @@ function change_data_folder( $new_data_folder ) {
   if ( ! is_dir( $data_folder ) ) {
     mkdir( $data_folder, 0777, true );
   }
+
+}
+
+/**
+ * Like exit(), but ensures first that any open connections are closed and locks removed.
+ * MUST be called at the end of every run.
+ *
+ * @param string|int $status Passed directly through to PHP's exit() function.
+ * @link http://php.net/exit
+ */
+function slackemon_exit( $status = '' ) {
+  
+  // Attempt to close database connection if the database file was included.
+  if ( function_exists( 'slackemon_pg_close' ) ) {
+    slackemon_pg_close();
+  }
+
+  exit( $status );
 
 }
 
@@ -39,10 +57,10 @@ function check_subcommands( $allowed_subcommands = [], $welcome_message = '' ) {
   if ( $welcome_message ) {
     if ( ! count( $args ) || ! $args[0] || ! in_array( $args[0], $allowed_subcommands ) ) {
       if ( is_string( $welcome_message ) ) {
-        exit( $welcome_message );
+        slackemon_exit( $welcome_message );
       } else {
         header( 'Content-type: application/json' );
-        exit( json_encode( $welcome_message ) );
+        slackemon_exit( json_encode( $welcome_message ) );
       }
     }
   }

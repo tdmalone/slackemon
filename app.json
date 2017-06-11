@@ -36,7 +36,7 @@
     },
     "SLACKEMON_DATA_STORE_METHOD": {
       "description": "Defines where your data is stored - should be left as 'postgres' on Heroku",
-      "value": "postgres",
+      "value": "postgres"
     },
     "SLACKEMON_DATA_CACHE_METHOD": {
       "description": "Defines where your data is cached - should be left as 'aws' on Heroku",

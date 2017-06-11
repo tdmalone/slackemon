@@ -17,3 +17,5 @@ $action_value = $options_request->value;
 
 // Handle the request.
 require( __DIR__ . '/' . $callback_id . '/options-request.php' );
+
+// The end!
