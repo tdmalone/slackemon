@@ -176,6 +176,7 @@ function slackemon_pg_close() {
 }
 
 function slackemon_is_pg_ready( $check_connection = true ) {
+  global $_slackemon_postgres_connection;
 
   if ( ! function_exists( 'pg_connect' ) ) {
     error_log( 'Postgres functions are not available.' );
