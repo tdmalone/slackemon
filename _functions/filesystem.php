@@ -1,17 +1,25 @@
 <?php
 /**
- * Filesystem abstraction functions.
+ * Filesystem abstraction functions that can be used across local, postgres and aws data/cache stores.
+ *
+ * Functions include:
+ * slackemon_file_get_contents
+ * slackemon_file_put_contents
+ * slackemon_file_exists
+ * slackemon_filemtime
+ * slackemon_rename
+ * slackemon_unlink
+ * slackemon_get_files_by_prefix - kindof like glob()
+ *
+ * Functions generally take the same standard arguments that their PHP counterparts do, with the addition of the
+ * $purpose argument, which can be set to either 'cache' or 'store'.
  *
  * @package Slackemon
  */
 
 // Set up Postgres access if we are going to be using it.
 if ( 'postgres' === SLACKEMON_DATA_STORE_METHOD ) {
-
   require_once( __DIR__ . '/database.php' );
-
-  slackemon_pg_connect();
-
 }
 
 // Set up AWS access if we are going to be using it.
@@ -49,7 +57,7 @@ if (
  * @param string $purpose  The purpose of the read - 'cache' or 'store'.
  * @link http://php.net/file_get_contents
  */
-function slackemon_file_get_contents( $filename, $purpose = 'cache' ) {
+function slackemon_file_get_contents( $filename, $purpose ) {
 
   switch ( slackemon_get_data_method( $purpose ) ) {
 
@@ -65,7 +73,16 @@ function slackemon_file_get_contents( $filename, $purpose = 'cache' ) {
 
       $key = slackemon_get_pg_key( $filename );
 
-      // TODO query.
+      $result = slackemon_pg_query(
+        "SELECT contents FROM {$key['table']} WHERE filename = '{$key['filename']}'"
+      );
+
+      if ( count( $result ) ) {
+        $return = $result[0][0];
+        slackemon_pg_debug( $result[0][0] );
+      } else {
+        slackemon_pg_debug( json_encode( $result ) );
+      }
 
     break;
 
@@ -125,7 +142,7 @@ function slackemon_file_get_contents( $filename, $purpose = 'cache' ) {
  * @param string $purpose  The purpose of the write - 'cache' or 'store'.
  * @link http://php.net/file_put_contents
  */
-function slackemon_file_put_contents( $filename, $data, $purpose = 'cache' ) {
+function slackemon_file_put_contents( $filename, $data, $purpose ) {
 
   // Support $data being an array, like file_put_contents() does.
   if ( is_array( $data ) ) {
@@ -149,8 +166,26 @@ function slackemon_file_put_contents( $filename, $data, $purpose = 'cache' ) {
     case 'postgres':
 
       $key = slackemon_get_pg_key( $filename );
+      $contents = slackemon_pg_escape( $data );
+      $modified = slackemon_pg_escape( time() );
 
-      // TODO query.
+      $result = slackemon_pg_query(
+        "UPDATE {$key['table']} SET contents = {$contents}, modified = {$modified}
+        WHERE filename = '{$key['filename']}'"
+      );
+
+      // If we got no result, it means there were no affected rows and thus this 'file' doesn't exist yet
+      // So, let's create it
+      if ( ! $result ) {
+        $result = slackemon_pg_query(
+          "INSERT INTO {$key['table']} ( filename, contents, modified )
+          VALUES ( '{$key['filename']}', {$contents}, {$modified} )"
+        );
+      }
+
+      if ( $result ) {
+        $return = true;
+      }
 
     break;
 
@@ -213,7 +248,7 @@ function slackemon_file_put_contents( $filename, $data, $purpose = 'cache' ) {
  * @param string $purpose  The purpose of the check - 'cache' or 'store'.
  * @link http://php.net/file_exists
  */
-function slackemon_file_exists( $filename, $purpose = 'cache' ) {
+function slackemon_file_exists( $filename, $purpose ) {
 
   switch ( slackemon_get_data_method( $purpose ) ) {
 
@@ -224,8 +259,18 @@ function slackemon_file_exists( $filename, $purpose = 'cache' ) {
     case 'postgres':
 
       $key = slackemon_get_pg_key( $filename );
+      
+      $result = slackemon_pg_query(
+        "SELECT filename FROM {$key['table']} WHERE filename = '{$key['filename']}'"
+      );
 
-      // TODO query.
+      if ( count( $result ) ) {
+        $return = true;
+      } else {
+        $return = false;
+      }
+
+      slackemon_pg_debug( ( $return ? 'true' : 'false' ) . ': ' . json_encode( $result ) );
 
     break;
 
@@ -252,7 +297,7 @@ function slackemon_file_exists( $filename, $purpose = 'cache' ) {
  * @param string $purpose  The purpose of the file - 'cache' or 'store'.
  * @link http://php.net/filemtime
  */
-function slackemon_filemtime( $filename, $purpose = 'cache' ) {
+function slackemon_filemtime( $filename, $purpose ) {
 
   switch ( slackemon_get_data_method( $purpose ) ) {
 
@@ -264,7 +309,16 @@ function slackemon_filemtime( $filename, $purpose = 'cache' ) {
 
       $key = slackemon_get_pg_key( $filename );
 
-      // TODO query.
+      $result = slackemon_pg_query(
+        "SELECT modified FROM {$key['table']} WHERE filename = '{$key['filename']}'"
+      );
+
+      if ( count( $result ) ) {
+        $return = $result[0][0];
+        slackemon_pg_debug( $result[0][0] );
+      } else {
+        slackemon_pg_debug( json_encode( $result ) );
+      }
 
     break;
 
@@ -316,36 +370,27 @@ function slackemon_filemtime( $filename, $purpose = 'cache' ) {
  * @param string $purpose      The purpose of the files - 'cache' or 'store'.
  * @link http://php.net/rename
  */
-function slackemon_rename( $old_filename, $new_filename, $purpose = 'cache' ) {
+function slackemon_rename( $old_filename, $new_filename, $purpose ) {
 
   switch ( slackemon_get_data_method( $purpose ) ) {
 
     case 'local':
+
       $return = rename( $old_filename, $new_filename );
+
     break;
 
     case 'postgres':
-
-      $key = slackemon_get_pg_key( $filename );
-
-      // TODO query.
-
-    break;
-
     case 'aws':
-
-      global $slackemon_s3;
 
       // TODO: Need to track return values of each step here, and skip the next step and return false on failure
       // Possibly should also, if the unlink fails, undo the put.
 
-      $data = slackemon_file_get_contents( $old_filename );
-      slackemon_file_put_contents( $new_filename, $data );
-      slackemon_unlink( $old_filename );
+      $data = slackemon_file_get_contents( $old_filename, $purpose );
+      slackemon_file_put_contents( $new_filename, $data, $purpose );
+      slackemon_unlink( $old_filename, $purpose );
 
-      $return = true;
-
-    break; // Case aws.
+    break;
 
   } // Switch slackemon_get_data_method
 
@@ -364,7 +409,7 @@ function slackemon_rename( $old_filename, $new_filename, $purpose = 'cache' ) {
  * @param string $purpose  The purpose of the file - 'cache' or 'store'.
  * @link http://php.net/unlink
  */
-function slackemon_unlink( $filename, $purpose = 'cache' ) {
+function slackemon_unlink( $filename, $purpose ) {
 
   switch ( slackemon_get_data_method( $purpose ) ) {
 
@@ -375,8 +420,11 @@ function slackemon_unlink( $filename, $purpose = 'cache' ) {
     case 'postgres':
 
       $key = slackemon_get_pg_key( $filename );
+      $result = slackemon_pg_query( "DELETE FROM {$key['table']} WHERE filename = '{$key['filename']}'" );
 
-      // TODO query.
+      if ( $result ) {
+        $return = true;
+      }
 
     break;
 
@@ -385,7 +433,7 @@ function slackemon_unlink( $filename, $purpose = 'cache' ) {
       global $slackemon_s3;
 
       try {
-        $result = $slackemon_s3->deleteObject(
+        $slackemon_s3->deleteObject(
           [
             'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
             'Key'    => slackemon_get_s3_key( $filename ),
@@ -427,7 +475,7 @@ function slackemon_unlink( $filename, $purpose = 'cache' ) {
  * @param string $purpose The purpose of the search - 'cache' or 'store'.
  * @link http://php.net/glob
  */
-function slackemon_get_files_by_prefix( $prefix, $purpose = 'cache' ) {
+function slackemon_get_files_by_prefix( $prefix, $purpose ) {
 
   switch ( slackemon_get_data_method( $purpose ) ) {
 
@@ -437,9 +485,20 @@ function slackemon_get_files_by_prefix( $prefix, $purpose = 'cache' ) {
 
     case 'postgres':
 
-      $key = slackemon_get_pg_key( $filename );
+      $key = slackemon_get_pg_key( $prefix );
 
-      // TODO query.
+      $result = slackemon_pg_query(
+        "SELECT filename FROM {$key['table']} WHERE filename LIKE '{$key['filename']}%'"
+      );
+
+      $return = array_map(
+        function( $filename ) use ( $key ) {
+          return $key['table'] . '/' . $filename[0];
+        },
+        $result
+      );
+
+      slackemon_pg_debug( json_encode( $return ) );
 
     break;
 
@@ -496,11 +555,23 @@ function slackemon_get_files_by_prefix( $prefix, $purpose = 'cache' ) {
 function slackemon_get_pg_key( $filename ) {
   global $data_folder;
 
-  $trimmed = trim( str_replace( $data_folder, '', $filename ), '/' );
+  $filename_trimmed = trim( str_replace( $data_folder, '', $filename ), '/' );
+  $filename_parts   = pathinfo( $filename_trimmed );
 
-  error_log( $trimmed );
+  // If we're just looking for a directory and not a particular file, we need to swap things around
+  if ( '.' === $filename_parts['dirname'] ) {
+    $filename_parts['dirname'] = $filename_parts['filename'];
+    $filename_parts['filename'] = '';
+  }
 
-  return $trimmed;
+  $key = [
+    'table'    => slackemon_pg_escape( SLACKEMON_TABLE_PREFIX . $filename_parts['dirname'], 'identifier' ),
+    'filename' => slackemon_pg_escape( $filename_parts['filename'], 'string' ),
+  ];
+
+  slackemon_pg_debug( json_encode( $key ) );
+
+  return $key;
 
 }
 
@@ -512,7 +583,9 @@ function slackemon_get_pg_key( $filename ) {
 function slackemon_get_s3_key( $filename ) {
   global $data_folder;
 
-  return trim( str_replace( $data_folder, '', $filename ), '/' );
+  $key = trim( str_replace( $data_folder, '', $filename ), '/' );
+
+  return $key;
 
 }
 
