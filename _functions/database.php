@@ -136,11 +136,26 @@ function slackemon_pg_connect() {
     return false;
   }
 
-  $url   = parse_url( SLACKEMON_DATABASE_URL );
+  if ( ! SLACKEMON_DATABASE_URL ) {
+    error_log( 'Database URL does not seem to be set.' );
+    return false;
+  }
+
+  $url = parse_url( SLACKEMON_DATABASE_URL );
+
+  if ( ! isset( $url['host'] ) || ! isset( $url['path'] ) || ! isset( $url['user'] ) || ! isset( $url['pass'] ) ) {
+    error_log( 'Database URL does not seem to be valid.' );
+    return false;
+  }
+
+  if ( ! $url['host'] || ! $url['path'] || '/' === $url['path'] || ! $url['user'] || ! $url['pass'] ) {
+    error_log( 'Database URL does not seem to be valid.' );
+    return false;
+  }
 
   $_slackemon_postgres_connection  = pg_connect(
     'host='     . $url['host'] . ' ' .
-    'port='     . $url['port'] . ' ' .
+    ( isset( $url['port'] ) && $url['port'] ? 'port=' . $url['port'] . ' ' : '' ) .
     'dbname='   . ltrim( $url['path'], '/' ) . ' ' .
     'user='     . $url['user'] . ' ' .
     'password=' . $url['pass']
@@ -157,6 +172,11 @@ function slackemon_pg_close() {
 
   if ( ! function_exists( 'pg_close' ) ) {
     error_log( 'Postgres functions are not available.' );
+    return false;
+  }
+
+  if ( ! $_slackemon_postgres_connection ) {
+    error_log( 'Postgres connection does not seem to have been made.' );
     return false;
   }
 
