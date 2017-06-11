@@ -1,6 +1,6 @@
 # Slackémon
 
-[![Latest Stable Version](https://poser.pugx.org/tdmalone/slackemon/v/stable)](https://github.com/tdmalone/slackemon/releases)
+[![Latest Release](https://img.shields.io/github/release/tdmalone/slackemon/all.svg)](https://github.com/tdmalone/slackemon/releases)
 [![License](https://poser.pugx.org/tdmalone/slackemon/license)](https://www.gnu.org/licenses/gpl-3.0.html)
 [![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby)  
 [![Linux build status](https://travis-ci.org/tdmalone/slackemon.svg?branch=master)](https://travis-ci.org/tdmalone/slackemon)
