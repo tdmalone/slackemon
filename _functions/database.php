@@ -90,12 +90,20 @@ function slackemon_set_up_db() {
 function slackemon_pg_escape( $string ) {
   global $_slackemon_postgres_connection;
 
+  if ( ! slackemon_is_pg_ready() ) {
+    return false;
+  }
+
   return pg_escape_string( $_slackemon_postgres_connection, $string );
 
 }
 
 function slackemon_pg_query( $query ) {
   global $_slackemon_postgres_connection;
+
+  if ( ! slackemon_is_pg_ready() ) {
+    return false;
+  }
 
   $result = pg_query( $_slackemon_postgres_connection, $query );
 
@@ -121,11 +129,30 @@ function slackemon_pg_query( $query ) {
 function slackemon_pg_connect() {
   global $_slackemon_postgres_connection;
 
-  $url   = parse_url( SLACKEMON_DATABASE_URL );
+  if ( ! slackemon_is_pg_ready( false ) ) {
+    return false;
+  }
+
+  if ( ! SLACKEMON_DATABASE_URL ) {
+    error_log( 'Database URL does not seem to be set.' );
+    return false;
+  }
+
+  $url = parse_url( SLACKEMON_DATABASE_URL );
+
+  if ( ! isset( $url['host'] ) || ! isset( $url['path'] ) || ! isset( $url['user'] ) || ! isset( $url['pass'] ) ) {
+    error_log( 'Database URL does not seem to be valid.' );
+    return false;
+  }
+
+  if ( ! $url['host'] || ! $url['path'] || '/' === $url['path'] || ! $url['user'] || ! $url['pass'] ) {
+    error_log( 'Database URL does not seem to be valid.' );
+    return false;
+  }
 
   $_slackemon_postgres_connection  = pg_connect(
     'host='     . $url['host'] . ' ' .
-    'port='     . $url['port'] . ' ' .
+    ( isset( $url['port'] ) && $url['port'] ? 'port=' . $url['port'] . ' ' : '' ) .
     'dbname='   . ltrim( $url['path'], '/' ) . ' ' .
     'user='     . $url['user'] . ' ' .
     'password=' . $url['pass']
@@ -139,7 +166,30 @@ function slackemon_pg_connect() {
 
 function slackemon_pg_close() {
   global $_slackemon_postgres_connection;
+
+  if ( ! slackemon_is_pg_ready() ) {
+    return false;
+  }
+
   pg_close( $_slackemon_postgres_connection );
+
+}
+
+function slackemon_is_pg_ready( $check_connection = true ) {
+  global $_slackemon_postgres_connection;
+
+  if ( ! function_exists( 'pg_connect' ) ) {
+    error_log( 'Postgres functions are not available.' );
+    return false;
+  }
+
+  if ( $check_connection && ! $_slackemon_postgres_connection ) {
+    error_log( 'Postgres connection does not seem to have been made.' );
+    return false;
+  }
+
+  return true;
+
 }
 
 // The end!

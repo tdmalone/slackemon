@@ -355,4 +355,6 @@ if ( isset( $message ) ) {
   slackemon_do_action_response( $message );
 }
 
+slackemon_exit();
+
 // The end!

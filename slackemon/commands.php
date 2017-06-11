@@ -22,16 +22,16 @@ if ( isset( $args[0] ) && 'maybe-spawn' === $args[0] ) {
   slackemon_spawn_debug( 'Maybe spawning, please wait...' );
   slackemon_maybe_spawn( $spawn_trigger );
 
-  exit();
+  slackemon_exit();
 
 }
 if ( isset( $args[0] ) && 'battle-updates' === $args[0] ) {
   slackemon_do_battle_updates();
-  exit();
+  slackemon_exit();
 }
 if ( isset( $args[0] ) && 'happiness-updates' === $args[0] ) {
   slackemon_do_happiness_updates();
-  exit();
+  slackemon_exit();
 }
 
 // For dev/debug only - instantly generate a spawn, including a particular Pokedex ID if desired.
@@ -49,7 +49,7 @@ if ( isset( $args[0] ) && 'spawn' === $args[0] ) {
   slackemon_spawn_debug( 'Generating a spawn, please wait...' );
   slackemon_spawn( $spawn_trigger, $spawn_region, $spawn_timestamp, $spawn_pokedex_id );
 
-  exit();
+  slackemon_exit();
 
 }
 
@@ -104,5 +104,7 @@ if ( slackemon_is_player() ) {
   send2slack( [ 'attachments' => $attachments ] );
 
 } // If slackemon_is_player / else
+
+slackemon_exit();
 
 // The end!
