@@ -1,5 +1,7 @@
 FROM php:7.0-apache
 
+LABEL maintainer "tdmalone@gmail.com"
+
 COPY . /var/www/html
 WORKDIR /var/www/html
 
