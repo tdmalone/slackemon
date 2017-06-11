@@ -22,7 +22,8 @@
   ],
   "require": {
     "php": ">=7.0.0",
-    "aws/aws-sdk-php": "^3.28"
+    "aws/aws-sdk-php": "^3.28",
+    "heroku/heroku-buildpack-php": "^121.0"
   },
   "require-dev": {
     "vlucas/phpdotenv": "^2.4",

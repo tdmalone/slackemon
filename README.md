@@ -1,7 +1,7 @@
 # Slackémon
 
 [![Latest Release](https://img.shields.io/github/release/tdmalone/slackemon/all.svg)](https://github.com/tdmalone/slackemon/releases)
-[![License](https://poser.pugx.org/tdmalone/slackemon/license)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![License](https://poser.pugx.org/tdmalone/slackemon/license)](https://github.com/tdmalone/slackemon/blob/master/LICENSE)
 [![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby)  
 [![Linux build status](https://travis-ci.org/tdmalone/slackemon.svg?branch=master)](https://travis-ci.org/tdmalone/slackemon)
 [![Windows build status](https://img.shields.io/appveyor/ci/TimMalone/slackemon.svg)](https://ci.appveyor.com/project/TimMalone/slackemon)
@@ -114,7 +114,7 @@ Last but not least, this project would never have happened without the extensive
 ## License
 
 Slackémon - Catch and battle Pokémon with your teammates on Slack  
-Copyright (C) 2016-2017, [Tim Malone](https://github.com/tdmalone)
+Copyright (C) 2016-2017, [Tim Malone](https://github.com/tdmalone) and contributors.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -124,6 +124,4 @@ the Free Software Foundation, either version 3 of the License, or
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-See [`LICENSE`](https://github.com/tdmalone/slackemon/blob/master/LICENSE) or <https://www.gnu.org/licenses/gpl-3.0.html> for the full text of the License.
+[GNU General Public License](https://github.com/tdmalone/slackemon/blob/master/LICENSE) for more details.
