@@ -5,30 +5,6 @@
  * @package Slackemon
  */
 
-//$result = slackemon_pg_query( 'DROP TABLE ' . SLACKEMON_TABLE_PREFIX . 'players'   );
-//$result = slackemon_pg_query( 'DROP TABLE ' . SLACKEMON_TABLE_PREFIX . 'battles' );
-//$result = slackemon_pg_query( 'DROP TABLE ' . SLACKEMON_TABLE_PREFIX . 'spawns'  );
-
-//$result = slackemon_pg_query( 'CREATE DATABASE slackemon' );
-
-//slackemon_pg_query( 'SELECT * FROM pg_catalog.pg_tables' );
-
-//slackemon_pg_query( "SELECT * FROM information_schema.columns WHERE table_name = '" . SLACKEMON_TABLE_PREFIX . "players'" );
-//slackemon_pg_query( "SELECT * FROM information_schema.columns WHERE table_name = '" . SLACKEMON_TABLE_PREFIX . "battles'" );
-//slackemon_pg_query( "SELECT * FROM information_schema.columns WHERE table_name = '" . SLACKEMON_TABLE_PREFIX . "spawns'" );
-
-//$data = slackemon_pg_escape( json_encode( $player_data ) );
-
-/*slackemon_pg_query(
-  "INSERT INTO slackemon_users ( user_id, user_data, modified ) values ( '" . $user_id . "', '" . $data . "', '" . time() . "' )"
-);*/
-
-//slackemon_pg_query( 'SELECT * FROM ' . SLACKEMON_TABLE_PREFIX . 'players' );
-//slackemon_pg_query( 'SELECT * FROM ' . SLACKEMON_TABLE_PREFIX . 'battles' );
-//slackemon_pg_query( 'SELECT * FROM ' . SLACKEMON_TABLE_PREFIX . 'spawns'  );
-
-//slackemon_pg_close();
-
 /** Function to run to create a table in the DB, if we discover after our first query that it is not there yet. */
 function slackemon_create_table( $table_name ) {
 
@@ -44,10 +20,10 @@ function slackemon_create_table( $table_name ) {
   if ( is_array( $result ) ) {
     slackemon_pg_debug( 'Table ' . $table_name . ' was created.' );
     return true;
-  } else {
-    slackemon_pg_debug( 'Table ' . $table_name . ' could not be created.' );
-    return false;
   }
+
+  slackemon_pg_debug( 'Table ' . $table_name . ' could not be created.' );
+  return false;
 
 } // Function slackemon_set_up_db
 

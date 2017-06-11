@@ -235,7 +235,7 @@ function slackemon_file_put_contents( $filename, $data, $purpose ) {
     return false;
   }
 
-} // Function file_put_contents
+} // Function slackemon_file_put_contents
 
 /**
  * Drop-in replacement for PHP's file_exists, which abstracts access to either the local file system or an external
@@ -259,7 +259,7 @@ function slackemon_file_exists( $filename, $purpose ) {
     case 'postgres':
 
       $key = slackemon_get_pg_key( $filename );
-      
+
       $result = slackemon_pg_query(
         "SELECT filename FROM {$key['table']} WHERE filename = '{$key['filename']}'"
       );
@@ -594,7 +594,8 @@ function slackemon_get_s3_key( $filename ) {
  * In a practical sense, this allows us to use the same functions eg. slackemon_file_get_contents for both data caching
  * and data storage, while sending through the purpose of our usage each time so the correct method is used.
  *
- * @param string $purpose The purpose of a data read/write event. Accepts 'cache' or 'store'.
+ * @param string $purpose The purpose of a data read/write event. Accepts 'cache', 'store' or 'local', the latter of
+ *                        which forces a local store and should only be used for very temporary data storage.
  */
 function slackemon_get_data_method( $purpose ) {
 
@@ -606,6 +607,10 @@ function slackemon_get_data_method( $purpose ) {
 
     case 'store':
       $method = SLACKEMON_DATA_STORE_METHOD;
+    break;
+
+    case 'local':
+      $method = 'local';
     break;
 
   }
