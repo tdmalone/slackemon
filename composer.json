@@ -22,8 +22,7 @@
   ],
   "require": {
     "php": ">=7.0.0",
-    "aws/aws-sdk-php": "^3.28",
-    "herrera-io/silex-pdo": "^1.2"
+    "aws/aws-sdk-php": "^3.28"
   },
   "require-dev": {
     "vlucas/phpdotenv": "^2.4",
