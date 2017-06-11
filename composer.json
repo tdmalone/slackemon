@@ -28,6 +28,7 @@
   "require-dev": {
     "vlucas/phpdotenv": "^2.4",
     "satooshi/php-coveralls": "dev-master",
+    "codacy/coverage": "dev-master",
     "phpunit/phpunit": "^6.2",
     "wp-coding-standards/wpcs": "^0.11.0",
     "phpmd/phpmd": "^2.6"

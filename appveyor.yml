@@ -4,9 +4,12 @@ clone_folder: C:\projects\slackemon
 install:
   - sc config wuauserv start= auto
   - net start wuauserv
-  - cinst -y php
+  - choco install -y OpenSSL.Light php
   - cd c:\tools\php71
   - copy php.ini-production php.ini
+  - echo extension=php_openssl.dll >> php.ini # Required by Composer
+  - echo extension=php_mbstring.dll >> php.ini # Required by PHPUnit
+  - echo extension_dir="ext" >> php.ini # Enable extensions
   - cd C:\projects\slackemon
   - SET PATH=C:\tools\php71;%PATH%
   - php -r "readfile('http://getcomposer.org/installer');" | php
@@ -15,6 +18,9 @@ install:
 test_script:
   - cd C:\projects\slackemon
   - vendor\bin\phpunit.bat
+
+# http://help.appveyor.com/discussions/problems/4585
+build: off
 
 notifications:
   - provider: Slack
