@@ -53,6 +53,7 @@ require_once( __DIR__ . '/lib/init.php' );
 define( 'COMMAND', $_POST['command'] );
 
 // Run as a background command, as long as this isn't a test run.
+$args = check_subcommands();
 if ( ! isset( $args[0] ) || 'unit-tests' !== $args[0] ) {
   run_background_command( 'src/_commands.php', $args );
   slackemon_exit();
