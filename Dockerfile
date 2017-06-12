@@ -18,11 +18,13 @@ RUN chown -R www-data:www-data /var/www/html
 RUN chmod -R 774 /var/www/html
 
 # Install git and zip, used by Composer; cron, nano, vim and finally postgres functions for PHP7
-RUN apt-get update && apt-get install git zlib1g-dev cron nano vim libpq-dev -y && \ 
+RUN apt-get update && apt-get install git zlib1g-dev cron nano vim libpq-dev -y --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
     docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql && \
     docker-php-ext-install zip pdo pdo_pgsql pgsql
 
-# Install the Composer package manager
+# Install Composer package manager
 RUN curl -s http://getcomposer.org/installer | php
 
 USER slackemon
