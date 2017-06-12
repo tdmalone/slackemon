@@ -7,7 +7,7 @@
  */
 
 define( 'SKIP_AUTH', true );
-require_once( __DIR__ . '/init.php' );
+require_once( __DIR__ . '/lib/init.php' );
 
 // AUTH: Check if the cron token was set if running over the web.
 if (

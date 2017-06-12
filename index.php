@@ -18,7 +18,7 @@ if ( $payload ) {
 
     // Set up Slackemon environment.
     $action = $payload;
-    require_once( __DIR__ . '/init.php' );
+    require_once( __DIR__ . '/lib/init.php' );
 
     // Handle the action in the background.
     $callback_id = $action->callback_id;
@@ -30,7 +30,7 @@ if ( $payload ) {
 
     // Set up Slackemon environment.
     $options_request = $payload;
-    require_once( __DIR__ . '/init.php' );
+    require_once( __DIR__ . '/lib/init.php' );
 
     // Prepare for JSON output, which will happen within our request handler.
     header( 'Content-Type: application/json' );
@@ -47,7 +47,7 @@ if ( $payload ) {
 }
 
 // Otherwise, let's get going - no-one will get past here now unless they're authorised with a Slack App token.
-require_once( __DIR__ . '/init.php' );
+require_once( __DIR__ . '/lib/init.php' );
 
 // Init the once-off, entry-point stuff.
 define( 'COMMAND', $_POST['command'] );

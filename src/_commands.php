@@ -7,7 +7,6 @@
 
 // Set up the Slackemon environment.
 require_once( __DIR__ . '/../init.php' );
-change_data_folder( $data_folder . '/pokedex' );
 
 $args = $_POST['args'];
 

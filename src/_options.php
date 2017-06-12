@@ -7,7 +7,6 @@
 
 // Set up the Slackemon environment.
 require_once( __DIR__ . '/../init.php' );
-change_data_folder( $data_folder . '/pokedex' );
 
 $action_name = explode( '/', $action_name );
 $is_desktop  = 'desktop' === slackemon_get_player_menu_mode();

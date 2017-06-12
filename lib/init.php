@@ -9,7 +9,7 @@
 // TODO: This should be defined elsewhere rather than changing at runtime.
 if ( 'development' === getenv( 'APP_ENV' ) ) {
   ini_set( 'log_errors', '1' );
-  ini_set( 'error_log', __DIR__ . '/error_log' );
+  ini_set( 'error_log', __DIR__ . '/../error_log' );
 }
 
 // Define time-based constants.
@@ -23,12 +23,12 @@ define( 'MONTH_IN_SECONDS',  30 * DAY_IN_SECONDS    );
 define( 'YEAR_IN_SECONDS',  365 * DAY_IN_SECONDS    );
 
 // Get config from environment variables.
-require_once( __DIR__ . '/config.php' );
+require_once( __DIR__ . '/../config.php' );
 
 // Set some config variables in stone.
 date_default_timezone_set( SLACKEMON_TIMEZONE );
 setlocale( LC_MONETARY, SLACKEMON_MONETARY_LOCALE );
-$data_folder = __DIR__ . '/' . SLACKEMON_DATA_FOLDER;
+$data_folder = __DIR__ . '/../' . SLACKEMON_DATA_FOLDER;
 
 // Check that this request is authorised.
 // Authorisation can be skipped by the calling file by setting SKIP_AUTH to true - this should only be done if the file

@@ -8,7 +8,6 @@
 // Set up the Slackemon environment with the requested action data.
 $action = json_decode( $_REQUEST['action'] );
 require_once( __DIR__ . '/../init.php' );
-change_data_folder( $data_folder . '/pokedex' );
 
 $action_name  = $action->actions[0]->name;
 
