@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5b4bd69dc37c46b2d5e7e6fd0b906968",
+    "content-hash": "bcd44ecc4172453f675d1a55e0e74fab",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -265,50 +265,6 @@
             "time": "2017-03-20T17:10:46+00:00"
         },
         {
-            "name": "heroku/heroku-buildpack-php",
-            "version": "v121",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/heroku/heroku-buildpack-php.git",
-                "reference": "727aa850a02a7af94c9225237464be8e8c8ff6db"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/727aa850a02a7af94c9225237464be8e8c8ff6db",
-                "reference": "727aa850a02a7af94c9225237464be8e8c8ff6db",
-                "shasum": ""
-            },
-            "bin": [
-                "bin/heroku-hhvm-apache2",
-                "bin/heroku-hhvm-nginx",
-                "bin/heroku-php-apache2",
-                "bin/heroku-php-nginx"
-            ],
-            "type": "library",
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "David Zuelke",
-                    "email": "dz@heroku.com"
-                }
-            ],
-            "description": "Toolkit for starting a PHP application locally, with or without foreman, using the same config for PHP/HHVM and Apache2/Nginx as on Heroku",
-            "homepage": "https://github.com/heroku/heroku-buildpack-php",
-            "keywords": [
-                "apache",
-                "apache2",
-                "foreman",
-                "heroku",
-                "hhvm",
-                "nginx",
-                "php"
-            ],
-            "time": "2017-03-27T23:33:27+00:00"
-        },
-        {
             "name": "mtdowling/jmespath.php",
             "version": "2.4.0",
             "source": {
@@ -567,6 +523,50 @@
             "description": "Library for accessing git",
             "homepage": "http://gitonomy.com",
             "time": "2016-05-11T08:25:40+00:00"
+        },
+        {
+            "name": "heroku/heroku-buildpack-php",
+            "version": "v121",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/heroku/heroku-buildpack-php.git",
+                "reference": "727aa850a02a7af94c9225237464be8e8c8ff6db"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/727aa850a02a7af94c9225237464be8e8c8ff6db",
+                "reference": "727aa850a02a7af94c9225237464be8e8c8ff6db",
+                "shasum": ""
+            },
+            "bin": [
+                "bin/heroku-hhvm-apache2",
+                "bin/heroku-hhvm-nginx",
+                "bin/heroku-php-apache2",
+                "bin/heroku-php-nginx"
+            ],
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "David Zuelke",
+                    "email": "dz@heroku.com"
+                }
+            ],
+            "description": "Toolkit for starting a PHP application locally, with or without foreman, using the same config for PHP/HHVM and Apache2/Nginx as on Heroku",
+            "homepage": "https://github.com/heroku/heroku-buildpack-php",
+            "keywords": [
+                "apache",
+                "apache2",
+                "foreman",
+                "heroku",
+                "hhvm",
+                "nginx",
+                "php"
+            ],
+            "time": "2017-03-27T23:33:27+00:00"
         },
         {
             "name": "myclabs/deep-copy",
