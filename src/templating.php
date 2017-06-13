@@ -165,7 +165,8 @@ function slackemon_get_happiness_emoji( $happiness_rate ) {
 
 function slackemon_get_nature_emoji( $nature ) {
 
-  // TODO: Try to make sure none of the below are the same as any happiness emoji
+  // TODO: Try to make sure none of the below are the same as any happiness emoji.
+  // TODO: These could probably be moved into data files in /etc when data.php is moved also.
 
   $emoji = [
     'adamant' => ':triumph:',
@@ -315,5 +316,127 @@ function slackemon_get_pagination_attachment( $objects, $page_number, $action_na
   return [];
 
 }  // Function slackemon_get_pagination_attachment
+
+// Make a system string (generally, Pokemon names, region names, etc.) human-readable
+function slackemon_readable( $string, $display_gender = true, $abbrev = false ) {
+
+  // Male & Female Pokemon species, eg. Nidoran
+  $string = preg_replace( [ '/-m$/', '/-f$/' ], $display_gender ? [ '♂', '♀' ] : '', $string );
+
+  // General word capitalisation & hyphen removal
+  $string = ucwords( strtolower( str_replace( '-', ' ', $string ) ) );
+
+  // Ensure Roman-numeral generation numbers are capitalised correctly
+  $string = preg_replace_callback( '/\b(I|V)(i|v){1,2}\b/', function( $matches ) {
+    return strtoupper( $matches[0] );
+  }, $string );
+
+  // Ensure some common two-character abbreviations are capitalised correctly
+  $string = preg_replace([
+    '/\bHp\b/',
+    '/\bPp\b/',
+    '/\bTm(\d|s)/',
+    '/\bHm(\d|s)/',
+  ], [
+    'HP',
+    'PP',
+    'TM$1',
+    'HM$1',
+  ], $string );
+
+  // Further abbreviations?
+  if ( $abbrev ) {
+    $string = preg_replace([
+      '/\bSpecial Attack\b/',
+      '/\bSpecial Defense\b/',
+      '/\bAttack\b/',
+      '/\bDefense\b/',
+      '/\bGiga\b/',
+      '/\bBeam\b/',
+      '/\bAverage\b/',
+      '/\bDouble\b/',
+      '/\bPump\b/',
+      '/\bExcellent\b/',
+      '/\bDragon\b/',
+      '/\bPower\b/',
+      '/\bDynamic\b/',
+    ], [
+      'Sp Att',
+      'Sp Def',
+      'Attk',
+      'Def',
+      'G.',
+      'B.',
+      'Avg',
+      'Dbl',
+      'P.',
+      'Exc.',
+      'Drag.',
+      'Pwr',
+      'Dyn.',
+    ], $string );
+  } else {
+    $string = preg_replace([
+      '/\bSp\b/',
+      '/\bDef\b/',
+      '/\bAttk\b/',
+      '/\bAtk\b/',
+    ], [
+      'Special',
+      'Defense',
+      'Attack',
+      'Attack',
+    ], $string );
+  }
+
+  return $string;
+
+} // function slackemon_readable
+
+/** Gets a Pokemon evolution chain, highlighting the current Pokemon. */
+function slackemon_get_evolution_chain( $pokedex_id, $return_value_if_none = false ) {
+
+  $output = '';
+
+  $pokemon_data = slackemon_get_pokemon_data( $pokedex_id );
+  $species_data = json_decode( slackemon_get_cached_url( $pokemon_data->species->url ) );
+  $evolution_data = json_decode( slackemon_get_cached_url( $species_data->evolution_chain->url ) );
+
+  $chain = $evolution_data->chain;
+  $pokemon_name = $pokemon_data->name;
+
+  $output = slackemon_build_evolution_chain( $chain, $pokemon_name );
+
+  if ( false === strpos( $output, '>' ) ) {
+    return $return_value_if_none; // Pokemon does not evolve
+  }
+
+  return $output;
+
+} // Function slackemon_get_evolution_chain
+
+function slackemon_build_evolution_chain( $chain, $pokemon_name ) {
+
+  $output = '';
+
+  if ( $chain->species->name === $pokemon_name ) { $output .= '_'; }
+  $output .= slackemon_readable( $chain->species->name );
+  if ( $chain->species->name === $pokemon_name ) { $output .= '_'; }
+
+  if ( 1 === count( $chain->evolves_to ) ) {
+    $output .= ' > ' . slackemon_build_evolution_chain( $chain->evolves_to[0], $pokemon_name );
+  } else if ( count( $chain->evolves_to ) > 1 ) {
+    $output .= ' > (';
+    $branched_chain = '';
+    foreach ( $chain->evolves_to as $evolution ) {
+      if ( $branched_chain ) { $branched_chain .= ', '; }
+      $branched_chain .= slackemon_build_evolution_chain( $evolution, $pokemon_name );
+    }
+    $output .= $branched_chain . ')';
+  }
+
+  return $output;
+
+} // Function slackemon_build_evolution_chain
 
 // The end!
