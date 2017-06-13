@@ -173,7 +173,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
     // Change first attachment (the sprite) to the Pokemon with its back turned
     $message['attachments'][0] = [
       'color' => slackemon_get_color_as_hex( $species_data->color->name ),
-      'image_url' => get_cached_image_url(
+      'image_url' => slackemon_get_cached_image_url(
         'female' === $spawn_data->gender && $pokemon_data->sprites->back_female ?
         $pokemon_data->sprites->back_female :
         $pokemon_data->sprites->back_default

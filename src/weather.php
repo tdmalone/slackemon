@@ -29,7 +29,7 @@ function slackemon_get_weather( $cache_options = [] ) {
     'appid' => SLACKEMON_OPENWEATHERMAP_KEY,
   ];
 
-  $weather = get_cached_url( $endpoint . '?' . http_build_query( $params ), $cache_options );
+  $weather = slackemon_get_cached_url( $endpoint . '?' . http_build_query( $params ), $cache_options );
 
   return json_decode( $weather );
 

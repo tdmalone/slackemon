@@ -4,10 +4,12 @@
   <!-- Automatically check all our PHP source files. -->
   <file>./lib</file>
   <file>./src</file>
-  <file>./tests</file>
   <file>./config.php</file>
   <file>./cron.php</file>
   <file>./index.php</file>
+
+  <!-- Tests are excluded for now because we need to define different rules for PHPUnit coding style. -->
+  <!-- <file>./tests</file> -->
 
   <arg name="colors" />
   <arg value="sp" />
@@ -16,7 +18,7 @@
   <!-- Create a phpcs.xml file if you wish to change these standards further or adjust other phpcs settings. -->
   <!-- See https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml for help. -->
   <!-- Further help is also available at https://github.com/squizlabs/PHP_CodeSniffer/wiki/Advanced-Usage. -->
-  <rule ref="TMCodeStandards"/>
+  <rule ref="vendor/tdmalone/tm-code-standards/TMCodeStandards"/>
 
   <!-- Exclude some checks for tests, because test naming conventions must follow PHPUnit rules. -->
   <rule ref="WordPress.Files.FileName">

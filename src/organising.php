@@ -465,7 +465,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     ];
 
     $attachment_footer = (
-      'Caught ' . get_relative_time( $pokemon->ts ) . ' | ' .
+      'Caught ' . slackemon_get_relative_time( $pokemon->ts ) . ' | ' .
       'Won ' . $pokemon->battles->won . ' of ' . $pokemon->battles->participated . ' trainer battles'
     );
 
@@ -558,7 +558,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     'fields'  => $attachment_fields,
     'footer'  => $attachment_footer,
     'actions' => $attachment_actions,
-    'image_url' => get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' ),
+    'image_url' => slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' ),
   ];
 
   // If this is being displayed immediately after a catch, remove the original spawn data & add a main menu link
@@ -808,7 +808,7 @@ function slackemon_get_pokemon_transfer_message( $spawn_ts, $action ) {
       'to the Professor.' . "\n\n" . 
       '*+10 XP*: Transferred a Pokemon :outbox_tray:'
     ),
-    'thumb_url' => get_cached_image_url(
+    'thumb_url' => slackemon_get_cached_image_url(
       'female' === $pokemon->gender && $pokemon_data->sprites->back_female ?
       $pokemon_data->sprites->back_female :
       $pokemon_data->sprites->back_default

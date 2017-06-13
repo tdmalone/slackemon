@@ -93,7 +93,7 @@ function send2slack( $message, $hook_url = '' ) {
 /**
  * Send a message to a Slack channel using the Web API's chat.postMessage method, rather than an response_url webhook.
  */
-function post2slack( $payload ) {
+function slackemon_post2slack( $payload ) {
   global $data_folder;
 
   $api_base = 'https://slack.com/api';
@@ -141,9 +141,9 @@ function post2slack( $payload ) {
 } // Function post2slack
 
 /** Does what it says on the tin. */
-function get_user_full_name( $user_id = USER_ID ) {
+function slackemon_get_slack_user_full_name( $user_id = USER_ID ) {
 
-  $user = get_slack_user( $user_id );
+  $user = slackemon_get_slack_user( $user_id );
   if ( $user && isset( $user->real_name ) ) {
     return $user->real_name;
   }
@@ -153,9 +153,9 @@ function get_user_full_name( $user_id = USER_ID ) {
 } // Function get_user_full_name
 
 /** Does what it says on the tin. */
-function get_user_first_name( $user_id = USER_ID ) {
+function slackemon_get_slack_user_first_name( $user_id = USER_ID ) {
 
-  $user_full_name = get_user_full_name( $user_id );
+  $user_full_name = slackemon_get_slack_user_full_name( $user_id );
 
   if ( ! $user_full_name ) {
     return false;
@@ -168,9 +168,9 @@ function get_user_first_name( $user_id = USER_ID ) {
 } // Function get_user_first_name
 
 /** Does what it says on the tin. */
-function get_user_avatar_url( $user_id = USER_ID ) {
+function slackemon_get_slack_user_avatar_url( $user_id = USER_ID ) {
 
-  $user = get_slack_user( $user_id );
+  $user = slackemon_get_slack_user( $user_id );
   if ( $user && isset( $user->profile->image_original ) ) {
     return $user->profile->image_original;
   }
@@ -182,9 +182,9 @@ function get_user_avatar_url( $user_id = USER_ID ) {
 /**
  * Gets a user's e-mail address, either from the local config if set, or falling back to the Slack API.
  */
-function get_user_email_address( $user_id = USER_ID ) {
+function slackemon_get_slack_user_email_address( $user_id = USER_ID ) {
 
-  $user = get_slack_user( $user_id );
+  $user = slackemon_get_slack_user( $user_id );
   if ( $user && isset( $user->profile->email ) ) {
     return $user->profile->email;
   }
@@ -194,14 +194,14 @@ function get_user_email_address( $user_id = USER_ID ) {
 } // Function get_user_email_address
 
 /** Gets a Slack user's data from the Slack API. Cached for a day. */
-function get_slack_user( $user_id = USER_ID ) {
+function slackemon_get_slack_user( $user_id = USER_ID ) {
   global $_cached_slack_user_data;
 
   if ( isset( $_cached_slack_user_data[ $user_id ] ) ) {
     return $_cached_slack_user_data[ $user_id ];
   }
 
-  $slack_users = get_slack_users();
+  $slack_users = slackemon_get_slack_users();
 
   foreach( $slack_users as $user ) {
     if ( $user->id === $user_id ) {
@@ -215,13 +215,13 @@ function get_slack_user( $user_id = USER_ID ) {
 } // Function get_slack_user
 
 /** Gets ALL Slack user data from the Slack API. Cached for a day. */
-function get_slack_users() {
+function slackemon_get_slack_users() {
 
   if ( ! SLACKEMON_SLACK_KEY ) {
     return [];
   }
 
-  $slack_users = json_decode( get_cached_url(
+  $slack_users = json_decode( slackemon_get_cached_url(
     'https://slack.com/api/users.list?token=' . SLACKEMON_SLACK_KEY,
     [ 'expiry_age' => DAY_IN_SECONDS ]
   ) )->members;

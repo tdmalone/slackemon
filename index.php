@@ -22,7 +22,7 @@ if ( $payload ) {
 
     // Handle the action in the background.
     $callback_id = $action->callback_id;
-    run_background_action( 'src/_actions.php', $action, $callback_id );
+    slackemon_run_background_action( 'src/_actions.php', $action, $callback_id );
 
     slackemon_exit();
 
@@ -36,10 +36,11 @@ if ( $payload ) {
     header( 'Content-Type: application/json' );
 
     // Handle the options request.
-    $callback_id  = $options_request->callback_id;
-    $action_name  = $options_request->name;
-    $action_value = $options_request->value;
-    require_once( __DIR__ . '/src/_options.php' );
+    $options = slackemon_get_slack_message_menu_options( $options_request->name, $options_request->value );
+
+    if ( $options ) {
+      echo $options;
+    }
 
     slackemon_exit();
 
@@ -55,7 +56,7 @@ define( 'COMMAND', $_POST['command'] );
 // Run as a background command, as long as this isn't a test run.
 $args = check_subcommands();
 if ( ! isset( $args[0] ) || 'unit-tests' !== $args[0] ) {
-  run_background_command( 'src/_commands.php', $args );
+  slackemon_run_background_command( 'src/_commands.php', $args );
   slackemon_exit();
 }
 

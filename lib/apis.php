@@ -39,7 +39,7 @@ function slackemon_get_url( $url, $options = [] ) {
 } // Function slackemon_get_url
 
 /** Easily manage cache of individual URLs. */
-function get_cached_url( $url, $options = [] ) {
+function slackemon_get_cached_url( $url, $options = [] ) {
   global $data_folder;
 
   // Get our hash, sending through curl_options if set, to ensure the file hash is unique when an auth key is provided
@@ -97,7 +97,7 @@ function get_cached_url( $url, $options = [] ) {
 
 } // Function get_cached_url
 
-function get_cached_image_url( $image_url ) {
+function slackemon_get_cached_image_url( $image_url ) {
 
   // Simply return the requested URL directly if the image cache is disabled
   if ( 'disabled' === SLACKEMON_IMAGE_CACHE_METHOD ) {

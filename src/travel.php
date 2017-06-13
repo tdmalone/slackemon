@@ -63,7 +63,7 @@ function slackemon_get_regions() {
     return $_cached_slackemon_regions;
   }
 
-  $region_list = json_decode( get_cached_url( 'http://pokeapi.co/api/v2/region/' ) )->results;
+  $region_list = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/region/' ) )->results;
 
   // Define region descriptions, since they aren't in the API
   // Also doubles as an excluder - leave a description blank or don't include a region, and it will be skipped
@@ -88,9 +88,9 @@ function slackemon_get_regions() {
       continue;
     }
 
-    $region_data        = json_decode( get_cached_url( $region->url ) );
-    $region_pokedex     = json_decode( get_cached_url( $region_data->pokedexes[0]->url ) );
-    $generation_pokedex = json_decode( get_cached_url( $region_data->main_generation->url ) );
+    $region_data        = json_decode( slackemon_get_cached_url( $region->url ) );
+    $region_pokedex     = json_decode( slackemon_get_cached_url( $region_data->pokedexes[0]->url ) );
+    $generation_pokedex = json_decode( slackemon_get_cached_url( $region_data->main_generation->url ) );
 
     $regions[ $region->name ] = [
       'name'               => $region->name,

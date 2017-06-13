@@ -76,7 +76,7 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
 require_once( __DIR__ . '/../src/_app.php' );
 
 // Make sure data folder exists.
-change_data_folder( $data_folder );
+slackemon_change_data_folder( $data_folder );
 
 // Define our constants (slash command invocation mode).
 if ( ! defined( 'USER_ID' ) && isset( $_POST['user_id'] ) ) {

@@ -163,7 +163,7 @@ function slackemon_get_achievements_menu( $current_page ) {
       if ( $pokedex_entry->seen ) { $seen++; }
     }
 
-    $full_name = get_user_full_name( $player_id );
+    $full_name = slackemon_get_slack_user_full_name( $player_id );
     $emoji = (
     	slackemon_is_player_active( $player_id ) ?
     	':green_circle:' : (

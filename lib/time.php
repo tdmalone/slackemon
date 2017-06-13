@@ -14,7 +14,7 @@
  * @author Matthew Temple, Tim Malone
  * @link https://gist.github.com/mattytemple/3804571
  */
-function get_relative_time( $ts, $long = true ) {
+function slackemon_get_relative_time( $ts, $long = true ) {
 
     if ( ! ctype_digit( $ts ) ) {
         $ts = strtotime( $ts );

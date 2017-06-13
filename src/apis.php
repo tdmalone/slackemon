@@ -12,7 +12,7 @@ function slackemon_get_pokemon_data( $pokedex_number ) {
 
   $api_base = 'http://pokeapi.co/api/v2'; // WARNING: All endpoints on this API must end in a forward slash
   $pokemon_url = $api_base . '/pokemon/' . $pokedex_number . '/';
-  $pokemon_data = json_decode( get_cached_url( $pokemon_url ) );
+  $pokemon_data = json_decode( slackemon_get_cached_url( $pokemon_url ) );
 
   $_cached_slackemon_pokemon_data[ $pokedex_number ] = $pokemon_data;
 
@@ -29,7 +29,7 @@ function slackemon_get_pokemon_species_data( $pokedex_number ) {
 
   $api_base = 'http://pokeapi.co/api/v2'; // WARNING: All endpoints on this API must end in a forward slash
   $species_url = $api_base . '/pokemon-species/' . $pokedex_number . '/';
-  $species_data = json_decode( get_cached_url( $species_url ) );
+  $species_data = json_decode( slackemon_get_cached_url( $species_url ) );
 
   $_cached_slackemon_species_data[ $pokedex_number ] = $species_data;
 
@@ -45,7 +45,7 @@ function slackemon_get_pokemon_evolution_data( $pokedex_number ) {
   }
 
   $species_data = slackemon_get_pokemon_species_data( $pokedex_number );
-  $evolution_data = json_decode( get_cached_url( $species_data->evolution_chain->url ) );
+  $evolution_data = json_decode( slackemon_get_cached_url( $species_data->evolution_chain->url ) );
 
   $_cached_slackemon_evolution_data[ $pokedex_number ] = $evolution_data;
 
@@ -61,7 +61,7 @@ function slackemon_get_pokemon_growth_rate_data( $pokedex_number ) {
   }
 
   $species_data = slackemon_get_pokemon_species_data( $pokedex_number );
-  $growth_rate_data = json_decode( get_cached_url( $species_data->growth_rate->url ) );
+  $growth_rate_data = json_decode( slackemon_get_cached_url( $species_data->growth_rate->url ) );
 
   $_cached_slackemon_growth_rate_data[ $pokedex_number ] = $growth_rate_data;
 
@@ -76,7 +76,7 @@ function slackemon_get_move_data( $move_name_or_id ) {
     return $_cached_slackemon_move_data[ $move_name_or_id ];
   }
 
-  $move_data = json_decode( get_cached_url( 'http://pokeapi.co/api/v2/move/' . $move_name_or_id . '/' ) );
+  $move_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/move/' . $move_name_or_id . '/' ) );
 
   // Supplementary move data
   $supplementary_move_data = slackemon_get_supplementary_move_data();
@@ -128,7 +128,7 @@ function slackemon_get_item_data( $item_name_or_id ) {
     return $_cached_slackemon_item_data[ $item_name_or_id ];
   }
 
-  $item_data = json_decode( get_cached_url( 'http://pokeapi.co/api/v2/item/' . $item_name_or_id . '/' ) );
+  $item_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/' . $item_name_or_id . '/' ) );
   
   if ( $item_data ) {
 

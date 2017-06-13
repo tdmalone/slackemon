@@ -299,7 +299,7 @@ function slackemon_start_evolution_message( $spawn_ts, $action, $user_id = USER_
   $original_attachment->text   .= "\n\n" . '*Eᴠᴏʟᴠɪɴɢ your ' . slackemon_readable( $pokemon->name ) . '...* :loading:';
   $original_attachment->footer  = '';
   $original_attachment->actions = [];
-  $original_attachment->image_url = get_cached_image_url(
+  $original_attachment->image_url = slackemon_get_cached_image_url(
     SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif'
   );
 
@@ -311,7 +311,7 @@ function slackemon_start_evolution_message( $spawn_ts, $action, $user_id = USER_
 
   // Clear the fields, and load the evolution GIF
   $original_attachment->fields    = [];
-  $original_attachment->image_url = get_cached_image_url( SLACKEMON_INBOUND_URL . '/_images/slackemon-evolution2.gif' );
+  $original_attachment->image_url = slackemon_get_cached_image_url( SLACKEMON_INBOUND_URL . '/_images/slackemon-evolution2.gif' );
 
   if ( $replace_all_attachments ) {
     slackemon_do_action_response([ 'attachments' => [ $original_attachment, slackemon_back_to_menu_attachment() ] ]);

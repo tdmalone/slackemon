@@ -122,7 +122,7 @@ function slackemon_get_bulk_transfer_menu( $do_transfers = false ) {
         ( $is_desktop ? '        ' : '' ) .
         $_emoji . ' ' .
         ( $is_desktop ? slackemon_get_gender_symbol( $pokemon['data']->gender, 'after' ) : '' ) .
-        ( $is_desktop ? 'Caught ' . get_relative_time( $pokemon['data']->ts, false ) . ' • ' : '' ) .
+        ( $is_desktop ? 'Caught ' . slackemon_get_relative_time( $pokemon['data']->ts, false ) . ' • ' : '' ) .
         $pokemon['data']->cp . ' CP' . ' • ' .
         'Level ' .
         ( ! $is_desktop && $collection_data['highest_level'] >= 10 && $pokemon['data']->level < 10 ? '  ' : '' ) .

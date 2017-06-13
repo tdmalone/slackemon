@@ -90,7 +90,7 @@ function slackemon_do_battle_updates() {
 
     } // If not p2p battle
 
-    $opponent_name = get_user_first_name( $opponent_id );
+    $opponent_name = slackemon_get_slack_user_first_name( $opponent_id );
 
     // New turns
     if ( $_battle->last_move_ts < $one_minute_ago && $_battle->last_move_ts > $two_minutes_ago ) {
@@ -150,7 +150,7 @@ function slackemon_get_top_pokemon_list( $user_id = USER_ID ) {
 function slackemon_send_battle_invite( $invitee_id, $action, $inviter_id = USER_ID ) {
 
   $inviter_player_data = slackemon_get_player_data( $inviter_id );
-  $inviter_user_data   = get_slack_user( $inviter_id );
+  $inviter_user_data   = slackemon_get_slack_user( $inviter_id );
   $is_desktop          = 'desktop' === slackemon_get_player_menu_mode( $inviter_id );
 
   $invite_ts = time();
@@ -209,7 +209,7 @@ function slackemon_send_battle_invite( $invitee_id, $action, $inviter_id = USER_
     $invitee_message = [
       'text' => (
         ':stuck_out_tongue_closed_eyes: *You have been challenged to a Slackémon battle ' .
-        'by ' . get_user_first_name( $inviter_id ) . '!*'
+        'by ' . slackemon_get_slack_user_first_name( $inviter_id ) . '!*'
       ),
       'attachments' => [
         $attachment,
@@ -237,8 +237,8 @@ function slackemon_send_battle_invite( $invitee_id, $action, $inviter_id = USER_
 
     slackemon_save_battle_data( $invite_data, $battle_hash, 'invite' );
 
-    if ( post2slack( $invitee_message ) ) {
-      $invitee_name     = $is_desktop ? get_user_full_name( $invitee_id ) : get_user_first_name( $invitee_id );
+    if ( slackemon_post2slack( $invitee_message ) ) {
+      $invitee_name     = $is_desktop ? slackemon_get_slack_user_full_name( $invitee_id ) : slackemon_get_slack_user_first_name( $invitee_id );
       $inviter_message  = slackemon_update_triggering_attachment(
         ':white_check_mark: An invitation has been sent to *' . $invitee_name . '*.' . "\n" .
         'I\'ll let you know when they respond!',
@@ -269,9 +269,9 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
       case 'inviter':
 
         // Respond to the invitee first
-        post2slack([
+        slackemon_post2slack([
           'text' => (
-            ':disappointed: *Oh! Sorry, ' . get_user_first_name( $invite_data->inviter_id ) . ' has cancelled their ' .
+            ':disappointed: *Oh! Sorry, ' . slackemon_get_slack_user_first_name( $invite_data->inviter_id ) . ' has cancelled their ' .
             'battle challenge.*' . "\n" .
             'Maybe next time!'
           ),
@@ -291,9 +291,9 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
       case 'invitee':
 
         // Respond to the inviter first
-        post2slack([
+        slackemon_post2slack([
           'text' => (
-            ':disappointed: *Sorry, ' . get_user_first_name( $invite_data->invitee_id ) . ' has declined your ' .
+            ':disappointed: *Sorry, ' . slackemon_get_slack_user_first_name( $invite_data->invitee_id ) . ' has declined your ' .
             'battle challenge.*' . "\n" .
             'Maybe next time!'
           ),
@@ -303,7 +303,7 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
 
         // Invitee response
         $message = slackemon_update_triggering_attachment(
-          ':x: *You have declined ' . get_user_first_name( $invite_data->inviter_id ) . '\'s challenge.*' . "\n" .
+          ':x: *You have declined ' . slackemon_get_slack_user_first_name( $invite_data->inviter_id ) . '\'s challenge.*' . "\n" .
           'Not ready to battle right now? Send your own challenge later from the Battle screen!',
           $action,
           false
@@ -440,9 +440,9 @@ function slackemon_start_battle( $battle_hash, $action ) {
     // Cancel battle - we don't have enough non-fainted Pokemon on at least one of the teams!
 
     $invitee_fail_to_self = ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to accept this invite!' . "\n" . ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait for them to regain their strength, or catch some more Pokémon. :pokeball:';
-    $invitee_fail_to_other = ':slightly_frowning_face: *Oh no!* ' . get_user_first_name( $invitee_id ) . ' doesn\'t have enough revived Pokémon to accept your battle invite at the moment.' . "\n" . 'I\'ve sent them a message too. Perhaps try inviting them again later! :slightly_smiling_face:';
-    $inviter_fail_to_self = ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to participate in the battle you invited ' . get_user_first_name( $invitee_id ) . ' to!' . "\n" . ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait for them to regain their strength, or catch some more Pokémon. :pokeball:';
-    $inviter_fail_to_other = ':slightly_frowning_face: *Oh no!* ' . get_user_first_name( $inviter_id ) . ' doesn\'t seem to have enough revived Pokémon to participate in this battle!' . "\n" . 'I\'ve sent them a message too. Perhaps they\'ll invite you again soon! :slightly_smiling_face:';
+    $invitee_fail_to_other = ':slightly_frowning_face: *Oh no!* ' . slackemon_get_slack_user_first_name( $invitee_id ) . ' doesn\'t have enough revived Pokémon to accept your battle invite at the moment.' . "\n" . 'I\'ve sent them a message too. Perhaps try inviting them again later! :slightly_smiling_face:';
+    $inviter_fail_to_self = ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to participate in the battle you invited ' . slackemon_get_slack_user_first_name( $invitee_id ) . ' to!' . "\n" . ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait for them to regain their strength, or catch some more Pokémon. :pokeball:';
+    $inviter_fail_to_other = ':slightly_frowning_face: *Oh no!* ' . slackemon_get_slack_user_first_name( $inviter_id ) . ' doesn\'t seem to have enough revived Pokémon to participate in this battle!' . "\n" . 'I\'ve sent them a message too. Perhaps they\'ll invite you again soon! :slightly_smiling_face:';
 
     if ( false === $inviter_battle_team && false === $invitee_battle_team ) {
       $inviter_message = $inviter_fail_to_self;
@@ -463,7 +463,7 @@ function slackemon_start_battle( $battle_hash, $action ) {
     ]);
 
     // Create a new Slackemon message for the inviter
-    post2slack([
+    slackemon_post2slack([
       'text' => $inviter_message,
       'attachments' => [ slackemon_back_to_menu_attachment() ],
       'channel' => $inviter_id,
@@ -517,7 +517,7 @@ function slackemon_start_battle( $battle_hash, $action ) {
   slackemon_save_battle_data( $battle_data, $battle_hash );
 
   // Respond to the invitee
-  $inviter_first_name = get_user_first_name( $inviter_id );
+  $inviter_first_name = slackemon_get_slack_user_first_name( $inviter_id );
   if ( send2slack([
     'text' => ':grin: *You have accepted ' . $inviter_first_name . '\'s challenge!*',
     'attachments' => slackemon_get_battle_attachments( $battle_hash, $invitee_id, 'start' ),
@@ -525,9 +525,9 @@ function slackemon_start_battle( $battle_hash, $action ) {
   ]) ) {
 
     // Alert the inviter
-    post2slack([
+    slackemon_post2slack([
       'text' => (
-        ':laughing: *' . get_user_first_name( $invitee_id ) . ' has accepted your battle challenge!*' . "\n" .
+        ':laughing: *' . slackemon_get_slack_user_first_name( $invitee_id ) . ' has accepted your battle challenge!*' . "\n" .
         'It\'s their move first - so hang tight just a sec!'
       ),
       'channel' => $inviter_id,
@@ -560,7 +560,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
       if ( 'p2p' === $battle_data->type ) {
 
-        $winner_name = get_user_first_name( $winner_id );
+        $winner_name = slackemon_get_slack_user_first_name( $winner_id );
 
         $loser_message = (
           ':exclamation: *Unfortunately, your battle with ' . $winner_name . ' has expired.*' . "\n" .
@@ -574,11 +574,11 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
           'channel' => $loser_id,
         ]);
 
-        post2slack([
+        slackemon_post2slack([
           'text' => (
-            ':face_with_rolling_eyes: *Unfortunately, your battle with ' . get_user_first_name( $loser_id ) . ' ' .
+            ':face_with_rolling_eyes: *Unfortunately, your battle with ' . slackemon_get_slack_user_first_name( $loser_id ) . ' ' .
             'has expired.*' . "\n" .
-            get_user_first_name( $loser_id ) . ' did not make a move within 25 minutes. You still get full ' .
+            slackemon_get_slack_user_first_name( $loser_id ) . ' did not make a move within 25 minutes. You still get full ' .
             'experience points for your part in the battle though - click the _Complete_ button below to receive them!'
           ),
           'attachments' => [
@@ -1275,7 +1275,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
   $user_first_name = (
     'wild' === $battle_data->type ?
     slackemon_readable( $user_pokemon->name ) :
-    get_user_first_name( $user_id )
+    slackemon_get_slack_user_first_name( $user_id )
   );
   $last_move_notice = $user_first_name . ' ' . $move_message;
   $opponent_message = [
@@ -1300,7 +1300,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
         send2slack( $opponent_message, $battle_data->users->{ $opponent_id }->response_url );
       } else {
         $opponent_message['channel'] = $opponent_id;
-        post2slack( $opponent_message );
+        slackemon_post2slack( $opponent_message );
       }
 
   } else {
@@ -1357,7 +1357,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
   $opponent_first_name = (
     'wild' === $battle_data->type ?
     slackemon_readable( $opponent_pokemon->name ) :
-    get_user_first_name( $opponent_id )
+    slackemon_get_slack_user_first_name( $opponent_id )
   );
 
   $user_pokemon->moves = slackemon_sort_battle_moves( $user_pokemon->moves, $user_pokemon->types );
@@ -1776,7 +1776,7 @@ function slackemon_get_battle_pokemon_attachment( $pokemon, $player_id, $battle_
           'wild' === $battle_data->type ?
           '' : 
           ':bust_in_silhouette: ' .
-          get_user_first_name( $player_id ) . '    ' .
+          slackemon_get_slack_user_first_name( $player_id ) . '    ' .
           $player_battle_team_readable['fainted'] . $player_battle_team_readable['known'] . $player_battle_team_readable['unknown'] . "\n\n"
         )
       ) .
@@ -1792,7 +1792,7 @@ function slackemon_get_battle_pokemon_attachment( $pokemon, $player_id, $battle_
     ),
     'footer' => $is_desktop ? $hp_percentage . '% HP' . '  •  ' . 'Level ' . $pokemon->level : '',
     'color' => $hp_color,
-    'image_url' => get_cached_image_url( $image_url ),
+    'image_url' => slackemon_get_cached_image_url( $image_url ),
     'mrkdwn_in' => [ 'pretext', 'text' ],
   ];
 
