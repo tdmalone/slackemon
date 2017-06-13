@@ -6,7 +6,7 @@
  */
 
 // Set up the Slackemon environment.
-require_once( __DIR__ . '/../init.php' );
+require_once( __DIR__ . '/../lib/init.php' );
 
 $action_name = explode( '/', $action_name );
 $is_desktop  = 'desktop' === slackemon_get_player_menu_mode();

@@ -7,7 +7,7 @@
 
 // Set up the Slackemon environment with the requested action data.
 $action = json_decode( $_REQUEST['action'] );
-require_once( __DIR__ . '/../init.php' );
+require_once( __DIR__ . '/../lib/init.php' );
 
 $action_name  = $action->actions[0]->name;
 
