@@ -88,7 +88,7 @@ function slackemon_get_battle_menu_attachments() {
       $battle_hash = $outstanding_invites[0]->hash;
 
       $attachment = slackemon_get_player_battle_attachment( $opponent_id );
-      $_first_name = get_user_first_name( $opponent_id );
+      $_first_name = slackemon_get_slack_user_first_name( $opponent_id );
 
       $attachment['pretext'] = (
         ( $is_desktop ? ':loading: ' : '' ) .
@@ -113,7 +113,7 @@ function slackemon_get_battle_menu_attachments() {
       $battle_hash = $outstanding_invites[0]->hash;
 
       $attachment = slackemon_get_player_battle_attachment( $opponent_id );
-      $_first_name = get_user_first_name( $opponent_id );
+      $_first_name = slackemon_get_slack_user_first_name( $opponent_id );
       $attachment['pretext'] = ':arrow_right: *You have an outstanding battle invite from ' . $_first_name . ':*';
 
       $attachment['actions'] = [
@@ -155,7 +155,7 @@ function slackemon_get_battle_menu_attachments() {
       $attachment['actions'] = [
         [
           'name' => 'battles/invite',
-          'text' => 'Challenge ' . get_user_first_name( $player_id ) . '!',
+          'text' => 'Challenge ' . slackemon_get_slack_user_first_name( $player_id ) . '!',
           'type' => 'button',
           'value' => $player_id,
           'style' => 'primary',
@@ -191,14 +191,14 @@ function slackemon_get_battle_menu_attachments() {
 function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID ) {
 
   $player_data = slackemon_get_player_data( $player_id );
-  $player_user_data = get_slack_user( $player_id );
+  $player_user_data = slackemon_get_slack_user( $player_id );
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode( $user_id );
 
   $battles_won  = $player_data->battles->won;
   $battles_lost = $player_data->battles->participated - $player_data->battles->won;
 
   $attachment = [
-    'text' => '*' . get_user_full_name( $player_id ) . ' - ' . number_format( $player_data->xp ) . ' XP*',
+    'text' => '*' . slackemon_get_slack_user_full_name( $player_id ) . ' - ' . number_format( $player_data->xp ) . ' XP*',
     'fields' => [
       [
         'title' => 'Battles Won',
@@ -215,7 +215,7 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID 
       ],
     ],
     'footer' => (
-      'These are ' . get_user_first_name( $player_id ) . '\'s top Pokémon by CP, but not necessarily ' .
+      'These are ' . slackemon_get_slack_user_first_name( $player_id ) . '\'s top Pokémon by CP, but not necessarily ' .
       'their battle team!' . ( $is_desktop ? "\n" : ' ' ) .
       'That remains a secret until your battle starts.'
     ),
@@ -285,7 +285,7 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon ) {
     'color' => $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : '',
     'thumb_url' => (
       $is_desktop ?
-      get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' ) :
+      slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' ) :
       ''
     ),
   ];

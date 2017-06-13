@@ -6,7 +6,7 @@
  */
 
 // HT: https://bavotasan.com/2011/convert-hex-color-to-rgb-using-php/
-function rgb2hex( $rgb ) {
+function slackemon_rgb2hex( $rgb ) {
 
     $hex = "#";
     $hex .= str_pad( dechex( $rgb[0] ), 2, '0', STR_PAD_LEFT );

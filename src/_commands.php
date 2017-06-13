@@ -66,7 +66,7 @@ if ( slackemon_is_player() ) {
 
   // We need to use post2slack here so that we have a fully modifiable message we can access via the action payloads'
   // original_message parameter - otherwise, with an emphermal slash command message, we don't have that access.
-  post2slack( $message );
+  slackemon_post2slack( $message );
 
 } else {
 
@@ -86,7 +86,7 @@ if ( slackemon_is_player() ) {
       'mrkdwn_in' => [ 'text' ],
     ], [
       'title' => 'So, what are you waiting for?!',
-      'thumb_url' => get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/ampharos.gif' ),
+      'thumb_url' => slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/ampharos.gif' ),
       'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
       'actions' => [
         [

@@ -13,7 +13,7 @@ require_once( __DIR__ . '/filesystem.php' );
 require_once( __DIR__ . '/time.php'  );
 
 /** A quick function to change the data folder, and create it if it doesn't exist. */
-function change_data_folder( $new_data_folder ) {
+function slackemon_change_data_folder( $new_data_folder ) {
 
   global $data_folder;
   $data_folder = $new_data_folder;
@@ -67,7 +67,7 @@ function check_subcommands( $allowed_subcommands = [], $welcome_message = '' ) {
 } // Function check_subcommands
 
 /** Run subcommand in the background while the main command returns a waiting response to Slack. */
-function run_background_command( $path, $args, $additional_fields = [], $additional_fields_as_json = false ) {
+function slackemon_run_background_command( $path, $args, $additional_fields = [], $additional_fields_as_json = false ) {
 
   // Build command URL
   $command_url = 'http://' . $_SERVER['SERVER_NAME'];
@@ -131,7 +131,7 @@ function run_background_command( $path, $args, $additional_fields = [], $additio
 } // Function run_background_command
 
 /** Run action in the background while the main file returns a waiting response to Slack. */
-function run_background_action( $path, $action, $callback_id ) {
+function slackemon_run_background_action( $path, $action, $callback_id ) {
 
   // Build action URL
   $action_url = 'http://' . $_SERVER['SERVER_NAME'];
@@ -159,13 +159,6 @@ function run_background_action( $path, $action, $callback_id ) {
   curl_close( $ch );
 
 } // Function run_background_action
-
-/** Debug function to quickly echo array data, surrounded by HTML <pre> tags for easy formatting. */
-function preint( $data ) {
-  echo '<pre>';
-  echo htmlentities( print_r( $data, true ) );
-  echo '</pre>';
-}
 
 /** An easy way to quickly truncate long strings, eg. task titles. */
 function maybe_truncate( $string = '', $max_chars = 100 ) {

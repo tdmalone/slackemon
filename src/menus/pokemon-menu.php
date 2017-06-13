@@ -41,7 +41,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
     'held-item'   => ( $is_desktop ? ':gift: '                     : '' ) . 'Held Item',
   ];
   $valid_types = [ 'all-types' => 'All types' ];
-  $_types = json_decode( get_cached_url( 'http://pokeapi.co/api/v2/type/' ) );
+  $_types = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' ) );
   foreach ( $_types->results as $_type ) {
     if ( trim( basename( $_type->url ), '/' ) > 1000 ) { continue; } // Skip non-standard types (large IDs)
     if ( $is_desktop ) {
@@ -347,7 +347,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
 
     // Build footer info
 
-    $footer = $is_desktop ? 'Caught ' . get_relative_time( $pokemon->ts, false ) . ' - ' : '';
+    $footer = $is_desktop ? 'Caught ' . slackemon_get_relative_time( $pokemon->ts, false ) . ' - ' : '';
     $footer .= slackemon_condensed_moveset( $pokemon->moves, $pokemon->types, ! $is_desktop );
 
     switch ( $sort_mode ) {
@@ -356,7 +356,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
         if ( $is_desktop ) {
           $footer .=  ' - ' . slackemon_appraise_ivs( $pokemon->ivs, false, ! $is_desktop );
         } else {
-          $footer = 'Caught ' . get_relative_time( $pokemon->ts, false ) . ' - ' . $footer;
+          $footer = 'Caught ' . slackemon_get_relative_time( $pokemon->ts, false ) . ' - ' . $footer;
         }
       break;
 
@@ -472,7 +472,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
       'color'  => (
         $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : ''
       ),
-      'thumb_url' => get_cached_image_url(
+      'thumb_url' => slackemon_get_cached_image_url(
         'female' === $pokemon->gender && $pokemon_data->sprites->front_female ?
         $pokemon_data->sprites->front_female :
         $pokemon_data->sprites->front_default

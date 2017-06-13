@@ -204,7 +204,7 @@ function slackemon_get_nature_emoji( $nature ) {
 } // Function slackemon_get_nature_emoji
 
 function slackemon_get_color_as_hex( $color_name ) {
-  return rgb2hex( COLORS_BY_NAME[ $color_name ] );
+  return slackemon_rgb2hex( COLORS_BY_NAME[ $color_name ] );
 }
 
 function slackemon_paginate( $objects, $page_number, $items_per_page = 5 ) {

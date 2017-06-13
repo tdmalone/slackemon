@@ -144,11 +144,11 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
         // We need to do a bit of API wrangling for this
 
         // Get all types, then get a collection of Pokemon for the specific type we're after
-        $_all_types = json_decode( get_cached_url( 'http://pokeapi.co/api/v2/type/' ) );
+        $_all_types = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' ) );
         $_desired_type = strtolower( $weather_types[ $weather_condition ] );
         foreach ( $_all_types->results as $_type ) {
           if ( $_desired_type === $_type->name ) {
-            $_weather_type_collection = json_decode( get_cached_url( $_type->url ) )->pokemon;
+            $_weather_type_collection = json_decode( slackemon_get_cached_url( $_type->url ) )->pokemon;
             break;
           }
         }
@@ -389,7 +389,7 @@ function slackemon_notify_spawn( $spawn ) {
         ),
         'mrkdwn_in' => [ 'pretext', 'text' ],
         'color' => slackemon_get_color_as_hex( $species_data->color->name ),
-        'image_url' => get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $spawn['name'] . '.gif' ),
+        'image_url' => slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $spawn['name'] . '.gif' ),
       ], [
         'color' => slackemon_get_color_as_hex( $species_data->color->name ),
         'fields' => [
@@ -572,7 +572,7 @@ function slackemon_notify_spawn( $spawn ) {
     $this_message['channel'] = $player_id;
 
     if ( slackemon_record_spawn_for_user( $player_id, $spawn ) ) {
-      $response = post2slack( $this_message );
+      $response = slackemon_post2slack( $this_message );
       file_put_contents( $data_folder . '/last-spawn-notification', $response );
     }
 

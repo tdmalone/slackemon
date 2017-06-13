@@ -34,7 +34,7 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
         $categories[ $item_data->category->name ] = [
           'unique_count' => 0,
           'total_count'  => 0,
-          'first_image'  => get_cached_image_url( $item_data->sprites->default ),
+          'first_image'  => slackemon_get_cached_image_url( $item_data->sprites->default ),
         ];
       }
 
@@ -55,11 +55,11 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
     return slackemon_get_item_category_menu( $category_name, $items, $page_number );
   }
 
-  $pockets_data = json_decode( get_cached_url( 'http://pokeapi.co/api/v2/item-pocket/' ) )->results;
+  $pockets_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item-pocket/' ) )->results;
 
   foreach ( $pockets_data as $pocket ) {
 
-    $pocket_data = json_decode( get_cached_url( $pocket->url ) );
+    $pocket_data = json_decode( slackemon_get_cached_url( $pocket->url ) );
 
     $pocket_categories = [];
     foreach ( $pocket_data->categories as $category ) {

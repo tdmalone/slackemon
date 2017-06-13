@@ -191,8 +191,8 @@ function slackemon_get_evolution_chain( $pokedex_id, $return_value_if_none = fal
   $output = '';
 
   $pokemon_data = slackemon_get_pokemon_data( $pokedex_id );
-  $species_data = json_decode( get_cached_url( $pokemon_data->species->url ) );
-  $evolution_data = json_decode( get_cached_url( $species_data->evolution_chain->url ) );
+  $species_data = json_decode( slackemon_get_cached_url( $pokemon_data->species->url ) );
+  $evolution_data = json_decode( slackemon_get_cached_url( $species_data->evolution_chain->url ) );
 
   $chain = $evolution_data->chain;
   $pokemon_name = $pokemon_data->name;

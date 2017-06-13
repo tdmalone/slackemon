@@ -6,7 +6,7 @@
 function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = false ) {
 
   // Get total item count, choose a random one, and grab its data
-  $items_data = json_decode( get_cached_url( 'http://pokeapi.co/api/v2/item/' ) );
+  $items_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/' ) );
   $random_item = random_int( 1, $items_data->count );
   $item_data = slackemon_get_item_data( $random_item );
 
@@ -154,8 +154,8 @@ function slackemon_notify_item_spawn( $spawn ) {
             'short' => true,
           ]
         ],
-  			//'image_url' => get_cached_image_url( $item_data->sprites->default ),
-        'thumb_url' => get_cached_image_url( $item_data->sprites->default ),
+  			//'image_url' => slackemon_get_cached_image_url( $item_data->sprites->default ),
+        'thumb_url' => slackemon_get_cached_image_url( $item_data->sprites->default ),
   		], [
         'title' => 'What would you like to do?',
         'color' => '#333333',
@@ -179,7 +179,7 @@ function slackemon_notify_item_spawn( $spawn ) {
   	],
   ];
 
-  $slack_users = get_slack_users();
+  $slack_users = slackemon_get_slack_users();
 
   // Notify active users in the region
   foreach ( slackemon_get_player_ids([ 'active_only' => true, 'region' => $spawn['region'] ]) as $player_id ) {
@@ -207,7 +207,7 @@ function slackemon_notify_item_spawn( $spawn ) {
     }
 
     $this_message['channel'] = $player_id;
-    $response = post2slack( $this_message );
+    $response = slackemon_post2slack( $this_message );
     file_put_contents( $data_folder . '/last-spawn-notification', $response );
 
   } // Foreach active players in the region
@@ -269,7 +269,7 @@ function slackemon_get_item_pick_up_message( $spawn_ts, $action, $user_id = USER
   } else {
 
     // Make the message a little bit more fun
-    $flying_data = json_decode( get_cached_url( 'http://pokeapi.co/api/v2/type/flying/' ) );
+    $flying_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/flying/' ) );
     $flying_pokemon = array_filter( $flying_data->pokemon, function( $_pokemon ) {
       $_pokedex_id = (int) basename( $_pokemon->pokemon->url );
       if ( ! $_pokedex_id || $_pokedex_id > 250 ) {
@@ -919,7 +919,7 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
     'fields'    => $fields,
     'mrkdwn_in' => [ 'text' ],
     'color'     => '#333333',
-    'thumb_url' => get_cached_image_url( $item_data->sprites->default ),
+    'thumb_url' => slackemon_get_cached_image_url( $item_data->sprites->default ),
     'actions'   => $actions,
   ];
 

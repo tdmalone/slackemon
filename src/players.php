@@ -324,7 +324,7 @@ function slackemon_is_player_dnd( $user_id = USER_ID, $skip_cache = false ) {
     ];
 
     $url = $endpoint . '?' . http_build_query( $payload );
-    $dnd_data = json_decode( get_cached_url( $url, $cache_options ) );
+    $dnd_data = json_decode( slackemon_get_cached_url( $url, $cache_options ) );
 
     // Assume the player isn't DND if we didn't get a response from Slack, because... not much else we can do!
     if ( ! $dnd_data ) {

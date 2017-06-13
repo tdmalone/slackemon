@@ -220,7 +220,7 @@ function slackemon_get_move_type_effectiveness( $move, $defender ) {
 
   }
 
-  $relations = json_decode( get_cached_url( 'http://pokeapi.co/api/v2/type/' . $move_data->type->name . '/' ) )->damage_relations;
+  $relations = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' . $move_data->type->name . '/' ) )->damage_relations;
 
   foreach ( $relations->half_damage_to as $_relation ) {
     if ( in_array( ucfirst( $_relation->name ), $defender->types ) ) {

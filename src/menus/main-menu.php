@@ -63,7 +63,7 @@ function slackemon_get_main_menu() {
 
   $message = [
     'text' => (
-      ':pokeball: *Welcome to Slackémon, ' . get_user_first_name() . '!*'. "\n" .
+      ':pokeball: *Welcome to Slackémon, ' . slackemon_get_slack_user_first_name() . '!*'. "\n" .
       ':part_alternation_mark: ' . number_format( $player_data->xp ) . ' XP     ' .
       ( $is_desktop ? '' : '     ' ) .
       ':world_map: ' . slackemon_readable( slackemon_get_player_region() ) .
@@ -117,7 +117,7 @@ function slackemon_get_main_menu() {
                 slackemon_get_gender_symbol( $most_recent_pokemon->gender ) . '*' .
                 (
                   $is_desktop ? ' ' .
-                  get_relative_time( $most_recent_pokemon->ts ) :
+                  slackemon_get_relative_time( $most_recent_pokemon->ts ) :
                   ''
                 ) :
                 ''
