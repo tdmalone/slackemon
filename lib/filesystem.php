@@ -31,7 +31,7 @@ if (
 
   global $slackemon_s3;
 
-  require_once( __DIR__ . '/aws/aws.phar' );
+  require_once( __DIR__ . '/vendor/autoload.php' );
 
   $slackemon_s3 = new Aws\S3\S3Client(
     [
