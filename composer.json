@@ -22,15 +22,15 @@
   ],
   "require": {
     "php": ">=7.0.0",
-    "aws/aws-sdk-php": "^3.28",
-    "heroku/heroku-buildpack-php": "^121.0"
+    "aws/aws-sdk-php": "^3.28"
   },
   "require-dev": {
+    "heroku/heroku-buildpack-php": "^121.0",
     "vlucas/phpdotenv": "^2.4",
     "satooshi/php-coveralls": "dev-master",
     "codacy/coverage": "dev-master",
     "phpunit/phpunit": "^6.2",
-    "wp-coding-standards/wpcs": "^0.11.0",
-    "phpmd/phpmd": "^2.6"
+    "phpmd/phpmd": "^2.6",
+    "tdmalone/tm-code-standards": "*"
   }
 }

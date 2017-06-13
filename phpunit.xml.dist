@@ -40,7 +40,13 @@
 
   <filter>
     <whitelist processUncoveredFilesFromWhitelist="true">
-      <directory suffix=".php">_functions</directory>
+      <directory suffix=".php">lib</directory>
+      <directory suffix=".php">src</directory>
+      <exclude>
+        <file>src/_actions.php</file>
+        <file>src/_commands.php</file>
+        <file>src/_options.php</file>
+      </exclude>
     </whitelist>
   </filter>
 

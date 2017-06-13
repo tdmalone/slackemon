@@ -109,7 +109,7 @@ final class TemplatingTest extends TestCase {
   }
 
   public function testRandomNatureEmojiReturnsWhatLooksLikeAnEmojiString() {
-    $natures = pokedex_get_natures();
+    $natures = slackemon_get_natures();
     $random_nature = $natures[ array_rand( $natures ) ];
     $this->assertRegExp( $this->valid_emoji_only_regexp, slackemon_get_nature_emoji( $random_nature ) );
   }
