@@ -112,7 +112,7 @@ function slackemon_get_supplementary_move_data() {
     return $_cached_slackemon_supplementary_move_data;
   }
 
-  $supplementary_move_filename = __DIR__ . '/../../slackemon/supplementary-data/moves.json';
+  $supplementary_move_filename = __DIR__ . '/../etc/moves.json';
   $supplementary_move_data = json_decode( file_get_contents( $supplementary_move_filename ) );
 
   $_cached_slackemon_supplementary_move_data = $supplementary_move_data;
@@ -164,7 +164,7 @@ function slackemon_get_supplementary_item_data() {
     return $_cached_slackemon_supplementary_item_data;
   }
 
-  $supplementary_item_filename = __DIR__ . '/../../slackemon/supplementary-data/items.json';
+  $supplementary_item_filename = __DIR__ . '/../etc/items.json';
   $supplementary_item_data = json_decode( file_get_contents( $supplementary_item_filename ) );
 
   $_cached_slackemon_supplementary_item_data = $supplementary_item_data;

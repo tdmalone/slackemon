@@ -18,7 +18,7 @@
     "ignore-type-effectiveness": true,
     "overrides": {
       "type": {
-      	"name": ""
+        "name": ""
       }
     }
   }
