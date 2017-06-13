@@ -135,7 +135,7 @@ function slackemon_get_top_pokemon_list( $user_id = USER_ID ) {
   foreach ( $top_pokemon_sorted as $pokemon ) {
     $top_pokemon[] = (
       ':' . $pokemon->name . ': ' .
-      pokedex_readable( $pokemon->name ) . ' ' .
+      slackemon_readable( $pokemon->name ) . ' ' .
       $pokemon->cp . ' CP'
     );
     if ( count( $top_pokemon ) >= 3 ) {
@@ -619,7 +619,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
           $user_pokemon = $battle_data->users->{ $user_id }->team[0];
           
-          $user_pokemon_message = ':' . $user_pokemon->name . ': ' . pokedex_readable( $user_pokemon->name ) . ' ';
+          $user_pokemon_message = ':' . $user_pokemon->name . ': ' . slackemon_readable( $user_pokemon->name ) . ' ';
           $user_pokemon_message .= (
             $user_pokemon->battles->last_participated == $battle_data->ts ?
             'has ' . floor( $user_pokemon->hp / $user_pokemon->stats->hp * 100 ) . '% HP remaining' :
@@ -722,7 +722,7 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
           $_pokemon->happiness = max( 0, $_pokemon->happiness ); // Ensure we don't go below 0
           $battle_pokemon_by_ts[ $_pokemon->ts ] = $_pokemon;
           $pokemon_experience_message .= (
-            ':' . $_pokemon->name . ': ' . pokedex_readable( $_pokemon->name, false ) . ' ' .
+            ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false ) . ' ' .
             'fainted :frowning:' . "\n"
           );
           continue;
@@ -731,7 +731,7 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
         // Skip everything if this Pokemon didn't get to participate at all
         if ( $_pokemon->battles->last_participated !== $battle_data->ts ) {
           $pokemon_experience_message .= (
-            ':' . $_pokemon->name . ': ' . pokedex_readable( $_pokemon->name, false ) . ' ' .
+            ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false ) . ' ' .
             'didn\'t participate in this battle' . "\n"
           );
           continue;
@@ -845,7 +845,7 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
           // Did this Pokemon participate and not faint? It will have an XP difference if so - that's how we detect it
           if ( $_pokemon->xp != $battle_pokemon_by_ts[ $_pokemon->ts ]->xp ) {
 
-            $_pokemon_intro = ':' . $_pokemon->name . ': ' . pokedex_readable( $_pokemon->name, false );
+            $_pokemon_intro = ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false );
 
             if ( $battle_pokemon_by_ts[ $_pokemon->ts ]->level > $_pokemon->level ) {
 
@@ -938,7 +938,7 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
             ( $_pokemon['experience_gained'] < 100 ? '   ' : '' ) . // More spacing
             '*+' . $_pokemon['experience_gained'] . ' XP*: Defeated a ' .
             'level ' . $_pokemon['level'] . ' :' . $_pokemon['name'] . ': ' .
-            pokedex_readable( $_pokemon['name'] ) .
+            slackemon_readable( $_pokemon['name'] ) .
             (
               SLACKEMON_EXP_GAIN_MODIFIER > 1 ?
               ' :low_brightness:' . ( $is_desktop ? '*x' . SLACKEMON_EXP_GAIN_MODIFIER . '*' : '' ) :
@@ -986,7 +986,7 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
       foreach ( $player_data->pokemon as $_pokemon ) {
         if ( isset( $battle_pokemon_by_ts[ $_pokemon->ts ] ) ) {
 
-          $_pokemon_intro = ':' . $_pokemon->name . ': ' . pokedex_readable( $_pokemon->name );
+          $_pokemon_intro = ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name );
 
           $_pokemon->hp        = $battle_pokemon_by_ts[ $_pokemon->ts ]->hp;
           $_pokemon->moves     = $battle_pokemon_by_ts[ $_pokemon->ts ]->moves;
@@ -1071,7 +1071,7 @@ function slackemon_offer_battle_swap( $battle_hash, $user_id, $return_full_messa
       'name' => 'battles/swap/do',
       'text' => (
         ( $is_desktop ? ':' . $pokemon->name . ': ' : '' ) .
-        pokedex_readable( $pokemon->name ) . ' (' . $pokemon->cp . ' CP)'
+        slackemon_readable( $pokemon->name ) . ' (' . $pokemon->cp . ' CP)'
       ),
       'type' => 'button',
       'value' => $battle_hash . '/' . $pokemon->ts,
@@ -1081,7 +1081,7 @@ function slackemon_offer_battle_swap( $battle_hash, $user_id, $return_full_messa
   $swap_attachment = [
     'text' => (
       '*Who would you like to send into battle' .
-      ( $is_desktop ? ' to replace ' . pokedex_readable( $current_pokemon->name ) : '' ) . '?*'
+      ( $is_desktop ? ' to replace ' . slackemon_readable( $current_pokemon->name ) : '' ) . '?*'
     ),
     'color' => '#333333',
     'actions' => $swap_actions,
@@ -1139,7 +1139,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
     slackemon_maybe_record_battle_seen_pokemon( $opponent_id, $new_pokemon->pokedex );
 
     $move_message = (
-      'swapped ' . pokedex_readable( $old_pokemon->name ) . ' for ' . pokedex_readable( $new_pokemon->name ) . '! ' .
+      'swapped ' . slackemon_readable( $old_pokemon->name ) . ' for ' . slackemon_readable( $new_pokemon->name ) . '! ' .
       ucfirst( slackemon_get_gender_pronoun( $new_pokemon->gender ) ) . ' has ' . $new_pokemon->cp . ' CP.'
     );
 
@@ -1194,12 +1194,12 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
 
       if ( $move_data->meta->drain > 0 ) {
         $meta_message .= (
-          '_' . pokedex_readable( $user_pokemon->name ) . ' drained ' .
-          $drain_percentage . '% HP from ' . pokedex_readable( $opponent_pokemon->name ) . '!_' . "\n"
+          '_' . slackemon_readable( $user_pokemon->name ) . ' drained ' .
+          $drain_percentage . '% HP from ' . slackemon_readable( $opponent_pokemon->name ) . '!_' . "\n"
         );
       } else {
         $meta_message .= (
-          '_The recoil damaged ' . pokedex_readable( $user_pokemon->name ) . ' ' .
+          '_The recoil damaged ' . slackemon_readable( $user_pokemon->name ) . ' ' .
           'by ' . abs( $drain_percentage ) . '%!_' . "\n"
         );
       }
@@ -1218,12 +1218,12 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
 
       if ( $move_data->meta->healing > 0 ) {
         $meta_message .= (
-          '_' . pokedex_readable( $user_pokemon->name ) . ' got healed ' .
+          '_' . slackemon_readable( $user_pokemon->name ) . ' got healed ' .
           'by ' . $healing_percentage . '%!_' . "\n"
         );
       } else {
         $meta_message .= (
-          '_' . pokedex_readable( $user_pokemon->name ) . ' hurt ' .
+          '_' . slackemon_readable( $user_pokemon->name ) . ' hurt ' .
           ( 'male' === $user_pokemon->gender ? 'him' : 'her' ) . 'self, ' .
           'causing ' . abs( $healing_percentage ) . '% damage!_' . "\n"
         );
@@ -1231,7 +1231,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
 
     } // If healing
 
-    $move_message = 'used *' . pokedex_readable( $move->name ) . '*. ';
+    $move_message = 'used *' . slackemon_readable( $move->name ) . '*. ';
 
     if ( $damage->damage ) {
       $move_message .= (
@@ -1247,7 +1247,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
 
     // Did the opponent faint?
     if ( ! $opponent_pokemon->hp ) {
-      $move_message .= "\n" . '*' . pokedex_readable( $opponent_pokemon->name ) . ' has fainted!*';
+      $move_message .= "\n" . '*' . slackemon_readable( $opponent_pokemon->name ) . ' has fainted!*';
     }
 
     // Make sure the Pokemon gets credit if this was its first move in this battle
@@ -1274,7 +1274,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
   // Notify the opponent
   $user_first_name = (
     'wild' === $battle_data->type ?
-    pokedex_readable( $user_pokemon->name ) :
+    slackemon_readable( $user_pokemon->name ) :
     get_user_first_name( $user_id )
   );
   $last_move_notice = $user_first_name . ' ' . $move_message;
@@ -1356,7 +1356,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
 
   $opponent_first_name = (
     'wild' === $battle_data->type ?
-    pokedex_readable( $opponent_pokemon->name ) :
+    slackemon_readable( $opponent_pokemon->name ) :
     get_user_first_name( $opponent_id )
   );
 
@@ -1386,26 +1386,26 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
       if ( 'wild' === $battle_data->type ) {
 
         $opponent_pretext = (
-          '*' . pokedex_readable( $opponent_pokemon->name ) . '* is up for a battle! ' .
+          '*' . slackemon_readable( $opponent_pokemon->name ) . '* is up for a battle! ' .
           ucfirst( slackemon_get_gender_pronoun( $opponent_pokemon->gender ) ) . ' gets to go first.' . "\n" .
           'Take care - a wild Pokémon could flee at any time.'
         );
 
         $user_pretext = (
-          'You have chosen *' . pokedex_readable( $user_pokemon->name ) . '*, with ' .
+          'You have chosen *' . slackemon_readable( $user_pokemon->name ) . '*, with ' .
           '*' . $user_pokemon->cp . ' CP*.'
         );
 
       } else {
 
         $opponent_pretext = (
-          $opponent_first_name . ' has chosen *' . pokedex_readable( $opponent_pokemon->name ) . '*! ' .
+          $opponent_first_name . ' has chosen *' . slackemon_readable( $opponent_pokemon->name ) . '*! ' .
           ucfirst( slackemon_get_gender_pronoun( $opponent_pokemon->gender ) ) . ' has ' .
           '*' . $opponent_pokemon->cp . ' CP*.'
         );
 
         $user_pretext = (
-          'Your first Pokémon up is *' . pokedex_readable( $user_pokemon->name ) . '*, with ' .
+          'Your first Pokémon up is *' . slackemon_readable( $user_pokemon->name ) . '*, with ' .
           '*' . $user_pokemon->cp . ' CP*.'
         );
 
@@ -1484,13 +1484,13 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
 
         if ( ! isset( $item_option_groups[ $item['category'] ] ) ) {
           $item_option_groups[ $item['category'] ] = [
-            'text'    => pokedex_readable( $item['category'] ),
+            'text'    => slackemon_readable( $item['category'] ),
             'options' => [],
           ];
         }
 
         $item_option_groups[ $item['category'] ]['options'][] = [
-          'text'  => pokedex_readable( $item['name'] ) . ' (' . $item['count'] . ')',
+          'text'  => slackemon_readable( $item['name'] ) . ' (' . $item['count'] . ')',
           'value' => $item['id'],
         ];
 
@@ -1526,7 +1526,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
           $damage_class_readable . '  ' .
           ( $is_desktop ? slackemon_emojify_types( ucfirst( $_move_data->type->name ), false ) . ' ' : '' ) .
           ( 999 != $_move->{'pp-current'} ? $_move->{'pp-current'} . '/' . $_move->pp . ' • ' : '' ) .
-          pokedex_readable( $_move->name ) . ' x' . ( $_move_data->power ? $_move_data->power : 0 ) .
+          slackemon_readable( $_move->name ) . ' x' . ( $_move_data->power ? $_move_data->power : 0 ) .
           ( $is_desktop ? '' : ' (' . ucfirst( $_move_data->type->name ) . ')' )
         ),
         'value' => $battle_hash . '/' . $_move->name . '/' . ( 'start' === $battle_stage ? 'first' : '' ),
@@ -1781,7 +1781,7 @@ function slackemon_get_battle_pokemon_attachment( $pokemon, $player_id, $battle_
         )
       ) .
       '*' .
-      pokedex_readable( $pokemon->name, false ) .
+      slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
       ( $is_desktop ? '        ' : '    L' . $pokemon->level . '   ' ) .
       $pokemon->cp . ' CP' .

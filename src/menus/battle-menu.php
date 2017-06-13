@@ -239,8 +239,8 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon ) {
     'text' => (
       '*' .
       ( 0 == $pokemon->hp ? ':skull: ' : '' ) .
-      ( pokedex_is_legendary( $pokemon->pokedex ) ? ':star2: ' : '' ) .
-      pokedex_readable( $pokemon->name, false ) .
+      ( slackemon_is_legendary( $pokemon->pokedex ) ? ':star2: ' : '' ) .
+      slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
       ( $is_desktop ? '  •  ' : ' •  ' ) .
       $pokemon->cp . ' CP' . '  •  ' .

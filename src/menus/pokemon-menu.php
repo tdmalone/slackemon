@@ -386,17 +386,17 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
       'text' => (
         ( $is_desktop ? ':' . $pokemon->name . ': ' : '' ) .
         '*' .
-        pokedex_readable( $pokemon->name, false ) .
+        slackemon_readable( $pokemon->name, false ) .
         slackemon_get_gender_symbol( $pokemon->gender ) . ' ' .
         slackemon_get_happiness_emoji( $pokemon->happiness ) .
         ( 'happiness' === $sort_mode ? ' ' . floor( $pokemon->happiness / 255 * 100 ) . '%' . '  ' : '' ) .
         ( 0 == $pokemon->hp ? ':skull:' : '' ) .
-        ( pokedex_is_legendary( $pokemon->pokedex ) ? ':star2:' : '' ) .
+        ( slackemon_is_legendary( $pokemon->pokedex ) ? ':star2:' : '' ) .
         ( $is_desktop ? '' : '   ' . $emojified_types ) .
         '*' .
         (
           isset( $pokemon->held_item ) ?
-          '   :gift: _' . pokedex_readable( slackemon_get_item_data( $pokemon->held_item )->name ) . '_' :
+          '   :gift: _' . slackemon_readable( slackemon_get_item_data( $pokemon->held_item )->name ) . '_' :
           ''
         ) .
         ( $is_desktop ? "\n" : "\n\n" ) .

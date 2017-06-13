@@ -19,7 +19,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
 
   // Add a new actions attachment
   $message['attachments'][] = [
-    'title' => 'Trying to catch ' . pokedex_readable( $spawn_data->name ) . '...',
+    'title' => 'Trying to catch ' . slackemon_readable( $spawn_data->name ) . '...',
     'text' => ':pokeball_bounce:',
   ];
 
@@ -86,7 +86,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
     if ( 1 === $total_caught_all ) {
 
       $message['attachments'][] = [
-        'title' => 'Well done! You caught ' . pokedex_readable( $spawn_data->name ) . '! :tada:',
+        'title' => 'Well done! You caught ' . slackemon_readable( $spawn_data->name ) . '! :tada:',
         'color' => '#333333',
         'text' => (
           'Now, keep an eye on your direct messages, as Pokémon could appear at any time.' . "\n" .
@@ -113,7 +113,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
       'text' => (
         (
           $total_caught_all > 1 ?
-          '*YAY! You caught ' . pokedex_readable( $spawn_data->name ) . '!* :tada:' . "\n" :
+          '*YAY! You caught ' . slackemon_readable( $spawn_data->name ) . '!* :tada:' . "\n" :
           ''
         ) . (
           $from_battle ?
@@ -143,7 +143,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
       'actions' => [
         [
           'name' => $from_battle ? 'pokemon/view/caught/battle' : 'pokemon/view/caught',
-          'text' => ':eye: About ' . pokedex_readable( $spawn_data->name ),
+          'text' => ':eye: About ' . slackemon_readable( $spawn_data->name ),
           'type' => 'button',
           'value' => $spawn_ts,
           'style' => 'primary',
@@ -151,7 +151,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
           $from_battle ?
           [
             'name' => 'pokemon/view/caught/battle',
-            'text' => ':eye: View ' . pokedex_readable( $battle_pokemon->name ),
+            'text' => ':eye: View ' . slackemon_readable( $battle_pokemon->name ),
             'type' => 'button',
             'value' => $battle_pokemon->ts,
           ] :
@@ -178,7 +178,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
         $pokemon_data->sprites->back_female :
         $pokemon_data->sprites->back_default
       ),
-      'fallback' => pokedex_readable( $spawn_data->name ),
+      'fallback' => slackemon_readable( $spawn_data->name ),
     ];
 
     // Remove the stats attachment (only if it's there) & the message default text
@@ -203,7 +203,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
       'color' => '#333333',
       'text' => (
         '*Oh no! ' .
-        pokedex_readable( $spawn_data->name ) . ' ' .
+        slackemon_readable( $spawn_data->name ) . ' ' .
         $flee_verb . '!* :disappointed:' . "\n" .
         (
           $catch_too_late && ! $from_battle ?

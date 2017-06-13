@@ -4,7 +4,7 @@
 // Functions that support both the /pokedex Slashie as well as functionality in Slackemon Go
 
 // We create our own function for this, because it is not in the API :)
-function pokedex_is_legendary( $pokedex_id ) {
+function slackemon_is_legendary( $pokedex_id ) {
 
   // See: http://bulbapedia.bulbagarden.net/wiki/User:Focus58/List_of_Legendary_Pok%C3%A9mon
 
@@ -72,10 +72,10 @@ function pokedex_is_legendary( $pokedex_id ) {
     return false;
   }
 
-} // Function pokedex_is_legendary
+} // function slackemon_is_legendary
 
 // We create our own function for this, because the API data is pretty simple anyway and it's unlikely to change
-function pokedex_get_natures() {
+function slackemon_get_natures() {
 
   $natures = [
     'hardy',
@@ -107,10 +107,10 @@ function pokedex_get_natures() {
 
   return $natures;
 
-} // Function pokedex_get_natures
+} // function slackemon_get_natures
 
 // Make a system string (generally, Pokemon names, region names, etc.) human-readable
-function pokedex_readable( $string, $display_gender = true, $abbrev = false ) {
+function slackemon_readable( $string, $display_gender = true, $abbrev = false ) {
 
   // Male & Female Pokemon species, eg. Nidoran
   $string = preg_replace( [ '/-m$/', '/-f$/' ], $display_gender ? [ '♂', '♀' ] : '', $string );
@@ -183,10 +183,10 @@ function pokedex_readable( $string, $display_gender = true, $abbrev = false ) {
 
   return $string;
 
-} // Function pokedex_readable
+} // function slackemon_readable
 
 // Get Pokemon evolution chain, highlighting the current Pokemon
-function pokedex_get_evolution_chain( $pokedex_id, $return_value_if_none = false ) {
+function slackemon_get_evolution_chain( $pokedex_id, $return_value_if_none = false ) {
 
   $output = '';
 
@@ -197,7 +197,7 @@ function pokedex_get_evolution_chain( $pokedex_id, $return_value_if_none = false
   $chain = $evolution_data->chain;
   $pokemon_name = $pokemon_data->name;
 
-  $output = pokedex_build_evolution_chain( $chain, $pokemon_name );
+  $output = slackemon_build_evolution_chain( $chain, $pokemon_name );
 
   if ( false === strpos( $output, '>' ) ) {
     return $return_value_if_none; // Pokemon does not evolve
@@ -205,30 +205,30 @@ function pokedex_get_evolution_chain( $pokedex_id, $return_value_if_none = false
 
   return $output;
 
-} // Function pokedex_get_evolution_chain
+} // function slackemon_get_evolution_chain
 
-function pokedex_build_evolution_chain( $chain, $pokemon_name ) {
+function slackemon_build_evolution_chain( $chain, $pokemon_name ) {
 
   $output = '';
 
   if ( $chain->species->name === $pokemon_name ) { $output .= '_'; }
-  $output .= pokedex_readable( $chain->species->name );
+  $output .= slackemon_readable( $chain->species->name );
   if ( $chain->species->name === $pokemon_name ) { $output .= '_'; }
 
   if ( 1 === count( $chain->evolves_to ) ) {
-    $output .= ' > ' . pokedex_build_evolution_chain( $chain->evolves_to[0], $pokemon_name );
+    $output .= ' > ' . slackemon_build_evolution_chain( $chain->evolves_to[0], $pokemon_name );
   } else if ( count( $chain->evolves_to ) > 1 ) {
     $output .= ' > (';
     $branched_chain = '';
     foreach ( $chain->evolves_to as $evolution ) {
       if ( $branched_chain ) { $branched_chain .= ', '; }
-      $branched_chain .= pokedex_build_evolution_chain( $evolution, $pokemon_name );
+      $branched_chain .= slackemon_build_evolution_chain( $evolution, $pokemon_name );
     }
     $output .= $branched_chain . ')';
   }
 
   return $output;
 
-} // Function pokedex_build_evolution_chain
+} // function slackemon_build_evolution_chain
 
 // The end!

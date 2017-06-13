@@ -106,7 +106,7 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
             'name'  => 'items/category',
             'text'  => (
               slackemon_get_item_category_emoji( $category_name ) .
-              pokedex_readable( $category_name ) . ' ' .
+              slackemon_readable( $category_name ) . ' ' .
               '(' . $categories[ $category_name ]['total_count'] . ')'
             ),
             'type'  => 'button',
@@ -117,7 +117,7 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
 
           $options[] = [
             'text'  => (
-              pokedex_readable( $category_name ) . ' ' .
+              slackemon_readable( $category_name ) . ' ' .
               '(' . $categories[ $category_name ]['total_count'] . ')'
             ),
             'value' => $category_name,
@@ -139,7 +139,7 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
       $attachments[] = [
         'text'      => (
           '*' .
-          pokedex_readable( $pocket_name ) .
+          slackemon_readable( $pocket_name ) .
           ( count( $pocket_categories ) > $categories_per_pocket ? ' #' . $chunk_count : '' ) .
           '*'
         ),
@@ -217,7 +217,7 @@ function slackemon_get_item_category_menu( $category_name, $items, $page_number 
   $attachments[] = $menu_attachment;
 
   $message = [
-    'text' => '*Bᴀɢ - ' . pokedex_readable( $category_name ) . '*' . "\n" . $category_header,
+    'text' => '*Bᴀɢ - ' . slackemon_readable( $category_name ) . '*' . "\n" . $category_header,
     'attachments' => $attachments,
   ];
 

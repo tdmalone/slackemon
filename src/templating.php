@@ -16,10 +16,10 @@ function slackemon_readable_moveset( $moves, $types, $include_bullets = false, $
 
     $output .= (
       ( $include_bullets ? '• ' : '' ) .
-      pokedex_readable( $move->name ) . ' ' .
+      slackemon_readable( $move->name ) . ' ' .
       '(' .
       ( in_array( ucfirst( $move_data->type->name ), $types ) ? '*' : '' ) .
-      pokedex_readable( $move_data->type->name ) .
+      slackemon_readable( $move_data->type->name ) .
       ( in_array( ucfirst( $move_data->type->name ), $types ) ? '*' : '' ) .
       ', x' . ( $move_data->power ? $move_data->power : 0 ) .
       ( $include_pp ? ', ' . $move->{'pp-current'} . '/' . $move->pp : '' ) .
@@ -42,7 +42,7 @@ function slackemon_condensed_moveset( $moves, $types, $abbrev = false ) {
     if ( $output ) { $output .= " / "; }
     $move_data = slackemon_get_move_data( $move->name );
     $output .= (
-      pokedex_readable( $move->name, true, $abbrev ) . ' ' .
+      slackemon_readable( $move->name, true, $abbrev ) . ' ' .
       'x' . ( $move_data->power ? $move_data->power : 0 )
     );
   }

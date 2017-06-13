@@ -66,7 +66,7 @@ function slackemon_get_main_menu() {
       ':pokeball: *Welcome to Slackémon, ' . get_user_first_name() . '!*'. "\n" .
       ':part_alternation_mark: ' . number_format( $player_data->xp ) . ' XP     ' .
       ( $is_desktop ? '' : '     ' ) .
-      ':world_map: ' . pokedex_readable( slackemon_get_player_region() ) .
+      ':world_map: ' . slackemon_readable( slackemon_get_player_region() ) .
       ( $is_desktop ? '     ' : "\n" ) .
       (
         $weather_condition ?
@@ -113,7 +113,7 @@ function slackemon_get_main_menu() {
                 $most_recent_pokemon ?
                 'Your last catch was ' .
                 ':' . $most_recent_pokemon->name . ': ' .
-                '*' . pokedex_readable( $most_recent_pokemon->name, false ) .
+                '*' . slackemon_readable( $most_recent_pokemon->name, false ) .
                 slackemon_get_gender_symbol( $most_recent_pokemon->gender ) . '*' .
                 (
                   $is_desktop ? ' ' .

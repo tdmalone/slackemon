@@ -30,12 +30,12 @@ function slackemon_get_travel_menu() {
 
     $attachments[] = [
       'text' => (
-        '*' . pokedex_readable( $region['name'] ) . ' - ' . pokedex_readable( $region['generation'] ) . '*' . "\n" .
+        '*' . slackemon_readable( $region['name'] ) . ' - ' . slackemon_readable( $region['generation'] ) . '*' . "\n" .
         $region['description'] . "\n\n" .
         ':pokeball: You have caught *' . $totals['caught'] . '* and seen *' . $totals['seen'] . '* of the ' .
         'Pokémon found in this region.' . "\n" .
         ':bar_chart: There are *' . $total_in_region . '* Pokémon ' .
-        'in ' . pokedex_readable( $region['name'] ) . '; ' .
+        'in ' . slackemon_readable( $region['name'] ) . '; ' .
         '*' . ( $total_in_generation === $total_in_region ? 'all' : $total_in_generation ) . '* of them ' .
         'first discovered here.'
       ),
@@ -56,7 +56,7 @@ function slackemon_get_travel_menu() {
           [] :
           [
             'name' => 'travel',
-            'text' => 'Travel to ' . pokedex_readable( $region['name'] ),
+            'text' => 'Travel to ' . slackemon_readable( $region['name'] ),
             'type' => 'button',
             'value' => $region['name'],
             'style' => 'primary',
@@ -112,7 +112,7 @@ function slackemon_get_region_message( $new_region_name ) {
       [
         'text' => (
           '*Welcome ' . ( $is_region_new ? '' : 'back ' ) . 'to ' .
-          pokedex_readable( $new_region_name ) . '!*' .
+          slackemon_readable( $new_region_name ) . '!*' .
           ( $is_desktop ? "\n" : "\n\n" ) .
           $regions[ $new_region_name ]['description'] . "\n\n" .
           (
@@ -121,7 +121,7 @@ function slackemon_get_region_message( $new_region_name ) {
             ':pokeball: You have caught *' . $totals['caught'] . '* and seen *' . $totals['seen'] . '* of the ' .
             'Pokémon found in this region.' . "\n" .
             ':bar_chart: There are *' . $total_in_region . '* Pokémon ' .
-            'in ' . pokedex_readable( $new_region_name ) . '; ' .
+            'in ' . slackemon_readable( $new_region_name ) . '; ' .
             '*' . ( $total_in_generation === $total_in_region ? 'all' : $total_in_generation ) . '* of them ' .
             'first discovered here.' . "\n"
           )

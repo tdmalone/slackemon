@@ -46,7 +46,7 @@ switch ( $action_name[0] ) {
       $options[] = [
         'text' => (
           ( $is_desktop ? ':' . $_pokemon->name . ': ' : '' ) .
-          pokedex_readable( $_pokemon->name ) .
+          slackemon_readable( $_pokemon->name ) .
           ' (L' . floor( $_pokemon->level ) .
           ')' .
           ( $is_desktop   && $_pokemon->is_favourite ? ' :sparkling_heart:' : '' ) .
@@ -144,7 +144,7 @@ switch ( $action_name[0] ) {
         case 'give':
           $additional_info = (
             isset( $_pokemon->held_item ) ?
-            pokedex_readable( slackemon_get_item_data( $_pokemon->held_item )->name ) :
+            slackemon_readable( slackemon_get_item_data( $_pokemon->held_item )->name ) :
             ''
           );
         break;
@@ -163,7 +163,7 @@ switch ( $action_name[0] ) {
       $options[] = [
         'text' => (
           ( $is_desktop ? ':' . $_pokemon->name . ': ' : '' ) .
-          pokedex_readable( $_pokemon->name ) .
+          slackemon_readable( $_pokemon->name ) .
           ' (L' . floor( $_pokemon->level ) .
           ( $additional_info ? ', ' . $additional_info : '' ) .
           ')' .

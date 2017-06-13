@@ -78,7 +78,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
   if ( isset( $pokemon->held_item ) && $pokemon->held_item ) {
     $pokemon_description .= (
       "\n\n" .
-      ':gift: *Holding a ' . pokedex_readable( slackemon_get_item_name( $pokemon->held_item ) ) . '*: ' .
+      ':gift: *Holding a ' . slackemon_readable( slackemon_get_item_name( $pokemon->held_item ) ) . '*: ' .
       slackemon_get_item_description( $pokemon->held_item )
     );
   }
@@ -115,13 +115,13 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
       if ( false !== strpos( $_pokedex_entry->pokedex->name, 'conquest' ) ) { continue; }
       $_region_name = $_pokedex_entry->pokedex->name;
       $_region_name = str_replace( [ 'updated-', 'original-', 'extended-' ], '', $_region_name );
-      $pokemon_regions[] = pokedex_readable( $_region_name );
+      $pokemon_regions[] = slackemon_readable( $_region_name );
     }
     $pokemon_regions = array_unique( $pokemon_regions );
     asort( $pokemon_regions );
 
     $pokemon_nature_stats = slackemon_get_nature_stat_modifications( $pokemon->nature );
-    $pokemon_growth_rate  = pokedex_readable( $species_data->growth_rate->name );
+    $pokemon_growth_rate  = slackemon_readable( $species_data->growth_rate->name );
 
     $growth_rate_data = slackemon_get_pokemon_growth_rate_data( $pokemon->pokedex );
     $level_up_exp_required = 0;
@@ -157,7 +157,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
         }
 
         $pokemon_evolution .= (
-          'Evolves into ' . pokedex_readable( $_evolution->species->name ) . ' ' .
+          'Evolves into ' . slackemon_readable( $_evolution->species->name ) . ' ' .
           ( $_evolution_detail->min_level     ? 'at level ' . $_evolution_detail->min_level . ' '         : '' ) .
           ( $_evolution_detail->min_level && $_evolution_detail->min_happiness ? 'and '                   : '' ) .
           ( $_evolution_detail->min_happiness ? 'at happiness ' . $_evolution_detail->min_happiness . ' ' : '' ) .
@@ -167,7 +167,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
             : ''
           ) . (
             $_evolution_detail->item ?
-            'with a ' . pokedex_readable( $_evolution_detail->item->name ) . ' ' :
+            'with a ' . slackemon_readable( $_evolution_detail->item->name ) . ' ' :
             ''
           ) . (
             $_evolution_detail->time_of_day ?
@@ -175,11 +175,11 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
             ''
           ) . (
             $_evolution_detail->known_move_type ?
-            'if a ' . pokedex_readable( $_evolution_detail->known_move_type->name ) . '-type move is known' :
+            'if a ' . slackemon_readable( $_evolution_detail->known_move_type->name ) . '-type move is known' :
             ''
           ) . (
             $_evolution_detail->known_move ?
-            'if ' . pokedex_readable( $_evolution_detail->known_move->name ) . ' is known' :
+            'if ' . slackemon_readable( $_evolution_detail->known_move->name ) . ' is known' :
             ''
           ) . "\n"
         );
@@ -226,8 +226,8 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
       'short' => true,
     ];
 
-    $_nature_stat_name_increase = pokedex_readable( $pokemon_nature_stats['increase'], true, ! $is_desktop );
-    $_nature_stat_name_decrease = pokedex_readable( $pokemon_nature_stats['decrease'], true, ! $is_desktop );
+    $_nature_stat_name_increase = slackemon_readable( $pokemon_nature_stats['increase'], true, ! $is_desktop );
+    $_nature_stat_name_decrease = slackemon_readable( $pokemon_nature_stats['decrease'], true, ! $is_desktop );
 
     // Desktop is keeping these values in a two column layout, so we need to shorten a little
     if ( $is_desktop ) {
@@ -238,7 +238,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     $nature_attachment = [
       'title' => 'Nature',
       'value' => (
-        pokedex_readable( $pokemon->nature ) . ' ' .
+        slackemon_readable( $pokemon->nature ) . ' ' .
         slackemon_get_nature_emoji( $pokemon->nature ) .
         ( $is_desktop ? "\n" : ' ' ) .
         '_(' .
@@ -262,8 +262,8 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     $links_attachment = [
       'title' => 'Links',
       'value' => (
-        '<http://bulbapedia.bulbagarden.net/wiki/' . pokedex_readable( $pokemon->name ) . '|' .
-        pokedex_readable( $pokemon->name ) . ' on Bulbapedia>'
+        '<http://bulbapedia.bulbagarden.net/wiki/' . slackemon_readable( $pokemon->name ) . '|' .
+        slackemon_readable( $pokemon->name ) . ' on Bulbapedia>'
       ),
       'short' => $is_desktop,
     ];
@@ -344,7 +344,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
         'title' => 'Caught',
         'value' => (
           date( 'jS M \'y g:ia', $pokemon->ts ) .
-          ( $is_desktop && isset( $pokemon->region ) ? ' in ' . pokedex_readable( $pokemon->region ) : '' )
+          ( $is_desktop && isset( $pokemon->region ) ? ' in ' . slackemon_readable( $pokemon->region ) : '' )
         ),
         'short' => true,
       ], [
@@ -440,13 +440,13 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
         ''
       ), [
         'title' => 'Nature',
-        'value' => pokedex_readable( $pokemon->nature ) . ' ' . slackemon_get_nature_emoji( $pokemon->nature ),
+        'value' => slackemon_readable( $pokemon->nature ) . ' ' . slackemon_get_nature_emoji( $pokemon->nature ),
         'short' => true,
       ], (
         $is_desktop ?
         [
           'title' => 'Habitat',
-          'value' => isset( $species_data->habitat ) ? pokedex_readable( $species_data->habitat->name ) : 'Unspecified',
+          'value' => isset( $species_data->habitat ) ? slackemon_readable( $species_data->habitat->name ) : 'Unspecified',
           'short' => true,
         ] :
         ''
@@ -459,7 +459,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
         'short' => true,
       ], [
         'title' => 'Family',
-        'value' => pokedex_get_evolution_chain( $pokemon->pokedex, '_(does not evolve)_' ),
+        'value' => slackemon_get_evolution_chain( $pokemon->pokedex, '_(does not evolve)_' ),
         'short' => false,
       ],
     ];
@@ -537,7 +537,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     'text' => (
       ( $is_desktop ? ':' . $pokemon->name . ': ' : '' ) .
       '*' .
-      pokedex_readable( $pokemon->name, false ) .
+      slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
       ( $is_desktop ? '  •  ' : ' •  ' ) .
       '#' . $pokemon->pokedex .
@@ -549,7 +549,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
         ucfirst( $genus ) . ' Pokémon' . '  •  ' .
         $generation . '    ' .
         ( 0 == $pokemon->hp ? ':skull: ' : '' ) .
-        ( pokedex_is_legendary( $pokemon->pokedex ) ? ':star2: ' : '' ) .
+        ( slackemon_is_legendary( $pokemon->pokedex ) ? ':star2: ' : '' ) .
         '*' :
         ''
       ) . "\n\n" .
@@ -802,7 +802,7 @@ function slackemon_get_pokemon_transfer_message( $spawn_ts, $action ) {
   $message['attachments'][ $action->attachment_id - 1 ] = [
     'color' => slackemon_get_color_as_hex( $species_data->color->name ),
     'text' => (
-      ':white_check_mark: *' . pokedex_readable( $pokemon->name, false ) .
+      ':white_check_mark: *' . slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
       '* has been transferred ' .
       'to the Professor.' . "\n\n" . 
@@ -829,7 +829,7 @@ function slackemon_get_bulk_transfer_pokemon( $user_id = USER_ID ) {
     // First Pokemon of this species? Create base data
     if ( ! array_key_exists( $pokemon->pokedex, $collection ) ) {
 
-      $evolution_chain = pokedex_get_evolution_chain( $pokemon->pokedex );
+      $evolution_chain = slackemon_get_evolution_chain( $pokemon->pokedex );
 
       // If this Pokemon has a branched evolution chain, we will skip for now
       // TODO: We should probably use a better way of checking for this, rather than looking for a string in output ;)

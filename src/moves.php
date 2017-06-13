@@ -173,11 +173,11 @@ function slackemon_calculate_move_damage( $move, $attacker, $defender ) {
 
   // Send debugging info
   slackemon_battle_debug(
-    'For *'       . pokedex_readable( $move_data->name ) . '* ' .
-    'by *'        . pokedex_readable( $attacker->name  ) . '* ' .
-    'against '    . pokedex_readable( $defender->name  ) . ':'           . "\n"  .
-    '*Class* '    . pokedex_readable( $move_data->damage_class->name )   . ' | ' .
-    '*Category* ' . pokedex_readable( $move_data->meta->category->name ) . "\n"  .
+    'For *'       . slackemon_readable( $move_data->name ) . '* ' .
+    'by *'        . slackemon_readable( $attacker->name  ) . '* ' .
+    'against '    . slackemon_readable( $defender->name  ) . ':'           . "\n"  .
+    '*Class* '    . slackemon_readable( $move_data->damage_class->name )   . ' | ' .
+    '*Category* ' . slackemon_readable( $move_data->meta->category->name ) . "\n"  .
     (
       'status' === $move_data->damage_class->name ?
       '' :

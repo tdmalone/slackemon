@@ -94,7 +94,7 @@ function slackemon_get_bulk_transfer_menu( $do_transfers = false ) {
     $pokemon_name = $collection_data['pokemon'][0]['data']->name;
 
     $message['text'] .= (
-      ':' . $pokemon_name . ': *' . pokedex_readable( $pokemon_name ) . '* ' .
+      ':' . $pokemon_name . ': *' . slackemon_readable( $pokemon_name ) . '* ' .
       ( $collection_data['evolves'] ? '_(evolves)_' : '_(does not evolve)_' ) .
       "\n"
     );

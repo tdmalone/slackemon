@@ -28,7 +28,7 @@ function slackemon_evolve_user_pokemon( $spawn_ts, $evolve_to_id = null, $user_i
   // Types
   $types = [];
   foreach ( $new_pokemon_data->types as $type ) {
-    $types[] = pokedex_readable( $type->type->name );
+    $types[] = slackemon_readable( $type->type->name );
   }
 
   // Teach a new move, if we're not at the maximum already
@@ -296,7 +296,7 @@ function slackemon_start_evolution_message( $spawn_ts, $action, $user_id = USER_
 
   // Clear the attachment footer & actions; add an evolving status message
   // We do this first so that there's something showing while the evolution GIF loads
-  $original_attachment->text   .= "\n\n" . '*Eᴠᴏʟᴠɪɴɢ your ' . pokedex_readable( $pokemon->name ) . '...* :loading:';
+  $original_attachment->text   .= "\n\n" . '*Eᴠᴏʟᴠɪɴɢ your ' . slackemon_readable( $pokemon->name ) . '...* :loading:';
   $original_attachment->footer  = '';
   $original_attachment->actions = [];
   $original_attachment->image_url = get_cached_image_url(
@@ -351,8 +351,8 @@ function slackemon_end_evolution_message( $spawn_ts, $action, $user_id = USER_ID
   $attachment['text'] .= (
     "\n\n" .
     ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! Your ' . // Congratulations
-    pokedex_readable( $species_data->evolves_from_species->name ) . ' has evolved into ' .
-    pokedex_readable( $pokemon->name ) . '!!*' . "\n\n" .
+    slackemon_readable( $species_data->evolves_from_species->name ) . ' has evolved into ' .
+    slackemon_readable( $pokemon->name ) . '!!*' . "\n\n" .
     '*+500 XP*: Evolved a Pokémon' . "\n" .
     ( 1 == $total_caught_species ? '*+500 XP*: New Pokémon!' . "\n" : '' ) .
     (

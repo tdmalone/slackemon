@@ -71,7 +71,7 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
     in_array( $item_data->name, $unsupported_items ) ||
     in_array( $item_data->category->name, $unsupported_categories )
   ) {
-    slackemon_spawn_debug( 'Not spawning ' . pokedex_readable( $item_data->name ) . '; its category is ' . pokedex_readable( $item_data->category->name ) . '.' );
+    slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; its category is ' . slackemon_readable( $item_data->category->name ) . '.' );
     return slackemon_item_spawn( $trigger, $region, $timestamp );
   }
 
@@ -79,14 +79,14 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
 
   if ( 'tms' === $item_data->category->name ) {
     if ( random_int( 1, 2 ) > 1 ) {
-      slackemon_spawn_debug( 'Not spawning ' . pokedex_readable( $item_data->name ) . '; random chance says to skip it make it rarer this time.' );
+      slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; random chance says to skip it make it rarer this time.' );
       return slackemon_item_spawn( $trigger, $region, $timestamp );
     }
   }
 
   if ( 'hms' === $item_data->category->name ) {
     if ( random_int( 1, 5 ) > 1 ) {
-      slackemon_spawn_debug( 'Not spawning ' . pokedex_readable( $item_data->name ) . '; random chance says to skip it make it rarer this time.' );
+      slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; random chance says to skip it make it rarer this time.' );
       return slackemon_item_spawn( $trigger, $region, $timestamp );
     }
   }
@@ -94,7 +94,7 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
   $description = slackemon_get_item_description( $item_data->id );
 
   if ( ! $description ) {
-    slackemon_spawn_debug( 'Not spawning ' . pokedex_readable( $item_data->name ) . ' because we could not find a suitable description for it.' );
+    slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . ' because we could not find a suitable description for it.' );
     return slackemon_item_spawn( $trigger, $region, $timestamp );
   }
 
@@ -138,8 +138,8 @@ function slackemon_notify_item_spawn( $spawn ) {
   $message = [
   	'attachments' => [
   		[
-        'pretext'   => 'Oh! You found a *' . pokedex_readable( $item_data->name ) . '* ' . $random_location,
-  			'fallback'  => 'You found a ' . pokedex_readable( $item_data->name ) . '!',
+        'pretext'   => 'Oh! You found a *' . slackemon_readable( $item_data->name ) . '* ' . $random_location,
+  			'fallback'  => 'You found a ' . slackemon_readable( $item_data->name ) . '!',
         'text'      => $spawn['description'],
         'color'     => '#333333',
         'mrkdwn_in' => [ 'pretext', 'text' ],
@@ -150,7 +150,7 @@ function slackemon_notify_item_spawn( $spawn ) {
             'short' => true,
           ], [
             'title' => 'Item Category',
-            'value' => pokedex_readable( $item_data->category->name ),
+            'value' => slackemon_readable( $item_data->category->name ),
             'short' => true,
           ]
         ],
@@ -246,7 +246,7 @@ function slackemon_get_item_pick_up_message( $spawn_ts, $action, $user_id = USER
     slackemon_pick_up_item( $spawn_ts );
 
     $message['attachments'][ $action->attachment_id - 1 ]['text'] = (
-      ':white_check_mark: *Excellent!* Your new *' . pokedex_readable( $item_data->name ) . '* ' .
+      ':white_check_mark: *Excellent!* Your new *' . slackemon_readable( $item_data->name ) . '* ' .
       'has been packed safely in your bag.'
     );
 
@@ -281,8 +281,8 @@ function slackemon_get_item_pick_up_message( $spawn_ts, $action, $user_id = USER
     $random_pokemon_name = $random_pokemon->pokemon->name;
 
     $message['attachments'][ $action->attachment_id - 1 ]['text'] = (
-      ':open_mouth: *Oh no!* A wild :' . $random_pokemon_name . ': ' . pokedex_readable( $random_pokemon_name ) . ' ' .
-      'flew off with your *' . pokedex_readable( $item_data->name ) . '*!' . "\n" .
+      ':open_mouth: *Oh no!* A wild :' . $random_pokemon_name . ': ' . slackemon_readable( $random_pokemon_name ) . ' ' .
+      'flew off with your *' . slackemon_readable( $item_data->name ) . '*!' . "\n" .
       'Try to pick up items within about ' . round( SLACKEMON_FLEE_TIME_LIMIT / 60 ) . ' minutes, before ' .
       'they get stolen!'
     );
@@ -372,7 +372,7 @@ function slackemon_get_item_action_message( $method, $item_id, $action, $user_id
 
     if ( ! count( $teachable_pokemon ) ) {
       $cancellation_message = (
-        'Sorry, you don\'t have any Pokémon who can learn ' . pokedex_readable( $move_name ) . '!'
+        'Sorry, you don\'t have any Pokémon who can learn ' . slackemon_readable( $move_name ) . '!'
       );
     }
 
@@ -432,8 +432,8 @@ function slackemon_get_item_give_do_message( $item_id, $spawn_ts, $action, $user
   ];
 
   $message['attachments'][ $action->attachment_id - 1 ]->footer = (
-    ':white_check_mark: ' . pokedex_readable( $pokemon->name ) . ' is now holding ' .
-    'your ' . pokedex_readable( $item_data->name ) . '.'
+    ':white_check_mark: ' . slackemon_readable( $pokemon->name ) . ' is now holding ' .
+    'your ' . slackemon_readable( $item_data->name ) . '.'
   );
 
   $message['attachments'][ $action->attachment_id - 1 ]->actions = [];
@@ -467,7 +467,7 @@ function slackemon_get_item_return_message( $spawn_ts, $action, $user_id = USER_
   $original_attachment = $message['attachments'][ $action->attachment_id - 1 ];
 
   $original_attachment->footer = (
-    'Your ' . pokedex_readable( slackemon_get_item_name( $item_id ) ) . ' has been returned to your bag.'
+    'Your ' . slackemon_readable( slackemon_get_item_name( $item_id ) ) . ' has been returned to your bag.'
   );
 
   // Remove the action button that called this action
@@ -563,8 +563,8 @@ function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $use
     if ( $_move->name === $move_name ) {
 
       $message['attachments'][ $action->attachment_id - 1 ]->footer = (
-        ':no_mouth: Oops! ' . pokedex_readable( $pokemon->name ) . ' already knows ' .
-        pokedex_readable( $move_name ) . '! You can\'t teach the same move again.'
+        ':no_mouth: Oops! ' . slackemon_readable( $pokemon->name ) . ' already knows ' .
+        slackemon_readable( $move_name ) . '! You can\'t teach the same move again.'
       );
 
       return $message;
@@ -578,7 +578,7 @@ function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $use
     $pronoun = 'male' === $pokemon->gender ? 'he' : 'she';
 
     $message['attachments'][ $action->attachment_id - 1 ]->footer = (
-      ':no_mouth: Oops! ' . pokedex_readable( $pokemon->name ) . ' knows too many ' .
+      ':no_mouth: Oops! ' . slackemon_readable( $pokemon->name ) . ' knows too many ' .
       'moves! You\'ll need to delete one first.'
     );
 
@@ -598,8 +598,8 @@ function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $use
   slackemon_save_player_data( $player_data );
 
   $message['attachments'][ $action->attachment_id - 1 ]->footer = (
-    ':tada: Congratulations! ' . pokedex_readable( $pokemon->name ) . ' now knows ' .
-    pokedex_readable( $move_data->name ) . '!'
+    ':tada: Congratulations! ' . slackemon_readable( $pokemon->name ) . ' now knows ' .
+    slackemon_readable( $move_data->name ) . '!'
   );
 
   $message['attachments'][ $action->attachment_id - 1 ]->actions = [];
@@ -635,13 +635,13 @@ function slackemon_get_item_discard_message( $item_id, $action, $user_id = USER_
   if ( $item['count'] ) {
 
     $item_attachment['footer'] = (
-      '1 x ' . pokedex_readable( $item_data->name ) . ' has been discarded - ' .
+      '1 x ' . slackemon_readable( $item_data->name ) . ' has been discarded - ' .
       'you have ' . $item['count'] . ' left.'
     );
 
   } else {
 
-    $item_attachment['footer'] = 'Your ' . pokedex_readable( $item_data->name ) . ' has been discarded.';
+    $item_attachment['footer'] = 'Your ' . slackemon_readable( $item_data->name ) . ' has been discarded.';
     $item_attachment['thumb_url'] = '';
 
   }
@@ -737,7 +737,7 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
         ];
         $fields[] = [
           'title' => 'Type',
-          'value' => slackemon_emojify_types( pokedex_readable( $move_data->type->name ) ),
+          'value' => slackemon_emojify_types( slackemon_readable( $move_data->type->name ) ),
           'short' => true,
         ];
         $fields[] = [
@@ -752,7 +752,7 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
         ];
         $fields[] = [
           'title' => 'Damage Type',
-          'value' => pokedex_readable( $move_data->damage_class->name ),
+          'value' => slackemon_readable( $move_data->damage_class->name ),
           'short' => true,
         ];
 
@@ -913,7 +913,7 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
 
   $attachment = [
     'text' => (
-      '*' . pokedex_readable( $item_data->name ) . '* (' . $item['count'] . ')' . "\n" .
+      '*' . slackemon_readable( $item_data->name ) . '* (' . $item['count'] . ')' . "\n" .
       $description
     ),
     'fields'    => $fields,
