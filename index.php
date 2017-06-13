@@ -36,10 +36,11 @@ if ( $payload ) {
     header( 'Content-Type: application/json' );
 
     // Handle the options request.
-    $callback_id  = $options_request->callback_id;
-    $action_name  = $options_request->name;
-    $action_value = $options_request->value;
-    require_once( __DIR__ . '/src/_options.php' );
+    $options = slackemon_get_slack_message_menu_options( $options_request->name, $options_request->value );
+
+    if ( $options ) {
+      echo $options;
+    }
 
     slackemon_exit();
 

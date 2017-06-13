@@ -45,7 +45,6 @@
       <exclude>
         <file>src/_actions.php</file>
         <file>src/_commands.php</file>
-        <file>src/_options.php</file>
       </exclude>
     </whitelist>
   </filter>
