@@ -34,9 +34,10 @@ notifications:
     on_build_status_changed: true
 
   # Gitter
-  - provider: Webhook
-    url:
-      secure: /2tAaEmW+de0UbUmtpuQTWfzeiLuKfsUVjzDDMK0kKNkUlFSmH6Ik1/mRpHrhBiUn8SvsDlYSehnSHEFEbN4HQ==
-    on_build_success: true
-    on_build_failure: true
-    on_build_status_changed: true
+  # Currently configured in AppVeyor interface, as secure vars for webhook URLs are not supported yet
+  #- provider: Webhook
+  #  url:
+  #    secure: /2tAaEmW+de0UbUmtpuQTWfzeiLuKfsUVjzDDMK0kKNkUlFSmH6Ik1/mRpHrhBiUn8SvsDlYSehnSHEFEbN4HQ==
+  #  on_build_success: true
+  #  on_build_failure: true
+  #  on_build_status_changed: true
