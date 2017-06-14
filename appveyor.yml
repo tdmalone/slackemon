@@ -22,3 +22,21 @@ test_script:
 
 # http://help.appveyor.com/discussions/problems/4585
 build: off
+
+notifications:
+
+  # Slack
+  - provider: Slack
+    incoming_webhook:
+      secure: Z/sBH2RXNief0BVgo2cazy1KoJMgpA0dZup/E2NMKM9Z40bWyoIK0+yRRJ8HFRxZCNGS+Kri7epYUWDb4QZ8QZHOBKyREESninj1ZM2YT3U=
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: true
+
+  # Gitter
+  - provider: Webhook
+    url:
+      secure: /2tAaEmW+de0UbUmtpuQTWfzeiLuKfsUVjzDDMK0kKNkUlFSmH6Ik1/mRpHrhBiUn8SvsDlYSehnSHEFEbN4HQ==
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: true
