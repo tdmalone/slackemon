@@ -2,24 +2,23 @@
 <ruleset>  
 
   <!-- Automatically check all our PHP source files. -->
-  <file>./_functions</file>
-  <file>./slackemon</file>
-  <file>./tests</file>
-  <file>./actions.php</file>
+  <file>./lib</file>
+  <file>./src</file>
   <file>./config.php</file>
   <file>./cron.php</file>
   <file>./index.php</file>
-  <file>./init.php</file>
-  <file>./options-request.php</file>
+
+  <!-- Tests are excluded for now because we need to define different rules for PHPUnit coding style. -->
+  <!-- <file>./tests</file> -->
 
   <arg name="colors" />
   <arg value="sp" />
 
-  <!-- Use the default Slackemon code standards, which are based on the WordPress standards with modifications. -->
+  <!-- Use the TMCodeStandards, which are based on the WordPress standards with modifications. -->
   <!-- Create a phpcs.xml file if you wish to change these standards further or adjust other phpcs settings. -->
   <!-- See https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml for help. -->
   <!-- Further help is also available at https://github.com/squizlabs/PHP_CodeSniffer/wiki/Advanced-Usage. -->
-  <rule ref="SlackemonCodeStandards"/>
+  <rule ref="vendor/tdmalone/tm-code-standards/TMCodeStandards"/>
 
   <!-- Exclude some checks for tests, because test naming conventions must follow PHPUnit rules. -->
   <rule ref="WordPress.Files.FileName">

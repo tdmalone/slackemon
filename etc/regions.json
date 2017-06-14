@@ -1,0 +1,20 @@
+{
+  "kanto": {
+    "description": "The Kanto region is home to a lot of Pokémon and has a rich history of creating Pokémon with technology. :robot_face:"
+  },
+  "johto": {
+    "description": "Johto is connected to the western part of Kanto, and features the iconic Bell and Brass Towers, guarded by newly discovered legendary Pokémon."
+  },
+  "hoenn": {
+    "description": "Hoenn is based on the island of Kyūshū in Japan and lies to the southwest of Kanto and Johto in the Pokémon world. It is the only sea region. :ocean:"
+  },
+  "sinnoh": {
+    "description": "Sinnoh is a mountainous and temperate region, containing four lakes - each of which houses a legendary Pokémon. :mountain:"
+  },
+  "unova": {
+    "description": "Unova is the most diverse region of all, with many new Pokémon species discovered here. Taking inspiration from New York City, Unova in many ways resembles the island of Manhattan. :cityscape:"
+  },
+  "kalos": {
+    "description": "Shaped on the map like a five-pointed star, Kalos is home to French music, fashion and landmarks. Welcome to Paris! :flag-fr:"
+  }
+}

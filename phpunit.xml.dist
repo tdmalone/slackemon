@@ -20,6 +20,7 @@
 
     <env name="APP_ENV" value="testing" />
 
+    <!-- Define the minimum env vars we expect to be set. -->
     <env name="SLACKEMON_SLACK_TOKEN"   value="abcdefghijklmnop"      />
     <env name="SLACKEMON_SLACK_TEAM_ID" value="T01234567"             />
     <env name="SLACKEMON_SLACK_KEY"     value="xoxp-12345678901"      />
@@ -27,10 +28,22 @@
     <env name="SLACKEMON_CRON_TOKEN"    value="zyxwvutsrqponm"        />
     <env name="SLACKEMON_INBOUND_URL"   value="https://example.com/"  />
 
-    <post name="token"    value="abcdefghijklmnop"  />
-    <post name="team_id"  value="T01234567"         />
-    <post name="command"  value="/slackemon"        />
-    <post name="text"     value="unit-tests"        />
+    <!-- Define the minimum server vars we expect to be set. -->
+    <server name="SERVER_NAME" value="slackemon-unit-tests" />
+    <server name="SERVER_PORT" value="8080" />
+
+    <!-- Define the post vars we will expect from Slack during a slash command invocation. -->
+    <!-- Ref: https://api.slack.com/slash-commands -->
+    <post name="token"        value="abcdefghijklmnop" />
+    <post name="team_id"      value="T01234567"        />
+    <post name="team_domain"  value="example"          />
+    <post name="channel_id"   value="C01234567"        />
+    <post name="channel_name" value="general"          />
+    <post name="user_id"      value="U01234567"        />
+    <post name="user_name"    value="slackemon"        />
+    <post name="command"      value="/slackemon"       />
+    <post name="text"         value="unit-tests"       />
+    <post name="response_url" value="http://example.com/slackemon" />
 
   </php>
 
@@ -40,7 +53,15 @@
 
   <filter>
     <whitelist processUncoveredFilesFromWhitelist="true">
-      <directory suffix=".php">_functions</directory>
+      <directory suffix=".php">lib</directory>
+      <directory suffix=".php">src</directory>
+
+      <!-- TODO: These are inbound request files (for background jobs) and can't be easily unit tested right now. -->
+      <exclude>
+        <file>src/_actions.php</file>
+        <file>src/_commands.php</file>
+      </exclude>
+
     </whitelist>
   </filter>
 
