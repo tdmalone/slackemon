@@ -24,7 +24,7 @@ if ( $payload ) {
     $callback_id = $action->callback_id;
     slackemon_run_background_action( 'src/_actions.php', $action, $callback_id );
 
-    slackemon_exit();
+    return slackemon_exit();
 
   } elseif ( isset( $payload->action_ts ) && isset( $payload->callback_id ) ) {
 
@@ -42,7 +42,7 @@ if ( $payload ) {
       echo $options;
     }
 
-    slackemon_exit();
+    return slackemon_exit();
 
   }
 }
@@ -51,13 +51,13 @@ if ( $payload ) {
 require_once( __DIR__ . '/lib/init.php' );
 
 // Init the once-off, entry-point stuff.
-define( 'COMMAND', $_POST['command'] );
+if ( ! defined( 'COMMAND' ) ) {
+  define( 'COMMAND', $_POST['command'] );
+}
 
 // Run as a background command, as long as this isn't a test run.
 $args = check_subcommands();
-if ( ! isset( $args[0] ) || 'unit-tests' !== $args[0] ) {
-  slackemon_run_background_command( 'src/_commands.php', $args );
-  slackemon_exit();
-}
+slackemon_run_background_command( 'src/_commands.php', $args );
+return slackemon_exit();
 
 // The end!

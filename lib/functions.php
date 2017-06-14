@@ -26,7 +26,12 @@ function slackemon_change_data_folder( $new_data_folder ) {
 
 /**
  * Like exit(), but ensures first that any open connections are closed and locks removed.
- * MUST be called at the end of every run.
+ * Also takes care of avoiding completely exiting during unit tests.
+ *
+ * MUST be called at the end of every script run.
+ *
+ * Call like this to ensure that during unit tests, the calling function doesn't run any further:
+ *     return slackemon_exit();
  *
  * @param string|int $status Passed directly through to PHP's exit() function.
  * @link http://php.net/exit
@@ -38,9 +43,14 @@ function slackemon_exit( $status = '' ) {
     slackemon_pg_close();
   }
 
+  // Just return the status message if we're running unit tests, as we don't want to exit from those.
+  if ( 'testing' === getenv( 'APP_ENV' ) ) {
+    return $status;
+  }
+
   exit( $status );
 
-}
+} // Function slackemon_exit
 
 /**
  * A quick function to check whether a valid subcommand has been provided, returning the exploded arguments.
@@ -54,10 +64,10 @@ function check_subcommands( $allowed_subcommands = [], $welcome_message = '' ) {
   if ( $welcome_message ) {
     if ( ! count( $args ) || ! $args[0] || ! in_array( $args[0], $allowed_subcommands ) ) {
       if ( is_string( $welcome_message ) ) {
-        slackemon_exit( $welcome_message );
+        return slackemon_exit( $welcome_message );
       } else {
         header( 'Content-type: application/json' );
-        slackemon_exit( json_encode( $welcome_message ) );
+        return slackemon_exit( json_encode( $welcome_message ) );
       }
     }
   }
@@ -77,7 +87,7 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
 
   // Should we timeout quickly? Because Slack requires a 3-second response, this is the default. However, custom
   // implementations outside of Slack may want to wait and get the output.
-  if ( isset( $_REQUEST['special_mode'] ) && 'RETURN' === $_REQUEST['special_mode'] ) {
+  if ( isset( $_POST['special_mode'] ) && 'RETURN' === $_POST['special_mode'] ) {
     $timeout = false;
   } else {
     $timeout = SLACKEMON_CURL_TIMEOUT;
@@ -90,19 +100,19 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
     // Reference: https://api.slack.com/slash-commands#triggering_a_command
     'token'        => SLACKEMON_SLACK_TOKEN,
     'team_id'      => TEAM_ID,
-    'team_domain'  => $_REQUEST['team_domain'],
-    'channel_id'   => $_REQUEST['channel_id'],
-    'channel_name' => $_REQUEST['channel_name'],
+    'team_domain'  => $_POST['team_domain'],
+    'channel_id'   => $_POST['channel_id'],
+    'channel_name' => $_POST['channel_name'],
     'user_id'      => USER_ID,
-    'user_name'    => $_REQUEST['user_name'],
+    'user_name'    => $_POST['user_name'],
     'command'      => COMMAND,
-    'text'         => $_REQUEST['text'],
+    'text'         => $_POST['text'],
     'response_url' => RESPONSE_URL,
     
     // Pass through our own custom data
     'args'         => $args,
     'maintainer'   => SLACKEMON_MAINTAINER,
-    'special_mode' => isset( $_REQUEST['special_mode'] ) ? $_REQUEST['special_mode'] : '', // For cron runs
+    'special_mode' => isset( $_POST['special_mode'] ) ? $_POST['special_mode'] : '', // For cron runs
     
   ];
 
@@ -123,6 +133,12 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
 
   if ( $timeout ) {
     curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
+  }
+
+  // Just return the curl object if we're running unit tests, as we don't want to actually invoke commands from those.
+  if ( 'testing' === getenv( 'APP_ENV' ) ) {
+    curl_close( $ch );
+    return $ch;
   }
 
   $result = curl_exec( $ch );
@@ -153,6 +169,12 @@ function slackemon_run_background_action( $path, $action, $callback_id ) {
 
   if ( $timeout ) {
     curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
+  }
+
+  // Just return the curl object if we're running unit tests, as we don't want to actually invoke actions from those.
+  if ( 'testing' === getenv( 'APP_ENV' ) ) {
+    curl_close( $ch );
+    return $ch;
   }
 
   $result = curl_exec( $ch );

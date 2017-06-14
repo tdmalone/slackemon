@@ -15,7 +15,7 @@ if (
   ( ! isset( $_REQUEST['token'] ) || SLACKEMON_CRON_TOKEN !== $_REQUEST['token'] )
 ) {
   http_response_code( 403 );
-  slackemon_exit( 'Not authorised for this cron request.' );
+  return slackemon_exit( 'Not authorised for this cron request.' );
 }
 
 // Cron schedule
@@ -63,6 +63,6 @@ foreach ( SLACKEMON_CRON_SCHEDULE as $item ) {
 
 } // Foreach SLACKEMON_CRON_SCHEDULE $item
 
-slackemon_exit();
+return slackemon_exit();
 
 // The end!
