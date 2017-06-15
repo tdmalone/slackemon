@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# TODO - stop if running
+
+# TODO - only rm if exist
+docker rm postgres
+docker rm slackemon
+
+docker run -d -e POSTGRES_PASSWORD=password --name postgres postgres
+docker run -d -e APP_ENV=development -p 80:80 -v ${PWD}:/var/www/html --link postgres:postgres --name slackemon slackemon

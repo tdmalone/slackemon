@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+docker stop slackemon
+docker stop postgres

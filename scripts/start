@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# TODO - reset if not exist
+
+docker start postgres
+docker start slackemon
