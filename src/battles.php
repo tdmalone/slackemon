@@ -2007,11 +2007,8 @@ function slackemon_battle_debug( $message ) {
     return;
   }
 
-  send2slack([
-    'text' => $message,
-    'channel' => SLACKEMON_MAINTAINER,
-  ]);
+  error_log( $message );
 
-} // Function slackemon_battle_debug
+}
 
 // The end!

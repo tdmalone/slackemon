@@ -80,7 +80,7 @@ $_slackemon_constant_defaults = [
 
 foreach ( $_slackemon_constant_defaults as $key => $value ) {
   if ( ! defined( 'SLACKEMON_' . $key ) ) {
-  	define( 'SLACKEMON_' . $key, $value );
+    define( 'SLACKEMON_' . $key, $value );
   }
 }
 
