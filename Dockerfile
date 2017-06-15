@@ -17,5 +17,5 @@ RUN curl -s http://getcomposer.org/installer | php
 RUN echo "* * * * * /usr/local/bin/php /slackemon/cron.php" | crontab - && \
     crond
 
-# Install dependencies as non-root
+# Install dependencies
 RUN php composer.phar install
