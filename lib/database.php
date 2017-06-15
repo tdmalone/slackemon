@@ -138,20 +138,30 @@ function slackemon_pg_connect() {
     return false;
   }
 
-  $_slackemon_postgres_connection  = pg_connect(
-    'host='     . $url['host'] . ' ' .
-    ( isset( $url['port'] ) && $url['port'] ? 'port=' . $url['port'] . ' ' : '' ) .
-    'dbname='   . ltrim( $url['path'], '/' ) . ' ' .
-    'user='     . $url['user'] . ' ' .
-    'password=' . $url['pass']
-  );
+  error_log( 'Connecting to database...' );
+
+  // We're about to try connecting to the Postgres server. If the database doesn't exist, we'll attempt to create it.
+  set_error_handler( 'slackemon_create_database_on_connection_error' );
+  $_slackemon_postgres_connection = pg_connect( slackemon_get_database_connection_string( $url ) );
+  restore_error_handler();
+  global $_slackemon_postgres_connection;
 
   if ( $_slackemon_postgres_connection ) {
     slackemon_pg_debug( 'Connected to database.' );
     return true;
   } else {
+
     slackemon_pg_debug( 'Cannot connect to database.', true );
+
+    send2slack(
+      'Oops, I can\'t connect to the Slackémon database! Please chat to <@' . SLACKEMON_MAINTAINER . '>, who ' .
+      'may be able to solve this for you.'
+    );
+
+    slackemon_exit();
+
     return false;
+
   }
 
 } // Function slackemon_pg_connect
@@ -195,6 +205,57 @@ function slackemon_is_pg_ready( $options = [] ) {
 
 }
 
+function slackemon_get_database_connection_string( $url = '', $include_db_name = true ) {
+
+  if ( ! $url ) {
+    $url = parse_url( SLACKEMON_DATABASE_URL );
+  }
+
+  $connection_string = (
+    'host='     . $url['host'] . ' ' .
+    ( isset( $url['port'] ) && $url['port'] ? 'port=' . $url['port'] . ' ' : '' ) .
+    ( $include_db_name ? 'dbname='   . ltrim( $url['path'], '/' ) . ' ' : '' ) .
+    'user='     . $url['user'] . ' ' .
+    'password=' . $url['pass']
+  );
+
+  return $connection_string;
+
+} // Function slackemon_get_database_connection_string
+
+/**
+ * Attempts to create the Slackemon database if it doesn't exist. In a properly managed hosting environment, the
+ * database name we're given should already exist. But on eg. a quick local Docker development environment, we
+ * may have just gotten started with no DB yet.
+ *
+ * This function should only be called by being set as an error_handler before attempting to connect to the database.
+ */
+function slackemon_create_database_on_connection_error( $errno, $errstr, $errfile, $errline ) {
+  global $_slackemon_postgres_connection;
+
+  // Avoid looping if this fails again.
+  restore_error_handler();
+
+  if ( preg_match( '/database .*? does not exist/', $errstr, $matches ) ) {
+
+    error_log( 'Database does not exist, attempting to connect and create it...' );
+
+    $url = parse_url( SLACKEMON_DATABASE_URL );
+    $_slackemon_postgres_connection = pg_connect( slackemon_get_database_connection_string( $url, false ) );
+    $query = slackemon_pg_query( 'CREATE DATABASE ' . ltrim( $url['path'], '/' ) );
+
+    if ( false === $query ) {
+      error_log( 'Database could not be created.' );
+      slackemon_pg_close();
+      return;
+    }
+
+  } else {
+    error_log( $errstr );
+  }
+
+} // Function slackemon_create_database_on_connection_error
+
 function slackemon_pg_debug( $message, $force_debug = false ) {
 
   if ( ! $force_debug && ! SLACKEMON_DATABASE_DEBUG ) {
@@ -203,6 +264,6 @@ function slackemon_pg_debug( $message, $force_debug = false ) {
 
   error_log( $message );
 
-} // Function slackemon_pg_debug
+}
 
 // The end!
