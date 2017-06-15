@@ -23,8 +23,9 @@ services:
     volumes:
       - slackemon_db_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=slackemon
-      - POSTGRES_USER=slackemon
+      - POSTGRES_PASSWORD=slackemon_password
+      - POSTGRES_USER=slackemon_user
+      - POSTGRES_DB=slackemon_db
       - PGDATA=/var/lib/postgresql/data/pgdata
 
 # Local volume where to store data
