@@ -144,7 +144,13 @@ function slackemon_pg_connect() {
   set_error_handler( 'slackemon_create_database_on_connection_error' );
   $_slackemon_postgres_connection = pg_connect( slackemon_get_database_connection_string( $url ) );
   restore_error_handler();
-  global $_slackemon_postgres_connection;
+
+  // Determine if the database was just created, and if so, try our main connection again.
+  global $_slackemon_postgres_db_just_created;
+  if ( $_slackemon_postgres_db_just_created ) {
+    $_slackemon_postgres_db_just_created = false;
+    return slackemon_pg_connect();
+  }
 
   if ( $_slackemon_postgres_connection ) {
     slackemon_pg_debug( 'Connected to database.' );
@@ -238,7 +244,7 @@ function slackemon_create_database_on_connection_error( $errno, $errstr, $errfil
 
   if ( preg_match( '/database .*? does not exist/', $errstr, $matches ) ) {
 
-    error_log( 'Database does not exist, attempting to connect and create it...' );
+    error_log( 'Database does not exist, attempting to create it...' );
 
     $url = parse_url( SLACKEMON_DATABASE_URL );
     $_slackemon_postgres_connection = pg_connect( slackemon_get_database_connection_string( $url, false ) );
@@ -249,6 +255,13 @@ function slackemon_create_database_on_connection_error( $errno, $errstr, $errfil
       slackemon_pg_close();
       return;
     }
+
+    // Disconnect this connection, since it was created without the database name being provided.
+    pg_close( $_slackemon_postgres_connection );
+
+    // Set a global flag that the function that called this 'error handler' will be able to check.
+    global $_slackemon_postgres_db_just_created;
+    $_slackemon_postgres_db_just_created = true;
 
   } else {
     error_log( $errstr );
