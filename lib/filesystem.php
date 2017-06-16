@@ -101,7 +101,7 @@ function slackemon_file_get_contents( $filename, $purpose ) {
 
         // TODO: Need some sort of error handling here.
 
-        slackemon_log_cache_event(
+        slackemon_cache_debug(
           '',
           slackemon_get_s3_key( $filename ),
           'file-get-error-aws-exception',
@@ -112,7 +112,7 @@ function slackemon_file_get_contents( $filename, $purpose ) {
 
       }
 
-      slackemon_log_cache_event( '', $filename, 'aws-file-get', slackemon_get_s3_key( $filename ) );
+      slackemon_cache_debug( '', $filename, 'aws-file-get', slackemon_get_s3_key( $filename ) );
 
       $return = $result['Body'];
 
@@ -210,7 +210,7 @@ function slackemon_file_put_contents( $filename, $data, $purpose ) {
 
         // TODO: Need some sort of error handling here.
 
-        slackemon_log_cache_event(
+        slackemon_cache_debug(
           '',
           $hash['filename'],
           'file-put-error-aws-exception',
@@ -221,7 +221,7 @@ function slackemon_file_put_contents( $filename, $data, $purpose ) {
 
       }
 
-      slackemon_log_cache_event( '', $filename, 'aws-file-put', slackemon_get_s3_key( $filename ) );
+      slackemon_cache_debug( '', $filename, 'aws-file-put', slackemon_get_s3_key( $filename ) );
 
       $return = $result;
 
@@ -337,7 +337,7 @@ function slackemon_filemtime( $filename, $purpose ) {
 
         // TODO: Need some sort of error handling here.
 
-        slackemon_log_cache_event(
+        slackemon_cache_debug(
           '',
           $hash['filename'],
           'file-mtime-error-aws-exception',
@@ -443,7 +443,7 @@ function slackemon_unlink( $filename, $purpose ) {
 
         // TODO: Need some sort of error handling here.
 
-        slackemon_log_cache_event(
+        slackemon_cache_debug(
           '',
           $hash['filename'],
           'unlink-error-aws-exception',
@@ -517,7 +517,7 @@ function slackemon_get_files_by_prefix( $prefix, $purpose ) {
 
         // TODO: Need some sort of error handling here.
 
-        slackemon_log_cache_event(
+        slackemon_cache_debug(
           '',
           $hash['filename'],
           'list-objects-aws-exception',
