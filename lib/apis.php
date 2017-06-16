@@ -140,7 +140,7 @@ function slackemon_get_cached_image_url( $image_url ) {
         return false;
       }
       
-      slackemon_cache_debug( $image_url, $hash['filename'], 'image-miss' );
+      slackemon_cache_debug( $image_url, $hash['filename'], 'image-miss', $local_url );
       file_put_contents( $hash['filename'], $image_data );
 
       return $local_url;
@@ -158,7 +158,7 @@ function slackemon_get_cached_image_url( $image_url ) {
       if ( $slackemon_s3->doesObjectExist( SLACKEMON_IMAGE_CACHE_BUCKET, $remote_key ) ) {
 
         $remote_url = $slackemon_s3->getObjectUrl( SLACKEMON_IMAGE_CACHE_BUCKET, $remote_key );
-        slackemon_cache_debug( $image_url, $hash['filename'], 'image-soft-miss' );
+        slackemon_cache_debug( $image_url, $hash['filename'], 'image-soft-miss', $remote_url );
 
       } else {
 
@@ -197,7 +197,7 @@ function slackemon_get_cached_image_url( $image_url ) {
         }
 
         $remote_url = $result['ObjectURL'];
-        slackemon_cache_debug( $image_url, $hash['filename'], 'image-miss' );
+        slackemon_cache_debug( $image_url, $hash['filename'], 'image-miss', $remote_url );
 
       }
 
