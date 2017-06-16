@@ -93,7 +93,7 @@ function slackemon_file_get_contents( $filename, $purpose ) {
       try {
         $result = $slackemon_s3->getObject(
           [
-            'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
+            'Bucket' => SLACKEMON_DATA_BUCKET,
             'Key'    => slackemon_get_s3_key( $filename ),
           ]
         );
@@ -196,7 +196,7 @@ function slackemon_file_put_contents( $filename, $data, $purpose ) {
       try {
         $result = $slackemon_s3->putObject(
           [
-            'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
+            'Bucket' => SLACKEMON_DATA_BUCKET,
             'Key'    => slackemon_get_s3_key( $filename ),
             'Body'   => $data,
             'ACL'    => 'bucket-owner-full-control',
@@ -276,7 +276,7 @@ function slackemon_file_exists( $filename, $purpose ) {
 
     case 'aws':
       global $slackemon_s3;
-      $return = $slackemon_s3->doesObjectExist( SLACKEMON_DATA_CACHE_BUCKET, slackemon_get_s3_key( $filename ) );
+      $return = $slackemon_s3->doesObjectExist( SLACKEMON_DATA_BUCKET, slackemon_get_s3_key( $filename ) );
     break;
 
   } // Switch slackemon_get_data_method
@@ -329,7 +329,7 @@ function slackemon_filemtime( $filename, $purpose ) {
       try {
         $result = $slackemon_s3->headObject(
           [
-            'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
+            'Bucket' => SLACKEMON_DATA_BUCKET,
             'Key'    => slackemon_get_s3_key( $filename ),
           ]
         );
@@ -435,7 +435,7 @@ function slackemon_unlink( $filename, $purpose ) {
       try {
         $slackemon_s3->deleteObject(
           [
-            'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
+            'Bucket' => SLACKEMON_DATA_BUCKET,
             'Key'    => slackemon_get_s3_key( $filename ),
           ]
         );
@@ -509,7 +509,7 @@ function slackemon_get_files_by_prefix( $prefix, $purpose ) {
       try {
         $result = $slackemon_s3->listObjectsV2(
           [
-            'Bucket' => SLACKEMON_DATA_CACHE_BUCKET,
+            'Bucket' => SLACKEMON_DATA_BUCKET,
             'Prefix' => slackemon_get_s3_key( $prefix ),
           ]
         );
