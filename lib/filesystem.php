@@ -488,7 +488,7 @@ function slackemon_get_files_by_prefix( $prefix, $purpose ) {
       $key = slackemon_get_pg_key( $prefix );
 
       $result = slackemon_pg_query(
-        "SELECT filename FROM {$key['table']} WHERE filename LIKE '{$key['filename']}%'"
+        "SELECT filename FROM {$key['table']} WHERE filename LIKE '{$key['filename']}%' ORDER BY filename ASC"
       );
 
       $return = array_map(
