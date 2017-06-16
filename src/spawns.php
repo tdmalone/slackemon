@@ -55,12 +55,7 @@ function slackemon_spawn_debug( $message ) {
 
   error_log( $message );
 
-  send2slack([
-    'text' => $message,
-    'channel' => SLACKEMON_MAINTAINER,
-  ]);
-
-} // Function slackemon_spawn_debug
+}
 
 function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $pokedex_id = false ) {
 

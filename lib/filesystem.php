@@ -571,8 +571,6 @@ function slackemon_get_pg_key( $filename ) {
     'filename_raw' => $filename_parts['filename'],
   ];
 
-  slackemon_pg_debug( json_encode( $key ) );
-
   return $key;
 
 }

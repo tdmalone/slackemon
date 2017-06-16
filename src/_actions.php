@@ -9,17 +9,17 @@
 $action = json_decode( $_REQUEST['action'] ); // Required to be set now to successfully init an action.
 require_once( __DIR__ . '/../lib/init.php' );
 
-slackemon_handle_action( $action->actions[0] );
+slackemon_handle_action( $action );
 
 function slackemon_handle_action( $action ) {
 
-  $action_name  = $action->name;
+  $action_name  = $action->actions[0]->name;
 
   // We support both message buttons, and the newer message menus.
   $action_value = (
-    isset( $action->value ) ?
-    $action->value :                    // Message button value response.
-    $action->selected_options[0]->value // Message menu value response.
+    isset( $action->actions[0]->value ) ?
+    $action->actions[0]->value :                    // Message button value response.
+    $action->actions[0]->selected_options[0]->value // Message menu value response.
   );
 
   switch ( $action_name ) {

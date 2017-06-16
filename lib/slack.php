@@ -68,7 +68,11 @@ function send2slack( $message, $hook_url = '' ) {
     if ( defined( 'RESPONSE_URL' ) && ! isset( $payload['channel'] ) ) {
       $hook_url = RESPONSE_URL;
     } else {
+
+      // No hook URL is available, so use the chat.postMessage method instead
+      slackemon_post2slack( $payload );
       return false;
+
     }  
 
   }
@@ -88,7 +92,7 @@ function send2slack( $message, $hook_url = '' ) {
 
   return $result;
 
-} // Function send2slack
+} // Function slackemon_send2slack
 
 /**
  * Send a message to a Slack channel using the Web API's chat.postMessage method, rather than an response_url webhook.
@@ -138,7 +142,7 @@ function slackemon_post2slack( $payload ) {
 
   return $response;
 
-} // Function post2slack
+} // Function slackemon_post2slack
 
 /** Does what it says on the tin. */
 function slackemon_get_slack_user_full_name( $user_id = USER_ID ) {
@@ -150,7 +154,7 @@ function slackemon_get_slack_user_full_name( $user_id = USER_ID ) {
 
   return false;
 
-} // Function get_user_full_name
+} // Function slackemon_get_user_full_name
 
 /** Does what it says on the tin. */
 function slackemon_get_slack_user_first_name( $user_id = USER_ID ) {
@@ -177,7 +181,7 @@ function slackemon_get_slack_user_avatar_url( $user_id = USER_ID ) {
 
   return false;
 
-} // Function get_user_avatar_url
+} // Function slackemon_get_user_avatar_url
 
 /**
  * Gets a user's e-mail address, either from the local config if set, or falling back to the Slack API.
@@ -191,7 +195,7 @@ function slackemon_get_slack_user_email_address( $user_id = USER_ID ) {
 
   return false;
 
-} // Function get_user_email_address
+} // Function slackemon_get_user_email_address
 
 /** Gets a Slack user's data from the Slack API. Cached for a day. */
 function slackemon_get_slack_user( $user_id = USER_ID ) {
@@ -212,7 +216,7 @@ function slackemon_get_slack_user( $user_id = USER_ID ) {
 
   return false;
 
-} // Function get_slack_user
+} // Function slackemon_get_slack_user
 
 /** Gets ALL Slack user data from the Slack API. Cached for a day. */
 function slackemon_get_slack_users() {
@@ -228,6 +232,6 @@ function slackemon_get_slack_users() {
 
   return $slack_users;
 
-} // Function get_slack_users
+} // Function slackemon_get_slack_users
 
 // The end!
