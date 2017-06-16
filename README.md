@@ -20,7 +20,7 @@ Scroll down for more setup options
 
 ## Screenshots
 
-<a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/spawn.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/spawn.png" alt="Pokemon spawn" height="250"></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/wild-battle.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/wild-battle.png" alt="Achievements screen" height="250"></a>
+<a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/spawn.png"><img src="https://cdn.rawgit.com/tdmalone/slackemon/5109c1f231ac54d29d0aa26094342aaeff7dc51a/media/screenshots/spawn.png" alt="Pokemon spawn" height="250"></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/wild-battle.png"><img src="https://cdn.rawgit.com/tdmalone/slackemon/5109c1f231ac54d29d0aa26094342aaeff7dc51a/media/screenshots/wild-battle.png" alt="Achievements screen" height="250"></a>
 
 [More screenshots](https://github.com/tdmalone/slackemon/tree/master/_images/screenshots)
 
