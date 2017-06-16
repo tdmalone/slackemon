@@ -1,4 +1,9 @@
 coverage:
+
+  status:
+    project:
+      default: false  # Disable the default status that measures entire project, it seems to have trouble finding commits to compare against
+
   notify:
 
     # Slack
