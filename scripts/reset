@@ -13,5 +13,5 @@ if [ 0 != `docker ps -aqf "name=slackemon|postgres" | wc -l | tr -d '[:space:]'`
 fi
 
 echo Creating containers...
-docker run -d -e POSTGRES_PASSWORD=password --name postgres postgres
-docker run -d -e APP_ENV=development -p 80:80 -v ${PWD}:/var/www/html --link postgres:postgres --name slackemon slackemon
+docker run -de POSTGRES_PASSWORD=password --name postgres postgres
+docker run -de APP_ENV=development -p 80:80 -v ${PWD}:/var/www/html -v /etc/localtime:/etc/localtime:ro --link postgres:postgres --name slackemon slackemon
