@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
 
+if [ 0 == `docker ps -qf "name=slackemon|postgres" | wc -l | tr -d '[:space:]'` ]; then
+  echo Containers are not running.
+  exit
+fi
+
+echo Stopping containers...
 docker stop slackemon
 docker stop postgres

@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 
-# TODO - stop if running
+# Run the stop script if our containers are running
+if [ 0 != `docker ps -qf "name=slackemon|postgres" | wc -l | tr -d '[:space:]'` ]; then
+  `dirname $0`/stop
+fi
 
-# TODO - only rm if exist
-docker rm postgres
-docker rm slackemon
+# 'rm' the containers if they exist already
+if [ 0 != `docker ps -aqf "name=slackemon|postgres" | wc -l | tr -d '[:space:]'` ]; then
+  echo Removing containers...
+  docker rm postgres
+  docker rm slackemon
+fi
 
+echo Creating containers...
 docker run -d -e POSTGRES_PASSWORD=password --name postgres postgres
 docker run -d -e APP_ENV=development -p 80:80 -v ${PWD}:/var/www/html --link postgres:postgres --name slackemon slackemon
