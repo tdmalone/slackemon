@@ -65,10 +65,10 @@ function slackemon_get_cached_url( $url, $options = [] ) {
     $data = slackemon_file_get_contents( $hash['filename'], 'cache' );
 
     if ( $data ) {
-      slackemon_log_cache_event( $url, $hash['filename'], 'hit' );
+      slackemon_cache_debug( $url, $hash['filename'], 'hit' );
       return $data;
     } else {
-      slackemon_log_cache_event( $url, $hash['filename'], 'empty' );
+      slackemon_cache_debug( $url, $hash['filename'], 'empty' );
     }
   }
 
@@ -88,7 +88,7 @@ function slackemon_get_cached_url( $url, $options = [] ) {
     $real_url = $url;
   }
 
-  slackemon_log_cache_event( $url, $hash['filename'], $is_cache_expired ? 'expired' : 'miss' );
+  slackemon_cache_debug( $url, $hash['filename'], $is_cache_expired ? 'expired' : 'miss' );
 
   $data = slackemon_get_url( $real_url, $options );
   slackemon_file_put_contents( $hash['filename'], $data, 'cache' );
@@ -105,7 +105,7 @@ function slackemon_get_cached_image_url( $image_url ) {
   }
 
   if ( ! $image_url ) {
-    slackemon_log_cache_event( $image_url, '', 'image-error-missing-url' );
+    slackemon_cache_debug( $image_url, '', 'image-error-missing-url' );
     return false;
   }
 
@@ -117,8 +117,9 @@ function slackemon_get_cached_image_url( $image_url ) {
 
   // Does image exist in local cache? Return the URL now - either the local URL, or the remote URL stored in the file
   if ( file_exists( $hash['filename'] ) ) {
-    slackemon_log_cache_event( $image_url, $hash['filename'], 'image-hit', $local_url );
-    return 'local' === SLACKEMON_IMAGE_CACHE_METHOD ? $local_url : file_get_contents( $hash['filename'] );
+    $returned_url = 'local' === SLACKEMON_IMAGE_CACHE_METHOD ? $local_url : file_get_contents( $hash['filename'] );
+    slackemon_cache_debug( $image_url, $hash['filename'], 'image-hit', $returned_url );
+    return $returned_url;
   }
 
   // Make sure full local cache folder exists
@@ -135,11 +136,11 @@ function slackemon_get_cached_image_url( $image_url ) {
       $image_data = slackemon_get_url( $image_url );
 
       if ( ! $image_data ) {
-        slackemon_log_cache_event( $image_url, $hash['filename'], 'image-error-no-data-at-url' );
+        slackemon_cache_debug( $image_url, $hash['filename'], 'image-error-no-data-at-url' );
         return false;
       }
       
-      slackemon_log_cache_event( $image_url, $hash['filename'], 'image-miss' );
+      slackemon_cache_debug( $image_url, $hash['filename'], 'image-miss', $local_url );
       file_put_contents( $hash['filename'], $image_data );
 
       return $local_url;
@@ -157,14 +158,14 @@ function slackemon_get_cached_image_url( $image_url ) {
       if ( $slackemon_s3->doesObjectExist( SLACKEMON_IMAGE_CACHE_BUCKET, $remote_key ) ) {
 
         $remote_url = $slackemon_s3->getObjectUrl( SLACKEMON_IMAGE_CACHE_BUCKET, $remote_key );
-        slackemon_log_cache_event( $image_url, $hash['filename'], 'image-soft-miss' );
+        slackemon_cache_debug( $image_url, $hash['filename'], 'image-soft-miss', $remote_url );
 
       } else {
 
         $image_data = slackemon_get_url( $image_url );
 
         if ( ! $image_data ) {
-          slackemon_log_cache_event( $image_url, $hash['filename'], 'image-error-no-data-at-url' );
+          slackemon_cache_debug( $image_url, $hash['filename'], 'image-error-no-data-at-url' );
           return false;
         }
 
@@ -184,7 +185,7 @@ function slackemon_get_cached_image_url( $image_url ) {
 
           // Log an event and return the original image URL in case of exception
 
-          slackemon_log_cache_event(
+          slackemon_cache_debug(
             $image_url,
             $hash['filename'],
             'image-error-aws-exception',
@@ -196,7 +197,7 @@ function slackemon_get_cached_image_url( $image_url ) {
         }
 
         $remote_url = $result['ObjectURL'];
-        slackemon_log_cache_event( $image_url, $hash['filename'], 'image-miss' );
+        slackemon_cache_debug( $image_url, $hash['filename'], 'image-miss', $remote_url );
 
       }
 
@@ -237,23 +238,25 @@ function slackemon_calculate_hash( $url_or_filename, $base_dir = '', $context_da
   $filename  = $folder . '/' . $hash . '-' . $basename;
 
   return [
-    'hash' 		=> $hash,
-    'folder' 	=> $folder,
-    'basename' 	=> $basename,
-    'filename' 	=> $filename,
-    'path'      => str_replace( $base_dir . '/', '', $filename ),
+    'hash'     => $hash,
+    'folder'   => $folder,
+    'basename' => $basename,
+    'filename' => $filename,
+    'path'     => str_replace( $base_dir . '/', '', $filename ),
   ];
 
 } // Function slackemon_calculate_hash
 
-/** Simple function to log cache events. */
-function slackemon_log_cache_event( $url, $filename, $cache_status, $additional_info = '' ) {
+function slackemon_cache_debug( $url, $filename, $cache_status, $additional_info = '' ) {
 
-  // TODO: Implement some form of cache event logging here
-  //error_log( $url . ' - ' . $filename . ' - ' . $cache_status . ' - ' . $additional_info );
+  if ( ! SLACKEMON_CACHE_DEBUG ) {
+    return;
+  }
+
+  error_log( $url . ' - ' . $filename . ' - ' . $cache_status . ' - ' . $additional_info );
 
   return;
 
-} // Function slackemon_log_cache_event
+}
 
 // The end!
