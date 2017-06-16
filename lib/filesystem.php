@@ -88,6 +88,13 @@ function slackemon_file_get_contents( $filename, $purpose ) {
 
     case 'aws':
 
+      // Augment S3 with a temporary local cache, if the file exists
+      if ( file_exists( $filename ) ) {
+        $return = file_get_contents( $filename );
+        slackemon_cache_debug( '', $filename, 'aws-file-get-augmented' );
+        return $return;
+      }
+
       global $slackemon_s3;
 
       try {
@@ -115,6 +122,13 @@ function slackemon_file_get_contents( $filename, $purpose ) {
       slackemon_cache_debug( '', $filename, 'aws-file-get', slackemon_get_s3_key( $filename ) );
 
       $return = $result['Body'];
+
+      // Augment S3 with a temporary local cache
+      $folder = pathinfo( $filename, PATHINFO_DIRNAME );
+      if ( ! is_dir( $folder ) ) {
+        mkdir( $folder, 0777, true );
+      }
+      file_put_contents( $filename, $return );
 
     break; // Case aws.
 
