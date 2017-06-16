@@ -88,9 +88,9 @@ function slackemon_file_get_contents( $filename, $purpose ) {
 
     case 'aws':
 
-      // Augment S3 with a temporary local cache, if the file exists
-      if ( file_exists( $filename ) ) {
-        $return = file_get_contents( $filename );
+      // Augment S3 with a temporary local cache, if the file exists.
+      if ( 'cache' === $purpose && slackemon_file_exists( $filename, 'local' ) ) {
+        $return = slackemon_file_get_contents( $filename, 'local' );
         slackemon_cache_debug( '', $filename, 'aws-file-get-augmented' );
         return $return;
       }
@@ -123,12 +123,10 @@ function slackemon_file_get_contents( $filename, $purpose ) {
 
       $return = $result['Body'];
 
-      // Augment S3 with a temporary local cache
-      $folder = pathinfo( $filename, PATHINFO_DIRNAME );
-      if ( ! is_dir( $folder ) ) {
-        mkdir( $folder, 0777, true );
+      // Facilitate augmenting S3 with a temporary local cache.
+      if ( 'cache' === $purpose ) {
+        slackemon_file_put_contents( $filename, $return, 'local' );
       }
-      file_put_contents( $filename, $return );
 
     break; // Case aws.
 
@@ -289,8 +287,18 @@ function slackemon_file_exists( $filename, $purpose ) {
     break;
 
     case 'aws':
+
+      // Augment S3 with a temporary local cache.
+      if ( 'cache' === $purpose && slackemon_file_exists( $filename, 'local' ) ) {
+        slackemon_cache_debug( '', $filename, 'aws-file-exists-augmented' );
+        return true;
+      }
+
       global $slackemon_s3;
       $return = $slackemon_s3->doesObjectExist( SLACKEMON_DATA_BUCKET, slackemon_get_s3_key( $filename ) );
+
+      slackemon_cache_debug( '', $filename, 'aws-file-exists' );
+
     break;
 
   } // Switch slackemon_get_data_method
@@ -338,6 +346,13 @@ function slackemon_filemtime( $filename, $purpose ) {
 
     case 'aws':
 
+      // Augment S3 with a temporary local cache, if the file exists.
+      if ( 'cache' === $purpose && slackemon_file_exists( $filename, 'local' ) ) {
+        $return = slackemon_filemtime( $filename, 'local' );
+        slackemon_cache_debug( '', $filename, 'aws-file-mtime-augmented' );
+        return $return;
+      }
+
       global $slackemon_s3;
 
       try {
@@ -363,6 +378,8 @@ function slackemon_filemtime( $filename, $purpose ) {
       }
 
       $return = date_timestamp_get( $result['LastModified'] );
+
+      slackemon_cache_debug( '', $filename, 'aws-file-mtime' );
 
     break; // Case aws.
 
