@@ -67,11 +67,12 @@ $_slackemon_constant_defaults = [
   'POKEDEX_PER_PAGE'       => 20,
   'MAX_KNOWN_MOVES'        => 4,
 
-  // If enabled, sends debugging messages to the configured maintainer during spawns and battles
-  // Sometimes useful when doing further development on these features
+  // If enabled, outputs verbose debugging messages to the error_log
+  // Useful when doing further development on these features
   'BATTLE_DEBUG'           => false,
-  'SPAWN_DEBUG'            => false,
+  'CACHE_DEBUG'            => false,
   'DATABASE_DEBUG'         => false,
+  'SPAWN_DEBUG'            => false,
 
   // Database table prefix
   'TABLE_PREFIX'           => 'slackemon_',
