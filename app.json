@@ -3,7 +3,7 @@
   "description": "Inspired by Pokémon Go, now you can collect Pokémon and battle your teammates on Slack!",
   "website":     "https://github.com/tdmalone/slackemon",
   "repository":  "https://github.com/tdmalone/slackemon",
-  "logo":        "https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/emoji/pokeball.png",
+  "logo":        "https://cdn.rawgit.com/tdmalone/slackemon/5109c1f231ac54d29d0aa26094342aaeff7dc51a/media/emoji/pokeball.png",
   "success_url": "https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku",
   "image":       "heroku/php",
   "keywords": [

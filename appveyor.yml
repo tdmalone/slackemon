@@ -7,9 +7,10 @@ install:
   - choco install -y OpenSSL.Light php
   - cd c:\tools\php71
   - copy php.ini-production php.ini
-  - echo extension=php_openssl.dll >> php.ini # Required by Composer
+  - echo extension=php_openssl.dll  >> php.ini # Required by Composer
   - echo extension=php_mbstring.dll >> php.ini # Required by PHPUnit
-  - echo extension_dir="ext" >> php.ini # Enable extensions
+  - echo extension=php_curl.dll     >> php.ini # Required by Slackemon!
+  - echo extension_dir="ext"        >> php.ini # Enable extensions
   - cd C:\projects\slackemon
   - SET PATH=C:\tools\php71;%PATH%
   - php -r "readfile('http://getcomposer.org/installer');" | php
@@ -23,6 +24,20 @@ test_script:
 build: off
 
 notifications:
+
+  # Slack
   - provider: Slack
     incoming_webhook:
       secure: Z/sBH2RXNief0BVgo2cazy1KoJMgpA0dZup/E2NMKM9Z40bWyoIK0+yRRJ8HFRxZCNGS+Kri7epYUWDb4QZ8QZHOBKyREESninj1ZM2YT3U=
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: true
+
+  # Gitter
+  # Currently configured in AppVeyor interface, as secure vars for webhook URLs are not supported yet
+  #- provider: Webhook
+  #  url:
+  #    secure: /2tAaEmW+de0UbUmtpuQTWfzeiLuKfsUVjzDDMK0kKNkUlFSmH6Ik1/mRpHrhBiUn8SvsDlYSehnSHEFEbN4HQ==
+  #  on_build_success: true
+  #  on_build_failure: true
+  #  on_build_status_changed: true

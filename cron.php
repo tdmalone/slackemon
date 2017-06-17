@@ -7,7 +7,7 @@
  */
 
 define( 'SKIP_AUTH', true );
-require_once( __DIR__ . '/init.php' );
+require_once( __DIR__ . '/lib/init.php' );
 
 // AUTH: Check if the cron token was set if running over the web.
 if (
@@ -15,7 +15,8 @@ if (
   ( ! isset( $_REQUEST['token'] ) || SLACKEMON_CRON_TOKEN !== $_REQUEST['token'] )
 ) {
   http_response_code( 403 );
-  slackemon_exit( 'Not authorised for this cron request.' );
+  error_log( 'Unauthorised cron request.' );
+  return slackemon_exit( 'Not authorised for this cron request.' );
 }
 
 // Cron schedule
@@ -63,6 +64,6 @@ foreach ( SLACKEMON_CRON_SCHEDULE as $item ) {
 
 } // Foreach SLACKEMON_CRON_SCHEDULE $item
 
-slackemon_exit();
+return slackemon_exit();
 
 // The end!

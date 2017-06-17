@@ -1,13 +1,14 @@
 # Slackémon
 
 [![Latest Release](https://img.shields.io/github/release/tdmalone/slackemon/all.svg)](https://github.com/tdmalone/slackemon/releases)
+[![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby)
 [![License](https://poser.pugx.org/tdmalone/slackemon/license)](https://github.com/tdmalone/slackemon/blob/master/LICENSE)
-[![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby)  
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftdmalone%2Fslackemon.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftdmalone%2Fslackemon?ref=badge_shield)  
 [![Linux build status](https://travis-ci.org/tdmalone/slackemon.svg?branch=master)](https://travis-ci.org/tdmalone/slackemon)
 [![Windows build status](https://img.shields.io/appveyor/ci/TimMalone/slackemon.svg)](https://ci.appveyor.com/project/TimMalone/slackemon)
 [![Docker build status](https://img.shields.io/docker/build/tdmalone/slackemon.svg)](https://hub.docker.com/r/tdmalone/slackemon/builds/)
 [![Codacy code quality grade](https://img.shields.io/codacy/grade/229c6c8928db485fa87f7648d150dbd8/master.svg)](https://www.codacy.com/app/tdmalone/slackemon/dashboard)
-[![Coverage status](https://img.shields.io/coveralls/tdmalone/slackemon/master.svg)](https://coveralls.io/github/tdmalone/slackemon?branch=master)
+[![Coverage status](https://img.shields.io/codecov/c/github/tdmalone/slackemon/master.svg)](https://codecov.io/gh/tdmalone/slackemon/branch/master)
 
 Inspired by Pokémon Go, now you can catch and battle Pokémon with your teammates on Slack!
 
@@ -19,7 +20,7 @@ Scroll down for more setup options
 
 ## Screenshots
 
-<a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/spawn.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/spawn.png" alt="Pokemon spawn" height="250"></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/wild-battle.png"><img src="https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/screenshots/wild-battle.png" alt="Achievements screen" height="250"></a>
+<a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/spawn.png"><img src="https://cdn.rawgit.com/tdmalone/slackemon/5109c1f231ac54d29d0aa26094342aaeff7dc51a/media/screenshots/spawn.png" alt="Pokemon spawn" height="250"></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/wild-battle.png"><img src="https://cdn.rawgit.com/tdmalone/slackemon/5109c1f231ac54d29d0aa26094342aaeff7dc51a/media/screenshots/wild-battle.png" alt="Achievements screen" height="250"></a>
 
 [More screenshots](https://github.com/tdmalone/slackemon/tree/master/_images/screenshots)
 

@@ -1,0 +1,18 @@
+coverage:
+
+  status:
+    project:
+      default: false  # Disable the default status that measures entire project, it seems to have trouble finding commits to compare against
+
+  notify:
+
+    # Slack
+    slack:
+      default:
+        url: secret:oCrBaxCGOkkOw2lS8/j3rPngZhcRXh9kN9XjSbMDM8zfskRv9qc8nLHsPE4nQ2IDMtCwU79dp/0olPDYjP8n3PaekRE0bq7jtZOyoyn2yRdojOLWGjfA4gyPI0bYApdTQPvFCeetsDg/7KKp/7lUcwryhtVoj2CwwvPi+rftVVQ=
+
+    # Gitter
+    gitter:
+      default:
+        url: secret:aSildbzaxigSAte00r9azncZLwEIV7p2EO84VSBsfAlwMvJwML0bzZn7CvEsHpYQm5MB1nYX4bYBJRHSlVQ9lo2XReDo2nilR5RVklbKC6caorVgOd4UzrIOnIghF1e6
+    

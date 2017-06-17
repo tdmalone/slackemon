@@ -16,45 +16,48 @@ if ( $payload ) {
   // Action, or message menu options request?
   if ( isset( $payload->actions ) && count( $payload->actions ) ) {
 
+    // Set up Slackemon environment.
     $action = $payload;
-    require_once( __DIR__ . '/actions.php' );
+    require_once( __DIR__ . '/lib/init.php' );
 
-    slackemon_exit();
+    // Handle the action in the background.
+    $callback_id = $action->callback_id;
+    slackemon_run_background_action( 'src/_actions.php', $action, $callback_id );
+
+    return slackemon_exit();
 
   } elseif ( isset( $payload->action_ts ) && isset( $payload->callback_id ) ) {
 
+    // Set up Slackemon environment.
     $options_request = $payload;
-    require_once( __DIR__ . '/options-request.php' );
+    require_once( __DIR__ . '/lib/init.php' );
 
-    slackemon_exit();
+    // Prepare for JSON output, which will happen within our request handler.
+    header( 'Content-Type: application/json' );
+
+    // Handle the options request.
+    $options = slackemon_get_slack_message_menu_options( $options_request->name, $options_request->value );
+
+    if ( $options ) {
+      echo $options;
+    }
+
+    return slackemon_exit();
 
   }
 }
 
 // Otherwise, let's get going - no-one will get past here now unless they're authorised with a Slack App token.
-require_once( __DIR__ . '/init.php' );
+require_once( __DIR__ . '/lib/init.php' );
 
 // Init the once-off, entry-point stuff.
-define( 'COMMAND', $_POST['command'] );
-
-// Finally, invoke the command by requiring it!
-
-$command_name = substr( COMMAND, 1 );
-$default_entry_point = __DIR__ . '/' . $command_name . '/' . $command_name . '.php';
-
-if ( file_exists( $default_entry_point ) ) {
-
-  require( $default_entry_point );
-
-} else {
-
-  echo 'Oops! Command instructions could not be found. Please contact <@' . SLACKEMON_MAINTAINER . '> for help.';
-
+if ( ! defined( 'COMMAND' ) ) {
+  define( 'COMMAND', $_POST['command'] );
 }
 
-// Exit, unless this is a test run.
-if ( 'unit-tests' !== $_POST['text'] ) {
-  slackemon_exit();
-}
+// Run as a background command, as long as this isn't a test run.
+$args = check_subcommands();
+slackemon_run_background_command( 'src/_commands.php', $args );
+return slackemon_exit();
 
 // The end!
