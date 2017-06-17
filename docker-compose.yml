@@ -5,6 +5,8 @@ services:
     restart: always
     volumes: 
       - ./:/slackemon
+    env_file:
+      - .env
 
   webserver:
     image: nginx:alpine
@@ -21,15 +23,13 @@ services:
     expose:
       - "5432"
     volumes:
-      - slackemon_db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_PASSWORD=slackemon_password
-      - POSTGRES_USER=slackemon_user
-      - POSTGRES_DB=slackemon_db
       - PGDATA=/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env
 
 # Local volume where to store data
 # in a persistent way
 volumes:
-  slackemon_db_data:
-  
+  db_data:
