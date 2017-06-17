@@ -66,7 +66,7 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
     return false;
   }
 
-  $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store' ) );
+  $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', true ) );
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
 
   // Ensure player is not caught in a cancelled region if the available regions change

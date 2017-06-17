@@ -38,6 +38,9 @@ function slackemon_change_data_folder( $new_data_folder ) {
  */
 function slackemon_exit( $status = '' ) {
   
+  // Remove any open file locks
+  slackemon_remove_file_locks();
+
   // Attempt to close database connection if the database file was included.
   if ( function_exists( 'slackemon_pg_close' ) ) {
     slackemon_pg_close();

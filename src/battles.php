@@ -1856,7 +1856,7 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
     return false;
   }
 
-  $battle_data = json_decode( slackemon_file_get_contents( $battle_filename, 'store' ) );
+  $battle_data = json_decode( slackemon_file_get_contents( $battle_filename, 'store', true ) );
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
 
   return $battle_data;

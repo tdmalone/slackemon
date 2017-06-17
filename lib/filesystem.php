@@ -53,11 +53,13 @@ if (
  * DO NOT USE THIS FUNCTION FOR IMAGE CACHING. Image caching relies on its own method, and still needs local access
  * even when images are stored remotely.
  *
- * @param string $filename Name of the file to read.
- * @param string $purpose  The purpose of the read - 'cache' or 'store'.
+ * @param string $filename     Name of the file to read.
+ * @param string $purpose      The purpose of the read - 'cache' or 'store'.
+ * @param bool   $acquire_lock Whether to acquire a lock on the file for writing data back to it. Has no effect if the
+ *                             purpose of the read is 'cache'.
  * @link http://php.net/file_get_contents
  */
-function slackemon_file_get_contents( $filename, $purpose ) {
+function slackemon_file_get_contents( $filename, $purpose, $acquire_lock = false ) {
 
   switch ( slackemon_get_data_method( $purpose ) ) {
 
@@ -131,6 +133,13 @@ function slackemon_file_get_contents( $filename, $purpose ) {
     break; // Case aws.
 
   } // Switch slackemon_get_data_method
+
+  // Acquire a lock if we have asked for one; if we can't get one we must return false
+  if ( 'store' === $purpose && $acquire_lock ) {
+    if ( ! slackemon_lock_file( $filename ) ) {
+      return false;
+    }
+  }
 
   if ( isset( $return ) ) {
     return $return;
@@ -649,5 +658,65 @@ function slackemon_get_data_method( $purpose ) {
   return $method;
 
 } // Function slackemon_get_data_method
+
+function slackemon_lock_file( $filename ) {
+  global $_slackemon_file_locks;
+
+  $lock_filename = slackemon_get_lock_filename( $filename );
+
+  while ( slackemon_file_exists( $lock_filename, 'store' ) ) {
+    error_log( 'Waiting to acquire lock on ' . $filename . '...' );
+    sleep( 1 );
+    clearstatcache();
+  }
+
+  if ( slackemon_file_put_contents( $lock_filename, time(), 'store' ) ) {
+    $_slackemon_file_locks[] = $filename;
+    error_log( 'Lock acquired on ' . $filename );
+    return true;
+  } else {
+    error_log( 'Lock COULD NOT be acquired on ' . $filename );
+    return false;
+  }
+
+} // Function slackemon_lock_file
+
+function slackemon_remove_file_locks() {
+  global $_slackemon_file_locks;
+
+  if ( ! is_array( $_slackemon_file_locks ) || ! count( $_slackemon_file_locks ) ) {
+    return;
+  }
+
+  foreach ( $_slackemon_file_locks as $filename ) {
+    
+    $lock_filename = slackemon_get_lock_filename( $filename );
+
+    if ( slackemon_unlink( $lock_filename, 'store' ) ) {
+      error_log( 'Lock removed on ' . $filename );
+    } else {
+      error_log( 'WARNING: Lock COULD NOT be REMOVED on ' . $filename );
+    }
+  }
+
+} // Function slackemon_remove_file_locks
+
+function slackemon_get_lock_filename( $filename ) {
+
+  $pathinfo     = pathinfo( $filename );
+  $folder_parts = explode( DIRECTORY_SEPARATOR, $pathinfo['dirname'] );
+  $final_folder = array_pop( $folder_parts );
+
+  $lock_folder  = join( DIRECTORY_SEPARATOR, $folder_parts ) . DIRECTORY_SEPARATOR . 'locks_' . $final_folder; 
+
+  if ( ! is_dir( $lock_folder ) ) {
+    mkdir( $lock_folder, 0777, true );
+  }
+
+  $lock_filename = $lock_folder . DIRECTORY_SEPARATOR . $pathinfo['basename'];
+
+  return $lock_filename;
+
+} // Function slackemon_get_lock_filename
 
 // The end!
