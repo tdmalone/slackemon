@@ -416,6 +416,12 @@ function slackemon_rename( $old_filename, $new_filename, $purpose ) {
 
     case 'local':
 
+      $new_folder = pathinfo( $new_filename, PATHINFO_DIRNAME );
+
+      if ( ! is_dir( $new_folder ) ) {
+        mkdir( $new_folder, 0777, true );
+      }
+
       $return = rename( $old_filename, $new_filename );
 
     break;
@@ -689,7 +695,7 @@ function slackemon_remove_file_locks() {
   }
 
   foreach ( $_slackemon_file_locks as $filename ) {
-    
+
     $lock_filename = slackemon_get_lock_filename( $filename );
 
     if ( slackemon_unlink( $lock_filename, 'store' ) ) {
