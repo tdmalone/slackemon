@@ -56,7 +56,10 @@ function slackemon_get_combined_evs( $evs ) {
 function slackemon_get_nature_stat_modifications( $nature_name ) {
 
   if ( ! $nature_name ) {
-    return [ 'increase' => false, 'decrease' => false ];
+    return [
+      'increase' => false,
+      'decrease' => false,
+    ];
   }
 
   // Get and sort out nature data - because we don't have some stats, we apply the nature to others
@@ -64,7 +67,10 @@ function slackemon_get_nature_stat_modifications( $nature_name ) {
   $increased_stat = $nature_data->increased_stat ? $nature_data->increased_stat->name : false;
   $decreased_stat = $nature_data->decreased_stat ? $nature_data->decreased_stat->name : false;
 
-  return [ 'increase' => $increased_stat, 'decrease' => $decreased_stat ];
+  return [
+    'increase' => $increased_stat,
+    'decrease' => $decreased_stat,
+  ];
 
 } // Function slackemon_get_nature_stats
 
