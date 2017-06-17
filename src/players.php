@@ -41,20 +41,26 @@ function slackemon_register_player( $user_id = USER_ID ) {
 
 } // Function slackemon_register_player
 
-function slackemon_save_player_data( $player_data, $user_id = USER_ID ) {
+function slackemon_save_player_data( $player_data, $user_id = USER_ID, $relinquish_lock = false ) {
   global $data_folder, $_cached_slackemon_player_data;
 
   $player_filename = $data_folder . '/players/' . $user_id;
 
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
-  return slackemon_file_put_contents( $player_filename, json_encode( $player_data ), 'store' );
+  $return = slackemon_file_put_contents( $player_filename, json_encode( $player_data ), 'store' );
+
+  if ( $relinquish_lock ) {
+    slackemon_unlock_file( $player_filename );
+  }
+
+  return $return;
 
 } // Function slackemon_save_player_data
 
-function slackemon_get_player_data( $user_id = USER_ID ) {
+function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
   global $data_folder, $_cached_slackemon_player_data;
 
-  if ( isset( $_cached_slackemon_player_data[ $user_id ] ) ) {
+  if ( ! $for_writing && isset( $_cached_slackemon_player_data[ $user_id ] ) ) {
     return $_cached_slackemon_player_data[ $user_id ];
   }
 
@@ -66,7 +72,7 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
     return false;
   }
 
-  $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', true ) );
+  $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', $for_writing ) );
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
 
   // Ensure player is not caught in a cancelled region if the available regions change
@@ -358,10 +364,10 @@ function slackemon_get_player_menu_mode( $user_id = USER_ID ) {
 
 function slackemon_set_player_menu_mode( $menu_mode, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->menu_mode = $menu_mode;
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_set_player_menu_mode
 

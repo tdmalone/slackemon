@@ -163,11 +163,19 @@ function slackemon_file_get_contents( $filename, $purpose, $acquire_lock = false
  * @param string $purpose  The purpose of the write - 'cache' or 'store'.
  * @link http://php.net/file_put_contents
  */
-function slackemon_file_put_contents( $filename, $data, $purpose ) {
+function slackemon_file_put_contents( $filename, $data, $purpose, $warn_if_not_locked = true ) {
 
   // Support $data being an array, like file_put_contents() does.
   if ( is_array( $data ) ) {
     $data = implode( '', $data );
+  }
+
+  // Warn if we're trying to write to a data store file that we don't own a lock on
+  if ( 'store' === $purpose && $warn_if_not_locked && ! slackemon_is_file_owned( $filename ) ) {
+    slackemon_lock_debug(
+      'WARNING: Writing to ' . $filename . ' without a file lock.' . PHP_EOL .
+      print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 3 ), true )
+    );
   }
 
   switch ( slackemon_get_data_method( $purpose ) ) {
@@ -668,6 +676,7 @@ function slackemon_get_data_method( $purpose ) {
 function slackemon_lock_file( $filename ) {
   global $_slackemon_file_locks;
 
+  // If file locking is not enabled, just return true so we don't prevent things from running
   if ( ! SLACKEMON_ENABLE_FILE_LOCKING ) {
     return true;
   }
@@ -681,8 +690,8 @@ function slackemon_lock_file( $filename ) {
     clearstatcache(); // Required to ensure the file_exists call doesn't rely on its cache
   }
 
-  if ( slackemon_file_put_contents( $lock_filename, time(), 'store' ) ) {
-    $_slackemon_file_locks[] = $filename;
+  if ( slackemon_file_put_contents( $lock_filename, time(), 'store', false ) ) {
+    $_slackemon_file_locks[ md5( $filename ) ] = $filename;
     slackemon_lock_debug( 'Lock acquired on ' . $filename );
     return true;
   } else {
@@ -691,6 +700,31 @@ function slackemon_lock_file( $filename ) {
   }
 
 } // Function slackemon_lock_file
+
+function slackemon_unlock_file( $filename ) {
+  global $_slackemon_file_locks;
+
+  if ( ! SLACKEMON_ENABLE_FILE_LOCKING ) {
+    return true;
+  }
+
+  $lock_filename = slackemon_get_lock_filename( $filename );
+
+  if ( slackemon_unlink( $lock_filename, 'store' ) ) {
+    slackemon_lock_debug( 'Lock individually removed on ' . $filename );
+    unset( $_slackemon_file_locks[ md5( $filename ) ] );
+    return true;
+  } else {
+    slackemon_lock_debug( 'WARNING: Lock COULD NOT be REMOVED on ' . $filename, true );
+    return false;
+  }
+
+} // Function slackemon_unlock_file
+
+function slackemon_is_file_owned( $filename ) {
+  global $_slackemon_file_locks;
+  return array_key_exists( md5( $filename ), $_slackemon_file_locks );
+}
 
 function slackemon_remove_file_locks() {
   global $_slackemon_file_locks;
