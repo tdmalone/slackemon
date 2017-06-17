@@ -470,7 +470,7 @@ function slackemon_notify_spawn( $spawn ) {
     $this_message = $message;
     $is_desktop = 'desktop' === slackemon_get_player_menu_mode( $player_id );
 
-    $seen = slackemon_has_user_seen_pokemon( $player_id, $spawn['pokedex'] );
+    $seen   = slackemon_has_user_seen_pokemon(   $player_id, $spawn['pokedex'] );
     $caught = slackemon_has_user_caught_pokemon( $player_id, $spawn['pokedex'] );
 
     if ( $caught ) {
