@@ -26,7 +26,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
   if ( ! $catch_too_late && 'flee' !== $force_battle_result ) {
 
     // Send message, and wait for a bit before we continue
-    send2slack( $message );
+    slackemon_send2slack( $message );
 
     if ( 'catch' === $force_battle_result ) {
       // Don't wait here - it's obvious from a battle ending that this is going to be a catch
@@ -350,7 +350,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
 
   // Are we already in battle?
   if ( slackemon_is_player_in_battle( $user_id ) ) {
-    send2slack([
+    slackemon_send2slack([
       'text'    => ':exclamation: *Oops!* You\'re already in a battle - you can\'t start another one just yet. :smile:',
       'channel' => $user_id,
     ]);
@@ -438,7 +438,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
   slackemon_save_battle_data( $battle_data, $battle_hash );
 
   // Get first attachment
-  send2slack([
+  slackemon_send2slack([
     'attachments' => slackemon_get_battle_attachments( $battle_hash, $inviter_id, 'first', '' ),
   ], RESPONSE_URL );
 

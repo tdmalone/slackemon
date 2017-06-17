@@ -28,7 +28,7 @@ function slackemon_get_url( $url, $options = [] ) {
   $result = curl_exec( $ch );
 
   if ( false === $result ) {
-    send2slack( ':no_entry: ' . curl_error( $ch ) . "\n" . '_' . $url . '_' ); // Send errors to Slack
+    slackemon_send2slack( ':no_entry: ' . curl_error( $ch ) . "\n" . '_' . $url . '_' ); // Send errors to Slack
     curl_close( $ch );
     exit();
   }
@@ -76,7 +76,7 @@ function slackemon_get_cached_url( $url, $options = [] ) {
 
   // Allow a waiting message to be sent, if requested
   if ( isset( $options['alert_if_uncached'] ) && $options['alert_if_uncached'] ) {
-    send2slack( 'Updating my cache, won\'t be a moment...' );
+    slackemon_send2slack( 'Updating my cache, won\'t be a moment...' );
   }
 
   // Allow a 'real URL' to be provided, useful for including eg. an access token which may need separating from

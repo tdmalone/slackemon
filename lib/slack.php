@@ -6,7 +6,7 @@
  */
 
 /** Send a message to a Slack incoming webhook, given in response to a slash command or action invocation. */
-function send2slack( $message, $hook_url = '' ) {
+function slackemon_send2slack( $payload, $hook_url = '' ) {
   global $action, $data_folder;
 
   // Supports either a single string message, or a standard Slack payload array

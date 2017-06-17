@@ -37,7 +37,7 @@ function slackemon_run_automated_command( $command, $user_id, $team_id, $options
 
     // Our own custom data
 
-    // Instructs send2slack() to either send the response to the user_id channel (AUTORUN), or return it
+    // Instructs slackemon_send2slack() to either send the response to the user_id channel (AUTORUN), or return it
     'special_mode' => $options['return_result'] ? 'RETURN' : 'AUTORUN',
 
     // Send through the run mode, for logging purposes

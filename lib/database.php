@@ -159,7 +159,7 @@ function slackemon_pg_connect() {
 
     slackemon_pg_debug( 'Cannot connect to database.', true );
 
-    send2slack(
+    slackemon_send2slack(
       'Oops, I can\'t connect to the Slackémon database! Please chat to <@' . SLACKEMON_MAINTAINER . '>, who ' .
       'may be able to solve this for you.'
     );

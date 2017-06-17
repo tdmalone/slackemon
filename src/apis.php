@@ -249,7 +249,7 @@ function slackemon_do_action_response( $message ) {
     } // Foreach attachment
   } // If message has attachments
 
-  $result = send2slack( $message );
+  $result = slackemon_send2slack( $message );
   file_put_contents( $data_folder . '/last-action-response', $result );
 
   return $result;
