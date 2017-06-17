@@ -32,3 +32,4 @@ services:
 # in a persistent way
 volumes:
   slackemon_db_data:
+  
