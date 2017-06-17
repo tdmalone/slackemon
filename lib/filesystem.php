@@ -676,8 +676,9 @@ function slackemon_lock_file( $filename ) {
 
   while ( slackemon_file_exists( $lock_filename, 'store' ) ) {
     slackemon_lock_debug( 'Waiting to acquire lock on ' . $filename . '...' );
+    slackemon_send_waiting_message_to_user();
     sleep( 1 );
-    clearstatcache();
+    clearstatcache(); // Required to ensure the file_exists call doesn't rely on its cache
   }
 
   if ( slackemon_file_put_contents( $lock_filename, time(), 'store' ) ) {
