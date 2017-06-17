@@ -668,20 +668,24 @@ function slackemon_get_data_method( $purpose ) {
 function slackemon_lock_file( $filename ) {
   global $_slackemon_file_locks;
 
+  if ( ! SLACKEMON_ENABLE_FILE_LOCKING ) {
+    return true;
+  }
+
   $lock_filename = slackemon_get_lock_filename( $filename );
 
   while ( slackemon_file_exists( $lock_filename, 'store' ) ) {
-    error_log( 'Waiting to acquire lock on ' . $filename . '...' );
+    slackemon_lock_debug( 'Waiting to acquire lock on ' . $filename . '...' );
     sleep( 1 );
     clearstatcache();
   }
 
   if ( slackemon_file_put_contents( $lock_filename, time(), 'store' ) ) {
     $_slackemon_file_locks[] = $filename;
-    error_log( 'Lock acquired on ' . $filename );
+    slackemon_lock_debug( 'Lock acquired on ' . $filename );
     return true;
   } else {
-    error_log( 'Lock COULD NOT be acquired on ' . $filename );
+    slackemon_lock_debug( 'Lock COULD NOT be acquired on ' . $filename );
     return false;
   }
 
@@ -690,7 +694,7 @@ function slackemon_lock_file( $filename ) {
 function slackemon_remove_file_locks() {
   global $_slackemon_file_locks;
 
-  if ( ! is_array( $_slackemon_file_locks ) || ! count( $_slackemon_file_locks ) ) {
+  if ( ! SLACKEMON_ENABLE_FILE_LOCKING || ! is_array( $_slackemon_file_locks ) || ! count( $_slackemon_file_locks ) ) {
     return;
   }
 
@@ -699,9 +703,9 @@ function slackemon_remove_file_locks() {
     $lock_filename = slackemon_get_lock_filename( $filename );
 
     if ( slackemon_unlink( $lock_filename, 'store' ) ) {
-      error_log( 'Lock removed on ' . $filename );
+      slackemon_lock_debug( 'Lock removed on ' . $filename );
     } else {
-      error_log( 'WARNING: Lock COULD NOT be REMOVED on ' . $filename );
+      slackemon_lock_debug( 'WARNING: Lock COULD NOT be REMOVED on ' . $filename, true );
     }
   }
 
@@ -724,5 +728,15 @@ function slackemon_get_lock_filename( $filename ) {
   return $lock_filename;
 
 } // Function slackemon_get_lock_filename
+
+function slackemon_lock_debug( $message, $force_debug = false ) {
+
+  if ( ! $force_debug && ! SLACKEMON_LOCK_DEBUG ) {
+    return;
+  }
+
+  error_log( $message );
+
+}
 
 // The end!

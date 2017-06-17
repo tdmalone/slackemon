@@ -72,10 +72,14 @@ $_slackemon_constant_defaults = [
   'BATTLE_DEBUG'           => false,
   'CACHE_DEBUG'            => false,
   'DATABASE_DEBUG'         => false,
+  'LOCK_DEBUG'             => false,
   'SPAWN_DEBUG'            => false,
 
   // Database table prefix
   'TABLE_PREFIX'           => 'slackemon_',
+
+  // 'File locking' is very rudimentary at the moment, so it's disabled by default
+  'ENABLE_FILE_LOCKING'    => false,
 
 ];
 
