@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
 # 'reset' the containers first if they don't exist yet
-if [ 0 == `docker ps -aqf "name=slackemon|postgres" | wc -l | tr -d '[:space:]'` ]; then
-  echo Containers do not exist yet.
-  `dirname $0`/reset
-else
-  echo Starting containers...
-  docker start postgres
-  docker start slackemon
-fi
+# if [ 0 == `docker ps -aqf "name=slackemon|postgres" | wc -l | tr -d '[:space:]'` ]; then
+#   echo Containers do not exist yet.
+#   `dirname $0`/reset
+# else
+#   echo Starting containers...
+#   docker start postgres
+#   docker start slackemon
+# fi
+
+set -x
+docker-compose up -d --remove-orphans
