@@ -1,7 +1,7 @@
 # Slackémon
 
 [![Latest Release](https://img.shields.io/github/release/tdmalone/slackemon/all.svg)](https://github.com/tdmalone/slackemon/releases)
-[![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby)
+[![Join us on Slack!](https://img.shields.io/badge/chat-on%20slack-e01563.svg)](https://join.slack.com/playslackemon/shared_invite/MTk4Nzc5MTc0MDk2LTE0OTc3NTAwODgtNmU4MDZkZDU0MA)
 [![License](https://poser.pugx.org/tdmalone/slackemon/license)](https://github.com/tdmalone/slackemon/blob/master/LICENSE)
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftdmalone%2Fslackemon.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftdmalone%2Fslackemon?ref=badge_shield)  
 [![Linux build status](https://travis-ci.org/tdmalone/slackemon.svg?branch=master)](https://travis-ci.org/tdmalone/slackemon)
@@ -54,8 +54,8 @@ Scroll down for more setup options
 Setup of Slackémon is _not_ quick. This may be worked on further in the future. For now, there are quite a few steps!
 
 1. Download/clone/etc. the contents of this repository, and put it on a web server somewhere that runs PHP7.
-    * [Download ZIP](https://github.com/tdmalone/slackemon/archive/master.zip)
-    * Clone with Git: `git clone https://github.com/tdmalone/slackemon.git`
+    * [Download ZIP](https://github.com/tdmalone/slackemon/archive/master.zip) or clone with Git: `git clone https://github.com/tdmalone/slackemon.git`
+        * You may need to install depdendencies as well by running `composer install`. If you don't have Composer, [get it here](https://getcomposer.org/download/) first. If you're not going to be developing Slackémon, you can speed up the install of depdendencies by instead running `composer install --no-dev`.
     * Install with Composer: `composer require tdmalone/slackemon`
     * [Deploy with Docker](https://github.com/tdmalone/slackemon/wiki/Installing-with-Docker)
     * [Deploy with Heroku](https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku)
