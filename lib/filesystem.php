@@ -723,7 +723,7 @@ function slackemon_unlock_file( $filename ) {
 
 function slackemon_is_file_owned( $filename ) {
   global $_slackemon_file_locks;
-  return array_key_exists( md5( $filename ), $_slackemon_file_locks );
+  return array_key_exists( md5( $filename ), (array) $_slackemon_file_locks );
 }
 
 function slackemon_remove_file_locks() {

@@ -238,7 +238,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
 function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $battle_hash = false, $force_battle_result = '' ) {
 
   $spawn_data = slackemon_get_spawn_data( $spawn_ts, slackemon_get_player_region( $user_id ), $user_id );
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   if ( $battle_hash ) {
     $battle_data = slackemon_get_battle_data( $battle_hash );
@@ -281,7 +281,7 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
 
     if ( ! $is_caught ) {
 
-      slackemon_add_xp( 25, $user_id ); // Pokemon fled, add 25 XP
+      $player_data->xp = slackemon_add_xp( 25, $player_data ); // Pokemon fled, add 25 XP
 
       foreach ( $player_data->pokedex as $pokedex_entry ) {
         if ( $spawn_data->pokedex == $pokedex_entry->id ) {
@@ -289,7 +289,7 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
             $pokedex_entry->fled = 0;
           }
           $pokedex_entry->fled++;
-          slackemon_save_player_data( $player_data, $user_id );
+          slackemon_save_player_data( $player_data, $user_id, true );
         }
       }
 
@@ -302,14 +302,14 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
 
   // Does the wild Pokemon's HP / PP need adjusting from their battle?
   if ( $battle_hash ) {
-    $spawn_data->hp = $opponent_pokemon->hp;
+    $spawn_data->hp    = $opponent_pokemon->hp;
     $spawn_data->moves = $opponent_pokemon->moves;
     $spawn_data->battles->last_participated = $opponent_pokemon->battles->last_participated;
   }
 
   // Add entry to player's collection
   $spawn_data->is_battle_team = false;
-  $spawn_data->is_favourite = false;
+  $spawn_data->is_favourite   = false;
   unset( $spawn_data->trigger ); // We don't need this anymore
   unset( $spawn_data->users   ); // We don't need this anymore
   $player_data->pokemon[] = $spawn_data;
@@ -333,16 +333,16 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
         $xp_to_add += 50;
       }
 
-      slackemon_add_xp( $xp_to_add, $user_id );
+      $player_data->xp = slackemon_add_xp( $xp_to_add, $player_data );
       $pokedex_entry->caught++;
 
-      return slackemon_save_player_data( $player_data, $user_id );
+      return slackemon_save_player_data( $player_data, $user_id, true );
 
     }
   }
 
   // We should have returned above, but just in case we couldn't find the Pokedex entry for some reason...
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_do_catch
 
