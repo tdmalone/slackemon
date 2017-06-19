@@ -1,21 +1,9 @@
 #!/usr/bin/env bash
 
-# # Run the stop script if our containers are running
-# if [ 0 != `docker ps -qf "name=slackemon|postgres" | wc -l | tr -d '[:space:]'` ]; then
-#   `dirname $0`/stop
-# fi
+# Resets and restarts the Slackemon environment in Docker Compose
+# YOU WILL LOSE ANY DATA STORED IN POSTGRES
 
-# # 'rm' the containers if they exist already
-# if [ 0 != `docker ps -aqf "name=slackemon|postgres" | wc -l | tr -d '[:space:]'` ]; then
-#   echo Removing containers...
-#   docker rm postgres
-#   docker rm slackemon
-# fi
-
-# echo Creating containers...
-# docker run -de POSTGRES_PASSWORD=password --name postgres postgres
-# docker run -de APP_ENV=development -p 80:80 -v ${PWD}:/var/www/html -v /etc/localtime:/etc/localtime:ro --link postgres:postgres --name slackemon slackemon
-
-set -x
-docker-compose down
-./scripts/start
+set -x                              # Output everything to stdout
+docker-compose down                 # Stop the Docker Compose containers
+docker volume rm slackemon_db_data  # Remove Postgres data volume
+`dirname $0`/start                  # Run the start script
