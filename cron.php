@@ -9,9 +9,10 @@
 define( 'SKIP_AUTH', true );
 require_once( __DIR__ . '/lib/init.php' );
 
-// AUTH: Check if the cron token was set if running over the web.
+// AUTH: Check if the cron token was set - if running over the web from a non-local IP address.
 if (
   'cli' !== php_sapi_name() &&
+  ! slackemon_is_ip_private( $_SERVER['REMOTE_ADDR'] ) &&
   ( ! isset( $_REQUEST['token'] ) || SLACKEMON_CRON_TOKEN !== $_REQUEST['token'] )
 ) {
   http_response_code( 403 );

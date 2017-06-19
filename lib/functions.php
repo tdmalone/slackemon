@@ -218,4 +218,36 @@ function strtotitle( $title ) {
 
 } // Function strtotitle
 
+/**
+ * Checks if an IP address is from a recognised private range.
+ *
+ * @link https://stackoverflow.com/a/13818126/1982136
+ */
+function slackemon_is_ip_private( $ip ) {
+
+  $private_ranges = [
+    '10.0.0.0|10.255.255.255',      // Single class A network
+    '172.16.0.0|172.31.255.255',    // 16 contiguous class B network
+    '192.168.0.0|192.168.255.255',  // 256 contiguous class C network
+    '169.254.0.0|169.254.255.255',  // Link-local address aka Automatic Private IP Addressing
+    '127.0.0.0|127.255.255.255'     // Localhost
+  ];
+
+  $long_ip = ip2long( $ip );
+
+  if ( $long_ip && -1 !== $long_ip ) {
+
+    foreach ( $private_ranges as $range ) {
+      list ( $start, $end ) = explode( '|', $range );
+
+      if ( $long_ip >= ip2long( $start ) && $long_ip <= ip2long( $end ) ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+
+} // Function slackemon_is_ip_private
+
 // The end!
