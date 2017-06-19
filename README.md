@@ -1,4 +1,5 @@
 # Slackémon
+[![Follow Slackémon on Twitter!](https://img.shields.io/twitter/follow/slackemon.svg?style=social&label=Follow)](https://twitter.com/slackemon)
 
 [![Latest Release](https://img.shields.io/github/release/tdmalone/slackemon/all.svg)](https://github.com/tdmalone/slackemon/releases)
 [![Join us on Slack!](https://img.shields.io/badge/chat%2fplay-on%20slack-e01563.svg)](https://join.slack.com/playslackemon/shared_invite/MTk4Nzc5MTc0MDk2LTE0OTc3NTAwODgtNmU4MDZkZDU0MA)
