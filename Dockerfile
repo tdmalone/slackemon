@@ -13,9 +13,5 @@ RUN apk update && apk add git zlib-dev nano vim postgresql-dev && \
 # Install Composer package manager
 RUN curl -s http://getcomposer.org/installer | php
 
-# Install the cron job
-RUN echo "* * * * * /usr/local/bin/php /slackemon/cron.php" | crontab - && \
-    crond
-
 # Install dependencies
 RUN php composer.phar install
