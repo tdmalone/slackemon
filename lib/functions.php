@@ -80,7 +80,7 @@ function check_subcommands( $allowed_subcommands = [], $welcome_message = '' ) {
 function slackemon_run_background_command( $path, $args, $additional_fields = [], $additional_fields_as_json = false ) {
 
   // Build command URL
-  $command_url = 'http://' . $_SERVER['SERVER_NAME'];
+  $command_url = 'http://' . $_SERVER['HTTP_HOST'];
   $command_url .= 80 != $_SERVER['SERVER_PORT'] && 443 != $_SERVER['SERVER_PORT'] ? ':' . $_SERVER['SERVER_PORT'] : '';
   $command_url .= str_replace( basename( $_SERVER['SCRIPT_NAME'] ), '', $_SERVER['SCRIPT_NAME'] );
   $command_url .= $path;
@@ -150,7 +150,7 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
 function slackemon_run_background_action( $path, $action, $callback_id ) {
 
   // Build action URL
-  $action_url = 'http://' . $_SERVER['SERVER_NAME'];
+  $action_url = 'http://' . $_SERVER['HTTP_HOST'];
   $action_url .= 80 != $_SERVER['SERVER_PORT'] && 443 != $_SERVER['SERVER_PORT'] ? ':' . $_SERVER['SERVER_PORT'] : '';
   $action_url .= str_replace( basename( $_SERVER['SCRIPT_NAME'] ), '', $_SERVER['SCRIPT_NAME'] );
   $action_url .= $path;
