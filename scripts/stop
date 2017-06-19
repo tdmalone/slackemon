@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-set -x               # Output everything to stdout
+set -x               # Output to stdout every command that is run
 docker-compose stop  # Stop the Docker Compose containers

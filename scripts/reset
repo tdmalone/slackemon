@@ -3,7 +3,7 @@
 # Resets and restarts the Slackemon environment in Docker Compose
 # YOU WILL LOSE ANY DATA STORED IN POSTGRES
 
-set -x                              # Output everything to stdout
-docker-compose down                 # Stop the Docker Compose containers
+set -x                              # Output to stdout every command that is run
+docker-compose down                 # Stops and removes the Docker Compose containers
 docker volume rm slackemon_db_data  # Remove Postgres data volume
 `dirname $0`/start                  # Run the start script

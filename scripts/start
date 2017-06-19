@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-set -x                                 # Output everything to stdout
+set -x                                 # Output to stdout every command that is run
 docker-compose up -d --remove-orphans  # Start the Docker Compose containers detached from the
                                        # current terminal, removing any previous containers
