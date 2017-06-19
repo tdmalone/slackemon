@@ -29,7 +29,7 @@
     <env name="SLACKEMON_INBOUND_URL"   value="https://example.com/"  />
 
     <!-- Define the minimum server vars we expect to be set. -->
-    <server name="SERVER_NAME" value="slackemon-unit-tests" />
+    <server name="HTTP_HOST" value="slackemon-unit-tests" />
     <server name="SERVER_PORT" value="8080" />
 
     <!-- Define the post vars we will expect from Slack during a slash command invocation. -->

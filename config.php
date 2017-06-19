@@ -32,7 +32,18 @@ define( 'SLACKEMON_IMAGE_CACHE_METHOD', getenv( 'SLACKEMON_IMAGE_CACHE_METHOD' )
 define( 'SLACKEMON_IMAGE_CACHE_FOLDER', getenv( 'SLACKEMON_IMAGE_CACHE_FOLDER' ) ?: '.image-cache'        );
 define( 'SLACKEMON_IMAGE_CACHE_BUCKET', getenv( 'SLACKEMON_IMAGE_CACHE_BUCKET' ) );
 
-define( 'SLACKEMON_DATABASE_URL',       getenv( 'SLACKEMON_DATABASE_URL'       ) ?: getenv( 'DATABASE_URL' ) );
+// Prefer SLACKEMON_DATABASE_URL, fallback to DATABASE_URL (Heroku) and then to POSTGRES_USER/PASSWORD/DB (Docker Compose)
+if ( getenv( 'SLACKEMON_DATABASE_URL' ) ) {
+  define( 'SLACKEMON_DATABASE_URL', getenv( 'SLACKEMON_DATABASE_URL' ) );
+} else if ( getenv( 'DATABASE_URL' ) ) {
+  define( 'SLACKEMON_DATABASE_URL', getenv( 'DATABASE_URL' ) );
+} else if ( getenv( 'POSTGRES_USER' ) && getenv( 'POSTGRES_PASSWORD' ) && getenv( 'POSTGRES_DB' ) ) {
+  define(
+    'SLACKEMON_DATABASE_URL',
+    'postgres://' . getenv( 'POSTGRES_USER' ) . ':' . getenv( 'POSTGRES_PASSWORD' ) .
+    '@database:5432/' . getenv( 'POSTGRES_DB' )
+  );
+}
 
 define( 'SLACKEMON_AWS_ID',             getenv( 'SLACKEMON_AWS_ID'             ) );
 define( 'SLACKEMON_AWS_SECRET',         getenv( 'SLACKEMON_AWS_SECRET'         ) );

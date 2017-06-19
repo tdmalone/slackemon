@@ -1,0 +1,42 @@
+version: "2"
+services:
+  php:
+    build: .
+    restart: always
+    volumes: 
+      - ./:/slackemon
+    env_file:
+      - .env
+
+  webserver:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/slackemon
+      - ./etc/nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+  database:
+    image: postgres:alpine
+    restart: always
+    expose:
+      - "5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    env_file:
+      - .env
+    
+  cronjob:
+    image: appropriate/curl
+    restart: always
+    volumes:
+      - ./etc/crond/root:/var/spool/cron/crontabs/root
+    command: crond -f
+
+# Local volume where to store data
+# in a persistent way
+volumes:
+  db_data:
