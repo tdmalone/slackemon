@@ -57,41 +57,91 @@ define( 'SLACKEMON_TIMEZONE',           getenv( 'SLACKEMON_TIMEZONE'           )
 define( 'SLACKEMON_WEATHER_LAT_LON',    getenv( 'SLACKEMON_WEATHER_LAT_LON'    ) ?: '-37.81,144.96'       );
 define( 'SLACKEMON_MONETARY_LOCALE',    getenv( 'SLACKEMON_MONETARY_LOCALE'    ) ?: 'en_AU'               );
 
+// If you need to deploy Slackemon, or different instances of it, at a different Slash command, you can change this.
+// TODO: This needs implementing.
+define( 'SLACKEMON_SLASH_COMMAND', '/slackemon' );
+
 /**
  * Game behaviour configuration
  */
 
-// Includes additional team news on the Slackemon home screen
-define( 'SLACKEMON_ADDITIONAL_NEWS', [] );
+// Include additional team news on the Slackemon home screen.
+// Separate additional news items with a pipe (|). Leave blank (eg. '') for no extra news.
+// Examples:
+// 'This is a single news item'
+// ':simple_smile: A news item with a smiley!|Another news item'
+define( 'SLACKEMON_ADDITIONAL_NEWS', '' );
 
-define( 'SLACKEMON_AVAILABLE_REGIONS'     , [ 'kanto' ] );
-define( 'SLACKEMON_BANNED_HOURS'          , [] ); // TODO - This is not yet implemented
+// The regions that players can travel to in order to catch Pokemon, and the default region that new players start in.
+// MAKE SURE YOUR DEFAULT REGION IS INCLUDED AS AN AVAILABLE REGION!
+// For available regions, separate additional regions with a pipe. For default region, please only set one ;)
+// Examples: 'kanto' or 'kanto|sinnoh'
+define( 'SLACKEMON_AVAILABLE_REGIONS', 'kanto' );
+define( 'SLACKEMON_DEFAULT_REGION',    'kanto' );
 
-// 1 in X chance of flee. For wild battles, chance is multipled by Y and divided by wild Pokemon's remaining HP.
+// The hours that Slackemon cannot be played by any user.
+// TODO: This feature is not yet implemented.
+// TODO: Document how to use this feature when it is implemented.
+define( 'SLACKEMON_BANNED_HOURS', '' );
+
+// Defines the chance that wild Pokemon will flee from the player trying to catch them.
+// Expressed as 1 in X chance of flee.
+// For wild battles, chance is multipled by Y and divided by wild Pokemon's remaining HP.
 // eg. Normal catch: 1 in 3 chance of flee.
-//     Initial battle: 1 in 9 chance of flee (normal times 3).
+//     Initial wild battle: 1 in 9 chance of flee (i.e. normal times 3).
 //     At each move of wild Pokemon: eg. 1 in 18 chance of flee if Pokemon has 50% HP (1 in 9 / .5)
-define( 'SLACKEMON_BASE_FLEE_CHANCE'      , 3 );
+define( 'SLACKEMON_BASE_FLEE_CHANCE',       3 );
 define( 'SLACKEMON_BATTLE_FLEE_MULTIPLIER', 3 );
 
-define( 'SLACKEMON_BATTLE_TEAM_SIZE'      , 3 );
+// How long Pokemon remain catchable for before they flee.
+// Note that at this stage, only one Pokemon will ever spawn at once. So the higher this is, the less spawns.
+define( 'SLACKEMON_FLEE_TIME_LIMIT', MINUTE_IN_SECONDS * 5 );
 
-define( 'SLACKEMON_DATE_FORMAT'           , 'D jS M \a\t g:ia' );
-define( 'SLACKEMON_DEFAULT_REGION'        , 'kanto' );
+// Roughly how many chances there are of a spawn each hour.
+// HOWEVER, because only one Pokemon will ever spawn at once, this is not a true chance and is *heavily* weighted
+// by whatever the flee time limit is set to above.
+define( 'SLACKEMON_HOURLY_SPAWN_RATE', 20 );
 
-define( 'SLACKEMON_EXCLUDE_BABIES'        , true );
-define( 'SLACKEMON_EXCLUDE_EVOLUTIONS'    , true );
-define( 'SLACKEMON_EXCLUDE_LEGENDARIES'   , true );
+// At each spawn, the chance out of 100 of spawning an item instead of a Pokemon.
+define( 'SLACKEMON_ITEM_SPAWN_CHANCE', 5 );
+
+// Certain classes of Pokemon to exclude from spawns.
+// The defaults for all of these are true: babies because they will spawn as eggs in a future version of Slackemon;
+// evolutions because it kinda ruins the point of training your Pokemon up if you then just catch the evolved form
+// in the wild (however note that if you set this to false, we don't have the logic to ensure they only spawn at
+// 'legal' levels); legendaries because they should be harder to catch, so by default are saved for weather or other
+// custom events (i.e. you could set this to true during certain local parties etc.); and time of day refers to not
+// spawning Flying/Normal Pokemon at night (eg. Pidgey) and not spawning Ghost, Dark or Abra and Zubat during the day
+// because that makes the game feel that little bit more realistic!
+define( 'SLACKEMON_EXCLUDE_BABIES',         true );
+define( 'SLACKEMON_EXCLUDE_EVOLUTIONS',     true );
+define( 'SLACKEMON_EXCLUDE_LEGENDARIES',    true );
 define( 'SLACKEMON_EXCLUDE_ON_TIME_OF_DAY', true );
-define( 'SLACKEMON_EXCLUDED_POKEMON'      , [ 132 ] ); // Ditto - need to decide how we deal with Transform in battle
 
+// Should legendary Pokemon be allowed to spawn when their type is weather-friendly?
+// Note that weather matchups don't exist for every legendary Pokemon; eg. Suicune can spawn when it's raining but
+// there's nothing for Registeel.
 define( 'SLACKEMON_ALLOW_LEGENDARY_WEATHER_SPAWNS', true );
-define( 'SLACKEMON_ITEM_SPAWN_CHANCE'     , 5 ); // Chance out of 100 of spawning an item instead of a Pokemon
 
-define( 'SLACKEMON_EXP_GAIN_MODIFIER'     , 1 );
-define( 'SLACKEMON_FLEE_TIME_LIMIT'       , MINUTE_IN_SECONDS * 5 );
-define( 'SLACKEMON_HOURLY_SPAWN_RATE'     , 20 );
-define( 'SLACKEMON_HP_RESTORE_RATE'       , .05 ); // % per minute
+// Certain individual Pokemon that are excluded from spawns altogether.
+// Separate multiple values with a pipe (|).
+// Currently, only Ditto is excluded by default, because the Transform move is not properly handled in battle yet.
+define( 'SLACKEMON_EXCLUDED_POKEMON', '132' );
+
+// The size of a player's battle team (aka Pokemon Party).
+// For wild battles, this determines how many Pokemon the trainer can select to have randomly chosen between.
+// For trainer battles, every Pokemon must be beaten, so this value determines how long these battles go for!
+define( 'SLACKEMON_BATTLE_TEAM_SIZE', 3 );
+
+// How much battle experience gains are multiplied by.
+// This is separate to any other experience modifiers that may be afforded by certain items.
+// By default this is 1, and you could use it to eg. offer double experience (2) during a local event or party.
+define( 'SLACKEMON_EXP_GAIN_MODIFIER', 1 );
+
+// The percentage per minute that Pokemon HP and PP restores after battle.
+// Restores only happen when a player is active (i.e. online and not in battle).
+// Example: .05 for 5% per minute
+define( 'SLACKEMON_HP_RESTORE_RATE', .05 );
 
 /**
  * Debugging configuration.
@@ -109,14 +159,8 @@ define( 'SLACKEMON_SPAWN_DEBUG',    false );
  * These variables generally don't need changing.
  */
 
-define( 'SLACKEMON_ACTION_CALLBACK_ID', 'slackemon' );
-
-// Database table prefix
-define( 'SLACKEMON_TABLE_PREFIX'          , 'slackemon_' );
-
-// If you need to deploy Slackemon, or different instances of it, at a different slash command
-// TODO: This needs implementing
-define( 'SLACKEMON_SLASH_COMMAND', '/slackemon' );
+define( 'SLACKEMON_ACTION_CALLBACK_ID', 'slackemon'  );
+define( 'SLACKEMON_TABLE_PREFIX',       'slackemon_' );
 
 // Parameters sent to Slack to control the appearance of Slackemon messages
 define( 'SLACKEMON_USERNAME', 'Slackémon'  );
@@ -132,12 +176,15 @@ define( 'SLACKEMON_ANIMATED_GIF_BASE'     ,
 // Keep in mind that too long will cause Slack itself to timeout (it allows up to 3 seconds for the *total* roundtrip)
 define( 'SLACKEMON_CURL_TIMEOUT'          , 1 );
 
-define( 'SLACKEMON_ITEMS_PER_PAGE'        , 5 );
-define( 'SLACKEMON_POKEMON_PER_PAGE'      , 5 );
-define( 'SLACKEMON_POKEDEX_PER_PAGE'      , 20 );
+// In-message pagination configuration.
+// Don't set these values too high - you might hit the Slack attachment limit. Also, higher values means longer load.
+define( 'SLACKEMON_ITEMS_PER_PAGE',    5 );
+define( 'SLACKEMON_POKEMON_PER_PAGE',  5 );
+define( 'SLACKEMON_POKEDEX_PER_PAGE', 20 );
 
-define( 'SLACKEMON_MAX_IVS'               , 31 );
-define( 'SLACKEMON_MIN_IVS'               , 0 );
-define( 'SLACKEMON_MAX_KNOWN_MOVES'       , 4 );
+// Changing these values may not be fully supported.
+define( 'SLACKEMON_MAX_IVS',         31 );
+define( 'SLACKEMON_MIN_IVS',          0 );
+define( 'SLACKEMON_MAX_KNOWN_MOVES',  4 );
 
 // The end!
