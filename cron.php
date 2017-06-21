@@ -16,7 +16,7 @@ if (
   ( ! isset( $_REQUEST['token'] ) || SLACKEMON_CRON_TOKEN !== $_REQUEST['token'] )
 ) {
   http_response_code( 403 );
-  error_log( 'Unauthorised cron request.' );
+  slackemon_error_log( 'Unauthorised cron request.' );
   return slackemon_exit( 'Not authorised for this cron request.' );
 }
 

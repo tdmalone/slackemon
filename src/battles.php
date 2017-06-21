@@ -1648,8 +1648,8 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
             '*' :
             (
               'wild' === $battle_data->type ?
-              ':tada: *You won the battle!* :party-parrot:' :
-              ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!* :party-parrot: :party-parrot:' . "\n" . // Congratulations
+              ':tada: *You won the battle!* :party_parrot:' :
+              ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!* :party_parrot: :party_parrot:' . "\n" . // Congratulations
               'Click the _Complete_ button to get your XP bonus and power up your Pokémon! :100:'
             )
           )
@@ -2007,7 +2007,7 @@ function slackemon_battle_debug( $message ) {
     return;
   }
 
-  error_log( $message );
+  slackemon_error_log( $message );
 
 }
 

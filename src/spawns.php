@@ -47,16 +47,6 @@ function slackemon_get_most_recent_spawn() {
 
 } // Function slackemon_get_most_recent_spawn
 
-function slackemon_spawn_debug( $message ) {
-
-  if ( ! SLACKEMON_SPAWN_DEBUG ) {
-    return;
-  }
-
-  error_log( $message );
-
-}
-
 function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $pokedex_id = false ) {
 
   // Default region
@@ -478,7 +468,7 @@ function slackemon_notify_spawn( $spawn ) {
     } else if ( $seen ) {
       $seen_caught_text = (
         "\n" .
-        'You haven\'t caught a ' . slackemon_readable( $spawn['name'] ) . ' yet - good luck! :fingers_crossed2:'
+        'You haven\'t caught a ' . slackemon_readable( $spawn['name'] ) . ' yet - good luck! :fingers_crossed:'
       );
     } else {
       $seen_caught_text = 'You\'ve never seen one before!';
@@ -493,7 +483,7 @@ function slackemon_notify_spawn( $spawn ) {
 
     $this_message['attachments'][0]['fallback'] =
       str_replace(
-        [ '[SEEN_CAUGHT]', ' :fingers_crossed2:', "\n" ],
+        [ '[SEEN_CAUGHT]', ' :fingers_crossed:', "\n" ],
         [ $seen_caught_text, '' ],
         $this_message['attachments'][0]['fallback']
       );
@@ -616,5 +606,15 @@ function slackemon_record_spawn_for_user( $user_id, $spawn ) {
   return slackemon_save_player_data( $player_data, $user_id );
 
 } // Function slackemon_record_spawn
+
+function slackemon_spawn_debug( $message ) {
+
+  if ( ! SLACKEMON_SPAWN_DEBUG ) {
+    return;
+  }
+
+  slackemon_error_log( $message );
+
+}
 
 // The end!
