@@ -1,7 +1,7 @@
 version: "2"
 services:
   php:
-    image: tdmalone/slackemon:docker-compose
+    image: tdmalone/slackemon
     restart: always
     volumes: 
       - ./:/slackemon
