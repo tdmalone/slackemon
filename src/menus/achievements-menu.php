@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Achievements menu for Slackemon Go
+/**
+ * Achievements menu for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_achievements_menu( $current_page ) {
 

@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Spawn specific functions for Slackemon Go
+/**
+ * Spawn specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_maybe_spawn( $trigger = [] ) {
 

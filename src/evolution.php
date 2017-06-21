@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Evolution specific functions for Slackemon Go
+/**
+ * Evolution specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_evolve_user_pokemon( $spawn_ts, $evolve_to_id = null, $user_id = USER_ID ) {
 

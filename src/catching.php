@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Pokemon-catching specific functions for Slackemon Go
+/**
+ * Pokemon-catching specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, $force_battle_result = '', $user_id = USER_ID ) {
 

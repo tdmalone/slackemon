@@ -1,6 +1,9 @@
 <?php
-
-// Chromatix TM 24/03/2017
+/**
+ * App initialisation.
+ *
+ * @package Slackemon
+ */
 
 define( 'SLACKEMON_VERSION', '0.0.39' );
 

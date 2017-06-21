@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Player specific functions for Slackemon Go
+/**
+ * Player specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_is_player( $user_id = USER_ID ) {
   global $data_folder;

@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Main menu functions for Slackemon Go
+/**
+ * Main menu functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_main_menu() {
 

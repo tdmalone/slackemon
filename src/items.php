@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Item specific functions for Slackemon Go
+/**
+ * Item specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = false ) {
 

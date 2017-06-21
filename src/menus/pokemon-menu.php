@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Pokemon organising menu options for Slackemon Go
+/**
+ * Pokemon organising menu options for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_pokemon_menu( $sort_page_value ) {
 

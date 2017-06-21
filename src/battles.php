@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Battle specific functions for Slackemon Go
+/**
+ * Battle specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 // Cronned function (through /slackemon battle-updates) which should run every minute
 function slackemon_do_battle_updates() {

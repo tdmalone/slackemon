@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Region travel specific functions for Slackemon Go
+/**
+ * Region travel specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_player_region( $user_id = USER_ID ) {
 

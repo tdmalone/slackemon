@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Items menu for Slackemon Go
+/**
+ * Items ('Bag') menu for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
 
