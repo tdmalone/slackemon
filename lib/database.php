@@ -138,7 +138,7 @@ function slackemon_pg_connect() {
     return false;
   }
 
-  error_log( 'Connecting to database...' );
+  slackemon_pg_debug( 'Connecting to database...' );
 
   // We're about to try connecting to the Postgres server. If the database doesn't exist, we'll attempt to create it.
   set_error_handler( 'slackemon_create_database_on_connection_error' );
@@ -244,14 +244,14 @@ function slackemon_create_database_on_connection_error( $errno, $errstr, $errfil
 
   if ( preg_match( '/database .*? does not exist/', $errstr, $matches ) ) {
 
-    error_log( 'Database does not exist, attempting to create it...' );
+    slackemon_pg_debug( 'Database does not exist, attempting to create it...', true );
 
     $url = parse_url( SLACKEMON_DATABASE_URL );
     $_slackemon_postgres_connection = pg_connect( slackemon_get_database_connection_string( $url, false ) );
     $query = slackemon_pg_query( 'CREATE DATABASE ' . ltrim( $url['path'], '/' ) );
 
     if ( false === $query ) {
-      error_log( 'Database could not be created.' );
+      slackemon_pg_debug( 'Database could not be created.', true );
       slackemon_pg_close();
       return;
     }
@@ -264,7 +264,7 @@ function slackemon_create_database_on_connection_error( $errno, $errstr, $errfil
     $_slackemon_postgres_db_just_created = true;
 
   } else {
-    error_log( $errstr );
+    slackemon_pg_debug( $errstr, true );
   }
 
 } // Function slackemon_create_database_on_connection_error
