@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Spawn specific functions for Slackemon Go
+/**
+ * Spawn specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_maybe_spawn( $trigger = [] ) {
 
@@ -180,7 +182,7 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
   } // If weather_condition exists
 
   // Make sure we don't have an excluded Pokemon
-  if ( in_array( $pokedex_id, SLACKEMON_EXCLUDED_POKEMON ) ) {
+  if ( in_array( $pokedex_id, explode( '|', SLACKEMON_EXCLUDED_POKEMON ) ) ) {
     slackemon_spawn_debug( 'Can\'t spawn ' . slackemon_readable( $pokemon->name ) . ' as it is specifically excluded.' );
     return slackemon_spawn( $trigger, $region, $timestamp ); // Loops until we have an allowed Pokemon
   }

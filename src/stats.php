@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 25/04/2017
-// Stats related functions for Slackemon Go
+/**
+ * Stats related functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_calculate_battle_experience( $_pokemon ) {
 

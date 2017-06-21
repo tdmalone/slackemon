@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Battle menu for Slackemon Go
+/**
+ * Battle menu for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_battle_menu() {
 

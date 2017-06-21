@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Pokemon-organising specific functions for Slackemon Go
+/**
+ * Pokemon-organising specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 // Cronned function (through /slackemon happiness-updates) which should run once a day (probs at midnight)
 function slackemon_do_happiness_updates() {

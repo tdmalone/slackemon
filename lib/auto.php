@@ -24,16 +24,16 @@ function slackemon_run_automated_command( $command, $user_id, $team_id, $options
 
     // The usual expected data
     // Reference: https://api.slack.com/slash-commands#triggering_a_command
-    'token'			=> $token,
-    'team_id' 		=> $team_id,
-    'team_domain' 	=> '', // Unknown when autorun
-    'channel_id'	=> '', // Unknown when autorun
-    'channel_name'	=> '', // Unknown when autorun
-    'user_id'		=> $user_id,
-    'user_name'		=> '', // Unknown when autorun
-    'command'		=> $command,
-    'text'			=> $text,
-    'response_url'	=> false,
+    'token'        => $token,
+    'team_id'      => $team_id,
+    'team_domain'  => '', // Unknown when autorun
+    'channel_id'   => '', // Unknown when autorun
+    'channel_name' => '', // Unknown when autorun
+    'user_id'      => $user_id,
+    'user_name'    => '', // Unknown when autorun
+    'command'      => $command,
+    'text'         => $text,
+    'response_url' => false,
 
     // Our own custom data
 

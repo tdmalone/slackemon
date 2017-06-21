@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Region travelling menu for Slackemon Go
+/**
+ * Region travelling menu for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_travel_menu() {
 

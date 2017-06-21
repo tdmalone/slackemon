@@ -93,7 +93,7 @@ if ( ! defined( 'USER_ID' ) && isset( $_POST['user_id'] ) ) {
 
   // Determine if other custom variables have already been set: if so, assign them, if not, index.php will set them.
   if ( ! defined( 'COMMAND' ) && isset( $_POST['command'] ) ) {
-    define( 'COMMAND',    $_POST['command'] );
+    define( 'COMMAND', $_POST['command'] );
   }
 }
 
@@ -103,14 +103,14 @@ if ( ! defined( 'USER_ID' ) && ( isset( $action->user ) || isset( $options_reque
   $request = isset( $action ) ? $action : $options_request;
 
   // Set some Slack defaults right away.
-  define( 'TEAM_ID',      $request->team->id );
-  define( 'USER_ID',      $request->user->id );
+  define( 'TEAM_ID', $request->team->id );
+  define( 'USER_ID', $request->user->id );
 
   if ( isset( $request->response_url ) ) {
     define( 'RESPONSE_URL', $request->response_url );
   }
 
-  define( 'COMMAND',    '/' . ( isset( $callback_id ) ? $callback_id[0] : $request->callback_id ) );
+  define( 'COMMAND', '/' . ( isset( $callback_id ) ? $callback_id[0] : $request->callback_id ) );
 
 }
 

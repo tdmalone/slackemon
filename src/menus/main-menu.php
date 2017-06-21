@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Main menu functions for Slackemon Go
+/**
+ * Main menu functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_main_menu() {
 
@@ -235,13 +237,23 @@ function slackemon_back_to_menu_attachment() {
 
 } // Function slackemon_back_to_menu_attachment
 
+/**
+ * Returns latest news to be displayed on the main menu.
+ * Usually filled with major player-feature release notes which are then removed in subsequent versions.
+ * Appends environment specific additional news.
+ */
 function slackemon_get_latest_news() {
 
   $latest_news = [
-    
+    // No latest news at the moment! Developers please add new news items here at release time.
   ];
 
-  return array_merge( SLACKEMON_ADDITIONAL_NEWS, $latest_news );
+  $latest_news = array_merge( explode( '|', SLACKEMON_ADDITIONAL_NEWS ), $latest_news );
+
+  // Remove blank items, as the constant will be set but blank if there were no items in it
+  $latest_news = array_filter( $latest_news );
+
+  return $latest_news;
 
 } // Function slackemon_get_latest_news
 

@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Region travel specific functions for Slackemon Go
+/**
+ * Region travel specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_player_region( $user_id = USER_ID ) {
 
@@ -65,26 +67,19 @@ function slackemon_get_regions() {
 
   $region_list = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/region/' ) )->results;
 
-  // Define region descriptions, since they aren't in the API
-  // Also doubles as an excluder - leave a description blank or don't include a region, and it will be skipped
-  $region_descriptions = [
-    'kanto' => 'The Kanto region is home to a lot of Pokémon and has a rich history of creating Pokémon with technology. :robot_face:',
-    'johto' => 'Johto is connected to the western part of Kanto, and features the iconic Bell and Brass Towers, guarded by newly discovered legendary Pokémon.',
-    'hoenn' => 'Hoenn is based on the island of Kyūshū in Japan and lies to the southwest of Kanto and Johto in the Pokémon world. It is the only sea region. :ocean:',
-    'sinnoh' => 'Sinnoh is a mountainous and temperate region, containing four lakes - each of which houses a legendary Pokémon. :mountain:',
-    'unova' => 'Unova is the most diverse region of all, with many new Pokémon species discovered here. Taking inspiration from New York City, Unova in many ways resembles the island of Manhattan. :cityscape:',
-    'kalos' => 'Shaped on the map like a five-pointed star, Kalos is home to French music, fashion and landmarks. Welcome to Paris! :flag-fr:',
-  ];
+  // Get local region config (for region descriptions, since they aren't in the API).
+  // Also doubles as an excluder - leave a region out of this config, and it will be skipped.
+  $region_config = json_decode( file_get_contents( __DIR__ . '/../etc/regions.json' ) );
 
   $regions = [];
 
   foreach ( $region_list as $region ) {
 
-    if ( ! isset( $region_descriptions[ $region->name ] ) || ! $region_descriptions[ $region->name ] ) {
+    if ( ! isset( $region_config->{ $region->name } ) ) {
       continue;
     }
 
-    if ( ! in_array( $region->name, SLACKEMON_AVAILABLE_REGIONS ) ) {
+    if ( ! in_array( $region->name, explode( '|', SLACKEMON_AVAILABLE_REGIONS ) ) ) {
       continue;
     }
 
@@ -95,7 +90,7 @@ function slackemon_get_regions() {
     $regions[ $region->name ] = [
       'name'               => $region->name,
       'generation'         => $region_data->main_generation->name,
-      'description'        => $region_descriptions[ $region->name ],
+      'description'        => $region_config->{ $region->name }->description,
       'data'               => $region_data,
       'region_pokedex'     => $region_pokedex->pokemon_entries,     // This region's original Pokedex
       'generation_pokedex' => $generation_pokedex->pokemon_species, // Unique Pokemon introduced in this generation

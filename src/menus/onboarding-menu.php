@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Onboarding menu for Slackemon
+/**
+ * Onboarding menu for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_onboarding_menu() {
 
