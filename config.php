@@ -183,7 +183,7 @@ define( 'SLACKEMON_ICON',     getenv( 'SLACKEMON_ICON'     ) ?: ':pokeball:' );
 // Note that changing this will start your image cache again from scratch, as cache keys are based on the full URL.
 define( 'SLACKEMON_ANIMATED_GIF_BASE',
   getenv( 'SLACKEMON_ANIMATED_GIF_BASE' ) ?:
-  'https://raw.githubusercontent.com/tdmalone/pokecss-media/57061f0fdfd664a1b6543ddb6913dfd9a52b157f/graphics/pokemon'
+  'https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858f44c175b20ebcbf412813eeb8d7b1/graphics/pokemon'
 );
 
 // The number of seconds that will be waited for when calling a background command/action.
