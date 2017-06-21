@@ -86,7 +86,7 @@ function slackemon_get_regions() {
       continue;
     }
 
-    if ( ! in_array( $region->name, SLACKEMON_AVAILABLE_REGIONS ) ) {
+    if ( ! in_array( $region->name, explode( '|', SLACKEMON_AVAILABLE_REGIONS ) ) ) {
       continue;
     }
 

@@ -67,7 +67,8 @@ define( 'SLACKEMON_SLASH_COMMAND', getenv( 'SLACKEMON_XXXX' ) ?: '/slackemon' );
  * See the descriptions of these variables in .env.example.
  */
 
-// Include additional team news on the Slackemon home screen.
+// Include additional team news on the Slackemon home screen. You might use this for example to notify users of a
+// special event where you are making more regions available, allowing legendary spawns, or doubling experience gain.
 // Separate additional news items with a pipe (|). Leave blank (eg. '') for no extra news.
 // Examples:
 // 'This is a single news item'
@@ -85,6 +86,15 @@ define( 'SLACKEMON_DEFAULT_REGION',    getenv( 'SLACKEMON_DEFAULT_REGION'    ) ?
 // TODO: This feature is not yet implemented.
 // TODO: Document how to use this feature when it is implemented.
 define( 'SLACKEMON_BANNED_HOURS', getenv( 'SLACKEMON_BANNED_HOURS' ) ?: '' );
+
+// A callback URL that will be called regularly (and cached) to determine whether a specific user is allowed to play.
+// The URL will be appended with ?user_id=UXXXXXXXX (or &user_id=UXXXXXXXX if you include other GET parameters in it),
+// and you just need to return a plaintext response of 'yes' if they are allowed to play and 'no' if they aren't.
+// You can use this in a business situation to deny certain users access if they should be working, eg. if they have
+// an active timer or task through your API-enabled task management system. This feature obviously requires custom
+// programming to implement.
+// TODO: This feature is not yet implemented.
+define( 'SLACKEMON_USER_BAN_CALLBACK_URL', getenv( 'SLACKEMON_USER_BAN_CALLBACK_URL' ) ?: '' );
 
 // Defines the chance that wild Pokemon will flee from the player trying to catch them.
 // Expressed as 1 in X chance of flee.
