@@ -47,16 +47,6 @@ function slackemon_get_most_recent_spawn() {
 
 } // Function slackemon_get_most_recent_spawn
 
-function slackemon_spawn_debug( $message ) {
-
-  if ( ! SLACKEMON_SPAWN_DEBUG ) {
-    return;
-  }
-
-  error_log( $message );
-
-}
-
 function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $pokedex_id = false ) {
 
   // Default region
@@ -616,5 +606,15 @@ function slackemon_record_spawn_for_user( $user_id, $spawn ) {
   return slackemon_save_player_data( $player_data, $user_id );
 
 } // Function slackemon_record_spawn
+
+function slackemon_spawn_debug( $message ) {
+
+  if ( ! SLACKEMON_SPAWN_DEBUG ) {
+    return;
+  }
+
+  slackemon_error_log( $message );
+
+}
 
 // The end!

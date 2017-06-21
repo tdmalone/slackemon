@@ -2007,7 +2007,7 @@ function slackemon_battle_debug( $message ) {
     return;
   }
 
-  error_log( $message );
+  slackemon_error_log( $message );
 
 }
 
