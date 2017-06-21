@@ -37,7 +37,7 @@ function slackemon_change_data_folder( $new_data_folder ) {
  * @link http://php.net/exit
  */
 function slackemon_exit( $status = '' ) {
-  
+
   // Attempt to close database connection if the database file was included.
   if ( function_exists( 'slackemon_pg_close' ) ) {
     slackemon_pg_close();
@@ -112,7 +112,8 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
     // Pass through our own custom data
     'args'         => $args,
     'maintainer'   => SLACKEMON_MAINTAINER,
-    'special_mode' => isset( $_POST['special_mode'] ) ? $_POST['special_mode'] : '', // For cron runs
+    'special_mode' => isset( $_POST['special_mode'] ) ? $_POST['special_mode'] : '',
+    'run_mode'     => isset( $_POST['run_mode']     ) ? $_POST['run_mode']     : '',
     
   ];
 

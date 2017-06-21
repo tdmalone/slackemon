@@ -253,7 +253,7 @@ function slackemon_cache_debug( $url, $filename, $cache_status, $additional_info
     return;
   }
 
-  error_log( $url . ' - ' . $filename . ' - ' . $cache_status . ' - ' . $additional_info );
+  slackemon_error_log( $url . ' - ' . $filename . ' - ' . $cache_status . ' - ' . $additional_info );
 
   return;
 

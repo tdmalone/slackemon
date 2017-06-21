@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Weather related functions for Slackemon Go
+/**
+ * Weather related functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_weather( $cache_options = [] ) {
 

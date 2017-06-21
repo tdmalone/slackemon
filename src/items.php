@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Item specific functions for Slackemon Go
+/**
+ * Item specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = false ) {
 
@@ -62,7 +64,7 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
     ! isset( $item_data->name ) // We didn't pick a valid item for some reason
   ) {
     slackemon_spawn_debug( 'Not spawning item ' . $random_item . ' as it doesn\'t appear to be valid.' );
-  	return slackemon_item_spawn( $trigger, $region, $timestamp );
+    return slackemon_item_spawn( $trigger, $region, $timestamp );
   }
 
   // Try again if...
@@ -100,12 +102,12 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
 
   // Store details of the item spawn
   $spawn = [
-  	'id'          => $item_data->id,
-  	'ts'          => $timestamp,
-  	'region'      => $region,
-  	'trigger'     => $trigger,
+    'id'          => $item_data->id,
+    'ts'          => $timestamp,
+    'region'      => $region,
+    'trigger'     => $trigger,
     'description' => $description,
-  	'users'       => new stdClass(),
+    'users'       => new stdClass(),
   ];
 
   if ( slackemon_save_spawn_data( $spawn ) ) {
@@ -136,10 +138,10 @@ function slackemon_notify_item_spawn( $spawn ) {
   $random_location = $item_locations[ array_rand( $item_locations ) ];
 
   $message = [
-  	'attachments' => [
-  		[
+    'attachments' => [
+      [
         'pretext'   => 'Oh! You found a *' . slackemon_readable( $item_data->name ) . '* ' . $random_location,
-  			'fallback'  => 'You found a ' . slackemon_readable( $item_data->name ) . '!',
+        'fallback'  => 'You found a ' . slackemon_readable( $item_data->name ) . '!',
         'text'      => $spawn['description'],
         'color'     => '#333333',
         'mrkdwn_in' => [ 'pretext', 'text' ],
@@ -154,9 +156,8 @@ function slackemon_notify_item_spawn( $spawn ) {
             'short' => true,
           ]
         ],
-  			//'image_url' => slackemon_get_cached_image_url( $item_data->sprites->default ),
         'thumb_url' => slackemon_get_cached_image_url( $item_data->sprites->default ),
-  		], [
+      ], [
         'title' => 'What would you like to do?',
         'color' => '#333333',
         'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
@@ -176,7 +177,7 @@ function slackemon_notify_item_spawn( $spawn ) {
           ],
         ],
       ],
-  	],
+    ],
   ];
 
   $slack_users = slackemon_get_slack_users();

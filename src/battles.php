@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Battle specific functions for Slackemon Go
+/**
+ * Battle specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 // Cronned function (through /slackemon battle-updates) which should run every minute
 function slackemon_do_battle_updates() {
@@ -218,9 +220,10 @@ function slackemon_send_battle_invite( $invitee_id, $action, $inviter_id = USER_
           [] :
           [
             'pretext' => (
-              '_You have not yet selected your full battle team of ' . SLACKEMON_BATTLE_TEAM_SIZE . ' Pokémon. You ' .
-              'can do so now, before accepting this invitation, by running `/slackemon` and clicking through to ' .
-              'your Pokémon list. If you don\'t, you\'ll be battling with a random selection of your Pokémon instead!_'
+              '_You have not yet selected your full battle team of ' . SLACKEMON_BATTLE_TEAM_SIZE . ' Pokémon. You '  .
+              'can do so now, before accepting this invitation, by running `' . SLACKEMON_SLASH_COMMAND . '` and '    .
+              'clicking through to your Pokémon list. If you don\'t, you\'ll be battling with a random selection of ' .
+              'your Pokémon instead!_'
             ),
             'mrkdwn_in' => [ 'pretext' ],
           ]
@@ -1648,8 +1651,8 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
             '*' :
             (
               'wild' === $battle_data->type ?
-              ':tada: *You won the battle!* :party-parrot:' :
-              ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!* :party-parrot: :party-parrot:' . "\n" . // Congratulations
+              ':tada: *You won the battle!* :party_parrot:' :
+              ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!* :party_parrot: :party_parrot:' . "\n" . // Congratulations
               'Click the _Complete_ button to get your XP bonus and power up your Pokémon! :100:'
             )
           )
@@ -2007,7 +2010,7 @@ function slackemon_battle_debug( $message ) {
     return;
   }
 
-  error_log( $message );
+  slackemon_error_log( $message );
 
 }
 

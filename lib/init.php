@@ -49,7 +49,8 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
       SLACKEMON_SLACK_TEAM_ID !== $auth_data->team->id
     ) {
       http_response_code( 403 );
-      error_log( 'Unauthorised action or options request.' );
+      slackemon_error_log( 'Unauthorised action or options request.' );
+      slackemon_error_log( $_REQUEST );
       exit(
         'Not authorised for this action or options request. ' .
         'Check that your app token has been configured properly.'
@@ -66,8 +67,8 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
       SLACKEMON_SLACK_TEAM_ID !== $_POST['team_id']
     ) {
       http_response_code( 403 );
-      error_log( 'Unauthorised command invocation.' );
-      error_log( print_r( $_REQUEST, true ) );
+      slackemon_error_log( 'Unauthorised command invocation.' );
+      slackemon_error_log( $_REQUEST );
       exit(
         'Not authorised for this command invocation. ' .
         'Check that your app token has been configured properly.'
@@ -92,7 +93,7 @@ if ( ! defined( 'USER_ID' ) && isset( $_POST['user_id'] ) ) {
 
   // Determine if other custom variables have already been set: if so, assign them, if not, index.php will set them.
   if ( ! defined( 'COMMAND' ) && isset( $_POST['command'] ) ) {
-    define( 'COMMAND',    $_POST['command'] );
+    define( 'COMMAND', $_POST['command'] );
   }
 }
 
@@ -102,15 +103,36 @@ if ( ! defined( 'USER_ID' ) && ( isset( $action->user ) || isset( $options_reque
   $request = isset( $action ) ? $action : $options_request;
 
   // Set some Slack defaults right away.
-  define( 'TEAM_ID',      $request->team->id );
-  define( 'USER_ID',      $request->user->id );
+  define( 'TEAM_ID', $request->team->id );
+  define( 'USER_ID', $request->user->id );
 
   if ( isset( $request->response_url ) ) {
     define( 'RESPONSE_URL', $request->response_url );
   }
 
-  define( 'COMMAND',    '/' . ( isset( $callback_id ) ? $callback_id[0] : $request->callback_id ) );
+  define( 'COMMAND', '/' . ( isset( $callback_id ) ? $callback_id[0] : $request->callback_id ) );
 
 }
+
+/**
+ * Abstracts error logging functions, in case we need to modify it in the future.
+ * Defined here, as it is used in this file before we are able to include other main function files.
+ *
+ * @param mixed $message A message to send to the logger. Accepts any type; arrays and objects will be print_r()'ed.
+ */
+function slackemon_error_log( $message ) {
+
+  // Support array or objects being logged
+  if ( is_array( $message ) || is_object( $message ) ) {
+    $message = print_r( $message, true );
+  }
+
+  // Add a prefix we can use to pick up these messages in log searches
+  // 'PHP Log: ' fits well with the inbuilt eg. PHP Warning, PHP Notice, etc.
+  $message = 'PHP Log: ' . $message;
+
+  error_log( $message );
+
+} // Function slackemon_error_log
 
 // The end!

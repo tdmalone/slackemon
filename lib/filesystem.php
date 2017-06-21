@@ -212,7 +212,7 @@ function slackemon_file_put_contents( $filename, $data, $purpose ) {
 
         slackemon_cache_debug(
           '',
-          $hash['filename'],
+          slackemon_get_s3_key( $filename ),
           'file-put-error-aws-exception',
           $e->getAwsErrorMessage()
         );
@@ -339,7 +339,7 @@ function slackemon_filemtime( $filename, $purpose ) {
 
         slackemon_cache_debug(
           '',
-          $hash['filename'],
+          slackemon_get_s3_key( $filename ),
           'file-mtime-error-aws-exception',
           $e->getAwsErrorMessage()
         );
@@ -445,7 +445,7 @@ function slackemon_unlink( $filename, $purpose ) {
 
         slackemon_cache_debug(
           '',
-          $hash['filename'],
+          slackemon_get_s3_key( $filename ),
           'unlink-error-aws-exception',
           $e->getAwsErrorMessage()
         );
@@ -519,7 +519,7 @@ function slackemon_get_files_by_prefix( $prefix, $purpose ) {
 
         slackemon_cache_debug(
           '',
-          $hash['filename'],
+          slackemon_get_s3_key( $prefix ),
           'list-objects-aws-exception',
           $e->getAwsErrorMessage()
         );

@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// External API specific functions for Slackemon Go
+/**
+ * External API specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_pokemon_data( $pokedex_number ) {
   global $data_folder, $_cached_slackemon_pokemon_data;

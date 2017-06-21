@@ -8,63 +8,78 @@
 // This file gets called directly, so we must set up the Slackemon environment.
 require_once( __DIR__ . '/../lib/init.php' );
 
+// Run the below function right away
 slackemon_handle_command( $_POST['args'] );
 
 function slackemon_handle_command( $args ) {
 
   /**
-   * Commands usually called by cron.
+   * Running some commands directly can be powerful (and can mean cheating!) so we must disable them in
+   * live environments if they are not being run by cron. To get past here, run_mode must be set and must
+   * be 'cron', or APP_ENV must be set and must NOT be 'live'.
    */
 
-  if ( isset( $args[0] ) && 'maybe-spawn' === $args[0] ) {
+  if (
+    ( isset( $_POST['run_mode'] ) && 'cron' === $_POST['run_mode'] ) ||
+    ( getenv( 'APP_ENV' ) && 'live' !== getenv( 'APP_ENV' ) )
+  ) {
 
-    $spawn_trigger = [
-      'type'    => 'cron',
-      'user_id' => USER_ID,
-    ];
+    /**
+     * Commands usually called by cron.
+     */
 
-    slackemon_spawn_debug( 'Maybe spawning, please wait...' );
-    slackemon_maybe_spawn( $spawn_trigger );
+    if ( isset( $args[0] ) && 'maybe-spawn' === $args[0] ) {
 
-    return slackemon_exit();
+      $spawn_trigger = [
+        'type'    => isset( $_POST['run_mode'] ) ? $_POST['run_mode'] : 'manual',
+        'user_id' => USER_ID,
+      ];
 
-  }
+      slackemon_spawn_debug( 'Maybe spawning, please wait...' );
+      slackemon_maybe_spawn( $spawn_trigger );
 
-  if ( isset( $args[0] ) && 'battle-updates' === $args[0] ) {
-    slackemon_do_battle_updates();
-    return slackemon_exit();
-  }
+      return slackemon_exit();
 
-  if ( isset( $args[0] ) && 'happiness-updates' === $args[0] ) {
-    slackemon_do_happiness_updates();
-    return slackemon_exit();
-  }
+    }
+
+    if ( isset( $args[0] ) && 'battle-updates' === $args[0] ) {
+      slackemon_do_battle_updates();
+      return slackemon_exit();
+    }
+
+    if ( isset( $args[0] ) && 'happiness-updates' === $args[0] ) {
+      slackemon_do_happiness_updates();
+      return slackemon_exit();
+    }
+
+    /**
+     * Commands for dev/debug use only.
+     */
+
+    // Instantly generates a spawn, of a particular Pokedex ID if supplied.
+    if ( isset( $args[0] ) && 'spawn' === $args[0] ) {
+
+      $spawn_trigger = [
+        'type'    => isset( $_POST['run_mode'] ) ? $_POST['run_mode'] : 'manual',
+        'user_id' => USER_ID,
+      ];
+
+      $spawn_region     = slackemon_get_player_region();
+      $spawn_timestamp  = false;
+      $spawn_pokedex_id = isset( $args[1] ) ? $args[1] : false;
+
+      slackemon_spawn_debug( 'Generating a spawn in ' . ucfirst( $spawn_region ) . ', please wait...' );
+      slackemon_spawn( $spawn_trigger, $spawn_region, $spawn_timestamp, $spawn_pokedex_id );
+
+      return slackemon_exit();
+
+    }
+
+  } // If cron or not live
 
   /**
-   * Commands for dev/debug use only.
-   */
-
-  // Instantly generates a spawn, of a particular Pokedex ID if supplied.
-  if ( isset( $args[0] ) && 'spawn' === $args[0] ) {
-
-    $spawn_trigger = [
-      'type'    => 'manual',
-      'user_id' => USER_ID,
-    ];
-
-    $spawn_region     = slackemon_get_player_region();
-    $spawn_timestamp  = false;
-    $spawn_pokedex_id = isset( $args[1] ) ? $args[1] : false;
-
-    slackemon_spawn_debug( 'Generating a spawn, please wait...' );
-    slackemon_spawn( $spawn_trigger, $spawn_region, $spawn_timestamp, $spawn_pokedex_id );
-
-    return slackemon_exit();
-
-  }
-
-  /**
-   * Anything else (eg. generally /slackemon being called on its own).
+   * Anything else (eg. generally /slackemon being called on its own, or if it is called with anything not
+   * supported above).
    */
 
   if ( slackemon_is_player() ) {

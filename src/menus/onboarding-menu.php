@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Onboarding menu for Slackemon
+/**
+ * Onboarding menu for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_onboarding_menu() {
 
@@ -9,7 +11,7 @@ function slackemon_get_onboarding_menu() {
     'attachments' => [
       [
         'text' => (
-          ':pika2: *Yay! Welcome, new trainer!*' . "\n\n" .
+          ':pikachu_bounce: *Yay! Welcome, new trainer!*' . "\n\n" .
           'Pokémon can appear at _any_ time of day or night - and you\'ll need to be quick to catch them! ' .
           'Don\'t worry though - you won\'t be bothered by Pokémon during your Slack \'do not disturb\' ' .
           'hours.'
