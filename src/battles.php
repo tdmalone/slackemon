@@ -220,9 +220,10 @@ function slackemon_send_battle_invite( $invitee_id, $action, $inviter_id = USER_
           [] :
           [
             'pretext' => (
-              '_You have not yet selected your full battle team of ' . SLACKEMON_BATTLE_TEAM_SIZE . ' Pokémon. You ' .
-              'can do so now, before accepting this invitation, by running `/slackemon` and clicking through to ' .
-              'your Pokémon list. If you don\'t, you\'ll be battling with a random selection of your Pokémon instead!_'
+              '_You have not yet selected your full battle team of ' . SLACKEMON_BATTLE_TEAM_SIZE . ' Pokémon. You '  .
+              'can do so now, before accepting this invitation, by running `' . SLACKEMON_SLASH_COMMAND . '` and '    .
+              'clicking through to your Pokémon list. If you don\'t, you\'ll be battling with a random selection of ' .
+              'your Pokémon instead!_'
             ),
             'mrkdwn_in' => [ 'pretext' ],
           ]

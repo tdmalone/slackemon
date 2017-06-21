@@ -59,8 +59,7 @@ define( 'SLACKEMON_WEATHER_LAT_LON',    getenv( 'SLACKEMON_WEATHER_LAT_LON'    )
 define( 'SLACKEMON_MONETARY_LOCALE',    getenv( 'SLACKEMON_MONETARY_LOCALE'    ) ?: 'en_AU'               );
 
 // If you need to deploy Slackemon, or different instances of it, at a different Slash command, you can change this.
-// TODO: This needs implementing.
-define( 'SLACKEMON_SLASH_COMMAND', getenv( 'SLACKEMON_XXXX' ) ?: '/slackemon' );
+define( 'SLACKEMON_SLASH_COMMAND', getenv( 'SLACKEMON_SLASH_COMMAND' ) ?: '/slackemon' );
 
 /**
  * Game behaviour configuration

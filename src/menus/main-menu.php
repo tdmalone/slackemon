@@ -248,7 +248,12 @@ function slackemon_get_latest_news() {
     // No latest news at the moment! Developers please add new news items here at release time.
   ];
 
-  return array_merge( explode( '|', SLACKEMON_ADDITIONAL_NEWS ), $latest_news );
+  $latest_news = array_merge( explode( '|', SLACKEMON_ADDITIONAL_NEWS ), $latest_news );
+
+  // Remove blank items, as the constant will be set but blank if there were no items in it
+  $latest_news = array_filter( $latest_news );
+
+  return $latest_news;
 
 } // Function slackemon_get_latest_news
 

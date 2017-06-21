@@ -93,7 +93,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
         'text' => (
           'Now, keep an eye on your direct messages, as Pokémon could appear at any time.' . "\n" .
           'You can check out your Pokémon via the Main Menu, which you can access below or at any time ' .
-          'by typing `/slackemon`.' . "\n" .
+          'by typing `' . SLACKEMON_SLASH_COMMAND . '`.' . "\n" .
           'Will you be the very best there ever was?? :sports_medal:'
         ),
       ];
