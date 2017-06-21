@@ -14,8 +14,9 @@ slackemon_handle_command( $_POST['args'] );
 function slackemon_handle_command( $args ) {
 
   /**
-   * Running some commands directly can be powerful (and can mean cheating!) so we must disable them in live environments
-   * if they are not being run by cron.
+   * Running some commands directly can be powerful (and can mean cheating!) so we must disable them in
+   * live environments if they are not being run by cron. To get past here, run_mode must be set and must
+   * be 'cron', or APP_ENV must be set and must NOT be 'live'.
    */
 
   if (

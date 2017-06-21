@@ -112,7 +112,8 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
     // Pass through our own custom data
     'args'         => $args,
     'maintainer'   => SLACKEMON_MAINTAINER,
-    'special_mode' => isset( $_POST['special_mode'] ) ? $_POST['special_mode'] : '', // For cron runs
+    'special_mode' => isset( $_POST['special_mode'] ) ? $_POST['special_mode'] : '',
+    'run_mode'     => isset( $_POST['run_mode']     ) ? $_POST['run_mode']     : '',
     
   ];
 
