@@ -468,7 +468,7 @@ function slackemon_notify_spawn( $spawn ) {
     } else if ( $seen ) {
       $seen_caught_text = (
         "\n" .
-        'You haven\'t caught a ' . slackemon_readable( $spawn['name'] ) . ' yet - good luck! :fingers_crossed2:'
+        'You haven\'t caught a ' . slackemon_readable( $spawn['name'] ) . ' yet - good luck! :fingers_crossed:'
       );
     } else {
       $seen_caught_text = 'You\'ve never seen one before!';
@@ -483,7 +483,7 @@ function slackemon_notify_spawn( $spawn ) {
 
     $this_message['attachments'][0]['fallback'] =
       str_replace(
-        [ '[SEEN_CAUGHT]', ' :fingers_crossed2:', "\n" ],
+        [ '[SEEN_CAUGHT]', ' :fingers_crossed:', "\n" ],
         [ $seen_caught_text, '' ],
         $this_message['attachments'][0]['fallback']
       );

@@ -147,7 +147,7 @@ function slackemon_get_main_menu() {
         'actions' => [
           [
             'name' => 'pokemon/list',
-            'text' => ( $is_desktop ? ':pika2:' : ':monkey:' ) . ' Pokémon',
+            'text' => ( $is_desktop ? ':pikachu_bounce:' : ':monkey:' ) . ' Pokémon',
             'type' => 'button',
             'value' => 'main',
           ], (
