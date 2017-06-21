@@ -45,7 +45,7 @@ final class TemplatingTest extends TestCase {
     });
 
     // Re-index the array
-    $pagination_actions = array_values( $pagination_actions );		
+    $pagination_actions = array_values( $pagination_actions );
 
     return $pagination_actions;
 
@@ -90,7 +90,7 @@ final class TemplatingTest extends TestCase {
   }
 
   public function testStringWithOneTypeReturnsEmojiOnly() {
-    $this->assertEquals( ':type-fire:', slackemon_emojify_types( 'Fire', false ) );	
+    $this->assertEquals( ':type-fire:', slackemon_emojify_types( 'Fire', false ) );
   }
 
   public function testStringWithTwoTypesAddEmojisAfterText() {
