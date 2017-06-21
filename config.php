@@ -126,15 +126,15 @@ define( 'SLACKEMON_ITEM_SPAWN_CHANCE', getenv( 'SLACKEMON_ITEM_SPAWN_CHANCE' ) ?
 //   (i.e. you could set this to true during certain local parties etc.); and
 // - time of day refers to not spawning Flying/Normal Pokemon at night (eg. Pidgey) and not spawning Ghost or Dark
 //   types or Abra and Zubat during the day, because that makes the game feel that little bit more realistic!
-define( 'SLACKEMON_EXCLUDE_BABIES',         getenv( 'SLACKEMON_EXCLUDE_BABIES'         ) ?: true );
-define( 'SLACKEMON_EXCLUDE_EVOLUTIONS',     getenv( 'SLACKEMON_EXCLUDE_EVOLUTIONS'     ) ?: true );
-define( 'SLACKEMON_EXCLUDE_LEGENDARIES',    getenv( 'SLACKEMON_EXCLUDE_LEGENDARIES'    ) ?: true );
-define( 'SLACKEMON_EXCLUDE_ON_TIME_OF_DAY', getenv( 'SLACKEMON_EXCLUDE_ON_TIME_OF_DAY' ) ?: true );
+define( 'SLACKEMON_EXCLUDE_BABIES',         (bool) getenv( 'SLACKEMON_EXCLUDE_BABIES'         ) ?: true );
+define( 'SLACKEMON_EXCLUDE_EVOLUTIONS',     (bool) getenv( 'SLACKEMON_EXCLUDE_EVOLUTIONS'     ) ?: true );
+define( 'SLACKEMON_EXCLUDE_LEGENDARIES',    (bool) getenv( 'SLACKEMON_EXCLUDE_LEGENDARIES'    ) ?: true );
+define( 'SLACKEMON_EXCLUDE_ON_TIME_OF_DAY', (bool) getenv( 'SLACKEMON_EXCLUDE_ON_TIME_OF_DAY' ) ?: true );
 
 // Should legendary Pokemon be allowed to spawn when their type is weather-friendly?
 // Note that weather matchups don't exist for every legendary Pokemon; eg. Suicune can spawn when it's raining but
 // there's nothing for Registeel.
-define( 'SLACKEMON_ALLOW_LEGENDARY_WEATHER_SPAWNS', getenv( 'SLACKEMON_ALLOW_LEGENDARY_WEATHER_SPAWNS' ) ?: true );
+define( 'SLACKEMON_ALLOW_LEGENDARY_WEATHER_SPAWNS', (bool) getenv( 'SLACKEMON_ALLOW_LEGENDARY_WEATHER_SPAWNS' ) ?: true );
 
 // Certain individual Pokemon that are excluded from spawns altogether.
 // Separate multiple values with a pipe (|).
@@ -162,10 +162,10 @@ define( 'SLACKEMON_HP_RESTORE_RATE', getenv( 'SLACKEMON_HP_RESTORE_RATE' ) ?: .0
  * Useful when doing further development on certain features.
  */
 
-define( 'SLACKEMON_BATTLE_DEBUG',   getenv( 'SLACKEMON_BATTLE_DEBUG'   ) ?: false );
-define( 'SLACKEMON_CACHE_DEBUG',    getenv( 'SLACKEMON_CACHE_DEBUG'    ) ?: false );
-define( 'SLACKEMON_DATABASE_DEBUG', getenv( 'SLACKEMON_DATABASE_DEBUG' ) ?: false );
-define( 'SLACKEMON_SPAWN_DEBUG',    getenv( 'SLACKEMON_SPAWN_DEBUG'    ) ?: false );
+define( 'SLACKEMON_BATTLE_DEBUG',   (bool) getenv( 'SLACKEMON_BATTLE_DEBUG'   ) ?: false );
+define( 'SLACKEMON_CACHE_DEBUG',    (bool) getenv( 'SLACKEMON_CACHE_DEBUG'    ) ?: false );
+define( 'SLACKEMON_DATABASE_DEBUG', (bool) getenv( 'SLACKEMON_DATABASE_DEBUG' ) ?: false );
+define( 'SLACKEMON_SPAWN_DEBUG',    (bool) getenv( 'SLACKEMON_SPAWN_DEBUG'    ) ?: false );
 
 /**
  * Internal configuration.

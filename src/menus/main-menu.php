@@ -181,7 +181,12 @@ function slackemon_get_main_menu() {
       ], [
         'fallback' => SLACKEMON_ACTION_CALLBACK_ID,
         'footer' => (
-          SLACKEMON_ACTION_CALLBACK_ID . ' v' . SLACKEMON_VERSION . ' - ' .
+          SLACKEMON_ACTION_CALLBACK_ID . ' v' . SLACKEMON_VERSION .
+          (
+            getenv( 'APP_ENV' ) && 'live' !== getenv( 'APP_ENV' ) ?
+            ' ' . strtoupper( getenv( 'APP_ENV' ) ) :
+            ''
+          ) . ' - ' .
           $players_online . ' player' . ( 1 === $players_online ? '' : 's' ) . ' online'
         ),
         'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
