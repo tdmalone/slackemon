@@ -1,9 +1,8 @@
 # Slackémon
+[![Follow Slackémon on Twitter!](https://img.shields.io/twitter/follow/slackemon.svg?style=social&label=Follow)](https://twitter.com/slackemon)
 
 [![Latest Release](https://img.shields.io/github/release/tdmalone/slackemon/all.svg)](https://github.com/tdmalone/slackemon/releases)
-[![Join the chat at https://gitter.im/slackemon/Lobby](https://badges.gitter.im/slackemon/Lobby.svg)](https://gitter.im/slackemon/Lobby)
-[![License](https://poser.pugx.org/tdmalone/slackemon/license)](https://github.com/tdmalone/slackemon/blob/master/LICENSE)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftdmalone%2Fslackemon.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftdmalone%2Fslackemon?ref=badge_shield)  
+[![Join us on Slack!](https://img.shields.io/badge/chat%2fplay-on%20slack-e01563.svg)](https://join.slack.com/playslackemon/shared_invite/MTk4Nzc5MTc0MDk2LTE0OTc3NTAwODgtNmU4MDZkZDU0MA)  
 [![Linux build status](https://travis-ci.org/tdmalone/slackemon.svg?branch=master)](https://travis-ci.org/tdmalone/slackemon)
 [![Windows build status](https://img.shields.io/appveyor/ci/TimMalone/slackemon.svg)](https://ci.appveyor.com/project/TimMalone/slackemon)
 [![Docker build status](https://img.shields.io/docker/build/tdmalone/slackemon.svg)](https://hub.docker.com/r/tdmalone/slackemon/builds/)
@@ -54,8 +53,8 @@ Scroll down for more setup options
 Setup of Slackémon is _not_ quick. This may be worked on further in the future. For now, there are quite a few steps!
 
 1. Download/clone/etc. the contents of this repository, and put it on a web server somewhere that runs PHP7.
-    * [Download ZIP](https://github.com/tdmalone/slackemon/archive/master.zip)
-    * Clone with Git: `git clone https://github.com/tdmalone/slackemon.git`
+    * [Download ZIP](https://github.com/tdmalone/slackemon/archive/master.zip) or clone with Git: `git clone https://github.com/tdmalone/slackemon.git`
+        * You may need to install depdendencies as well by running `composer install`. If you don't have Composer, [get it here](https://getcomposer.org/download/) first. If you're not going to be developing Slackémon, you can speed up the install of depdendencies by instead running `composer install --no-dev`.
     * Install with Composer: `composer require tdmalone/slackemon`
     * [Deploy with Docker](https://github.com/tdmalone/slackemon/wiki/Installing-with-Docker)
     * [Deploy with Heroku](https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku)
@@ -113,6 +112,9 @@ Thanks to [Slack](http://slack.com) for maintaining a well-documented, open API 
 Last but not least, this project would never have happened without the extensive work undertaken by Paul Hallet at [Pokéapi](http://pokeapi.co). Working on Slackémon has been fun rather than painful, thanks to the rich collection of readibly accessible data that Paul and his team have collected and structured. Thank you!
 
 ## License
+
+[![License](https://poser.pugx.org/tdmalone/slackemon/license)](https://github.com/tdmalone/slackemon/blob/master/LICENSE)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftdmalone%2Fslackemon.svg?type=shield)](https://app.fossa.io/projects/git%2Bhttps%3A%2F%2Fgithub.com%2Ftdmalone%2Fslackemon?ref=badge_shield)
 
 Slackémon - Catch and battle Pokémon with your teammates on Slack  
 Copyright (C) 2016-2017, [Tim Malone](https://github.com/tdmalone) and contributors.

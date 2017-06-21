@@ -32,20 +32,13 @@ after_success:
   - travis_retry php vendor/bin/codacycoverage clover tests/logs/clover.xml
 
 notifications:
-
-  # Slack
   slack:
     rooms:
-      - secure: m2inJu16LhMQbAu8Z3gBwxuNU6emCDzIHObtmtoPS8ZevlJRfQj5Qi9EQSB4/AN1277aKg6kGi5B7cobaxWla5kWe6NCGKxFcpo099mZ3gB6sTPttz1E8XZbaEzast2oN+kRuiylJ7/XApiUfthrERpoeV9nBoGuuzTpfTNAzBT3ocC4wmNLDuT/UycBuN8uTgbU92CsKf41LP7m4IsOgCF7sC/tt2RogQNwfHoSjbsSSdn2FZdkA4n+hJRxz689z+Re4RCKzaZxJSoIFTn1ViNXyTOQF10brHrFBPKnqDfH0bC0rIC7RIaZ6s3rFrT/kb+AcScaHDbfS6tnC4Tl2TQtY4dUArIEstFIAgt9932TBRKsRdWO4m3nsRXbpKhLj6eVpC+ggVzsDFZ6QC6RBoO6v/XJyTyjwCHXOXWWXGrBqmKq3vz+71QO4j+CG2zGx/BPAVS45qx2nit/kXvCKifU66CuRvmejDz9aDpyRAZhnB/S7WJvXj9iCa6pgj+xreUm3Nif/ZGgyDEzdJCRQzwEP+nB0vxHX3yzraW25AUWahYLkAH1wKh39bc9YBFWzHsvcHX7sJZfJq9ZFpnbF33g4KdtRVqtRj//D32MTs9vzYFUNnqyJK5P5F94Kf78ZsGqIVt3q1Rw8jUCNVbDSHnBY1F0+JotT9eOU1ijadk=
+      - secure: p3dH7L5CFpk6lrmb7aiHVKwEl8Qpua+Mp3n09rYTE5LhTMaLHczzjqjatNrcyt4GMKSzpJI4axxZ3QXe8KCnl3rr6JwfEHR4jvS4TZbchKFuRfgwF54RMXbUtHfy9fK78LeAo6eQoBliEuDo9Qgk1GTOMtmBv9gOoYRgo3o5sgAAPhF8soD4daNJ70vIwUgZ3bGN7/KTMPweDuNfERJM9w/OrLtYuNKwFPNGSHHkONR5Y5H2lGZtxw9/kZxtvounAFQHwMZfuZpyPSqrqfK8xxJLumTdTrmb14JNm1o4MWelErBHXLmDcTJvJ03mRvEswxbFIePMSZjA913pFZkdR7uWzFo0Z5RRAi3LG9P5s+7UnQDnUxJIaXWYli9j8ikTuPOHXneiYmn4aGvHATvOA+MJ6EDNA1H1dwJ1PSfsFCeNWtvQ1Lt4hfA04GKQxIKoinakj23OmcUKK8eOW7zL3lu6pt1q8J61t33z+Oz/0Vf9i1ebFPNaKTv9M2sMHDLlFstx44WgGihUXhrhudT+1Kc580cYKiXumj8BQeMf9sjfZcn92iDyCk6cYHXdaLNvUqZzQKHAmFEUp/PL7mHd6+EKPz+AzPahfPhfQ3Wainy4woDjLagsODYGOlGicdoAe3SO2LvQO8fiLA7Ew3qGidxQFYOVJoGJgNjewRn9+ZY=
     template:
       - "Build <%{build_url}|#%{build_number}> (<%{compare_url}|%{commit}>) of %{repository}:%{branch} by %{author}"
       - "%{result} in %{duration}"
       - "(%{commit_message})"
-
-  # Gitter
-  webhooks:
-    urls:
-      - secure: bao71OyTzuN3rKR9XG+shHqwlSnjTKE7ZlAHspvUa3wMdiL0ttotpgday5OVfiYFT8DSvirmy+nMC2vCUZLuSM8umq5XJDqMjdjW3Cv+BQ+11/4pxGri7d3XHpbVUItdivCbldU3ma22iTh1Q7sTw3FhwQBDyezXUqvhwbwEVrMks3vMETr9vb99AbRfXn3PGcHYz7F1Ki3JnKnV18ZyH81qmt/pFZvpcqfsePTcuObON3iYSXbUHdOws/qUKFDCurg3NpZLRbwKdxfUnrbMV11OuZTTPtR8poVHFeSf4RpR1vrbS+QKFc5KXOuWe7CkDa7KEgZPRnprtfZWI7ageoS1EBLdbJEndRHbqpJpuYo1X1s9/hvh55cnSzC/zJCz4hMwMS5I0iMx2PGainZswXuER+RdTC3iOnzXdS9JoshsOqL1s9hBwMw5b5Ozj44vr6ySrHKN9cltFf6FhPZAwapKZK97hnOaGiJHHmcHQHSC6SJyS4m0nm8rRYRg2wTKsyKKnpRt6DA8xb+5f7D+7N3kI0PfHpLK+wYgr+HULf13Uz66A5gh+ScKsvyjxQOnLeHOwNOOwyD4SPrxzriGTyTN/hCfnILSH1fEF3r/mqPjGr/O6CvGT/RrHgUpfhghTf9S5u5HkUft+d+U+aim5RXpF9WP8IuGPRXzNCPT1ZI=
 
 env:
   global:
