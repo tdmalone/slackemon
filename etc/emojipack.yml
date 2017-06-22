@@ -1,5 +1,21 @@
 title: pokemon
 emojis:
+  - name: fingers_crossed
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/master/media/emoji/fingers_crossed.png
+  - name: green_circle
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/master/media/emoji/green_circle.png
+  - name: loading
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/master/media/emoji/loading.png
+  - name: party_parrot
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/master/media/emoji/party_parrot.png
+  - name: pikachu_bounce
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/master/media/emoji/pikachu_bounce.png
+  - name: pokeball
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/master/media/emoji/pokeball.png
+  - name: pokeball_bounce
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/master/media/emoji/pokeball_bounce.png
+  - name: yellow_circle
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/master/media/emoji/yellow_circle.png
   - name: abomasnow
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/abomasnow.gif
   - name: abomasnow-mega
