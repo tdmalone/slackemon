@@ -125,17 +125,17 @@ emojis:
   - name: baltoy
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/baltoy.gif
   - name: banette
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/banette.gif
   - name: banette-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/banette-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/banette.gif
   - name: barbaracle
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/barbaracle.gif
   - name: barboach
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/barboach.gif
   - name: basculin
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/basculin.gif
   - name: basculin-blue-striped
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/basculin-blue-striped.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/basculin.gif
   - name: bastiodon
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/bastiodon.gif
   - name: bayleef
@@ -145,9 +145,9 @@ emojis:
   - name: beautifly
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/beautifly.gif
   - name: beedrill
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/beedrill.gif
   - name: beedrill-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/beedrill-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/beedrill.gif
   - name: beheeyem
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/beheeyem.gif
   - name: beldum
@@ -167,13 +167,13 @@ emojis:
   - name: bisharp
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/bisharp.gif
   - name: blastoise
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/blastoise.gif
   - name: blastoise-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/blastoise-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/blastoise.gif
   - name: blaziken
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/blaziken.gif
   - name: blaziken-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/blaziken-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/blaziken.gif
   - name: blissey
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/blissey.gif
   - name: blitzle
@@ -205,11 +205,11 @@ emojis:
   - name: bunnelby
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/bunnelby.gif
   - name: burmy
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/burmy.gif
   - name: burmy-sandy
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/burmy-sandy.gif
   - name: burmy-trash
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/burmy-trash.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/burmy.gif
   - name: butterfree
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/butterfree.gif
   - name: cacnea
@@ -217,9 +217,9 @@ emojis:
   - name: cacturne
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/cacturne.gif
   - name: camerupt
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/camerupt.gif
   - name: camerupt-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/camerupt-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/camerupt.gif
   - name: carbink
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/carbink.gif
   - name: carnivine
@@ -231,13 +231,13 @@ emojis:
   - name: cascoon
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/cascoon.gif
   - name: castform
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/castform.gif
   - name: castform-rainy
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/castform-rainy.gif
   - name: castform-snowy
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/castform-snowy.gif
   - name: castform-sunny
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/castform-sunny.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/castform.gif
   - name: caterpie
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/caterpie.gif
   - name: celebi
@@ -247,11 +247,11 @@ emojis:
   - name: chansey
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/chansey.gif
   - name: charizard
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/charizard.gif
   - name: charizard-mega-x
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/charizard-mega-x.gif
   - name: charizard-mega-y
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/charizard-mega-y.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/charizard.gif
   - name: charmander
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/charmander.gif
   - name: charmeleon
@@ -259,9 +259,9 @@ emojis:
   - name: chatot
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/chatot.gif
   - name: cherrim
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/cherrim.gif
   - name: cherrim-sunshine
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/cherrim-sunshine.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/cherrim.gif
   - name: cherubi
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/cherubi.gif
   - name: chesnaught
@@ -339,21 +339,21 @@ emojis:
   - name: darkrai
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/darkrai.gif
   - name: darmanitan
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/darmanitan.gif
   - name: darmanitan-zen
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/darmanitan-zen.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/darmanitan.gif
   - name: darumaka
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/darumaka.gif
   - name: dedenne
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/dedenne.gif
   - name: deerling
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/deerling.gif
   - name: deerling-autumn
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/deerling-autumn.gif
   - name: deerling-summer
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/deerling-summer.gif
   - name: deerling-winter
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/deerling-winter.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/deerling.gif
   - name: deino
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/deino.gif
   - name: delcatty
@@ -363,13 +363,13 @@ emojis:
   - name: delphox
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/delphox.gif
   - name: deoxys
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/deoxys.gif
   - name: deoxys-attack
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/deoxys-attack.gif
   - name: deoxys-defense
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/deoxys-defense.gif
   - name: deoxys-speed
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/deoxys-speed.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/deoxys.gif
   - name: dewgong
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/dewgong.gif
   - name: dewott
@@ -377,9 +377,9 @@ emojis:
   - name: dialga
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/dialga.gif
   - name: diancie
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/diancie.gif
   - name: diancie-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/diancie-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/diancie.gif
   - name: diggersby
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/diggersby.gif
   - name: diglett
@@ -497,6 +497,7 @@ emojis:
   - name: flaaffy
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/flaaffy.gif
   - name: flabebe
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/flabebe.gif
   - name: flabebe-blue
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/flabebe-blue.gif
   - name: flabebe-orange
@@ -505,7 +506,6 @@ emojis:
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/flabebe-white.gif
   - name: flabebe-yellow
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/flabebe-yellow.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/flabebe.gif
   - name: flareon
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/flareon.gif
   - name: fletchinder
@@ -515,6 +515,7 @@ emojis:
   - name: floatzel
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/floatzel.gif
   - name: floette
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/floette.gif
   - name: floette-blue
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/floette-blue.gif
   - name: floette-eternal
@@ -525,8 +526,8 @@ emojis:
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/floette-white.gif
   - name: floette-yellow
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/floette-yellow.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/floette.gif
   - name: florges
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/florges.gif
   - name: florges-blue
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/florges-blue.gif
   - name: florges-orange
@@ -535,7 +536,6 @@ emojis:
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/florges-white.gif
   - name: florges-yellow
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/florges-yellow.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/florges.gif
   - name: flygon
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/flygon.gif
   - name: foongus
@@ -545,9 +545,9 @@ emojis:
   - name: fraxure
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/fraxure.gif
   - name: frillish
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/frillish.gif
   - name: frillish-female
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/frillish-female.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/frillish.gif
   - name: froakie
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/froakie.gif
   - name: frogadier
@@ -561,28 +561,29 @@ emojis:
   - name: gabite
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gabite.gif
   - name: gallade
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gallade.gif
   - name: gallade-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gallade-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gallade.gif
   - name: galvantula
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/galvantula.gif
   - name: garbodor
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/garbodor.gif
   - name: garchomp
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/garchomp.gif
   - name: garchomp-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/garchomp-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/garchomp.gif
   - name: gardevoir
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gardevoir.gif
   - name: gardevoir-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gardevoir-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gardevoir.gif
   - name: gastly
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gastly.gif
   - name: gastrodon
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gastrodon.gif
   - name: gastrodon-east
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gastrodon-east.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gastrodon.gif
   - name: genesect
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/genesect.gif
   - name: genesect-burn
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/genesect-burn.gif
   - name: genesect-chill
@@ -591,11 +592,10 @@ emojis:
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/genesect-douse.gif
   - name: genesect-shock
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/genesect-shock.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/genesect.gif
   - name: gengar
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gengar.gif
   - name: gengar-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gengar-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gengar.gif
   - name: geodude
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/geodude.gif
   - name: gible
@@ -605,15 +605,15 @@ emojis:
   - name: girafarig
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/girafarig.gif
   - name: giratina
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/giratina.gif
   - name: giratina-origin
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/giratina-origin.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/giratina.gif
   - name: glaceon
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/glaceon.gif
   - name: glalie
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/glalie.gif
   - name: glalie-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/glalie-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/glalie.gif
   - name: glameow
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/glameow.gif
   - name: gligar
@@ -649,13 +649,13 @@ emojis:
   - name: gothorita
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gothorita.gif
   - name: gourgeist
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gourgeist.gif
   - name: gourgeist-large
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gourgeist-large.gif
   - name: gourgeist-small
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gourgeist-small.gif
   - name: gourgeist-super
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gourgeist-super.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gourgeist.gif
   - name: granbull
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/granbull.gif
   - name: graveler
@@ -667,9 +667,9 @@ emojis:
   - name: grotle
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/grotle.gif
   - name: groudon
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/groudon.gif
   - name: groudon-primal
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/groudon-primal.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/groudon.gif
   - name: grovyle
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/grovyle.gif
   - name: growlithe
@@ -681,9 +681,9 @@ emojis:
   - name: gurdurr
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gurdurr.gif
   - name: gyarados
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gyarados.gif
   - name: gyarados-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gyarados-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/gyarados.gif
   - name: happiny
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/master/graphics/pokemon/front/happiny.gif
   - name: hariyama
