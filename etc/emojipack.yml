@@ -1,21 +1,57 @@
 title: pokemon
 emojis:
   - name: fingers_crossed
-    src: https://raw.githubusercontent.com/tdmalone/slackemon/42850c6e179/media/emoji/fingers_crossed.png
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/fingers_crossed.png
   - name: green_circle
-    src: https://raw.githubusercontent.com/tdmalone/slackemon/42850c6e179/media/emoji/green_circle.png
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/green_circle.png
   - name: loading
-    src: https://raw.githubusercontent.com/tdmalone/slackemon/42850c6e179/media/emoji/loading.png
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/loading.png
   - name: party_parrot
-    src: https://raw.githubusercontent.com/tdmalone/slackemon/42850c6e179/media/emoji/party_parrot.png
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/party_parrot.png
   - name: pikachu_bounce
-    src: https://raw.githubusercontent.com/tdmalone/slackemon/42850c6e179/media/emoji/pikachu_bounce.png
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/pikachu_bounce.png
   - name: pokeball
-    src: https://raw.githubusercontent.com/tdmalone/slackemon/42850c6e179/media/emoji/pokeball.png
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/pokeball.png
   - name: pokeball_bounce
-    src: https://raw.githubusercontent.com/tdmalone/slackemon/42850c6e179/media/emoji/pokeball_bounce.png
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/pokeball_bounce.png
   - name: yellow_circle
-    src: https://raw.githubusercontent.com/tdmalone/slackemon/42850c6e179/media/emoji/yellow_circle.png
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/yellow_circle.png
+  - name: type-bug
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-bug.png
+  - name: type-dark
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-dark.png
+  - name: type-dragon
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-dragon.png
+  - name: type-electric
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-electric.png
+  - name: type-fairy
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-fairy.png
+  - name: type-fighting
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-fighting.png
+  - name: type-fire
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-fire.png
+  - name: type-flying
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-flying.png
+  - name: type-ghost
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-ghost.png
+  - name: type-grass
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-grass.png
+  - name: type-ground
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-ground.png
+  - name: type-ice
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-ice.png
+  - name: type-normal
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-normal.png
+  - name: type-poison
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-poison.png
+  - name: type-psychic
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-psychic.png
+  - name: type-rock
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-rock.png
+  - name: type-steel
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-steel.png
+  - name: type-water
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/3b053680911/media/emoji/type-water.png
   - name: abomasnow
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/abomasnow.gif
   - name: abomasnow-mega

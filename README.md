@@ -86,8 +86,8 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
 1. Time to install custom emoji! There's a lot to install, so we make use of the wonderful [emojipacks](https://github.com/lambtron/emojipacks):
     * Enter `npm install -g emojipacks` at a command line (if you don't have Node.js/NPM installed, [do that first](https://nodejs.org/en/download/))
     * Run `emojipacks -y https://github.com/tdmalone/slackemon/blob/master/etc/emojipack.yml`
-    * You will be prompted for your Slack subdomain (eg. `YOUR-SUBDOMAIN.slack.com` - leave out the `slack.com` part when entering it) as well as your username and password for Slack (_neither Slackémon nor emojipacks will have access to your login details; it is simply required because Slack doesn't yet have an API endpoint for uploading emoji)
-    * Wait... for quite awhile! When the script is done, you'll have almost a thousand new custom emoji covering every single Pokémon plus a few more custom emoji used by Slackémon :)
+    * You will be prompted for your Slack subdomain (eg. `YOUR-SUBDOMAIN.slack.com` - leave out the `slack.com` part when entering it) as well as your username and password for Slack (_neither Slackémon nor emojipacks will have access to your login details; it is simply required because Slack doesn't yet have an API endpoint for uploading emoji_)
+    * Wait... for quite awhile! When the script is done, you'll have almost a thousand new custom emoji covering every single Pokémon plus a few more custom emoji used by Slackémon 😃
 
 Well done, it's time to start playing! You should now be able to run `/slackemon` anywhere in your Slack team to start the quick user onboarding process 👍
 
