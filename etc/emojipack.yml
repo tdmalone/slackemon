@@ -719,17 +719,17 @@ emojis:
   - name: helioptile
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/helioptile.gif
   - name: heracross
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/heracross.gif
   - name: heracross-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/heracross-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/heracross.gif
   - name: herdier
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/herdier.gif
   - name: hippopotas
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/hippopotas.gif
   - name: hippowdon
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/hippowdon.gif
   - name: hippowdon-female
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/hippowdon-female.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/hippowdon.gif
   - name: hitmonchan
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/hitmonchan.gif
   - name: hitmonlee
@@ -743,9 +743,9 @@ emojis:
   - name: hooh
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/hooh.gif
   - name: hoopa
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/hoopa.gif
   - name: hoopa-unbound
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/hoopa-unbound.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/hoopa.gif
   - name: hoothoot
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/hoothoot.gif
   - name: hoppip
@@ -753,9 +753,9 @@ emojis:
   - name: horsea
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/horsea.gif
   - name: houndoom
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/houndoom.gif
   - name: houndoom-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/houndoom-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/houndoom.gif
   - name: houndour
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/houndour.gif
   - name: huntail
@@ -775,9 +775,9 @@ emojis:
   - name: ivysaur
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/ivysaur.gif
   - name: jellicent
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/jellicent.gif
   - name: jellicent-female
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/jellicent-female.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/jellicent.gif
   - name: jigglypuff
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/jigglypuff.gif
   - name: jirachi
@@ -799,17 +799,17 @@ emojis:
   - name: kakuna
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kakuna.gif
   - name: kangaskhan
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kangaskhan.gif
   - name: kangaskhan-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kangaskhan-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kangaskhan.gif
   - name: karrablast
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/karrablast.gif
   - name: kecleon
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kecleon.gif
   - name: keldeo
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/keldeo.gif
   - name: keldeo-resolute
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/keldeo-resolute.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/keldeo.gif
   - name: kingdra
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kingdra.gif
   - name: kingler
@@ -837,23 +837,23 @@ emojis:
   - name: krookodile
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/krookodile.gif
   - name: kyogre
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kyogre.gif
   - name: kyogre-primal
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kyogre-primal.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kyogre.gif
   - name: kyurem
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kyurem.gif
   - name: kyurem-black
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kyurem-black.gif
   - name: kyurem-white
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kyurem-white.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/kyurem.gif
   - name: lairon
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/lairon.gif
   - name: lampent
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/lampent.gif
   - name: landorus
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/landorus.gif
   - name: landorus-therian
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/landorus-therian.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/landorus.gif
   - name: lanturn
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/lanturn.gif
   - name: lapras
@@ -863,13 +863,13 @@ emojis:
   - name: larvitar
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/larvitar.gif
   - name: latias
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/latias.gif
   - name: latias-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/latias-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/latias.gif
   - name: latios
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/latios.gif
   - name: latios-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/latios-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/latios.gif
   - name: leafeon
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/leafeon.gif
   - name: leavanny
@@ -899,17 +899,17 @@ emojis:
   - name: lombre
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/lombre.gif
   - name: lopunny
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/lopunny.gif
   - name: lopunny-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/lopunny-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/lopunny.gif
   - name: lotad
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/lotad.gif
   - name: loudred
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/loudred.gif
   - name: lucario
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/lucario.gif
   - name: lucario-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/lucario-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/lucario.gif
   - name: ludicolo
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/ludicolo.gif
   - name: lugia
@@ -957,9 +957,9 @@ emojis:
   - name: mandibuzz
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mandibuzz.gif
   - name: manectric
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/manectric.gif
   - name: manectric-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/manectric-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/manectric.gif
   - name: mankey
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mankey.gif
   - name: mantine
@@ -979,33 +979,33 @@ emojis:
   - name: masquerain
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/masquerain.gif
   - name: mawile
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mawile.gif
   - name: mawile-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mawile-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mawile.gif
   - name: medicham
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/medicham.gif
   - name: medicham-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/medicham-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/medicham.gif
   - name: meditite
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/meditite.gif
   - name: meganium
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/meganium.gif
   - name: meloetta
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/meloetta.gif
   - name: meloetta-pirouette
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/meloetta-pirouette.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/meloetta.gif
   - name: meowstic
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/meowstic.gif
   - name: meowstic-female
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/meowstic-female.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/meowstic.gif
   - name: meowth
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/meowth.gif
   - name: mesprit
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mesprit.gif
   - name: metagross
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/metagross.gif
   - name: metagross-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/metagross-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/metagross.gif
   - name: metang
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/metang.gif
   - name: metapod
@@ -1013,11 +1013,11 @@ emojis:
   - name: mew
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mew.gif
   - name: mewtwo
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mewtwo.gif
   - name: mewtwo-mega-x
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mewtwo-mega-x.gif
   - name: mewtwo-mega-y
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mewtwo-mega-y.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mewtwo.gif
   - name: mienfoo
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/mienfoo.gif
   - name: mienshao
@@ -1149,9 +1149,9 @@ emojis:
   - name: pichu
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pichu.gif
   - name: pidgeot
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pidgeot.gif
   - name: pidgeot-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pidgeot-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pidgeot.gif
   - name: pidgeotto
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pidgeotto.gif
   - name: pidgey
@@ -1161,19 +1161,19 @@ emojis:
   - name: pignite
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pignite.gif
   - name: pikachu
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pikachu.gif
   - name: pikachu-belle
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pikachu-belle.gif
   - name: pikachu-cosplay
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pikachu-cosplay.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pikachu.gif
   - name: piloswine
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/piloswine.gif
   - name: pineco
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pineco.gif
   - name: pinsir
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pinsir.gif
   - name: pinsir-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pinsir-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pinsir.gif
   - name: piplup
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/piplup.gif
   - name: plusle
@@ -1205,13 +1205,13 @@ emojis:
   - name: psyduck
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/psyduck.gif
   - name: pumpkaboo
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pumpkaboo.gif
   - name: pumpkaboo-large
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pumpkaboo-large.gif
   - name: pumpkaboo-small
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pumpkaboo-small.gif
   - name: pumpkaboo-super
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pumpkaboo-super.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pumpkaboo.gif
   - name: pupitar
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pupitar.gif
   - name: purrloin
@@ -1219,9 +1219,9 @@ emojis:
   - name: purugly
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/purugly.gif
   - name: pyroar
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pyroar.gif
   - name: pyroar-female
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pyroar-female.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/pyroar.gif
   - name: quagsire
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/quagsire.gif
   - name: quilava
@@ -1245,9 +1245,9 @@ emojis:
   - name: rattata
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/rattata.gif
   - name: rayquaza
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/rayquaza.gif
   - name: rayquaza-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/rayquaza-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/rayquaza.gif
   - name: regice
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/regice.gif
   - name: regigigas
@@ -1279,6 +1279,7 @@ emojis:
   - name: roserade
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/roserade.gif
   - name: rotom
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/rotom.gif
   - name: rotom-fan
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/rotom-fan.gif
   - name: rotom-frost
@@ -1289,17 +1290,16 @@ emojis:
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/rotom-mow.gif
   - name: rotom-wash
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/rotom-wash.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/rotom.gif
   - name: rufflet
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/rufflet.gif
   - name: sableye
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sableye.gif
   - name: sableye-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sableye-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sableye.gif
   - name: salamence
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/salamence.gif
   - name: salamence-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/salamence-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/salamence.gif
   - name: samurott
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/samurott.gif
   - name: sandile
@@ -1311,23 +1311,23 @@ emojis:
   - name: sawk
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sawk.gif
   - name: sawsbuck
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sawsbuck.gif
   - name: sawsbuck-autumn
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sawsbuck-autumn.gif
   - name: sawsbuck-summer
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sawsbuck-summer.gif
   - name: sawsbuck-winter
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sawsbuck-winter.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sawsbuck.gif
   - name: scatterbug
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/scatterbug.gif
   - name: sceptile
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sceptile.gif
   - name: sceptile-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sceptile-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sceptile.gif
   - name: scizor
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/scizor.gif
   - name: scizor-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/scizor-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/scizor.gif
   - name: scolipede
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/scolipede.gif
   - name: scrafty
@@ -1359,13 +1359,13 @@ emojis:
   - name: sewaddle
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sewaddle.gif
   - name: sharpedo
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sharpedo.gif
   - name: sharpedo-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sharpedo-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sharpedo.gif
   - name: shaymin
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/shaymin.gif
   - name: shaymin-sky
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/shaymin-sky.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/shaymin.gif
   - name: shedinja
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/shedinja.gif
   - name: shelgon
@@ -1373,9 +1373,9 @@ emojis:
   - name: shellder
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/shellder.gif
   - name: shellos
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/shellos.gif
   - name: shellos-east
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/shellos-east.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/shellos.gif
   - name: shelmet
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/shelmet.gif
   - name: shieldon
@@ -1421,9 +1421,9 @@ emojis:
   - name: sliggoo
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/sliggoo.gif
   - name: slowbro
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/slowbro.gif
   - name: slowbro-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/slowbro-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/slowbro.gif
   - name: slowking
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/slowking.gif
   - name: slowpoke
@@ -1483,9 +1483,9 @@ emojis:
   - name: staryu
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/staryu.gif
   - name: steelix
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/steelix.gif
   - name: steelix-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/steelix-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/steelix.gif
   - name: stoutland
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/stoutland.gif
   - name: stunfisk
@@ -1509,9 +1509,9 @@ emojis:
   - name: swalot
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/swalot.gif
   - name: swampert
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/swampert.gif
   - name: swampert-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/swampert-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/swampert.gif
   - name: swanna
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/swanna.gif
   - name: swellow
@@ -1547,9 +1547,9 @@ emojis:
   - name: throh
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/throh.gif
   - name: thundurus
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/thundurus.gif
   - name: thundurus-therian
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/thundurus-therian.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/thundurus.gif
   - name: timburr
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/timburr.gif
   - name: tirtouga
@@ -1565,9 +1565,9 @@ emojis:
   - name: torkoal
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/torkoal.gif
   - name: tornadus
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/tornadus.gif
   - name: tornadus-therian
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/tornadus-therian.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/tornadus.gif
   - name: torterra
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/torterra.gif
   - name: totodile
@@ -1595,9 +1595,9 @@ emojis:
   - name: typhlosion
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/typhlosion.gif
   - name: tyranitar
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/tyranitar.gif
   - name: tyranitar-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/tyranitar-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/tyranitar.gif
   - name: tyrantrum
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/tyrantrum.gif
   - name: tyrogue
@@ -1607,10 +1607,11 @@ emojis:
   - name: umbreon
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/umbreon.gif
   - name: unfezant
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/unfezant.gif
   - name: unfezant-female
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/unfezant-female.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/unfezant.gif
   - name: unown
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/unown.gif
   - name: unown-b
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/unown-b.gif
   - name: unown-c
@@ -1665,7 +1666,6 @@ emojis:
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/unown-y.gif
   - name: unown-z
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/unown-z.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/unown.gif
   - name: ursaring
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/ursaring.gif
   - name: uxie
@@ -1685,9 +1685,9 @@ emojis:
   - name: venonat
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/venonat.gif
   - name: venusaur
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/venusaur.gif
   - name: venusaur-mega
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/venusaur-mega.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/venusaur.gif
   - name: vespiquen
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/vespiquen.gif
   - name: vibrava
@@ -1703,6 +1703,7 @@ emojis:
   - name: virizion
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/virizion.gif
   - name: vivillon
+    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/vivillon.gif
   - name: vivillon-archipelago
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/vivillon-archipelago.gif
   - name: vivillon-continental
@@ -1741,7 +1742,6 @@ emojis:
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/vivillon-sun.gif
   - name: vivillon-tundra
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/vivillon-tundra.gif
-    src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/vivillon.gif
   - name: volbeat
     src: https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858/graphics/pokemon/front/volbeat.gif
   - name: volcanion
