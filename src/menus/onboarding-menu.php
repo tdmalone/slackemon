@@ -18,7 +18,7 @@ function slackemon_get_onboarding_menu() {
         ),
       ], [
         'title' => 'Ooh, what\'s that rustling in the bushes?!',
-        'thumb_url' => slackemon_get_cached_image_url( SLACKEMON_INBOUND_URL . '/_images/tree.gif' ),
+        'thumb_url' => slackemon_get_cached_image_url( SLACKEMON_INBOUND_URL . 'media/tree.gif' ),
         'actions' => [
           [
             'name' => 'onboarding',

@@ -19,9 +19,9 @@ Scroll down for more setup options
 
 ## Screenshots
 
-<a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/spawn.png"><img src="https://cdn.rawgit.com/tdmalone/slackemon/5109c1f231ac54d29d0aa26094342aaeff7dc51a/media/screenshots/spawn.png" alt="Pokemon spawn" height="250"></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://github.com/tdmalone/slackemon/blob/master/_images/screenshots/wild-battle.png"><img src="https://cdn.rawgit.com/tdmalone/slackemon/5109c1f231ac54d29d0aa26094342aaeff7dc51a/media/screenshots/wild-battle.png" alt="Achievements screen" height="250"></a>
+<a href="https://github.com/tdmalone/slackemon/blob/5109c1f231ac54d29d0aa26094342aaeff7dc51a/media/screenshots/spawn.png"><img src="https://cdn.rawgit.com/tdmalone/slackemon/5109c1f231ac54d29d0aa26094342aaeff7dc51a/media/screenshots/spawn.png" alt="Pokemon spawn" height="250"></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="https://github.com/tdmalone/slackemon/blob/5109c1f231ac54d29d0aa26094342aaeff7dc51a/media/screenshots/wild-battle.png"><img src="https://cdn.rawgit.com/tdmalone/slackemon/5109c1f231ac54d29d0aa26094342aaeff7dc51a/media/screenshots/wild-battle.png" alt="Achievements screen" height="250"></a>
 
-[More screenshots](https://github.com/tdmalone/slackemon/tree/master/_images/screenshots)
+[More screenshots](https://github.com/tdmalone/slackemon/tree/master/media/screenshots)
 
 ## Features
 
@@ -77,13 +77,17 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
     1. Click Save Changes, then at the top of the page, click the button to install the app to your team, giving it the permissions it asks for. Make a note of your OAuth Access Token.
         * _At this point, if you are on a free Slack team, Slackémon will take up one of your 10 available integrations. If you have already used your 10 integrations, you'll need to completely remove one at `https://YOUR-DOMAIN.slack.com/apps/manage` before you can add Slackémon - or alternatively, upgrade to a paid Slack plan._
 1. Head back to the 'Basic Information' page for your app, and scroll down to your app's credentials section. Make a note of the _Verification Token_.
-   * You may also like to set up an icon for your app to make messages from it look slightly nicer - [this Pokéball](https://raw.githubusercontent.com/tdmalone/slackemon/master/_images/pokeball.png) makes a good icon!
+   * You may also like to set up an icon for your app to make messages from it look slightly nicer - [this Pokéball](https://raw.githubusercontent.com/tdmalone/slackemon/42850c6e179/media/pokeball.png) makes a good icon!
 1. Set up your environment variables, either by copying `.env.example` to `.env` (development mode only - see instructions in the file), or setting the variables within your environment (recommended). Either way, see [`.env.example`](https://github.com/tdmalone/slackemon/blob/master/.env.example) for instructions on the variables to set.
 1. In your system's crontab (eg. `crontab -e` on a Linux machine, or find the Cron option in your hosting control panel), set up `cron.php` to run every minute, sending through the cron token you created earlier.
     * If you're invoking via the command line, you can use eg. `php /path/to/cron.php --token=XXXXXXXXXXXXXXXXXXXX`
     * If you're invoking via a GET request, you can use eg. `http://example.com/slackemon/cron.php?token=XXXXXXXXXXXXXXXXXXXX`
     * If you don't have access to cron, you can use a service such as [cron-job.org](https://cron-job.org)
-1. TODO: Add steps for installing custom emoji, including Pokémon & type emoji
+1. Time to install custom emoji! There's a lot to install, so we make use of the wonderful [emojipacks](https://github.com/lambtron/emojipacks):
+    * Enter `npm install -g emojipacks` at a command line (if you don't have Node.js/NPM installed, [do that first](https://nodejs.org/en/download/))
+    * Run `emojipacks -y https://github.com/tdmalone/slackemon/blob/master/etc/emojipack.yml`
+    * You will be prompted for your Slack subdomain (eg. `YOUR-SUBDOMAIN.slack.com` - leave out the `slack.com` part when entering it) as well as your username and password for Slack (_neither Slackémon nor emojipacks will have access to your login details; it is simply required because Slack doesn't yet have an API endpoint for uploading emoji_)
+    * Wait... for quite awhile! When the script is done, you'll have almost a thousand new custom emoji covering every single Pokémon plus a few more custom emoji used by Slackémon 😃
 
 Well done, it's time to start playing! You should now be able to run `/slackemon` anywhere in your Slack team to start the quick user onboarding process 👍
 
