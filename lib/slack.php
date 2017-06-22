@@ -35,11 +35,11 @@ function send2slack( $message, $hook_url = '' ) {
     
     if ( ! isset( $payload['icon_emoji'] ) && ! isset( $payload['icon_url'] ) ) {
       
-      // Set icon, supporting both emoji and relative _images directory URLs
+      // Set icon, supporting both emoji and relative media directory URLs
       if ( preg_match( '/:.*?:/', SLACKEMON_ICON ) ) {
         $payload['icon_emoji'] = SLACKEMON_ICON;
-      } else if ( file_exists( __DIR__ . '/../_images/' . SLACKEMON_ICON ) ) {
-        $payload['icon_url'] = SLACKEMON_INBOUND_URL . '/_images/' . SLACKEMON_ICON;
+      } else if ( file_exists( __DIR__ . '/../media/' . SLACKEMON_ICON ) ) {
+        $payload['icon_url'] = SLACKEMON_INBOUND_URL . 'media/' . SLACKEMON_ICON;
       }
 
     }
@@ -55,10 +55,6 @@ function send2slack( $message, $hook_url = '' ) {
     }
 
     $payload['username'] = isset( $payload['username'] ) ? $payload['username'] : 'Slackémon Cron';
-
-    if ( ! isset( $payload['icon_emoji'] ) && ! isset( $payload['icon_url'] ) ) {
-      $payload['icon_url'] = SLACKEMON_INBOUND_URL . '/_images/cron.png';
-    }
 
   }
 
@@ -116,11 +112,11 @@ function slackemon_post2slack( $payload ) {
     
     if ( ! isset( $payload['icon_emoji'] ) && ! isset( $payload['icon_url'] ) ) {
       
-      // Set icon, supporting both emoji and relative _images directory URLs
+      // Set icon, supporting both emoji and relative media directory URLs
       if ( preg_match( '/:.*?:/', SLACKEMON_ICON ) ) {
         $payload['icon_emoji'] = SLACKEMON_ICON;
-      } else if ( file_exists( __DIR__ . '/../_images/' . SLACKEMON_ICON ) ) {
-        $payload['icon_url'] = SLACKEMON_INBOUND_URL . '/_images/' . SLACKEMON_ICON;
+      } else if ( file_exists( __DIR__ . '/../media/' . SLACKEMON_ICON ) ) {
+        $payload['icon_url'] = SLACKEMON_INBOUND_URL . 'media/' . SLACKEMON_ICON;
       }
 
     }
