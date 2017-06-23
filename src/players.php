@@ -69,6 +69,25 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
   }
 
   $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store' ) );
+
+  // If our player data doesn't exist or is somehow corrupted (eg. JSON file in the middle of being written to),
+  // we need to error out right away.
+  if ( ! $player_data ) {
+
+    send2slack([
+      'text' => (
+        ':exclamation: *Oops!* An error occurred accessing your player data. Please try your last action again.' . "\n" .
+        'If this problem persists, talk to <@' . SLACKEMON_MAINTAINER . '>.'
+      ),
+      'channel' => $user_id, // Sending the channel through forces a new message to be sent, rather than replacing
+                             // whichever one the user actioned from.
+    ]);
+
+    slackemon_error_log( 'Player data file for ' . $user_id . ' could not be accessed - potentially corrupted?' );
+    slackemon_exit();
+
+  }
+
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
 
   // Ensure player is not caught in a cancelled region if the available regions change

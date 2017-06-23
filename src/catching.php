@@ -354,7 +354,8 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
   if ( slackemon_is_player_in_battle( $user_id ) ) {
     send2slack([
       'text'    => ':exclamation: *Oops!* You\'re already in a battle - you can\'t start another one just yet. :smile:',
-      'channel' => $user_id,
+      'channel' => $user_id, // Sending the channel through forces a new message to be sent, rather than potentially
+                             // accidentally replacing the message which could become the battle shortly.
     ]);
     return false;
   }
