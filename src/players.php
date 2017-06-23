@@ -64,7 +64,7 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
 
   // If we couldn't find the player file, store a trace to discover how we got here
   if ( ! slackemon_file_exists( $player_filename, 'store' ) ) {
-    file_put_contents( $data_folder . '/backtrace-' . $user_id, print_r( debug_backtrace(), true ) );
+    slackemon_error_log( $data_folder . '/backtrace-' . $user_id, print_r( debug_backtrace(), true ) );
     return false;
   }
 

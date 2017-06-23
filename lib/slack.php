@@ -84,7 +84,9 @@ function send2slack( $message, $hook_url = '' ) {
   $result = curl_exec( $ch );
   curl_close( $ch );
 
-  file_put_contents( $data_folder . '/last-send2slack-result', $result );
+  if ( 'development' === getenv( 'APP_ENV' ) ) {
+    file_put_contents( $data_folder . '/last-send2slack-result', $result );
+  }
 
   return $result;
 
@@ -134,7 +136,10 @@ function slackemon_post2slack( $payload ) {
   $response       = slackemon_get_url( $endpoint . '?' . http_build_query( $payload ) );
   $debug_filename = $data_folder . '/last-post2slack-result';
   $debug_data     = json_encode( $payload ) . PHP_EOL . PHP_EOL . $response;
-  file_put_contents( $debug_filename, $debug_data );
+
+  if ( 'development' === getenv( 'APP_ENV' ) ) {
+    file_put_contents( $debug_filename, $debug_data );
+  }
 
   return $response;
 

@@ -421,6 +421,10 @@ function slackemon_get_evolution_error_message( $spawn_ts, $action ) {
 function slackemon_record_impossible_evolution( $evolution, $detail, $reason = 'unknown-reason' ) {
   global $data_folder;
 
+  if ( 'development' !== getenv( 'APP_ENV' ) ) {
+    return;
+  }
+
   $evolution_debug_filename = $data_folder . '/uncoded-evolutions.json';
   if ( ! file_exists( $evolution_debug_filename) ) {
     touch( $evolution_debug_filename );
