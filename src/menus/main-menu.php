@@ -24,7 +24,7 @@ function slackemon_get_main_menu() {
   }
 
   $unique_caught = 0;
-  $total_caught = 0;
+  $total_caught  = 0;
 
   foreach ( $player_data->pokedex as $entry ) {
     if ( $entry->caught ) {
@@ -85,12 +85,14 @@ function slackemon_get_main_menu() {
       [
         'text' => (
           'You have *' . count( $player_data->pokemon ) . ' Pokémon* on your team' . "\n" .
-          'You have won *' . $player_data->battles->won . ' trainer battles*' .
           (
-            $is_desktop ? 
-            ' (participated in ' . $player_data->battles->participated . ')' :
+            count( $player_data->pokemon ) >= SLACKEMON_BATTLE_TEAM_SIZE ?
+            (
+              'You have won *' . $player_data->battles->won . ' trainer battles*' .
+              ( $is_desktop ?  ' (participated in ' . $player_data->battles->participated . ')' : '' )  . "\n"
+            ) :
             ''
-          ) . "\n" .
+          ) .
           'You have caught *' . $unique_caught . ' unique Pokémon*' .
           ( $is_desktop ? ' (' . $total_caught . ' total)' : '' )
         ),
@@ -162,12 +164,16 @@ function slackemon_get_main_menu() {
               'value' => 'main',
             ] :
             []
-          ), [
-            'name' => 'battles',
-            'text' => ':facepunch: Battles',
-            'type' => 'button',
-            'value' => 'main',
-          ], (
+          ), (
+            count( $player_data->pokemon ) >= SLACKEMON_BATTLE_TEAM_SIZE ?
+            [
+              'name' => 'battles',
+              'text' => ':facepunch: Battles',
+              'type' => 'button',
+              'value' => 'main',
+            ] :
+            []
+          ), (
             count( $available_regions ) > 1 ?
             [
               'name' => 'travel',
