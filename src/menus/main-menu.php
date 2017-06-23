@@ -9,6 +9,7 @@ function slackemon_get_main_menu() {
 
   $player_data = slackemon_get_player_data();
   $latest_news = slackemon_get_latest_news();
+  $available_regions = slackemon_get_regions();
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
   $pokemon_array_keys = array_keys( $player_data->pokemon );
 
@@ -166,12 +167,16 @@ function slackemon_get_main_menu() {
             'text' => ':facepunch: Battles',
             'type' => 'button',
             'value' => 'main',
-          ], [
-            'name' => 'travel',
-            'text' => ':world_map: Travel',
-            'type' => 'button',
-            'value' => 'main',
-          ], [
+          ], (
+            count( $available_regions ) > 1 ?
+            [
+              'name' => 'travel',
+              'text' => ':world_map: Travel',
+              'type' => 'button',
+              'value' => 'main',
+            ] :
+            []
+          ), [
             'name' => 'achievements',
             'text' => ':sports_medal: Achievements',
             'type' => 'button',
