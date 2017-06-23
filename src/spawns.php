@@ -559,8 +559,13 @@ function slackemon_notify_spawn( $spawn ) {
     $this_message['channel'] = $player_id;
 
     if ( slackemon_record_spawn_for_user( $player_id, $spawn ) ) {
+
       $response = slackemon_post2slack( $this_message );
-      file_put_contents( $data_folder . '/last-spawn-notification', $response );
+
+      if ( 'development' === getenv( 'APP_ENV' ) ) {
+        file_put_contents( $data_folder . '/last-spawn-notification', $response );
+      }
+      
     }
 
   } // Foreach active players in the region

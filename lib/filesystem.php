@@ -376,6 +376,12 @@ function slackemon_rename( $old_filename, $new_filename, $purpose ) {
 
     case 'local':
 
+      // Make sure the folder exists first.
+      $folder = pathinfo( $new_filename, PATHINFO_DIRNAME );
+      if ( ! is_dir( $folder ) ) {
+        mkdir( $folder, 0777, true );
+      }
+
       $return = rename( $old_filename, $new_filename );
 
     break;

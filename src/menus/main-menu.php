@@ -9,6 +9,7 @@ function slackemon_get_main_menu() {
 
   $player_data = slackemon_get_player_data();
   $latest_news = slackemon_get_latest_news();
+  $available_regions = slackemon_get_regions();
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
   $pokemon_array_keys = array_keys( $player_data->pokemon );
 
@@ -23,7 +24,7 @@ function slackemon_get_main_menu() {
   }
 
   $unique_caught = 0;
-  $total_caught = 0;
+  $total_caught  = 0;
 
   foreach ( $player_data->pokedex as $entry ) {
     if ( $entry->caught ) {
@@ -84,12 +85,14 @@ function slackemon_get_main_menu() {
       [
         'text' => (
           'You have *' . count( $player_data->pokemon ) . ' Pokémon* on your team' . "\n" .
-          'You have won *' . $player_data->battles->won . ' trainer battles*' .
           (
-            $is_desktop ? 
-            ' (participated in ' . $player_data->battles->participated . ')' :
+            count( $player_data->pokemon ) >= SLACKEMON_BATTLE_TEAM_SIZE ?
+            (
+              'You have won *' . $player_data->battles->won . ' trainer battles*' .
+              ( $is_desktop ?  ' (participated in ' . $player_data->battles->participated . ')' : '' )  . "\n"
+            ) :
             ''
-          ) . "\n" .
+          ) .
           'You have caught *' . $unique_caught . ' unique Pokémon*' .
           ( $is_desktop ? ' (' . $total_caught . ' total)' : '' )
         ),
@@ -161,17 +164,25 @@ function slackemon_get_main_menu() {
               'value' => 'main',
             ] :
             []
+          ), (
+            count( $player_data->pokemon ) >= SLACKEMON_BATTLE_TEAM_SIZE ?
+            [
+              'name' => 'battles',
+              'text' => ':facepunch: Battles',
+              'type' => 'button',
+              'value' => 'main',
+            ] :
+            []
+          ), (
+            count( $available_regions ) > 1 ?
+            [
+              'name' => 'travel',
+              'text' => ':world_map: Travel',
+              'type' => 'button',
+              'value' => 'main',
+            ] :
+            []
           ), [
-            'name' => 'battles',
-            'text' => ':facepunch: Battles',
-            'type' => 'button',
-            'value' => 'main',
-          ], [
-            'name' => 'travel',
-            'text' => ':world_map: Travel',
-            'type' => 'button',
-            'value' => 'main',
-          ], [
             'name' => 'achievements',
             'text' => ':sports_medal: Achievements',
             'type' => 'button',
@@ -187,6 +198,7 @@ function slackemon_get_main_menu() {
             ' ' . strtoupper( getenv( 'APP_ENV' ) ) :
             ''
           ) . ' - ' .
+          ( getenv( 'HEROKU_RELEASE_VERSION' ) ? 'Build ' . getenv( 'HEROKU_RELEASE_VERSION' ) . ' - ' : '' ) .
           $players_online . ' player' . ( 1 === $players_online ? '' : 's' ) . ' online'
         ),
         'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,

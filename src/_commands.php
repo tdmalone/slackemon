@@ -31,7 +31,7 @@ function slackemon_handle_command( $args ) {
     if ( isset( $args[0] ) && 'maybe-spawn' === $args[0] ) {
 
       $spawn_trigger = [
-        'type'    => isset( $_POST['run_mode'] ) ? $_POST['run_mode'] : 'manual',
+        'type'    => isset( $_POST['run_mode'] ) && $_POST['run_mode'] ? $_POST['run_mode'] : 'manual',
         'user_id' => USER_ID,
       ];
 
@@ -60,7 +60,7 @@ function slackemon_handle_command( $args ) {
     if ( isset( $args[0] ) && 'spawn' === $args[0] ) {
 
       $spawn_trigger = [
-        'type'    => isset( $_POST['run_mode'] ) ? $_POST['run_mode'] : 'manual',
+        'type'    => isset( $_POST['run_mode'] ) && $_POST['run_mode'] ? $_POST['run_mode'] : 'manual',
         'user_id' => USER_ID,
       ];
 
@@ -104,33 +104,54 @@ function slackemon_handle_command( $args ) {
      * Not a player yet - it's onboarding time!
      */
 
-    $attachments = [
-      [
-        'text' => (
+    if ( slackemon_is_player_dnd( USER_ID, true ) ) {
 
-          ':pokeball: *Welcome to Slackémon!*' . "\n\n" .
-          'Slackémon is a Pokémon Go-inspired game for :slack:. Once you start playing, Pokémon randomly appear on ' .
-          'Slack - and you\'ll have a short time to catch them before they run away!' . "\n\n" .
-          'Using slash commands, you can then manage your Pokémon collection - and even use them in battle against ' .
-          'other trainers.'
+      $attachments = [
+        [
+          'text' => (
+            ':pokeball: *Welcome to Slackémon!*' . "\n\n" .
+            'It looks like you are currently in :no_entry: *Do Not Disturb* mode. Slackémon can only notify ' .
+            'you of nearby Pokémon when you are fully online.'
+          ),
+          'mrkdwn_in' => [ 'text' ],
+        ], [
+          'text' => (
+            'Please switch off DND mode by typing `/dnd off`, then try typing ' .
+            '`' . SLACKEMON_SLASH_COMMAND . '` again. I\'ll be waiting here for you! :innocent:'
+          ),
+          'mrkdwn_in' => [ 'text' ],
+        ]
+      ];
 
-        ),
-        'mrkdwn_in' => [ 'text' ],
-      ], [
-        'title' => 'So, what are you waiting for?!',
-        'thumb_url' => slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/ampharos.gif' ),
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-        'actions' => [
-          [
-            'name' => 'onboarding',
-            'text' => 'Start playing now!',
-            'type' => 'button',
-            'value' => 'join',
-            'style' => 'primary',
-          ]
+    } else {
+
+      $attachments = [
+        [
+          'text' => (
+            ':pokeball: *Welcome to Slackémon!*' . "\n\n" .
+            'Slackémon is a Pokémon Go-inspired game for :slack:. Once you start playing, Pokémon randomly appear on ' .
+            'Slack - and you\'ll have a short time to catch them before they run away!' . "\n\n" .
+            'Using slash commands, you can then manage your Pokémon collection - and even use them in battle against ' .
+            'other trainers.'
+          ),
+          'mrkdwn_in' => [ 'text' ],
+        ], [
+          'title' => 'So, what are you waiting for?!',
+          'thumb_url' => slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/pikachu-cosplay.gif' ),
+          'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
+          'actions' => [
+            [
+              'name' => 'onboarding',
+              'text' => 'Start playing now!',
+              'type' => 'button',
+              'value' => 'join',
+              'style' => 'primary',
+            ]
+          ],
         ],
-      ],
-    ];
+      ];
+
+    }
 
     send2slack( [ 'attachments' => $attachments ] );
 

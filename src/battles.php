@@ -9,10 +9,6 @@
 function slackemon_do_battle_updates() {
 
   $active_players = slackemon_get_player_ids([ 'active_only' => true ]);
-  
-  if ( ! $active_players ) {
-    return;
-  }
 
   $now = time();
   $one_minute_ago          = $now - MINUTE_IN_SECONDS * 1;
@@ -1318,7 +1314,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
       // If neither Pokemon hasn't fainted, go ahead and move!
       if ( $user_pokemon->hp && $opponent_pokemon->hp ) {
 
-        sleep( 2 ); // Wait before the computer moves...
+        sleep( 1 ); // Wait before the computer moves...
 
         // Before we move, should we flee?
         // This doubles the chance of staying compared to a standard catch, plus increases more depending on
@@ -1869,8 +1865,8 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
 function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
   global $data_folder;
 
-  if ( slackemon_file_exists( $data_folder . '/battle-invites/' . $battle_hash, 'store' ) ) {
-    $invite_filename = $data_folder . '/battle-invites/' . $battle_hash;
+  if ( slackemon_file_exists( $data_folder . '/battle_invites/' . $battle_hash, 'store' ) ) {
+    $invite_filename = $data_folder . '/battle_invites/' . $battle_hash;
   } else {
     return false;
   }
@@ -1891,10 +1887,10 @@ function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage =
   switch ( $battle_stage ) {
     case 'battle':   $battle_folder = 'battles_active';   break;
     case 'complete': $battle_folder = 'battles_complete'; break;
-    case 'invite':   $battle_folder = 'battle-invites';   break;
+    case 'invite':   $battle_folder = 'battle_invites';   break;
   }
 
-  $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash . '.' . $battle_stage;
+  $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash;
 
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
   return slackemon_file_put_contents( $battle_filename, json_encode( $battle_data ), 'store' );
@@ -1989,13 +1985,17 @@ function slackemon_get_user_outstanding_invites( $user_id = USER_ID ) {
 
 } // Function slackemon_get_user_outstanding_invites
 
+/** Sometimes a user may try to use a battle that has already ended - this returns an appropriate error message. */
 function slackemon_battle_has_ended_message() {
+
+  // Ensure the user is out of battle mode, to try to prevent them being caught in it.
+  slackemon_set_player_not_in_battle();
 
   return send2slack([
     'text' => (
       ':open_mouth: *Oops! It appears this battle may have ended!*' . "\n" .
-      'If this doesn\'t seem right to you, check with your battle opponent. If you think something may be wrong ' .
-      'with Slackémon, please chat to <@' . SLACKEMON_MAINTAINER . '>.'
+      'If this doesn\'t seem right to you, check with your battle opponent.' . "\n" . 
+      'If you think something may be wrong with Slackémon, please chat to <@' . SLACKEMON_MAINTAINER . '>.'
     ),
     'attachments' => [
       slackemon_back_to_menu_attachment()

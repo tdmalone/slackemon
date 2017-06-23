@@ -252,7 +252,10 @@ function slackemon_do_action_response( $message ) {
   } // If message has attachments
 
   $result = send2slack( $message );
-  file_put_contents( $data_folder . '/last-action-response', $result );
+
+  if ( 'development' === getenv( 'APP_ENV' ) ) {
+    file_put_contents( $data_folder . '/last-action-response', $result );
+  }
 
   return $result;
 

@@ -84,7 +84,9 @@ function send2slack( $message, $hook_url = '' ) {
   $result = curl_exec( $ch );
   curl_close( $ch );
 
-  file_put_contents( $data_folder . '/last-send2slack-result', $result );
+  if ( 'development' === getenv( 'APP_ENV' ) ) {
+    file_put_contents( $data_folder . '/last-send2slack-result', $result );
+  }
 
   return $result;
 
@@ -134,7 +136,10 @@ function slackemon_post2slack( $payload ) {
   $response       = slackemon_get_url( $endpoint . '?' . http_build_query( $payload ) );
   $debug_filename = $data_folder . '/last-post2slack-result';
   $debug_data     = json_encode( $payload ) . PHP_EOL . PHP_EOL . $response;
-  file_put_contents( $debug_filename, $debug_data );
+
+  if ( 'development' === getenv( 'APP_ENV' ) ) {
+    file_put_contents( $debug_filename, $debug_data );
+  }
 
   return $response;
 
@@ -193,7 +198,7 @@ function slackemon_get_slack_user_email_address( $user_id = USER_ID ) {
 
 } // Function slackemon_get_user_email_address
 
-/** Gets a Slack user's data from the Slack API. Cached for a day. */
+/** Gets a Slack user's data from the Slack API. */
 function slackemon_get_slack_user( $user_id = USER_ID ) {
   global $_cached_slack_user_data;
 
@@ -210,12 +215,26 @@ function slackemon_get_slack_user( $user_id = USER_ID ) {
     }
   }
 
+  // If we haven't found the user yet, they must be a new user who signed up within the last day, due to caching.
+  // So, let's force a cache refresh and try once more.
+
+  $slack_users = slackemon_get_slack_users( true );
+
+  foreach( $slack_users as $user ) {
+    if ( $user->id === $user_id ) {
+      $_cached_slack_user_data[ $user_id ] = $user;
+      return $user;
+    }
+  }
+
+  slackemon_error_log( 'Data for Slack user ID ' . $user_id . ' could not be found.' );
+
   return false;
 
 } // Function slackemon_get_slack_user
 
 /** Gets ALL Slack user data from the Slack API. Cached for a day. */
-function slackemon_get_slack_users() {
+function slackemon_get_slack_users( $skip_cache = false ) {
 
   if ( ! SLACKEMON_SLACK_KEY ) {
     return [];
@@ -223,7 +242,7 @@ function slackemon_get_slack_users() {
 
   $slack_users = json_decode( slackemon_get_cached_url(
     'https://slack.com/api/users.list?token=' . SLACKEMON_SLACK_KEY,
-    [ 'expiry_age' => DAY_IN_SECONDS ]
+     [ 'expiry_age' => $skip_cache ? 1 : DAY_IN_SECONDS ]
   ) )->members;
 
   return $slack_users;
