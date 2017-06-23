@@ -9,10 +9,6 @@
 function slackemon_do_battle_updates() {
 
   $active_players = slackemon_get_player_ids([ 'active_only' => true ]);
-  
-  if ( ! $active_players ) {
-    return;
-  }
 
   $now = time();
   $one_minute_ago          = $now - MINUTE_IN_SECONDS * 1;
