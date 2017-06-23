@@ -31,7 +31,7 @@ function slackemon_handle_command( $args ) {
     if ( isset( $args[0] ) && 'maybe-spawn' === $args[0] ) {
 
       $spawn_trigger = [
-        'type'    => isset( $_POST['run_mode'] ) ? $_POST['run_mode'] : 'manual',
+        'type'    => isset( $_POST['run_mode'] ) && $_POST['run_mode'] ? $_POST['run_mode'] : 'manual',
         'user_id' => USER_ID,
       ];
 
@@ -60,7 +60,7 @@ function slackemon_handle_command( $args ) {
     if ( isset( $args[0] ) && 'spawn' === $args[0] ) {
 
       $spawn_trigger = [
-        'type'    => isset( $_POST['run_mode'] ) ? $_POST['run_mode'] : 'manual',
+        'type'    => isset( $_POST['run_mode'] ) && $_POST['run_mode'] ? $_POST['run_mode'] : 'manual',
         'user_id' => USER_ID,
       ];
 
