@@ -1318,7 +1318,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
       // If neither Pokemon hasn't fainted, go ahead and move!
       if ( $user_pokemon->hp && $opponent_pokemon->hp ) {
 
-        sleep( 2 ); // Wait before the computer moves...
+        sleep( 1 ); // Wait before the computer moves...
 
         // Before we move, should we flee?
         // This doubles the chance of staying compared to a standard catch, plus increases more depending on
