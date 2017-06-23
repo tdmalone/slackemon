@@ -1989,13 +1989,17 @@ function slackemon_get_user_outstanding_invites( $user_id = USER_ID ) {
 
 } // Function slackemon_get_user_outstanding_invites
 
+/** Sometimes a user may try to use a battle that has already ended - this returns an appropriate error message. */
 function slackemon_battle_has_ended_message() {
+
+  // Ensure the user is out of battle mode, to try to prevent them being caught in it.
+  slackemon_set_player_not_in_battle();
 
   return send2slack([
     'text' => (
       ':open_mouth: *Oops! It appears this battle may have ended!*' . "\n" .
-      'If this doesn\'t seem right to you, check with your battle opponent. If you think something may be wrong ' .
-      'with Slackémon, please chat to <@' . SLACKEMON_MAINTAINER . '>.'
+      'If this doesn\'t seem right to you, check with your battle opponent.' . "\n" . 
+      'If you think something may be wrong with Slackémon, please chat to <@' . SLACKEMON_MAINTAINER . '>.'
     ),
     'attachments' => [
       slackemon_back_to_menu_attachment()
