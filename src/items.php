@@ -936,9 +936,7 @@ function slackemon_get_item_cost( $item_id ) {
   $item_data = slackemon_get_item_data( $item_id );
 
   if ( $item_data->cost ) {
-    if ( function_exists( 'money_format' ) ) {
-      $item_cost = str_replace( '.00', '', money_format( '%n', $item_data->cost ) );
-    }
+    $item_cost = '$' . str_replace( '.00', '', number_format( $item_data->cost, 2 ) );
   } else {
     $item_cost = 'Priceless';
   }
