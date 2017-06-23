@@ -1869,8 +1869,8 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
 function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
   global $data_folder;
 
-  if ( slackemon_file_exists( $data_folder . '/battle-invites/' . $battle_hash, 'store' ) ) {
-    $invite_filename = $data_folder . '/battle-invites/' . $battle_hash;
+  if ( slackemon_file_exists( $data_folder . '/battle_invites/' . $battle_hash, 'store' ) ) {
+    $invite_filename = $data_folder . '/battle_invites/' . $battle_hash;
   } else {
     return false;
   }
@@ -1891,10 +1891,10 @@ function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage =
   switch ( $battle_stage ) {
     case 'battle':   $battle_folder = 'battles_active';   break;
     case 'complete': $battle_folder = 'battles_complete'; break;
-    case 'invite':   $battle_folder = 'battle-invites';   break;
+    case 'invite':   $battle_folder = 'battle_invites';   break;
   }
 
-  $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash . '.' . $battle_stage;
+  $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash;
 
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
   return slackemon_file_put_contents( $battle_filename, json_encode( $battle_data ), 'store' );
