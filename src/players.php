@@ -178,7 +178,7 @@ function slackemon_get_player_ids( $options = [] ) {
 
   // No players at all?
   if ( ! count( $players ) ) {
-    return false;
+    return [];
   }
 
   // Set default options
