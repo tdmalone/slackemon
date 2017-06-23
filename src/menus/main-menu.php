@@ -187,6 +187,7 @@ function slackemon_get_main_menu() {
             ' ' . strtoupper( getenv( 'APP_ENV' ) ) :
             ''
           ) . ' - ' .
+          ( getenv( 'HEROKU_RELEASE_VERSION' ) ? 'Build ' . getenv( 'HEROKU_RELEASE_VERSION' ) . ' - ' : '' ) .
           $players_online . ' player' . ( 1 === $players_online ? '' : 's' ) . ' online'
         ),
         'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
