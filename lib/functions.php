@@ -85,13 +85,8 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
   $command_url .= str_replace( basename( $_SERVER['SCRIPT_NAME'] ), '', $_SERVER['SCRIPT_NAME'] );
   $command_url .= $path;
 
-  // Should we timeout quickly? Because Slack requires a 3-second response, this is the default. However, custom
-  // implementations outside of Slack may want to wait and get the output.
-  if ( isset( $_POST['special_mode'] ) && 'RETURN' === $_POST['special_mode'] ) {
-    $timeout = false;
-  } else {
-    $timeout = SLACKEMON_CURL_TIMEOUT;
-  }
+  // Curl timeout - this is our trick to make PHP sort-of async
+  $timeout = SLACKEMON_CURL_TIMEOUT;
 
   // Build command data
   $command_data = [
@@ -112,8 +107,7 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
     // Pass through our own custom data
     'args'         => $args,
     'maintainer'   => SLACKEMON_MAINTAINER,
-    'special_mode' => isset( $_POST['special_mode'] ) ? $_POST['special_mode'] : '',
-    'run_mode'     => isset( $_POST['run_mode']     ) ? $_POST['run_mode']     : '',
+    'run_mode'     => isset( $_POST['run_mode'] ) ? $_POST['run_mode'] : '',
     
   ];
 
@@ -160,7 +154,10 @@ function slackemon_run_background_action( $path, $action, $callback_id ) {
   $timeout = SLACKEMON_CURL_TIMEOUT;
 
   // Prepare and send the action
-  $post_data = [ 'action' => json_encode( $action ), 'callback_id' => $callback_id ];
+  $post_data = [
+    'action'      => json_encode( $action ),
+    'callback_id' => $callback_id,
+  ];
   
   $ch = curl_init();
   curl_setopt( $ch, CURLOPT_URL, $action_url );

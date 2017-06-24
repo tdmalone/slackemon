@@ -15,16 +15,6 @@ function send2slack( $message, $hook_url = '' ) {
   // Unlike Slack, default to mrkdwn being turned on if we haven't explicitly turned it off
   $payload['mrkdwn'] = isset( $payload['mrkdwn'] ) ? $payload['mrkdwn'] : true;
 
-  // By default, we don't echo out our result here, we send it to Slack
-  // However sometimes, we do need to return it directly to the browser...
-  if ( isset( $_POST['special_mode'] ) && 'RETURN' === $_POST['special_mode'] ) {
-    if ( ! isset( $payload['channel'] ) ) { // Exception: skip this if a specific channel is set
-      echo "\n" . '--------JSON FOLLOWS--------' . "\n";
-      echo json_encode( $payload );
-      return;
-    }
-  }
-
   // Attempt to include a username and icon, if we have one
   // Note that in responses to Slack app response_url's, username and icon replacements are ignored by Slack
   if ( defined( 'COMMAND' ) ) {
@@ -46,15 +36,12 @@ function send2slack( $message, $hook_url = '' ) {
   }
 
   // If we've been run through cron, modify the payload to send to the correct user
-  // We'll also set the default cron username and icon at this point, if one hasn't already been set above
-  if ( isset( $_POST['special_mode'] ) && 'AUTORUN' === $_POST['special_mode'] ) {
+  if ( isset( $_POST['run_mode'] ) && 'cron' === $_POST['run_mode'] ) {
 
     // If a channel hasn't been set in our payload, send straight back to the user who called the command
     if ( ! isset( $payload['channel'] ) ) {
       $payload['channel'] = $_POST['user_id'];
     }
-
-    $payload['username'] = isset( $payload['username'] ) ? $payload['username'] : 'Slackémon Cron';
 
   }
 

@@ -16,8 +16,7 @@ function slackemon_run_automated_command( $command, $user_id, $team_id, $options
   $token = SLACKEMON_SLACK_TOKEN;
 
   // Prepare options
-  $options['return_result'] = isset( $options['return_result'] ) ? $options['return_result'] : false;
-  $options['run_mode']      = isset( $options['run_mode'] )      ? $options['run_mode']      : 'unknown';
+  $options['run_mode'] = isset( $options['run_mode'] ) ? $options['run_mode'] : 'unknown';
 
   // Put payload together
   $params = [
@@ -37,10 +36,7 @@ function slackemon_run_automated_command( $command, $user_id, $team_id, $options
 
     // Our own custom data
 
-    // Instructs send2slack() to either send the response to the user_id channel (AUTORUN), or return it
-    'special_mode' => $options['return_result'] ? 'RETURN' : 'AUTORUN',
-
-    // Send through the run mode, for logging purposes
+    // Send through the run mode, for logging and (minimal) access control purposes
     'run_mode' => $options['run_mode'],
 
   ];
