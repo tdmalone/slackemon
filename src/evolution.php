@@ -421,7 +421,7 @@ function slackemon_get_evolution_error_message( $spawn_ts, $action ) {
 function slackemon_record_impossible_evolution( $evolution, $detail, $reason = 'unknown-reason' ) {
   global $data_folder;
 
-  if ( 'development' !== getenv( 'APP_ENV' ) ) {
+  if ( 'development' !== APP_ENV ) {
     return;
   }
 

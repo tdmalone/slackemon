@@ -44,7 +44,7 @@ function slackemon_exit( $status = '' ) {
   }
 
   // Just return the status message if we're running unit tests, as we don't want to exit from those.
-  if ( 'testing' === getenv( 'APP_ENV' ) ) {
+  if ( 'testing' === APP_ENV ) {
     return $status;
   }
 
@@ -137,7 +137,7 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
   }
 
   // Just return the curl object if we're running unit tests, as we don't want to actually invoke commands from those.
-  if ( 'testing' === getenv( 'APP_ENV' ) ) {
+  if ( 'testing' === APP_ENV ) {
     curl_close( $ch );
     return $ch;
   }
@@ -173,7 +173,7 @@ function slackemon_run_background_action( $path, $action, $callback_id ) {
   }
 
   // Just return the curl object if we're running unit tests, as we don't want to actually invoke actions from those.
-  if ( 'testing' === getenv( 'APP_ENV' ) ) {
+  if ( 'testing' === APP_ENV ) {
     curl_close( $ch );
     return $ch;
   }

@@ -253,7 +253,7 @@ function slackemon_do_action_response( $message ) {
 
   $result = send2slack( $message );
 
-  if ( 'development' === getenv( 'APP_ENV' ) ) {
+  if ( 'development' === APP_ENV ) {
     file_put_contents( $data_folder . '/last-action-response', $result );
   }
 

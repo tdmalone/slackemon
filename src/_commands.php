@@ -21,7 +21,7 @@ function slackemon_handle_command( $args ) {
 
   if (
     ( isset( $_POST['run_mode'] ) && 'cron' === $_POST['run_mode'] ) ||
-    ( getenv( 'APP_ENV' ) && 'live' !== getenv( 'APP_ENV' ) )
+    ( APP_ENV && 'live' !== APP_ENV )
   ) {
 
     /**

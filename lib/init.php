@@ -7,7 +7,7 @@
 
 // Activate error logging.
 // TODO: This should be defined elsewhere rather than changing at runtime.
-if ( 'development' === getenv( 'APP_ENV' ) ) {
+if ( 'development' === APP_ENV ) {
   ini_set( 'log_errors', '1' );
   ini_set( 'error_reporting', E_ALL );
   ini_set( 'error_log', __DIR__ . '/../error_log' );
