@@ -562,7 +562,7 @@ function slackemon_notify_spawn( $spawn ) {
 
       $response = slackemon_post2slack( $this_message );
 
-      if ( 'development' === getenv( 'APP_ENV' ) ) {
+      if ( 'development' === APP_ENV ) {
         file_put_contents( $data_folder . '/last-spawn-notification', $response );
       }
       

@@ -44,7 +44,7 @@ function slackemon_exit( $status = '' ) {
   }
 
   // Just return the status message if we're running unit tests, as we don't want to exit from those.
-  if ( 'testing' === getenv( 'APP_ENV' ) ) {
+  if ( 'testing' === APP_ENV ) {
     return $status;
   }
 
@@ -76,24 +76,9 @@ function check_subcommands( $allowed_subcommands = [], $welcome_message = '' ) {
   
 } // Function check_subcommands
 
-/** Run subcommand in the background while the main command returns a waiting response to Slack. */
+/** Run a command in the background while the main file returns a response to Slack. */
 function slackemon_run_background_command( $path, $args, $additional_fields = [], $additional_fields_as_json = false ) {
 
-  // Build command URL
-  $command_url = 'http://' . $_SERVER['HTTP_HOST'];
-  $command_url .= 80 != $_SERVER['SERVER_PORT'] && 443 != $_SERVER['SERVER_PORT'] ? ':' . $_SERVER['SERVER_PORT'] : '';
-  $command_url .= str_replace( basename( $_SERVER['SCRIPT_NAME'] ), '', $_SERVER['SCRIPT_NAME'] );
-  $command_url .= $path;
-
-  // Should we timeout quickly? Because Slack requires a 3-second response, this is the default. However, custom
-  // implementations outside of Slack may want to wait and get the output.
-  if ( isset( $_POST['special_mode'] ) && 'RETURN' === $_POST['special_mode'] ) {
-    $timeout = false;
-  } else {
-    $timeout = SLACKEMON_CURL_TIMEOUT;
-  }
-
-  // Build command data
   $command_data = [
 
     // Pass through all the usual expected data
@@ -112,8 +97,7 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
     // Pass through our own custom data
     'args'         => $args,
     'maintainer'   => SLACKEMON_MAINTAINER,
-    'special_mode' => isset( $_POST['special_mode'] ) ? $_POST['special_mode'] : '',
-    'run_mode'     => isset( $_POST['run_mode']     ) ? $_POST['run_mode']     : '',
+    'run_mode'     => isset( $_POST['run_mode'] ) ? $_POST['run_mode'] : '',
     
   ];
 
@@ -124,73 +108,72 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
     $command_data = array_merge( $command_data, $additional_fields );
   }
 
-  // Prepare and send the command
-
-  $ch = curl_init();
-  curl_setopt( $ch, CURLOPT_URL, $command_url );
-  curl_setopt( $ch, CURLOPT_FRESH_CONNECT, true );
-  curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'POST' );
-  curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query( $command_data ) );
-
-  if ( $timeout ) {
-    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
-  }
-
-  // Just return the curl object if we're running unit tests, as we don't want to actually invoke commands from those.
-  if ( 'testing' === getenv( 'APP_ENV' ) ) {
-    curl_close( $ch );
-    return $ch;
-  }
-
-  $result = curl_exec( $ch );
-  curl_close( $ch );
+  return slackemon_run_in_background( $command_data, $path );
 
 } // Function run_background_command
 
-/** Run action in the background while the main file returns a waiting response to Slack. */
+/** Run an action in the background while the main file returns a response to Slack. */
 function slackemon_run_background_action( $path, $action, $callback_id ) {
 
-  // Build action URL
-  $action_url = 'http://' . $_SERVER['HTTP_HOST'];
-  $action_url .= 80 != $_SERVER['SERVER_PORT'] && 443 != $_SERVER['SERVER_PORT'] ? ':' . $_SERVER['SERVER_PORT'] : '';
-  $action_url .= str_replace( basename( $_SERVER['SCRIPT_NAME'] ), '', $_SERVER['SCRIPT_NAME'] );
-  $action_url .= $path;
+  $action_data = [
+    'action'      => json_encode( $action ),
+    'callback_id' => $callback_id,
+  ];
 
-  // Curl timeout - this is our trick to make PHP sort-of async
-  $timeout = SLACKEMON_CURL_TIMEOUT;
-
-  // Prepare and send the action
-  $post_data = [ 'action' => json_encode( $action ), 'callback_id' => $callback_id ];
-  
-  $ch = curl_init();
-  curl_setopt( $ch, CURLOPT_URL, $action_url );
-  curl_setopt( $ch, CURLOPT_FRESH_CONNECT, true );
-  curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'POST' );
-  curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query( $post_data ) );
-
-  if ( $timeout ) {
-    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
-  }
-
-  // Just return the curl object if we're running unit tests, as we don't want to actually invoke actions from those.
-  if ( 'testing' === getenv( 'APP_ENV' ) ) {
-    curl_close( $ch );
-    return $ch;
-  }
-
-  $result = curl_exec( $ch );
-  curl_close( $ch );
+  return slackemon_run_in_background( $action_data, $path );
 
 } // Function run_background_action
 
+/** Abstracts the 'run in background' logic used for both background commands and actions. */
+function slackemon_run_in_background( $data, $path ) {
+
+  $url   = slackemon_build_background_url( $path );
+  $query = http_build_query( $data );
+
+  // Just return the full URL if we're running unit tests, as we don't want to actually invoke commands from those.
+  if ( 'testing' === APP_ENV ) {
+    return $url . '?' . $query;
+  }
+
+  $curl_options = [
+    CURLOPT_FRESH_CONNECT => true,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS    => $query,
+    CURLOPT_TIMEOUT       => SLACKEMON_CURL_TIMEOUT,
+  ];
+
+  return slackemon_get_url( $url, [ 'curl_options' => $curl_options ] );
+
+} // Function slackemon_run_in_background
+
+/** Builds URLs for background command and action runs, where Slackemon basically calls itself. */
+function slackemon_build_background_url( $path ) {
+
+  $background_url = 'http://' . $_SERVER['HTTP_HOST'];
+
+  $background_url .= (
+    80 != $_SERVER['SERVER_PORT'] && 443 != $_SERVER['SERVER_PORT'] ?
+    ':' . $_SERVER['SERVER_PORT'] :
+    ''
+  );
+
+  $background_url .= str_replace( basename( $_SERVER['SCRIPT_NAME'] ), '', $_SERVER['SCRIPT_NAME'] );
+  $background_url .= $path;
+
+  return $background_url;
+
+} // Function slackemon_build_background_url
+
 /** An easy way to quickly truncate long strings, eg. task titles. */
 function maybe_truncate( $string = '', $max_chars = 100 ) {
+
   if ( strlen( (string) $string ) > (int) $max_chars ) {
     return trim( substr( $string, 0, $max_chars - 3 ) ) . '...';
   } else {
     return $string;
   }
-}
+
+} // Function maybe_truncate
 
 // Converts $title to Title Case, and returns the result. 
 // HT: https://www.sitepoint.com/title-case-in-php/

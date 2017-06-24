@@ -270,8 +270,8 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
         // Respond to the invitee first
         slackemon_post2slack([
           'text' => (
-            ':disappointed: *Oh! Sorry, ' . slackemon_get_slack_user_first_name( $invite_data->inviter_id ) . ' has cancelled their ' .
-            'battle challenge.*' . "\n" .
+            ':disappointed: *Oh! Sorry, ' . slackemon_get_slack_user_first_name( $invite_data->inviter_id ) . ' ' .
+            'has cancelled their battle challenge.*' . "\n" .
             'Maybe next time!'
           ),
           'attachments' => [ slackemon_back_to_menu_attachment() ],
@@ -292,8 +292,8 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
         // Respond to the inviter first
         slackemon_post2slack([
           'text' => (
-            ':disappointed: *Sorry, ' . slackemon_get_slack_user_first_name( $invite_data->invitee_id ) . ' has declined your ' .
-            'battle challenge.*' . "\n" .
+            ':disappointed: *Sorry, ' . slackemon_get_slack_user_first_name( $invite_data->invitee_id ) . ' ' .
+            'has declined your battle challenge.*' . "\n" .
             'Maybe next time!'
           ),
           'attachments' => [ slackemon_back_to_menu_attachment() ],
@@ -302,7 +302,8 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
 
         // Invitee response
         $message = slackemon_update_triggering_attachment(
-          ':x: *You have declined ' . slackemon_get_slack_user_first_name( $invite_data->inviter_id ) . '\'s challenge.*' . "\n" .
+          ':x: *You have declined ' . slackemon_get_slack_user_first_name( $invite_data->inviter_id ) . '\'s ' .
+          'challenge.*' . "\n" .
           'Not ready to battle right now? Send your own challenge later from the Battle screen!',
           $action,
           false
@@ -360,7 +361,8 @@ function slackemon_get_battle_team_status_attachment( $user_id = USER_ID, $mode 
       ':exclamation: *Your battle team has fainted!*' . "\n" .
       (
         'invitee' === $mode ?
-        'You should change up your battle team before accepting this challenge - otherwise your team will be chosen at random!' :
+        'You should change up your battle team before accepting this challenge - otherwise your team will be ' .
+        'chosen at random!' :
         'To challenge someone to a battle, you\'ll need to change up your battle team, or wait for your ' .
         'Pokémon to regain their strength. :facepunch:'
       )
@@ -371,8 +373,8 @@ function slackemon_get_battle_team_status_attachment( $user_id = USER_ID, $mode 
       ( 1 === $faint_count ? 'has' : 'have' ) . ' fainted!*' . "\n" .
       (
         'invitee' === $mode ?
-        'You should change up your team before accepting this challenge - otherwise your team will be chosen at' .
-        'random.' :
+        'You should change up your team before accepting this challenge - otherwise your team will be chosen ' .
+        'at random.' :
         'You should change up your team before your next battle - if not, fainted Pokémon will be replaced ' .
         'randomly from your collection.'
       )
@@ -575,10 +577,11 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
         slackemon_post2slack([
           'text' => (
-            ':face_with_rolling_eyes: *Unfortunately, your battle with ' . slackemon_get_slack_user_first_name( $loser_id ) . ' ' .
-            'has expired.*' . "\n" .
-            slackemon_get_slack_user_first_name( $loser_id ) . ' did not make a move within 25 minutes. You still get full ' .
-            'experience points for your part in the battle though - click the _Complete_ button below to receive them!'
+            ':face_with_rolling_eyes: *Unfortunately, your battle with ' .
+            slackemon_get_slack_user_first_name( $loser_id ) . ' has expired.*' . "\n" .
+            slackemon_get_slack_user_first_name( $loser_id ) . ' did not make a move within 25 minutes. You ' .
+            'still get full experience points for your part in the battle though - click the _Complete_ button ' .
+            'below to receive them!'
           ),
           'attachments' => [
             [
@@ -1561,7 +1564,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
     if ( 'wild' === $battle_data->type ) {
 
       $verb  = 'wild' === $battle_data->type ? 'flee' : 'surrender';
-      $emoji = 'flee' === $verb ? ':runner:' : ':waving_white_flag:'; 
+      $emoji = 'flee' === $verb ? ':runner:' : ':waving_white_flag:';
 
       $actions[] = [
         'name' => 'battles/surrender',
