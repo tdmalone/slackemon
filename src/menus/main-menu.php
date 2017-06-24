@@ -10,18 +10,9 @@ function slackemon_get_main_menu() {
   $player_data = slackemon_get_player_data();
   $latest_news = slackemon_get_latest_news();
   $available_regions = slackemon_get_regions();
+  $version_string = slackemon_get_version_string();
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
   $pokemon_array_keys = array_keys( $player_data->pokemon );
-
-  $printable_version_string = (
-    SLACKEMON_ACTION_CALLBACK_ID . ' v' . SLACKEMON_VERSION .
-    ( APP_ENV && 'live' !== APP_ENV ? ' ' . strtoupper( APP_ENV ) : '' ) .
-    (
-      getenv( 'HEROKU_RELEASE_VERSION' ) ?
-      ' build ' . preg_replace( '/[^0-9]/', '', getenv( 'HEROKU_RELEASE_VERSION' ) ) :
-      ''
-    )
-  );
 
   $most_recent_pokemon = (
     count( $pokemon_array_keys ) ?
@@ -202,7 +193,7 @@ function slackemon_get_main_menu() {
       ], [
         'fallback' => SLACKEMON_ACTION_CALLBACK_ID,
         'footer' => (
-          $printable_version_string . ' - ' .
+          $version_string . ' - ' .
           $players_online . ' player' . ( 1 === $players_online ? '' : 's' ) . ' online'
         ),
         'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,

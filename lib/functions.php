@@ -164,6 +164,33 @@ function slackemon_build_background_url( $path ) {
 
 } // Function slackemon_build_background_url
 
+/** Returns a printable version string for output in menus etc. */
+function slackemon_get_version_string() {
+
+  $version_string = SLACKEMON_ACTION_CALLBACK_ID . ' v' . SLACKEMON_VERSION;
+
+  if ( APP_ENV && 'live' !== APP_ENV ) {
+   $version_string .= ' ' . strtoupper( str_replace( 'development', 'dev', APP_ENV ) );
+  }
+  
+  if ( getenv( 'HEROKU_RELEASE_VERSION' ) ) {
+    $version_string .= ' ' . 'build ' . preg_replace( '/[^0-9]/', '', getenv( 'HEROKU_RELEASE_VERSION' ) );
+  }
+
+  if ( APP_ENV && 'development' === APP_ENV ) {
+    $git_head_file = __DIR__ . '/../.git/HEAD';
+
+    if ( file_exists( $git_head_file ) ) {
+      $git_current_head   = trim( file_get_contents( $git_head_file ) );
+      $git_current_branch = substr( $git_current_head, strrpos( $git_current_head, '/' ) + 1 );
+      $version_string    .= ' ' . '(' . $git_current_branch . ')';
+    }
+  }
+
+  return $version_string;
+
+} // Function slackemon_get_version_string
+
 /** An easy way to quickly truncate long strings, eg. task titles. */
 function maybe_truncate( $string = '', $max_chars = 100 ) {
 
