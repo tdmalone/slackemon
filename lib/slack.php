@@ -62,14 +62,18 @@ function send2slack( $message, $hook_url = '' ) {
 
   $params = 'payload=' . urlencode( json_encode( $payload ) );
 
-  $ch = curl_init();
-  curl_setopt( $ch, CURLOPT_URL, $hook_url );
-  curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'POST' );
-  curl_setopt( $ch, CURLOPT_POSTFIELDS, $params );
-  curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-  curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
-  $result = curl_exec( $ch );
-  curl_close( $ch );
+  $curl_options = [
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS    => $params,
+  ];
+
+  $result = slackemon_get_url(
+    $hook_url,
+    [
+      'curl_options' => $curl_options,
+      'skip_error_reporting' => true, // We must skip error reporting, because error sending uses send2slack()!
+    ]
+  );
 
   if ( 'development' === APP_ENV ) {
     file_put_contents( $data_folder . '/last-send2slack-result', $result );
