@@ -12,11 +12,11 @@ require_once( __DIR__ . '/lib/init.php' );
 // AUTH: Check if the cron token was set - if running over the web from a non-local IP address.
 if (
   'cli' !== php_sapi_name() &&
-  ! slackemon_is_ip_private( $_SERVER['REMOTE_ADDR'] ) &&
+  ! slackemon_is_ip_private( slackemon_get_requester_ip_address() ) &&
   ( ! isset( $_REQUEST['token'] ) || SLACKEMON_CRON_TOKEN !== $_REQUEST['token'] )
 ) {
   http_response_code( 403 );
-  slackemon_error_log( 'Unauthorised cron request.' );
+  slackemon_error_log( 'Unauthorised cron request from ' . slackemon_get_requester_data() );
   return slackemon_exit( 'Not authorised for this cron request.' );
 }
 

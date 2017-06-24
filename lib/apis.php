@@ -13,24 +13,24 @@ function slackemon_get_url( $url, $options = [] ) {
 
   $user_agent = 'Slackemon for Slack v' . SLACKEMON_VERSION . ' (https://github.com/tdmalone/slackemon)';
 
-  $ch = curl_init();
-  curl_setopt( $ch, CURLOPT_URL, $url );
-  curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-  curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false ); // TODO: http://php.net/manual/en/function.curl-setopt.php#110457
-  curl_setopt( $ch, CURLOPT_USERAGENT, $user_agent );
+  $curl = curl_init();
+  curl_setopt( $curl, CURLOPT_URL, $url );
+  curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+  curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, false ); // TODO: http://php.net/manual/en/function.curl-setopt.php#110457
+  curl_setopt( $curl, CURLOPT_USERAGENT, $user_agent );
 
   if ( isset( $options['curl_options'] ) ) {
     foreach( $options['curl_options'] as $key => $value ) {
-      curl_setopt( $ch, $key, $value );
+      curl_setopt( $curl, $key, $value );
     }
   }
 
-  $result = curl_exec( $ch );
+  $result = curl_exec( $curl );
 
   // Send errors to Slack
   if ( false === $result ) {
 
-    $curl_error = curl_error( $ch );
+    $curl_error = curl_error( $curl );
 
     // Skip sending an error if the option passed through said so. We use this to avoid looping back if the error
     // came from sending to Slack in the first place.
@@ -55,14 +55,14 @@ function slackemon_get_url( $url, $options = [] ) {
         'channel' => USER_ID,
       ]);
 
-      curl_close( $ch );
+      curl_close( $curl );
       exit();
 
     }
 
   } // If no result
 
-  curl_close( $ch );
+  curl_close( $curl );
   return $result;
   
 } // Function slackemon_get_url
