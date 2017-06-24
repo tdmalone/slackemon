@@ -136,11 +136,17 @@ function slackemon_post2slack( $payload ) {
 function slackemon_get_slack_user_full_name( $user_id = USER_ID ) {
 
   $user = slackemon_get_slack_user( $user_id );
-  if ( $user && isset( $user->real_name ) ) {
+
+  if ( ! $user ) {
+    return false;
+  }
+
+  if ( isset( $user->real_name ) && $user->real_name ) {
     return $user->real_name;
   }
 
-  return false;
+  // If the user hasn't entered their name, fallback to a modification of their username
+  return ucwords( str_replace( [ '.', '-' ], ' ', $user->name ) );
 
 } // Function slackemon_get_user_full_name
 
@@ -153,7 +159,11 @@ function slackemon_get_slack_user_first_name( $user_id = USER_ID ) {
     return false;
   }
 
-  $user_first_name = substr( $user_full_name, 0, strpos( $user_full_name, ' ' ) );
+  if ( false !== strpos( $user_full_name, ' ' ) ) {
+    $user_first_name = substr( $user_full_name, 0, strpos( $user_full_name, ' ' ) );
+  } else {
+    $user_first_name = $user_full_name;
+  }
 
   return $user_first_name;
 
