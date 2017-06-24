@@ -27,11 +27,40 @@ function slackemon_get_url( $url, $options = [] ) {
 
   $result = curl_exec( $ch );
 
+  // Send errors to Slack
   if ( false === $result ) {
-    slackemon_send2slack( ':no_entry: ' . curl_error( $ch ) . "\n" . '_' . $url . '_' ); // Send errors to Slack
-    curl_close( $ch );
-    exit();
-  }
+
+    $curl_error = curl_error( $ch );
+
+    // Skip sending an error if the option passed through said so. We use this to avoid looping back if the error
+    // came from sending to Slack in the first place.
+    if ( isset( $options['skip_error_reporting'] ) && $options['skip_error_reporting'] ) {
+
+      // Nothing to do here; this error is safe to ignore.
+
+    // Skip sending an error if it was a timeout error that we were expecting anyway
+    // (we use this technique in functions.php to run background commands & actions).
+    } else if (
+      isset( $options['curl_options'] ) &&
+      array_key_exists( CURLOPT_TIMEOUT, $options['curl_options'] ) &&
+      preg_match( '/^operation timed out/i', $curl_error )
+    ) {
+
+      // Nothing to do here; this error is safe to ignore.
+
+    } else {
+
+      slackemon_send2slack([
+        'text'    => ':no_entry: ' . $curl_error . "\n" . '_' . $url . '_',
+        'channel' => USER_ID,
+      ]);
+
+      curl_close( $ch );
+      exit();
+
+    }
+
+  } // If no result
 
   curl_close( $ch );
   return $result;
@@ -253,7 +282,7 @@ function slackemon_cache_debug( $url, $filename, $cache_status, $additional_info
     return;
   }
 
-  error_log( $url . ' - ' . $filename . ' - ' . $cache_status . ' - ' . $additional_info );
+  slackemon_error_log( $url . ' - ' . $filename . ' - ' . $cache_status . ' - ' . $additional_info );
 
   return;
 

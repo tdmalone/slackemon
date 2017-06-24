@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Evolution specific functions for Slackemon Go
+/**
+ * Evolution specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_evolve_user_pokemon( $spawn_ts, $evolve_to_id = null, $user_id = USER_ID ) {
 
@@ -9,7 +11,7 @@ function slackemon_evolve_user_pokemon( $spawn_ts, $evolve_to_id = null, $user_i
   $user_pokemon = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
 
   if ( ! $user_pokemon ) {
-  	return false;
+    return false;
   }
 
   // Allow a specific Pokedex ID to be passed through to control the evolution
@@ -311,7 +313,9 @@ function slackemon_start_evolution_message( $spawn_ts, $action, $user_id = USER_
 
   // Clear the fields, and load the evolution GIF
   $original_attachment->fields    = [];
-  $original_attachment->image_url = slackemon_get_cached_image_url( SLACKEMON_INBOUND_URL . '/_images/slackemon-evolution2.gif' );
+  $original_attachment->image_url = (
+    slackemon_get_cached_image_url( SLACKEMON_INBOUND_URL . 'media/evolution.gif' )
+  );
 
   if ( $replace_all_attachments ) {
     slackemon_do_action_response([ 'attachments' => [ $original_attachment, slackemon_back_to_menu_attachment() ] ]);
@@ -416,6 +420,10 @@ function slackemon_get_evolution_error_message( $spawn_ts, $action ) {
 
 function slackemon_record_impossible_evolution( $evolution, $detail, $reason = 'unknown-reason' ) {
   global $data_folder;
+
+  if ( 'development' !== APP_ENV ) {
+    return;
+  }
 
   $evolution_debug_filename = $data_folder . '/uncoded-evolutions.json';
   if ( ! file_exists( $evolution_debug_filename) ) {

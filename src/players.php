@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Player specific functions for Slackemon Go
+/**
+ * Player specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_is_player( $user_id = USER_ID ) {
   global $data_folder;
@@ -68,11 +70,30 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
 
   // If we couldn't find the player file, store a trace to discover how we got here
   if ( ! slackemon_file_exists( $player_filename, 'store' ) ) {
-    file_put_contents( $data_folder . '/backtrace-' . $user_id, print_r( debug_backtrace(), true ) );
+    slackemon_error_log( $data_folder . '/backtrace-' . $user_id, print_r( debug_backtrace(), true ) );
     return false;
   }
 
   $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', $for_writing ) );
+
+  // If our player data doesn't exist or is somehow corrupted (eg. JSON file in the middle of being written to),
+  // we need to error out right away.
+  if ( ! $player_data ) {
+
+    send2slack([
+      'text' => (
+        ':exclamation: *Oops!* An error occurred accessing your player data. Please try your last action again.' . "\n" .
+        'If this problem persists, talk to <@' . SLACKEMON_MAINTAINER . '>.'
+      ),
+      'channel' => $user_id, // Sending the channel through forces a new message to be sent, rather than replacing
+                             // whichever one the user actioned from.
+    ]);
+
+    slackemon_error_log( 'Player data file for ' . $user_id . ' could not be accessed - potentially corrupted?' );
+    slackemon_exit();
+
+  }
+
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
 
   // Ensure player is not caught in a cancelled region if the available regions change
@@ -173,7 +194,7 @@ function slackemon_get_player_ids( $options = [] ) {
 
   // No players at all?
   if ( ! count( $players ) ) {
-    return false;
+    return [];
   }
 
   // Set default options

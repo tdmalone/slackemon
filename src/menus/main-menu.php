@@ -1,14 +1,27 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Main menu functions for Slackemon Go
+/**
+ * Main menu functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_main_menu() {
 
   $player_data = slackemon_get_player_data();
   $latest_news = slackemon_get_latest_news();
+  $available_regions = slackemon_get_regions();
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
   $pokemon_array_keys = array_keys( $player_data->pokemon );
+
+  $printable_version_string = (
+    SLACKEMON_ACTION_CALLBACK_ID . ' v' . SLACKEMON_VERSION .
+    ( APP_ENV && 'live' !== APP_ENV ? ' ' . strtoupper( APP_ENV ) : '' ) .
+    (
+      getenv( 'HEROKU_RELEASE_VERSION' ) ?
+      ' build ' . preg_replace( '/[^0-9]/', '', getenv( 'HEROKU_RELEASE_VERSION' ) ) :
+      ''
+    )
+  );
 
   $most_recent_pokemon = (
     count( $pokemon_array_keys ) ?
@@ -21,7 +34,7 @@ function slackemon_get_main_menu() {
   }
 
   $unique_caught = 0;
-  $total_caught = 0;
+  $total_caught  = 0;
 
   foreach ( $player_data->pokedex as $entry ) {
     if ( $entry->caught ) {
@@ -82,12 +95,14 @@ function slackemon_get_main_menu() {
       [
         'text' => (
           'You have *' . count( $player_data->pokemon ) . ' Pokémon* on your team' . "\n" .
-          'You have won *' . $player_data->battles->won . ' trainer battles*' .
           (
-            $is_desktop ? 
-            ' (participated in ' . $player_data->battles->participated . ')' :
+            count( $player_data->pokemon ) >= SLACKEMON_BATTLE_TEAM_SIZE ?
+            (
+              'You have won *' . $player_data->battles->won . ' trainer battles*' .
+              ( $is_desktop ?  ' (participated in ' . $player_data->battles->participated . ')' : '' )  . "\n"
+            ) :
             ''
-          ) . "\n" .
+          ) .
           'You have caught *' . $unique_caught . ' unique Pokémon*' .
           ( $is_desktop ? ' (' . $total_caught . ' total)' : '' )
         ),
@@ -147,7 +162,7 @@ function slackemon_get_main_menu() {
         'actions' => [
           [
             'name' => 'pokemon/list',
-            'text' => ( $is_desktop ? ':pika2:' : ':monkey:' ) . ' Pokémon',
+            'text' => ( $is_desktop ? ':pikachu_bounce:' : ':monkey:' ) . ' Pokémon',
             'type' => 'button',
             'value' => 'main',
           ], (
@@ -159,17 +174,25 @@ function slackemon_get_main_menu() {
               'value' => 'main',
             ] :
             []
+          ), (
+            count( $player_data->pokemon ) >= SLACKEMON_BATTLE_TEAM_SIZE ?
+            [
+              'name' => 'battles',
+              'text' => ':facepunch: Battles',
+              'type' => 'button',
+              'value' => 'main',
+            ] :
+            []
+          ), (
+            count( $available_regions ) > 1 ?
+            [
+              'name' => 'travel',
+              'text' => ':world_map: Travel',
+              'type' => 'button',
+              'value' => 'main',
+            ] :
+            []
           ), [
-            'name' => 'battles',
-            'text' => ':facepunch: Battles',
-            'type' => 'button',
-            'value' => 'main',
-          ], [
-            'name' => 'travel',
-            'text' => ':world_map: Travel',
-            'type' => 'button',
-            'value' => 'main',
-          ], [
             'name' => 'achievements',
             'text' => ':sports_medal: Achievements',
             'type' => 'button',
@@ -179,7 +202,7 @@ function slackemon_get_main_menu() {
       ], [
         'fallback' => SLACKEMON_ACTION_CALLBACK_ID,
         'footer' => (
-          SLACKEMON_ACTION_CALLBACK_ID . ' v' . SLACKEMON_VERSION . ' - ' .
+          $printable_version_string . ' - ' .
           $players_online . ' player' . ( 1 === $players_online ? '' : 's' ) . ' online'
         ),
         'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
@@ -235,13 +258,23 @@ function slackemon_back_to_menu_attachment() {
 
 } // Function slackemon_back_to_menu_attachment
 
+/**
+ * Returns latest news to be displayed on the main menu.
+ * Usually filled with major player-feature release notes which are then removed in subsequent versions.
+ * Appends environment specific additional news.
+ */
 function slackemon_get_latest_news() {
 
   $latest_news = [
-    
+    // No latest news at the moment! Developers please add new news items here at release time.
   ];
 
-  return array_merge( SLACKEMON_ADDITIONAL_NEWS, $latest_news );
+  $latest_news = array_merge( explode( '|', SLACKEMON_ADDITIONAL_NEWS ), $latest_news );
+
+  // Remove blank items, as the constant will be set but blank if there were no items in it
+  $latest_news = array_filter( $latest_news );
+
+  return $latest_news;
 
 } // Function slackemon_get_latest_news
 

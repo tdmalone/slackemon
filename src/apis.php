@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// External API specific functions for Slackemon Go
+/**
+ * External API specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_pokemon_data( $pokedex_number ) {
   global $data_folder, $_cached_slackemon_pokemon_data;
@@ -250,7 +252,10 @@ function slackemon_do_action_response( $message ) {
   } // If message has attachments
 
   $result = slackemon_send2slack( $message );
-  file_put_contents( $data_folder . '/last-action-response', $result );
+
+  if ( 'development' === APP_ENV ) {
+    file_put_contents( $data_folder . '/last-action-response', $result );
+  }
 
   return $result;
 

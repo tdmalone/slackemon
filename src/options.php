@@ -41,20 +41,8 @@ function slackemon_get_slack_message_menu_options( $action_name, $action_value )
       $options = [];
 
       foreach ( $pokemon_collection as $_pokemon ) {
-
-        $options[] = [
-          'text' => (
-            ( $is_desktop ? ':' . $_pokemon->name . ': ' : '' ) .
-            slackemon_readable( $_pokemon->name ) .
-            ' (L' . floor( $_pokemon->level ) .
-            ')' .
-            ( $is_desktop   && $_pokemon->is_favourite ? ' :sparkling_heart:' : '' ) .
-            ( ! $is_desktop && $_pokemon->is_favourite ? ' *'                 : '' )
-          ),
-          'value' => $_pokemon->ts,
-        ];
-
-      } // Foreach pokemon
+        $options[] = slackemon_get_battle_menu_add_option( $_pokemon );
+      }
 
       return json_encode( [ 'options' => $options ] );
 

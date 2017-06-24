@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Battle menu for Slackemon Go
+/**
+ * Battle menu for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_battle_menu() {
 
@@ -296,23 +298,73 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon ) {
 
 function slackemon_get_battle_menu_add_attachment( $count_helper = 'a' ) {
 
-   $attachment = [
+  $player_data = slackemon_get_player_data();
+  slackemon_sort_player_pokemon( $player_data->pokemon, [ 'name', 'is_favourite', 'level', 'cp', 'ts' ] );
+
+  // Prepare message menu options - if we have more than 100 Pokemon, we need to set up an interactive search to
+  // prevent Slack from cutting the additional Pokemon off.
+  if ( count( $player_data->pokemon ) > 100 ) {
+    $message_menu_options = [
+      'data_source' => 'external',
+      'min_query_length' => 1,
+    ];
+  } else {
+    $message_menu_options = [
+      'options' => array_map(
+        function( $_pokemon ) {
+
+          // Ensure current members of the battle team don't get listed again
+          if ( $_pokemon->is_battle_team ) {
+            return false;
+          }
+
+          return slackemon_get_battle_menu_add_option( $_pokemon );
+
+        },
+        $player_data->pokemon
+      ),
+    ];
+  }
+
+  $attachment = [
     'text'      => '*Select ' . $count_helper . ' Pokémon to add to your battle team:*',
     'color'     => '#333333',
     'mrkdwn_in' => [ 'text' ],
     'actions'   => [
-      [
-        'name' => 'battle-team/add/from-battle-menu',
-        'text' => 'Choose a Pokémon...',
-        'type' => 'select',
-        'data_source' => 'external',
-        'min_query_length' => 1,
-      ]
+      array_merge(
+        [
+          'name' => 'battle-team/add/from-battle-menu',
+          'text' => 'Choose a Pokémon...',
+          'type' => 'select',
+        ],
+        $message_menu_options
+      ),
     ],
   ];
 
   return $attachment;
 
 } // Function slackemon_get_battle_menu_add_attachment
+
+/** Abstracts the formatting of option values for adding to battle teams within the battle menu. */
+function slackemon_get_battle_menu_add_option( $_pokemon ) {
+
+  $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
+
+  $option = [
+    'text' => (
+      ( $is_desktop ? ':' . $_pokemon->name . ': ' : '' ) .
+      slackemon_readable( $_pokemon->name ) .
+      ' (L' . floor( $_pokemon->level ) .
+      ')' .
+      ( $is_desktop   && $_pokemon->is_favourite ? ' :sparkling_heart:' : '' ) .
+      ( ! $is_desktop && $_pokemon->is_favourite ? ' *'                 : '' )
+    ),
+    'value' => $_pokemon->ts,
+  ];
+
+  return $option;
+
+} // Function slackemon_get_battle_menu_add_option
 
 // The end!

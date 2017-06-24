@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Spawn specific functions for Slackemon Go
+/**
+ * Spawn specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_maybe_spawn( $trigger = [] ) {
 
@@ -46,16 +48,6 @@ function slackemon_get_most_recent_spawn() {
   return json_decode( $data );
 
 } // Function slackemon_get_most_recent_spawn
-
-function slackemon_spawn_debug( $message ) {
-
-  if ( ! SLACKEMON_SPAWN_DEBUG ) {
-    return;
-  }
-
-  error_log( $message );
-
-}
 
 function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $pokedex_id = false ) {
 
@@ -190,7 +182,7 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
   } // If weather_condition exists
 
   // Make sure we don't have an excluded Pokemon
-  if ( in_array( $pokedex_id, SLACKEMON_EXCLUDED_POKEMON ) ) {
+  if ( in_array( $pokedex_id, explode( '|', SLACKEMON_EXCLUDED_POKEMON ) ) ) {
     slackemon_spawn_debug( 'Can\'t spawn ' . slackemon_readable( $pokemon->name ) . ' as it is specifically excluded.' );
     return slackemon_spawn( $trigger, $region, $timestamp ); // Loops until we have an allowed Pokemon
   }
@@ -480,7 +472,7 @@ function slackemon_notify_spawn( $spawn ) {
     } else if ( $seen ) {
       $seen_caught_text = (
         "\n" .
-        'You haven\'t caught a ' . slackemon_readable( $spawn['name'] ) . ' yet - good luck! :fingers_crossed2:'
+        'You haven\'t caught a ' . slackemon_readable( $spawn['name'] ) . ' yet - good luck! :fingers_crossed:'
       );
     } else {
       $seen_caught_text = 'You\'ve never seen one before!';
@@ -495,7 +487,7 @@ function slackemon_notify_spawn( $spawn ) {
 
     $this_message['attachments'][0]['fallback'] =
       str_replace(
-        [ '[SEEN_CAUGHT]', ' :fingers_crossed2:', "\n" ],
+        [ '[SEEN_CAUGHT]', ' :fingers_crossed:', "\n" ],
         [ $seen_caught_text, '' ],
         $this_message['attachments'][0]['fallback']
       );
@@ -569,8 +561,13 @@ function slackemon_notify_spawn( $spawn ) {
     $this_message['channel'] = $player_id;
 
     if ( slackemon_record_spawn_for_user( $player_id, $spawn ) ) {
+
       $response = slackemon_post2slack( $this_message );
-      file_put_contents( $data_folder . '/last-spawn-notification', $response );
+
+      if ( 'development' === APP_ENV ) {
+        file_put_contents( $data_folder . '/last-spawn-notification', $response );
+      }
+      
     }
 
   } // Foreach active players in the region
@@ -618,5 +615,15 @@ function slackemon_record_spawn_for_user( $user_id, $spawn ) {
   return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_record_spawn
+
+function slackemon_spawn_debug( $message ) {
+
+  if ( ! SLACKEMON_SPAWN_DEBUG ) {
+    return;
+  }
+
+  slackemon_error_log( $message );
+
+}
 
 // The end!

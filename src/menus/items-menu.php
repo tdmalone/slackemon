@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Items menu for Slackemon Go
+/**
+ * Items ('Bag') menu for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
 
@@ -21,9 +23,9 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
 
     $item_data = slackemon_get_item_data( $item->id );
 
-  	if ( ! isset( $items[ 'item' . $item->id ] ) ) {
+    if ( ! isset( $items[ 'item' . $item->id ] ) ) {
 
-  	  $items[ 'item' . $item->id ] = [
+      $items[ 'item' . $item->id ] = [
         'id'       => $item->id,
         'count'    => 0,
         'name'     => $item_data->name,
@@ -40,7 +42,7 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
 
       $categories[ $item_data->category->name ]['unique_count']++;
 
-  	}
+    }
 
     $items[ 'item' . $item->id ]['count']++;
     $categories[ $item_data->category->name ]['total_count']++;

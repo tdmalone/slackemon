@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Templating/output specific functions for Slackemon Go
+/**
+ * Templating/output specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_readable_moveset( $moves, $types, $include_bullets = false, $include_pp = false ) {
 

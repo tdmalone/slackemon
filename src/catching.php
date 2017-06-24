@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Pokemon-catching specific functions for Slackemon Go
+/**
+ * Pokemon-catching specific functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, $force_battle_result = '', $user_id = USER_ID ) {
 
@@ -31,7 +33,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
     if ( 'catch' === $force_battle_result ) {
       // Don't wait here - it's obvious from a battle ending that this is going to be a catch
     } else {
-      sleep( 5 );
+      sleep( 3 );
     }
 
   }
@@ -91,7 +93,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
         'text' => (
           'Now, keep an eye on your direct messages, as Pokémon could appear at any time.' . "\n" .
           'You can check out your Pokémon via the Main Menu, which you can access below or at any time ' .
-          'by typing `/slackemon`.' . "\n" .
+          'by typing `' . SLACKEMON_SLASH_COMMAND . '`.' . "\n" .
           'Will you be the very best there ever was?? :sports_medal:'
         ),
       ];
@@ -352,7 +354,8 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
   if ( slackemon_is_player_in_battle( $user_id ) ) {
     slackemon_send2slack([
       'text'    => ':exclamation: *Oops!* You\'re already in a battle - you can\'t start another one just yet. :smile:',
-      'channel' => $user_id,
+      'channel' => $user_id, // Sending the channel through forces a new message to be sent, rather than potentially
+                             // accidentally replacing the message which could become the battle shortly.
     ]);
     return false;
   }
@@ -443,7 +446,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
   ], RESPONSE_URL );
 
   // Wild Pokemon gets to move first
-  sleep( 4 ); // Wait before the computer moves...
+  sleep( 2 ); // Wait before the computer moves...
   $move = slackemon_get_best_move( $invitee_pokemon, $inviter_pokemon );
   slackemon_do_battle_move( $move->name, $battle_hash, $action, true, $invitee_id );
 

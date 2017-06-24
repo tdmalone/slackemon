@@ -16,7 +16,7 @@ if (
   ( ! isset( $_REQUEST['token'] ) || SLACKEMON_CRON_TOKEN !== $_REQUEST['token'] )
 ) {
   http_response_code( 403 );
-  error_log( 'Unauthorised cron request.' );
+  slackemon_error_log( 'Unauthorised cron request.' );
   return slackemon_exit( 'Not authorised for this cron request.' );
 }
 
@@ -24,9 +24,9 @@ if (
 // The format is pretty much just like normal crons, including support for * / and - values.
 define(
   'SLACKEMON_CRON_SCHEDULE', [
-    [ '*', '*', '*', '*', '*', '/slackemon maybe-spawn'       ], // Runs every minute.
-    [ '*', '*', '*', '*', '*', '/slackemon battle-updates'    ], // Runs every minute.
-    [ '1', '1', '*', '*', '*', '/slackemon happiness-updates' ], // Runs once a day.
+    [ '*', '*', '*', '*', '*', SLACKEMON_SLASH_COMMAND . ' maybe-spawn'       ], // Runs every minute.
+    [ '*', '*', '*', '*', '*', SLACKEMON_SLASH_COMMAND . ' battle-updates'    ], // Runs every minute.
+    [ '1', '1', '*', '*', '*', SLACKEMON_SLASH_COMMAND . ' happiness-updates' ], // Runs once a day.
   ]
 );
 

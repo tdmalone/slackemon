@@ -275,7 +275,7 @@ function slackemon_pg_debug( $message, $force_debug = false ) {
     return;
   }
 
-  error_log( $message );
+  slackemon_error_log( $message );
 
 }
 

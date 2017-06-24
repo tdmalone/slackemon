@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/04/2017
-// Achievements menu for Slackemon Go
+/**
+ * Achievements menu for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_achievements_menu( $current_page ) {
 
@@ -43,7 +45,7 @@ function slackemon_get_achievements_menu( $current_page ) {
     ) . ( $total_seen ? ':' : '.' ) . "\n\n"
   );
 
-  foreach( $sorted_pokedex_page as $entry ) {
+  foreach ( $sorted_pokedex_page as $entry ) {
     $species_data = slackemon_get_pokemon_species_data( $entry->id );
     $readable_name = slackemon_readable( $species_data->name );
     $gender_symbols = [ '♂', '♀' ];
@@ -165,12 +167,12 @@ function slackemon_get_achievements_menu( $current_page ) {
 
     $full_name = slackemon_get_slack_user_full_name( $player_id );
     $emoji = (
-    	slackemon_is_player_active( $player_id ) ?
-    	':green_circle:' : (
-    		slackemon_is_player_in_battle( $player_id ) ?
-    		':yellow_circle:' :
-    		':black_circle:'
-    	)
+      slackemon_is_player_active( $player_id ) ?
+      ':green_circle:' : (
+        slackemon_is_player_in_battle( $player_id ) ?
+        ':yellow_circle:' :
+        ':black_circle:'
+      )
     );
 
     $leaderboard .= (
@@ -200,7 +202,7 @@ function slackemon_get_achievements_menu( $current_page ) {
 
   $message['attachments'][] = slackemon_back_to_menu_attachment();
 
-  	return $message;
+    return $message;
 
 } // Function slackemon_get_achievements_menu
 

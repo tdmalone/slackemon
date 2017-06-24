@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 05/04/2017
-// Tools menu for Slackemon Go
+/**
+ * Tools menu for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_tools_menu() {
 

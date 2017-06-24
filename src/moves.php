@@ -1,7 +1,9 @@
 <?php
-
-// Chromatix TM 04/05/2017
-// Move related functions for Slackemon Go
+/**
+ * Move related functions for Slackemon.
+ *
+ * @package Slackemon
+ */
 
 function slackemon_get_random_move( $pokemon_teachable_moves, $pokemon_current_moves ) {
 
