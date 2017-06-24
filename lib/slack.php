@@ -22,7 +22,7 @@ function send2slack( $message, $hook_url = '' ) {
     if ( ! isset( $payload['username'] ) ) {
       $payload['username'] = SLACKEMON_USERNAME;
     }
-    
+
     if ( ! isset( $payload['icon_emoji'] ) && ! isset( $payload['icon_url'] ) ) {
       
       // Set icon, supporting both emoji and relative media directory URLs

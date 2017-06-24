@@ -129,15 +129,17 @@ function slackemon_handle_command( $args ) {
         [
           'text' => (
             ':pokeball: *Welcome to Slackémon!*' . "\n\n" .
-            'Slackémon is a Pokémon Go-inspired game for :slack:. Once you start playing, Pokémon randomly appear on ' .
-            'Slack - and you\'ll have a short time to catch them before they run away!' . "\n\n" .
-            'Using slash commands, you can then manage your Pokémon collection - and even use them in battle against ' .
-            'other trainers.'
+            'Slackémon is a Pokémon Go-inspired game for :slack:. Once you start playing, Pokémon randomly appear ' .
+            'on Slack - and you\'ll have a short time to catch them before they run away!' . "\n\n" .
+            'Using slash commands, you can then manage your Pokémon collection - and even use them in battle ' .
+            'against other trainers.'
           ),
           'mrkdwn_in' => [ 'text' ],
         ], [
           'title' => 'So, what are you waiting for?!',
-          'thumb_url' => slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/pikachu-cosplay.gif' ),
+          'thumb_url' => (
+            slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/pikachu-cosplay.gif' )
+          ),
           'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
           'actions' => [
             [
