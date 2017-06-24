@@ -80,7 +80,7 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
   // we need to error out right away.
   if ( ! $player_data ) {
 
-    send2slack([
+    slackemon_send2slack([
       'text' => (
         ':exclamation: *Oops!* An error occurred accessing your player data. Please try your last action again.' . "\n" .
         'If this problem persists, talk to <@' . SLACKEMON_MAINTAINER . '>.'
