@@ -48,7 +48,7 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
       SLACKEMON_SLACK_TEAM_ID !== $auth_data->team->id
     ) {
       http_response_code( 403 );
-      slackemon_error_log( 'Unauthorised action or options request.' );
+      slackemon_error_log( 'Unauthorised action or options request from ' . slackemon_get_requester_data() );
       slackemon_error_log( $_REQUEST );
       exit(
         'Not authorised for this action or options request. ' .
@@ -66,7 +66,7 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
       SLACKEMON_SLACK_TEAM_ID !== $_POST['team_id']
     ) {
       http_response_code( 403 );
-      slackemon_error_log( 'Unauthorised command invocation.' );
+      slackemon_error_log( 'Unauthorised command invocation from ' . slackemon_get_requester_data() );
       slackemon_error_log( $_REQUEST );
       exit(
         'Not authorised for this command invocation. ' .
@@ -133,5 +133,36 @@ function slackemon_error_log( $message ) {
   error_log( $message );
 
 } // Function slackemon_error_log
+
+/**
+ * Returns a basic string of data on the source of the incoming request.
+ * Defined here, as it is used in this file for reporting on authorised requests.
+ */
+function slackemon_get_requester_data() {
+
+  $ip_address = slackemon_get_requester_ip_address()
+  $hostname = gethostbyaddr( $ip_address );
+
+  $requester_data = (
+    ( $hostname ? $hostname . ' (' . $ip_address . ')' : $ip_address ) . ' / ' .
+    $_SERVER['HTTP_USER_AGENT']
+  );
+
+  return $requester_data;
+
+} // Function slackemon_get_requester_data
+
+/** Attempts to return the requester's IP address, either directly or via a proxy. */
+function slackemon_get_requester_ip_address() {
+
+  if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) && $_SERVER['HTTP_X_FORWARDED_FOR'] ) {
+    $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+  } else {
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+  }
+
+  return $ip_address;
+
+} // Function slackemon_get_requester_ip_address
 
 // The end!
