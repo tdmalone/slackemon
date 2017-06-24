@@ -27,11 +27,34 @@ function slackemon_get_url( $url, $options = [] ) {
 
   $result = curl_exec( $ch );
 
+  // Send errors to Slack
   if ( false === $result ) {
-    send2slack( ':no_entry: ' . curl_error( $ch ) . "\n" . '_' . $url . '_' ); // Send errors to Slack
-    curl_close( $ch );
-    exit();
-  }
+
+    $curl_error = curl_error( $ch );
+
+    // Skip sending an error if it was a timeout error that we were expecting anyway
+    // (we use this technique in functions.php to run background commands & actions)
+    if (
+      isset( $options['curl_options'] ) &&
+      array_key_exists( CURLOPT_TIMEOUT, $options['curl_options'] ) &&
+      preg_match( '/^operation timed out/i', $curl_error )
+    ) {
+
+      // Nothing to do here, this error is safe to ignore.
+
+    } else {
+
+      send2slack([
+        'text'    => ':no_entry: ' . $curl_error . "\n" . '_' . $url . '_',
+        'channel' => USER_ID,
+      ]);
+
+      curl_close( $ch );
+      exit();
+
+    }
+
+  } // If no result
 
   curl_close( $ch );
   return $result;

@@ -42,12 +42,7 @@ function slackemon_run_automated_command( $command, $user_id, $team_id, $options
   ];
 
   // Run the command
-  $ch = curl_init();
-  curl_setopt( $ch, CURLOPT_URL, SLACKEMON_INBOUND_URL );
-  curl_setopt( $ch, CURLOPT_POSTFIELDS, $params );
-  curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-  curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
-  $result = curl_exec( $ch );
+  $result = slackemon_get_url( SLACKEMON_INBOUND_URL, [ 'CURLOPT_POSTFIELDS' => $params ] );
 
   // Return the initial result of the automated command to the caller
   return $result;

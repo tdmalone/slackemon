@@ -85,9 +85,6 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
   $command_url .= str_replace( basename( $_SERVER['SCRIPT_NAME'] ), '', $_SERVER['SCRIPT_NAME'] );
   $command_url .= $path;
 
-  // Curl timeout - this is our trick to make PHP sort-of async
-  $timeout = SLACKEMON_CURL_TIMEOUT;
-
   // Build command data
   $command_data = [
 
@@ -120,24 +117,21 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
 
   // Prepare and send the command
 
-  $ch = curl_init();
-  curl_setopt( $ch, CURLOPT_URL, $command_url );
-  curl_setopt( $ch, CURLOPT_FRESH_CONNECT, true );
-  curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'POST' );
-  curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query( $command_data ) );
+  $query_data = http_build_query( $command_data );
 
-  if ( $timeout ) {
-    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
-  }
-
-  // Just return the curl object if we're running unit tests, as we don't want to actually invoke commands from those.
+  // Just return the full URL if we're running unit tests, as we don't want to actually invoke commands from those.
   if ( 'testing' === APP_ENV ) {
-    curl_close( $ch );
-    return $ch;
+    return $command_url . '?' . $query_data;
   }
 
-  $result = curl_exec( $ch );
-  curl_close( $ch );
+  $curl_options = [
+    CURLOPT_FRESH_CONNECT => true,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS    => $query_data,
+    CURLOPT_TIMEOUT       => SLACKEMON_CURL_TIMEOUT,
+  ];
+
+  $result = slackemon_get_url( $command_url, [ 'curl_options' => $curl_options ] );
 
 } // Function run_background_command
 
@@ -150,33 +144,27 @@ function slackemon_run_background_action( $path, $action, $callback_id ) {
   $action_url .= str_replace( basename( $_SERVER['SCRIPT_NAME'] ), '', $_SERVER['SCRIPT_NAME'] );
   $action_url .= $path;
 
-  // Curl timeout - this is our trick to make PHP sort-of async
-  $timeout = SLACKEMON_CURL_TIMEOUT;
-
   // Prepare and send the action
-  $post_data = [
+  $action_data = [
     'action'      => json_encode( $action ),
     'callback_id' => $callback_id,
   ];
-  
-  $ch = curl_init();
-  curl_setopt( $ch, CURLOPT_URL, $action_url );
-  curl_setopt( $ch, CURLOPT_FRESH_CONNECT, true );
-  curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, 'POST' );
-  curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query( $post_data ) );
 
-  if ( $timeout ) {
-    curl_setopt( $ch, CURLOPT_TIMEOUT, $timeout );
-  }
+  $query_data = http_build_query( $action_data );
 
-  // Just return the curl object if we're running unit tests, as we don't want to actually invoke actions from those.
+  // Just return the full URL if we're running unit tests, as we don't want to actually invoke actions from those.
   if ( 'testing' === APP_ENV ) {
-    curl_close( $ch );
-    return $ch;
+    return $action_url . '?' . $query_data;
   }
 
-  $result = curl_exec( $ch );
-  curl_close( $ch );
+  $curl_options = [
+    CURLOPT_FRESH_CONNECT => true,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS    => $query_data,
+    CURLOPT_TIMEOUT       => SLACKEMON_CURL_TIMEOUT,
+  ];
+
+  $result = slackemon_get_url( $action_url, [ 'curl_options' => $curl_options ] );
 
 } // Function run_background_action
 
