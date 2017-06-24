@@ -140,7 +140,7 @@ function slackemon_error_log( $message ) {
  */
 function slackemon_get_requester_data() {
 
-  $ip_address = slackemon_get_requester_ip_address()
+  $ip_address = slackemon_get_requester_ip_address();
   $hostname = gethostbyaddr( $ip_address );
 
   $requester_data = (
