@@ -166,7 +166,17 @@ function slackemon_get_player_pokemon_data( $spawn_ts, $player_data = null, $use
 
 } // Function slackemon_get_player_pokemon_data
 
+/*
+ * Adds XP to a player's file.
+ *
+ * DEPRECATED: To avoid wrangling with file locking, XP should now be added to a player's data directly. The only
+ *             thing this function was doing was floor()'ing the XP after adding, which should and can be easily
+ *             done to the added amount if it is possible it is not an integer. In addition, XP is always added
+ *             in conjunction with some other action on the player's data, so the player's file is already open.
+ */
 function slackemon_add_xp( $xp, $user_id = USER_ID ) {
+
+  __slackemon_deprecated_function( __METHOD__, '0.0.41' );
 
   $player_data = slackemon_get_player_data( $user_id );
   $player_data->xp += $xp;
