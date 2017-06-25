@@ -290,20 +290,24 @@ function slackemon_is_player_muted( $user_id = USER_ID ) {
 
 function slackemon_set_player_in_battle( $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->status = 3;
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_set_player_in_battle
 
 function slackemon_set_player_not_in_battle( $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
-  if ( 3 !== $player_data->status ) { return false; }
-  $player_data->status = 1;
+  $player_data = slackemon_get_player_data( $user_id, true );
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  if ( 3 == $player_data->status ) {
+    $player_data->status = 1;
+    return slackemon_save_player_data( $player_data, $user_id, true );
+  }
+
+  slackemon_save_player_data( $player_data, $user_id, true );
+  return false;
 
 } // Function slackemon_set_player_not_in_battle
 

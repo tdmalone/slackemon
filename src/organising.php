@@ -648,16 +648,16 @@ function slackemon_set_player_pokemon_sort_mode( $sort_mode = 'recent', $user_id
 
 function slackemon_set_player_pokemon_type_mode( $type_mode = 'all_types', $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->type_mode = $type_mode;
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_set_player_pokemon_type_mode
 
 function slackemon_favourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( $spawn_ts == $_pokemon->ts ) {
@@ -665,13 +665,13 @@ function slackemon_favourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
     }
   }
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_favourite_pokemon
 
 function slackemon_unfavourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( $spawn_ts == $_pokemon->ts ) {
@@ -679,13 +679,13 @@ function slackemon_unfavourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
     }
   }
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_unfavourite_pokemon
 
 function slackemon_add_to_battle_team( $spawn_ts, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( $spawn_ts == $_pokemon->ts ) {
@@ -693,13 +693,13 @@ function slackemon_add_to_battle_team( $spawn_ts, $user_id = USER_ID ) {
     }
   }
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_add_to_battle_team
 
 function slackemon_remove_from_battle_team( $spawn_ts, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( $spawn_ts == $_pokemon->ts ) {
@@ -707,7 +707,7 @@ function slackemon_remove_from_battle_team( $spawn_ts, $user_id = USER_ID ) {
     }
   }
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_remove_from_battle_team
 
