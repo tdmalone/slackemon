@@ -13,27 +13,56 @@ function slackemon_get_url( $url, $options = [] ) {
 
   $user_agent = 'Slackemon for Slack v' . SLACKEMON_VERSION . ' (https://github.com/tdmalone/slackemon)';
 
-  $ch = curl_init();
-  curl_setopt( $ch, CURLOPT_URL, $url );
-  curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-  curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false ); // TODO: http://php.net/manual/en/function.curl-setopt.php#110457
-  curl_setopt( $ch, CURLOPT_USERAGENT, $user_agent );
+  $curl = curl_init();
+  curl_setopt( $curl, CURLOPT_URL, $url );
+  curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+  curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, false ); // TODO: http://php.net/manual/en/function.curl-setopt.php#110457
+  curl_setopt( $curl, CURLOPT_USERAGENT, $user_agent );
 
   if ( isset( $options['curl_options'] ) ) {
     foreach( $options['curl_options'] as $key => $value ) {
-      curl_setopt( $ch, $key, $value );
+      curl_setopt( $curl, $key, $value );
     }
   }
 
-  $result = curl_exec( $ch );
+  $result = curl_exec( $curl );
 
+  // Send errors to Slack
   if ( false === $result ) {
-    send2slack( ':no_entry: ' . curl_error( $ch ) . "\n" . '_' . $url . '_' ); // Send errors to Slack
-    curl_close( $ch );
-    exit();
-  }
 
-  curl_close( $ch );
+    $curl_error = curl_error( $curl );
+
+    // Skip sending an error if the option passed through said so. We use this to avoid looping back if the error
+    // came from sending to Slack in the first place.
+    if ( isset( $options['skip_error_reporting'] ) && $options['skip_error_reporting'] ) {
+
+      // Nothing to do here; this error is safe to ignore.
+
+    // Skip sending an error if it was a timeout error that we were expecting anyway
+    // (we use this technique in functions.php to run background commands & actions).
+    } else if (
+      isset( $options['curl_options'] ) &&
+      array_key_exists( CURLOPT_TIMEOUT, $options['curl_options'] ) &&
+      preg_match( '/^operation timed out/i', $curl_error )
+    ) {
+
+      // Nothing to do here; this error is safe to ignore.
+
+    } else {
+
+      send2slack([
+        'text'    => ':no_entry: ' . $curl_error . "\n" . '_' . $url . '_',
+        'channel' => USER_ID,
+      ]);
+
+      curl_close( $curl );
+      exit();
+
+    }
+
+  } // If no result
+
+  curl_close( $curl );
   return $result;
   
 } // Function slackemon_get_url

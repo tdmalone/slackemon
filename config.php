@@ -5,8 +5,10 @@
  * @package Slackemon
  */
 
+define( 'APP_ENV', getenv( 'APP_ENV' ) );
+
 // If running in development, attempt to load environment variables from .env file.
-if ( file_exists( __DIR__ . '/.env' ) && 'development' === getenv( 'APP_ENV' ) ) {
+if ( file_exists( __DIR__ . '/.env' ) && 'development' === APP_ENV ) {
   require_once( __DIR__ . '/vendor/autoload.php' );
   $dotenv = new Dotenv\Dotenv( __DIR__ );
   $dotenv->load();
@@ -56,7 +58,6 @@ define( 'SLACKEMON_AWS_REGION',         getenv( 'SLACKEMON_AWS_REGION'         )
 
 define( 'SLACKEMON_TIMEZONE',           getenv( 'SLACKEMON_TIMEZONE'           ) ?: 'Australia/Melbourne' );
 define( 'SLACKEMON_WEATHER_LAT_LON',    getenv( 'SLACKEMON_WEATHER_LAT_LON'    ) ?: '-37.81,144.96'       );
-define( 'SLACKEMON_MONETARY_LOCALE',    getenv( 'SLACKEMON_MONETARY_LOCALE'    ) ?: 'en_AU'               );
 
 // If you need to deploy Slackemon, or different instances of it, at a different Slash command, you can change this.
 define( 'SLACKEMON_SLASH_COMMAND', getenv( 'SLACKEMON_SLASH_COMMAND' ) ?: '/slackemon' );

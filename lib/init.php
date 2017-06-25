@@ -28,7 +28,6 @@ require_once( __DIR__ . '/../config.php' );
 
 // Set some config variables in stone.
 date_default_timezone_set( SLACKEMON_TIMEZONE );
-setlocale( LC_MONETARY, SLACKEMON_MONETARY_LOCALE );
 $data_folder = __DIR__ . '/../' . SLACKEMON_DATA_FOLDER;
 
 // Check that this request is authorised.
@@ -48,9 +47,12 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
       SLACKEMON_SLACK_TOKEN   !== $auth_data->token ||
       SLACKEMON_SLACK_TEAM_ID !== $auth_data->team->id
     ) {
+
       http_response_code( 403 );
-      slackemon_error_log( 'Unauthorised action or options request.' );
+
+      slackemon_error_log( 'Unauthorised action or options request from ' . slackemon_get_requester_data() );
       slackemon_error_log( $_REQUEST );
+
       exit(
         'Not authorised for this action or options request. ' .
         'Check that your app token has been configured properly.'
@@ -66,9 +68,18 @@ if ( ! defined( 'SKIP_AUTH' ) || ! SKIP_AUTH ) {
       SLACKEMON_SLACK_TOKEN   !== $_POST['token'] ||
       SLACKEMON_SLACK_TEAM_ID !== $_POST['team_id']
     ) {
+
       http_response_code( 403 );
-      slackemon_error_log( 'Unauthorised command invocation.' );
-      slackemon_error_log( $_REQUEST );
+
+      $requester_data = slackemon_get_requester_data();
+
+      // We skip logging this request if it comes from Slackbot's link expander, because this occurs everytime
+      // a Slackemon deployment notification is posted to a Slack channel.
+      if ( false === strpos( $requester_data, 'Slackbot-LinkExpanding' ) ) {
+        slackemon_error_log( 'Unauthorised command invocation from ' . $requester_data );
+        slackemon_error_log( $_REQUEST );
+      }
+
       exit(
         'Not authorised for this command invocation. ' .
         'Check that your app token has been configured properly.'
@@ -134,5 +145,45 @@ function slackemon_error_log( $message ) {
   error_log( $message );
 
 } // Function slackemon_error_log
+
+/**
+ * Returns a basic string of data on the source of the incoming request.
+ * Defined here, as it is used in this file for reporting on authorised requests.
+ */
+function slackemon_get_requester_data() {
+
+  $ip_addresses = slackemon_get_requester_ip_addresses();
+  $hostnames = [];
+
+  foreach ( $ip_addresses as $ip_address ) {
+    $hostname = gethostbyaddr( $ip_address );
+    $hostnames[] = $hostname && $hostname !== $ip_address ? $hostname . ' (' . $ip_address . ')' : $ip_address;
+  }
+
+  $requester_data = join( ', ', $hostnames ) . ' / ' . $_SERVER['HTTP_USER_AGENT'];
+
+  return $requester_data;
+
+} // Function slackemon_get_requester_data
+
+/**
+ * Attempts to return the requester's IP address, either directly or via a proxy.
+ * Returns as an array, because HTTP_X_FORWARDED_FOR can have multiple IPs in it.
+ *
+ * @return array $ip_addresses
+ */
+function slackemon_get_requester_ip_addresses() {
+
+  if ( isset( $_SERVER['HTTP_X_FORWARDED_FOR'] ) && $_SERVER['HTTP_X_FORWARDED_FOR'] ) {
+
+    // Make an array out of the potentially comma-separated list, after removing spaces because some implementations
+    // separate with ', ' rather than just ','.
+    return explode( ',', preg_replace( '/\s/', '', $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+
+  }
+
+  return [ $_SERVER['REMOTE_ADDR'] ];
+
+} // Function slackemon_get_requester_ip_addresses
 
 // The end!

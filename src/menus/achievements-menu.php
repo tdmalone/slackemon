@@ -45,7 +45,7 @@ function slackemon_get_achievements_menu( $current_page ) {
     ) . ( $total_seen ? ':' : '.' ) . "\n\n"
   );
 
-  foreach( $sorted_pokedex_page as $entry ) {
+  foreach ( $sorted_pokedex_page as $entry ) {
     $species_data = slackemon_get_pokemon_species_data( $entry->id );
     $readable_name = slackemon_readable( $species_data->name );
     $gender_symbols = [ '♂', '♀' ];
