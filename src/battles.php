@@ -22,7 +22,7 @@ function slackemon_do_battle_updates() {
   // (also, because active_only is true, Pokemon will only restore if a user is online and NOT in another battle!)
   foreach ( $active_players as $player_id ) {
 
-    $player_data = slackemon_get_player_data( $player_id );
+    $player_data = slackemon_get_player_data( $player_id, true );
     $player_pokemon = $player_data->pokemon;
     $changes_made = false;
 
@@ -51,7 +51,7 @@ function slackemon_do_battle_updates() {
     }
 
     if ( $changes_made ) {
-      slackemon_save_player_data( $player_data, $player_id );
+      slackemon_save_player_data( $player_data, $player_id, true );
     }
 
   } // Foreach player 
@@ -1930,7 +1930,7 @@ function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage =
 
 function slackemon_maybe_record_battle_seen_pokemon( $player_id, $pokedex_id ) {
 
-  $player_data = slackemon_get_player_data( $player_id );
+  $player_data = slackemon_get_player_data( $player_id, true );
 
   // Bow out if the user already has a Pokedex entry for this Pokemon
   foreach ( $player_data->pokedex as $pokedex_entry ) {
@@ -1946,7 +1946,7 @@ function slackemon_maybe_record_battle_seen_pokemon( $player_id, $pokedex_id ) {
     'caught' => 0,
   ];
 
-  return slackemon_save_player_data( $player_data, $player_id );
+  return slackemon_save_player_data( $player_data, $player_id, true );
 
 } // Function slackemon_maybe_record_battle_seen_pokemon
 

@@ -639,10 +639,10 @@ function slackemon_remove_pokemon( $spawn_timestamps, $user_id = USER_ID ) {
 
 function slackemon_set_player_pokemon_sort_mode( $sort_mode = 'recent', $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->sort_mode = $sort_mode;
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_set_player_pokemon_sort_mode
 
@@ -966,17 +966,17 @@ function slackemon_get_duplicate_pokemon( $user_id = USER_ID ) {
 /** Change the item a Pokemon is using. Can also be used to remove a held item by sending null as the item_id. */
 function slackemon_change_pokemon_held_item( $item_id, $spawn_ts, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
-  $pokemon     = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
+  $pokemon = slackemon_get_player_pokemon_data( $spawn_ts );
   
   // Return the old held item back to the bag
   if ( isset( $pokemon->held_item ) && $pokemon->held_item ) {
     slackemon_add_item( $pokemon->held_item, $user_id );
   }
 
+  $player_data = slackemon_get_player_data( $user_id, true );
   $pokemon->held_item = $item_id;
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_change_pokemon_held_item
 
