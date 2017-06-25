@@ -452,7 +452,7 @@ function slackemon_get_item_return_message( $spawn_ts, $action, $user_id = USER_
 
   // Remove the item from the Pokemon, and return it to the collection
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( $_pokemon->ts == $spawn_ts ) {
@@ -464,7 +464,7 @@ function slackemon_get_item_return_message( $spawn_ts, $action, $user_id = USER_
   slackemon_add_item( $item_id, $user_id );
   unset( $pokemon->held_item );
 
-  slackemon_save_player_data( $player_data );
+  slackemon_save_player_data( $player_data, $user_id, true );
 
   $message = [];
   $message['text'] = $action->original_message->text;
@@ -592,16 +592,24 @@ function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $use
 
   }
 
-  // Add move to the Pokemon, and if the item is a TM, remove it from the player's collection
+  // Put the new move together
   $move_data = slackemon_get_move_data( $move_name );
   $new_move  = [ 'name' => $move_data->name, 'pp' => $move_data->pp, 'pp-current' => $move_data->pp ];
-  $pokemon->moves[] = json_decode( json_encode( $new_move ) );
 
+  // If the item is a TM, remove it from the player's collection
   if ( 'tms' === $item_data->category->name ) {
     slackemon_remove_item( $item_id, $user_id );
   }
 
-  slackemon_save_player_data( $player_data );
+  // Add new move to the Pokemon
+  $player_data = slackemon_get_player_data( $user_id, true );
+  foreach ( $player_data->pokemon as $_pokemon ) {
+    if ( $_pokemon->ts == $spawn_ts ) {
+      $pokemon = $_pokemon;
+    }
+  }
+  $pokemon->moves[] = json_decode( json_encode( $new_move ) );
+  slackemon_save_player_data( $player_data, $user_id, true );
 
   $message['attachments'][ $action->attachment_id - 1 ]->footer = (
     ':tada: Congratulations! ' . slackemon_readable( $pokemon->name ) . ' now knows ' .
@@ -659,7 +667,7 @@ function slackemon_get_item_discard_message( $item_id, $action, $user_id = USER_
 
 function slackemon_add_item( $item_id, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   if ( is_numeric( $item_id ) ) {
     $player_data->items[] = [ 'id' => (int) $item_id ];
@@ -669,13 +677,13 @@ function slackemon_add_item( $item_id, $user_id = USER_ID ) {
     return false;
   }
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_add_item
 
 function slackemon_remove_item( $item_id, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   $remaining_items = [];
   $found_item = false;
@@ -689,7 +697,7 @@ function slackemon_remove_item( $item_id, $user_id = USER_ID ) {
 
   $player_data->items = $remaining_items;
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_remove_pokemon
 
