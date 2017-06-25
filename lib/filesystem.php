@@ -173,8 +173,7 @@ function slackemon_file_put_contents( $filename, $data, $purpose, $warn_if_not_l
   // Warn if we're trying to write to a data store file that we don't own a lock on
   if ( 'store' === $purpose && $warn_if_not_locked && ! slackemon_is_file_owned( $filename ) ) {
     slackemon_lock_debug(
-      'WARNING: Writing to ' . $filename . ' without a file lock.' . PHP_EOL .
-      print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, 3 ), true )
+      'WARNING: Writing to ' . $filename . ' without a file lock.' . PHP_EOL . slackemon_debug_backtrace()
     );
   }
 
@@ -770,7 +769,7 @@ function slackemon_lock_debug( $message, $force_debug = false ) {
     return;
   }
 
-  error_log( $message );
+  slackemon_error_log( $message );
 
 }
 
