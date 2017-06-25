@@ -184,7 +184,10 @@ foreach ( $_debug_vars as $var ) { // Foreach of the above vars, force the env v
 }
 
 // In addition, 'file locking' is very rudimentary at the moment, so it's currently disabled by default.
-define( 'SLACKEMON_ENABLE_FILE_LOCKING', false );
+define(
+  'SLACKEMON_ENABLE_FILE_LOCKING',
+  filter_var( getenv( 'SLACKEMON_ENABLE_FILE_LOCKING' ), FILTER_VALIDATE_BOOLEAN ) ?: false
+);
 
 /**
  * Internal configuration.
