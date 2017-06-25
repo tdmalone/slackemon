@@ -691,22 +691,6 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
 
 } // Function slackemon_complete_battle
 
-// ...
-
-// Get player data for writing
-$player_data = slackemon_get_player_data( $user_id, true );
-
-// Modify trainer battle stats
-if ( 'wild' !== $battle_data->type ) {
-  $player_data->battles->participated++;
-}
-$player_data->battles->last_participated = $battle_data->ts;
-
-slackemon_save_player_data( $player_data, $user_id, true );
-slackemon_set_player_not_in_battle( $user_id );
-
-// ...
-
 function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp_to_user ) {
 
   $pokemon_experience_message = '';
@@ -723,7 +707,7 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
     'speed'           => 0
   ];
   $experience_gained_per_pokemon = [];
-  $opponent_id = slackemon_get_battle_opponent_id( $battle_hash, $user_id );
+  $opponent_id = slackemon_get_battle_opponent_id( $battle_data->hash, $user_id );
 
   foreach ( $battle_data->users->{ $opponent_id }->team as $_pokemon ) {
 
@@ -876,7 +860,7 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
     // Recalculate CP
     $_pokemon->cp = slackemon_calculate_cp( $_pokemon->stats );
 
-    // Modify trainer battle stats
+    // Modify 'trainer battle' stats
     if ( 'wild' !== $battle_data->type ) {
       $_pokemon->battles->won++;
       $_pokemon->battles->last_won = $battle_data->ts;
@@ -886,6 +870,9 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
     $battle_pokemon_by_ts[ $_pokemon->ts ] = $_pokemon;
 
   } // Foreach player battle team Pokemon
+
+  // Get player data for writing
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   // Apply new Pokemon data to the player's collection
   foreach ( $player_data->pokemon as $_pokemon ) {
@@ -958,7 +945,7 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
   } // Foreach player_data pokemon
 
   // Add player XP
-  if ( $award_xp_to_user ) {
+  if ( $award_xp_to_user ) { // This should always be true for the winner!
 
     if ( 'wild' === $battle_data->type ) {
       $xp_to_add = 175 + $total_experience_gained;
@@ -966,17 +953,7 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
       $xp_to_add = 500 + $total_experience_gained;
     }
 
-    slackemon_add_xp( $xp_to_add, $user_id );
-
-  }
-
-  // Modify trainer battle stats
-  if ( 'wild' !== $battle_data->type ) {
-    $player_data->battles->won++;
-    $player_data->battles->last_won = $battle_data->ts;
-  }
-
-  if ( $award_xp_to_user ) { // This should always be true for the winner!
+    $player_data->xp += floor( $xp_to_add );
 
     $xp_gain_message = '';
 
@@ -998,6 +975,18 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
 
     } // For each experience_gained_per_pokemon
   } // If award_xp_to_user
+
+  // Modify 'trainer battle' stats
+  if ( 'wild' !== $battle_data->type ) {
+    $player_data->battles->won++;
+    $player_data->battles->participated++;
+    $player_data->battles->last_won = $battle_data->ts;
+  }
+
+  $player_data->battles->last_participated = $battle_data->ts;
+
+  slackemon_save_player_data( $player_data, $user_id, true );
+  slackemon_set_player_not_in_battle( $user_id );
 
   // Put message together
   $message = [
@@ -1034,6 +1023,9 @@ function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_
 
   }
 
+  // Get player data for writing
+  $player_data = slackemon_get_player_data( $user_id, true );
+
   // Apply new Pokemon data to the player's collection
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( isset( $battle_pokemon_by_ts[ $_pokemon->ts ] ) ) {
@@ -1061,8 +1053,18 @@ function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_
 
   // Add player XP
   if ( $award_xp_to_user ) {
-    slackemon_add_xp( 25, $user_id );
+    $player_data->xp += 25;
   }
+
+  // Modify 'trainer battle' stats
+  if ( 'wild' !== $battle_data->type ) {
+    $player_data->battles->participated++;
+  }
+
+  $player_data->battles->last_participated = $battle_data->ts;
+
+  slackemon_save_player_data( $player_data, $user_id, true );
+  slackemon_set_player_not_in_battle( $user_id );
 
   // Put message together
   $message = [
