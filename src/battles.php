@@ -655,377 +655,20 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 // Tally up and apply the battle stats for the user
 function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USER_ID, $award_xp_to_user = true, $send_response_to_user = true ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
   $is_desktop  = 'desktop' === slackemon_get_player_menu_mode( $user_id );
-  $battle_data = slackemon_get_battle_data( $battle_hash, true ); // 'true' for include getting from a 'complete' file, in case a user has already run this function and the file has been moved as a result
+
+  // Get the battle data, including from a 'complete' battle in case a user has already run this function
+  $battle_data = slackemon_get_battle_data( $battle_hash, true );
 
   if ( ! $battle_data ) {
     return slackemon_battle_has_ended_message();
   }
 
-  $pokemon_experience_message = '';
-
-  // Did the user win or lose?
-  switch ( $battle_result ) {
-
-    case 'won':
-
-      // What's the experience & effort points gained from the opponent's fainted Pokemon?
-
-      $total_experience_gained = 0;
-      $effort_points_gained = [
-        'attack'          => 0,
-        'defense'         => 0,
-        'hp'              => 0,
-        'special-attack'  => 0,
-        'special-defense' => 0,
-        'speed'           => 0
-      ];
-      $experience_gained_per_pokemon = [];
-      $opponent_id = slackemon_get_battle_opponent_id( $battle_hash, $user_id );
-
-      foreach ( $battle_data->users->{ $opponent_id }->team as $_pokemon ) {
-
-        // Skip if this opponent Pokemon didn't faint
-        if ( $_pokemon->hp ) {
-          continue;
-        }
-
-        // Grab the fainted Pokemon's API data
-        $_pokemon_data = slackemon_get_pokemon_data( $_pokemon->pokedex );
-
-        // Calculate the experience yielded by this Pokemon
-        $experience = (int) slackemon_calculate_battle_experience( $_pokemon );
-        $total_experience_gained += $experience;
-
-        $experience_gained_per_pokemon[] = [
-          'name'    => $_pokemon->name,
-          'pokedex' => $_pokemon->pokedex,
-          'level'   => $_pokemon->level,
-          'experience_gained' => (int) $experience,
-        ];
-
-        // Calculate the effort point gain
-        foreach ( $_pokemon_data->stats as $_stat ) {
-          if ( ! $_stat->effort ) { continue; }
-          $effort_points_gained[ $_stat->stat->name ] += (int) $_stat->effort; break;
-        }
-
-      } // Foreach opponent pokemon
-
-      $battle_pokemon_by_ts = [];
-
-      // Apply experience & any other relevant changes to eligible Pokemon
-      foreach ( $battle_data->users->{ $user_id }->team as $_pokemon ) {
-
-        // Skip recalculation if this Pokemon fainted; just add it to the interim collection to save HP/participation
-        if ( ! $_pokemon->hp ) {
-          $_pokemon->happiness -= 1; // Happiness reduction of 1 due to fainting
-          $_pokemon->happiness = max( 0, $_pokemon->happiness ); // Ensure we don't go below 0
-          $battle_pokemon_by_ts[ $_pokemon->ts ] = $_pokemon;
-          $pokemon_experience_message .= (
-            ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false ) . ' ' .
-            'fainted :frowning:' . "\n"
-          );
-          continue;
-        }
-
-        // Skip everything if this Pokemon didn't get to participate at all
-        if ( $_pokemon->battles->last_participated !== $battle_data->ts ) {
-          $pokemon_experience_message .= (
-            ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false ) . ' ' .
-            'didn\'t participate in this battle' . "\n"
-          );
-          continue;
-        }
-
-        // Experience
-        $_pokemon->xp += $total_experience_gained;
-
-        // EVs
-
-        // First, turn it into an object if it was an array - how it is first created at spawn time
-        if ( is_array( $_pokemon->evs ) ) {
-          $_pokemon->evs = json_decode( json_encode( [
-            'attack'  => 0,
-            'defense' => 0,
-            'hp'      => 0,
-            'special-attack'  => 0,
-            'special-defense' => 0,
-            'speed' => 0,
-          ]));
-        }
-
-        // Apply EVs from all defeated Pokemon, and ensure it stays below the maximum
-        $current_evs = slackemon_get_combined_evs( $_pokemon->evs );
-        foreach ( $effort_points_gained as $key => $value ) {
-
-          // Max 510 across all EV stats - reduce the value we're applying if it would otherwise take us over the limit
-          if ( $current_evs + $value > 510 ) {
-            $value = $current_evs + $value - 510;
-          }
-
-          // Apply the value
-          $_pokemon->evs->{ $key } += $value;
-
-          // Ensure a max 252 per EV stat
-          $_pokemon->evs->{ $key } = min( 252, $_pokemon->evs->{ $key } );
-
-        }
-
-        // Recalculate level
-        $old_level = $_pokemon->level; // Store for happiness calculation shortly
-        $growth_rate_data = slackemon_get_pokemon_growth_rate_data( $_pokemon->pokedex );
-        foreach ( $growth_rate_data->levels as $_level ) {
-
-          // Levels in the API go from 100 down to 1
-          // If our experience is greater than the experience required for this level, *this* is our level!
-          if ( $_pokemon->xp >= $_level->experience ) {
-
-            // Work out a partial level if we're well on our way to the next
-            if ( isset( $next_level_experience ) && $_pokemon->xp > $_level->experience ) {
-              $exp_required_to_next_level = $next_level_experience - $_level->experience;
-              $exp_gained_towards_next_level = $_pokemon->xp - $_level->experience;
-              $_pokemon->level = $_level->level + ( $exp_gained_towards_next_level / $exp_required_to_next_level );
-            } else {
-              $_pokemon->level = $_level->level;
-            }
-
-            // Limit levels to 1 decimal point
-            $_pokemon->level = round( $_pokemon->level, 1, PHP_ROUND_HALF_DOWN );
-
-            break;
-
-          }
-
-          // Pass experience required down to previous level as the loop continues
-          $next_level_experience = $_level->experience;
-        }
-
-        // Recalculate happiness as a result of levelling up
-        // +5 per additional level if happiness 0-99; +3 if happiness 100-199; or +2 if 200-255
-        // Reference: http://bulbapedia.bulbagarden.net/wiki/Friendship#In_Generation_I
-        for ( $i = floor( $old_level ); $i < floor( $_pokemon->level ); $i++ ) {
-          if ( $_pokemon->happiness < 100 ) {
-            $_pokemon->happiness += 5;
-          } else if ( $_pokemon->happiness < 200 ) {
-            $_pokemon->happiness += 3;
-          } else {
-            $_pokemon->happiness += 2;
-          }
-        }
-
-        // Ensure we don't exceed the 255 happiness cap
-        $_pokemon->happiness = min( 255, $_pokemon->happiness );
-
-        // Recalculate stats
-        $_pokemon->stats->attack  = slackemon_calculate_stats( 'attack',  $_pokemon );
-        $_pokemon->stats->defense = slackemon_calculate_stats( 'defense', $_pokemon );
-        $_pokemon->stats->hp      = slackemon_calculate_stats( 'hp',      $_pokemon );
-        $_pokemon->stats->speed   = slackemon_calculate_stats( 'speed',   $_pokemon );
-        $_pokemon->stats->{'special-attack'}  = slackemon_calculate_stats( 'special-attack',  $_pokemon );
-        $_pokemon->stats->{'special-defense'} = slackemon_calculate_stats( 'special-defense', $_pokemon );
-
-        // Recalculate CP
-        $_pokemon->cp = slackemon_calculate_cp( $_pokemon->stats );
-
-        // Modify trainer battle stats
-        if ( 'wild' !== $battle_data->type ) {
-          $_pokemon->battles->won++;
-          $_pokemon->battles->last_won = $battle_data->ts;
-        }
-
-        // Add Pokemon to interim collection
-        $battle_pokemon_by_ts[ $_pokemon->ts ] = $_pokemon;
-
-      } // Foreach player battle team Pokemon
-
-      // Apply new Pokemon data to the player's collection
-      foreach ( $player_data->pokemon as $_pokemon ) {
-        if ( isset( $battle_pokemon_by_ts[ $_pokemon->ts ] ) ) {
-
-          // Did this Pokemon participate and not faint? It will have an XP difference if so - that's how we detect it
-          if ( $_pokemon->xp != $battle_pokemon_by_ts[ $_pokemon->ts ]->xp ) {
-
-            $_pokemon_intro = ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false );
-
-            if ( $battle_pokemon_by_ts[ $_pokemon->ts ]->level > $_pokemon->level ) {
-
-              $pokemon_experience_message .= (
-                $_pokemon_intro . ' has levelled up ' .
-                ( $is_desktop ? 'from level ' . $_pokemon->level . ' ' : '' ) .
-                'to ' . $battle_pokemon_by_ts[ $_pokemon->ts ]->level . '!' . "\n"
-              );
-
-              if ( slackemon_can_user_pokemon_evolve( $battle_pokemon_by_ts[ $_pokemon->ts ] ) ) {
-                $pokemon_experience_message .= '*' . $_pokemon_intro . ' is ready to evolve!! :open_mouth:*' . "\n";
-              }
-
-              $happiness_percent_old = floor( $_pokemon->happiness / 255 * 100 );
-              $happiness_percent_new = floor( $battle_pokemon_by_ts[ $_pokemon->ts ]->happiness / 255 * 100 );
-
-              if ( $happiness_percent_new > $happiness_percent_old ) {
-
-                $pokemon_experience_message .= (
-                  $_pokemon_intro . '\'s happiness has increased ' .
-                  ( $is_desktop ? 'from ' . $happiness_percent_old . '% ' : '' ) .
-                  'to ' . $happiness_percent_new . '%' . "\n"
-                );
-
-              } // If happiness increase
-
-              if ( $battle_pokemon_by_ts[ $_pokemon->ts ]->cp > $_pokemon->cp ) {
-                $pokemon_experience_message .= (
-                  $_pokemon_intro . '\'s CP has increased ' .
-                  ( $is_desktop ? 'from ' . $_pokemon->cp . ' ' : '' ) .
-                  'to ' . $battle_pokemon_by_ts[ $_pokemon->ts ]->cp . "\n"
-                );
-              }
-
-              if ( $battle_pokemon_by_ts[ $_pokemon->ts ]->stats->hp > $_pokemon->stats->hp ) {
-                $pokemon_experience_message .= (
-                  $_pokemon_intro . '\'s HP has increased ' .
-                  ( $is_desktop ? 'from ' . $_pokemon->stats->hp . ' ' : '' ) .
-                  'to ' . $battle_pokemon_by_ts[ $_pokemon->ts ]->stats->hp . "\n"
-                );
-              }
-
-            } else {
-
-              $pokemon_experience_message .= $_pokemon_intro . ' gained experience from this battle' . "\n";
-
-            } // If level increase / else
-          } // If Pokemon has XP difference
-
-          $_pokemon->hp        = $battle_pokemon_by_ts[ $_pokemon->ts ]->hp;
-          $_pokemon->xp        = $battle_pokemon_by_ts[ $_pokemon->ts ]->xp;
-          $_pokemon->cp        = $battle_pokemon_by_ts[ $_pokemon->ts ]->cp;
-          $_pokemon->evs       = $battle_pokemon_by_ts[ $_pokemon->ts ]->evs;
-          $_pokemon->moves     = $battle_pokemon_by_ts[ $_pokemon->ts ]->moves;
-          $_pokemon->level     = $battle_pokemon_by_ts[ $_pokemon->ts ]->level;
-          $_pokemon->stats     = $battle_pokemon_by_ts[ $_pokemon->ts ]->stats;
-          $_pokemon->battles   = $battle_pokemon_by_ts[ $_pokemon->ts ]->battles;
-          $_pokemon->happiness = $battle_pokemon_by_ts[ $_pokemon->ts ]->happiness;
-
-        } // If pokemon was in this battle
-      } // Foreach player_data pokemon
-
-      // Add player XP
-      if ( $award_xp_to_user ) {
-
-        if ( 'wild' === $battle_data->type ) {
-          $xp_to_add = 175 + $total_experience_gained;
-        } else {
-          $xp_to_add = 500 + $total_experience_gained;
-        }
-
-        slackemon_add_xp( $xp_to_add, $user_id );
-
-      }
-
-      // Modify trainer battle stats
-      if ( 'wild' !== $battle_data->type ) {
-        $player_data->battles->won++;
-        $player_data->battles->last_won = $battle_data->ts;
-      }
-
-      if ( $award_xp_to_user ) { // This should always be true for the winner!
-
-        $xp_gain_message = '';
-
-        foreach( $experience_gained_per_pokemon as $_pokemon ) {
-
-          $xp_gain_message .= (
-            ( $_pokemon['experience_gained'] < 10 ?  '   ' : '' ) . // Spacing
-            ( $_pokemon['experience_gained'] < 100 ? '   ' : '' ) . // More spacing
-            '*+' . $_pokemon['experience_gained'] . ' XP*: Defeated a ' .
-            'level ' . $_pokemon['level'] . ' :' . $_pokemon['name'] . ': ' .
-            slackemon_readable( $_pokemon['name'] ) .
-            (
-              SLACKEMON_EXP_GAIN_MODIFIER > 1 ?
-              ' :low_brightness:' . ( $is_desktop ? '*x' . SLACKEMON_EXP_GAIN_MODIFIER . '*' : '' ) :
-              ''
-            ) .
-            "\n"
-          );
-
-        } // For each experience_gained_per_pokemon
-      } // If award_xp_to_user
-
-      // Put message together
-      $message = [
-        'text' => (
-          '*Your Pokémon:*' . "\n" .
-          $pokemon_experience_message . "\n" .
-          (
-            'wild' === $battle_data->type ?
-            '*+175 XP*: Won a wild battle' :
-            '*+500 XP*: Won a trainer battle! :tada:'
-          ) . "\n" .
-          ( $award_xp_to_user ? $xp_gain_message : '' )
-        ),
-      ];
-
-    break;
-
-    case 'lost':
-
-      $battle_pokemon_by_ts = [];
-
-      // Save HP, happiness and participation data
-      foreach ( $battle_data->users->{ $user_id }->team as $_pokemon ) {
-
-        if ( ! $_pokemon->hp ) {
-          $_pokemon->happiness -= 1; // Happiness reduction of 1 due to fainting
-          $_pokemon->happiness = max( 0, $_pokemon->happiness ); // Ensure we don't go below 0
-        }
-
-        $battle_pokemon_by_ts[ $_pokemon->ts ] = $_pokemon;
-
-      }
-
-      // Apply new Pokemon data to the player's collection
-      foreach ( $player_data->pokemon as $_pokemon ) {
-        if ( isset( $battle_pokemon_by_ts[ $_pokemon->ts ] ) ) {
-
-          $_pokemon_intro = ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name );
-
-          $_pokemon->hp        = $battle_pokemon_by_ts[ $_pokemon->ts ]->hp;
-          $_pokemon->moves     = $battle_pokemon_by_ts[ $_pokemon->ts ]->moves;
-          $_pokemon->stats     = $battle_pokemon_by_ts[ $_pokemon->ts ]->stats;
-          $_pokemon->battles   = $battle_pokemon_by_ts[ $_pokemon->ts ]->battles;
-          $_pokemon->happiness = $battle_pokemon_by_ts[ $_pokemon->ts ]->happiness;
-
-          if ( ! $_pokemon->hp ) {
-            $pokemon_experience_message .= $_pokemon_intro . ' fainted :frowning:' . "\n";
-          } else if ( $_pokemon->battles->last_participated !== $battle_data->ts ) {
-            $pokemon_experience_message .= $_pokemon_intro . ' didn\'t participate in this battle' . "\n";
-          } else {
-            $pokemon_experience_message .= (
-              $_pokemon_intro . ' has ' . floor( $_pokemon->hp / $_pokemon->stats->hp * 100 ) . '% HP remaining' . "\n"
-            );
-          }
-
-        } // If pokemon was in this battle
-      } // Foreach player_data pokemon
-
-      // Add player XP
-      if ( $award_xp_to_user ) {
-        slackemon_add_xp( 25, $user_id );
-      }
-
-      // Put message together
-      $message = [
-        'text' => (
-          '*Your Pokémon:*' . "\n" .
-          $pokemon_experience_message . "\n" .
-          ( $award_xp_to_user ? '*+25 XP*: Participated in a battle' : '' )
-        ),
-      ];
-
-    break;
-
-  } // Switch battle_result (win/lose)
+  if ( 'won' === $battle_result ) {
+    $message = slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp_to_user );
+  } else if ( 'lost' === $battle_result ) {
+    $message = slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_to_user );
+  }
 
   // Move the battle file for completion, if it hasn't been done already by the user that ran this function first
   global $data_folder;
@@ -1039,15 +682,6 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
 
   }
 
-  // Modify trainer battle stats
-  if ( 'wild' !== $battle_data->type ) {
-    $player_data->battles->participated++;
-  }
-  $player_data->battles->last_participated = $battle_data->ts;
-
-  slackemon_set_player_not_in_battle( $user_id );
-  slackemon_save_player_data( $player_data, $user_id );
-
   if ( $send_response_to_user ) {
     $message['attachments'][] = slackemon_back_to_menu_attachment();
     slackemon_send2slack( $message );
@@ -1056,6 +690,392 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
   return $message;
 
 } // Function slackemon_complete_battle
+
+// ...
+
+// Get player data for writing
+$player_data = slackemon_get_player_data( $user_id, true );
+
+// Modify trainer battle stats
+if ( 'wild' !== $battle_data->type ) {
+  $player_data->battles->participated++;
+}
+$player_data->battles->last_participated = $battle_data->ts;
+
+slackemon_save_player_data( $player_data, $user_id, true );
+slackemon_set_player_not_in_battle( $user_id );
+
+// ...
+
+function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp_to_user ) {
+
+  $pokemon_experience_message = '';
+
+  // What's the experience & effort points gained from the opponent's fainted Pokemon?
+
+  $total_experience_gained = 0;
+  $effort_points_gained = [
+    'attack'          => 0,
+    'defense'         => 0,
+    'hp'              => 0,
+    'special-attack'  => 0,
+    'special-defense' => 0,
+    'speed'           => 0
+  ];
+  $experience_gained_per_pokemon = [];
+  $opponent_id = slackemon_get_battle_opponent_id( $battle_hash, $user_id );
+
+  foreach ( $battle_data->users->{ $opponent_id }->team as $_pokemon ) {
+
+    // Skip if this opponent Pokemon didn't faint
+    if ( $_pokemon->hp ) {
+      continue;
+    }
+
+    // Grab the fainted Pokemon's API data
+    $_pokemon_data = slackemon_get_pokemon_data( $_pokemon->pokedex );
+
+    // Calculate the experience yielded by this Pokemon
+    $experience = (int) slackemon_calculate_battle_experience( $_pokemon );
+    $total_experience_gained += $experience;
+
+    $experience_gained_per_pokemon[] = [
+      'name'    => $_pokemon->name,
+      'pokedex' => $_pokemon->pokedex,
+      'level'   => $_pokemon->level,
+      'experience_gained' => (int) $experience,
+    ];
+
+    // Calculate the effort point gain
+    foreach ( $_pokemon_data->stats as $_stat ) {
+      if ( ! $_stat->effort ) { continue; }
+      $effort_points_gained[ $_stat->stat->name ] += (int) $_stat->effort; break;
+    }
+
+  } // Foreach opponent pokemon
+
+  $battle_pokemon_by_ts = [];
+
+  // Apply experience & any other relevant changes to eligible Pokemon
+  foreach ( $battle_data->users->{ $user_id }->team as $_pokemon ) {
+
+    // Skip recalculation if this Pokemon fainted; just add it to the interim collection to save HP/participation
+    if ( ! $_pokemon->hp ) {
+
+      $_pokemon->happiness -= 1; // Happiness reduction of 1 due to fainting
+      $_pokemon->happiness = max( 0, $_pokemon->happiness ); // Ensure we don't go below 0
+      $battle_pokemon_by_ts[ $_pokemon->ts ] = $_pokemon;
+      $pokemon_experience_message .= (
+        ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false ) . ' ' .
+        'fainted :frowning:' . "\n"
+      );
+
+      continue;
+      
+    }
+
+    // Skip everything if this Pokemon didn't get to participate at all
+    if ( $_pokemon->battles->last_participated !== $battle_data->ts ) {
+
+      $pokemon_experience_message .= (
+        ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false ) . ' ' .
+        'didn\'t participate in this battle' . "\n"
+      );
+
+      continue;
+
+    }
+
+    // Experience
+    $_pokemon->xp += $total_experience_gained;
+
+    // EVs
+
+    // First, turn it into an object if it was an array - how it is first created at spawn time
+    if ( is_array( $_pokemon->evs ) ) {
+      $_pokemon->evs = json_decode( json_encode( [
+        'attack'  => 0,
+        'defense' => 0,
+        'hp'      => 0,
+        'special-attack'  => 0,
+        'special-defense' => 0,
+        'speed' => 0,
+      ]));
+    }
+
+    // Apply EVs from all defeated Pokemon, and ensure it stays below the maximum
+    $current_evs = slackemon_get_combined_evs( $_pokemon->evs );
+    foreach ( $effort_points_gained as $key => $value ) {
+
+      // Max 510 across all EV stats - reduce the value we're applying if it would otherwise take us over the limit
+      if ( $current_evs + $value > 510 ) {
+        $value = $current_evs + $value - 510;
+      }
+
+      // Apply the value
+      $_pokemon->evs->{ $key } += $value;
+
+      // Ensure a max 252 per EV stat
+      $_pokemon->evs->{ $key } = min( 252, $_pokemon->evs->{ $key } );
+
+    }
+
+    // Recalculate level
+    $old_level = $_pokemon->level; // Store for happiness calculation shortly
+    $growth_rate_data = slackemon_get_pokemon_growth_rate_data( $_pokemon->pokedex );
+    foreach ( $growth_rate_data->levels as $_level ) {
+
+      // Levels in the API go from 100 down to 1
+      // If our experience is greater than the experience required for this level, *this* is our level!
+      if ( $_pokemon->xp >= $_level->experience ) {
+
+        // Work out a partial level if we're well on our way to the next
+        if ( isset( $next_level_experience ) && $_pokemon->xp > $_level->experience ) {
+          $exp_required_to_next_level = $next_level_experience - $_level->experience;
+          $exp_gained_towards_next_level = $_pokemon->xp - $_level->experience;
+          $_pokemon->level = $_level->level + ( $exp_gained_towards_next_level / $exp_required_to_next_level );
+        } else {
+          $_pokemon->level = $_level->level;
+        }
+
+        // Limit levels to 1 decimal point
+        $_pokemon->level = round( $_pokemon->level, 1, PHP_ROUND_HALF_DOWN );
+
+        break;
+
+      }
+
+      // Pass experience required down to previous level as the loop continues
+      $next_level_experience = $_level->experience;
+    }
+
+    // Recalculate happiness as a result of levelling up
+    // +5 per additional level if happiness 0-99; +3 if happiness 100-199; or +2 if 200-255
+    // Reference: http://bulbapedia.bulbagarden.net/wiki/Friendship#In_Generation_I
+    for ( $i = floor( $old_level ); $i < floor( $_pokemon->level ); $i++ ) {
+      if ( $_pokemon->happiness < 100 ) {
+        $_pokemon->happiness += 5;
+      } else if ( $_pokemon->happiness < 200 ) {
+        $_pokemon->happiness += 3;
+      } else {
+        $_pokemon->happiness += 2;
+      }
+    }
+
+    // Ensure we don't exceed the 255 happiness cap
+    $_pokemon->happiness = min( 255, $_pokemon->happiness );
+
+    // Recalculate stats
+    $_pokemon->stats->attack  = slackemon_calculate_stats( 'attack',  $_pokemon );
+    $_pokemon->stats->defense = slackemon_calculate_stats( 'defense', $_pokemon );
+    $_pokemon->stats->hp      = slackemon_calculate_stats( 'hp',      $_pokemon );
+    $_pokemon->stats->speed   = slackemon_calculate_stats( 'speed',   $_pokemon );
+    $_pokemon->stats->{'special-attack'}  = slackemon_calculate_stats( 'special-attack',  $_pokemon );
+    $_pokemon->stats->{'special-defense'} = slackemon_calculate_stats( 'special-defense', $_pokemon );
+
+    // Recalculate CP
+    $_pokemon->cp = slackemon_calculate_cp( $_pokemon->stats );
+
+    // Modify trainer battle stats
+    if ( 'wild' !== $battle_data->type ) {
+      $_pokemon->battles->won++;
+      $_pokemon->battles->last_won = $battle_data->ts;
+    }
+
+    // Add Pokemon to interim collection
+    $battle_pokemon_by_ts[ $_pokemon->ts ] = $_pokemon;
+
+  } // Foreach player battle team Pokemon
+
+  // Apply new Pokemon data to the player's collection
+  foreach ( $player_data->pokemon as $_pokemon ) {
+    if ( isset( $battle_pokemon_by_ts[ $_pokemon->ts ] ) ) {
+
+      // Did this Pokemon participate and not faint? It will have an XP difference if so - that's how we detect it
+      if ( $_pokemon->xp != $battle_pokemon_by_ts[ $_pokemon->ts ]->xp ) {
+
+        $_pokemon_intro = ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false );
+
+        if ( $battle_pokemon_by_ts[ $_pokemon->ts ]->level > $_pokemon->level ) {
+
+          $pokemon_experience_message .= (
+            $_pokemon_intro . ' has levelled up ' .
+            ( $is_desktop ? 'from level ' . $_pokemon->level . ' ' : '' ) .
+            'to ' . $battle_pokemon_by_ts[ $_pokemon->ts ]->level . '!' . "\n"
+          );
+
+          if ( slackemon_can_user_pokemon_evolve( $battle_pokemon_by_ts[ $_pokemon->ts ] ) ) {
+            $pokemon_experience_message .= '*' . $_pokemon_intro . ' is ready to evolve!! :open_mouth:*' . "\n";
+          }
+
+          $happiness_percent_old = floor( $_pokemon->happiness / 255 * 100 );
+          $happiness_percent_new = floor( $battle_pokemon_by_ts[ $_pokemon->ts ]->happiness / 255 * 100 );
+
+          if ( $happiness_percent_new > $happiness_percent_old ) {
+
+            $pokemon_experience_message .= (
+              $_pokemon_intro . '\'s happiness has increased ' .
+              ( $is_desktop ? 'from ' . $happiness_percent_old . '% ' : '' ) .
+              'to ' . $happiness_percent_new . '%' . "\n"
+            );
+
+          } // If happiness increase
+
+          if ( $battle_pokemon_by_ts[ $_pokemon->ts ]->cp > $_pokemon->cp ) {
+            $pokemon_experience_message .= (
+              $_pokemon_intro . '\'s CP has increased ' .
+              ( $is_desktop ? 'from ' . $_pokemon->cp . ' ' : '' ) .
+              'to ' . $battle_pokemon_by_ts[ $_pokemon->ts ]->cp . "\n"
+            );
+          }
+
+          if ( $battle_pokemon_by_ts[ $_pokemon->ts ]->stats->hp > $_pokemon->stats->hp ) {
+            $pokemon_experience_message .= (
+              $_pokemon_intro . '\'s HP has increased ' .
+              ( $is_desktop ? 'from ' . $_pokemon->stats->hp . ' ' : '' ) .
+              'to ' . $battle_pokemon_by_ts[ $_pokemon->ts ]->stats->hp . "\n"
+            );
+          }
+
+        } else {
+
+          $pokemon_experience_message .= $_pokemon_intro . ' gained experience from this battle' . "\n";
+
+        } // If level increase / else
+      } // If Pokemon has XP difference
+
+      $_pokemon->hp        = $battle_pokemon_by_ts[ $_pokemon->ts ]->hp;
+      $_pokemon->xp        = $battle_pokemon_by_ts[ $_pokemon->ts ]->xp;
+      $_pokemon->cp        = $battle_pokemon_by_ts[ $_pokemon->ts ]->cp;
+      $_pokemon->evs       = $battle_pokemon_by_ts[ $_pokemon->ts ]->evs;
+      $_pokemon->moves     = $battle_pokemon_by_ts[ $_pokemon->ts ]->moves;
+      $_pokemon->level     = $battle_pokemon_by_ts[ $_pokemon->ts ]->level;
+      $_pokemon->stats     = $battle_pokemon_by_ts[ $_pokemon->ts ]->stats;
+      $_pokemon->battles   = $battle_pokemon_by_ts[ $_pokemon->ts ]->battles;
+      $_pokemon->happiness = $battle_pokemon_by_ts[ $_pokemon->ts ]->happiness;
+
+    } // If pokemon was in this battle
+  } // Foreach player_data pokemon
+
+  // Add player XP
+  if ( $award_xp_to_user ) {
+
+    if ( 'wild' === $battle_data->type ) {
+      $xp_to_add = 175 + $total_experience_gained;
+    } else {
+      $xp_to_add = 500 + $total_experience_gained;
+    }
+
+    slackemon_add_xp( $xp_to_add, $user_id );
+
+  }
+
+  // Modify trainer battle stats
+  if ( 'wild' !== $battle_data->type ) {
+    $player_data->battles->won++;
+    $player_data->battles->last_won = $battle_data->ts;
+  }
+
+  if ( $award_xp_to_user ) { // This should always be true for the winner!
+
+    $xp_gain_message = '';
+
+    foreach( $experience_gained_per_pokemon as $_pokemon ) {
+
+      $xp_gain_message .= (
+        ( $_pokemon['experience_gained'] < 10 ?  '   ' : '' ) . // Spacing
+        ( $_pokemon['experience_gained'] < 100 ? '   ' : '' ) . // More spacing
+        '*+' . $_pokemon['experience_gained'] . ' XP*: Defeated a ' .
+        'level ' . $_pokemon['level'] . ' :' . $_pokemon['name'] . ': ' .
+        slackemon_readable( $_pokemon['name'] ) .
+        (
+          SLACKEMON_EXP_GAIN_MODIFIER > 1 ?
+          ' :low_brightness:' . ( $is_desktop ? '*x' . SLACKEMON_EXP_GAIN_MODIFIER . '*' : '' ) :
+          ''
+        ) .
+        "\n"
+      );
+
+    } // For each experience_gained_per_pokemon
+  } // If award_xp_to_user
+
+  // Put message together
+  $message = [
+    'text' => (
+      '*Your Pokémon:*' . "\n" .
+      $pokemon_experience_message . "\n" .
+      (
+        'wild' === $battle_data->type ?
+        '*+175 XP*: Won a wild battle' :
+        '*+500 XP*: Won a trainer battle! :tada:'
+      ) . "\n" .
+      ( $award_xp_to_user ? $xp_gain_message : '' )
+    ),
+  ];
+
+  return $message;
+
+} // Function slackemon_complete_battle_for_winner
+
+function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_to_user ) {
+
+  $pokemon_experience_message = '';
+  $battle_pokemon_by_ts = [];
+
+  // Save HP, happiness and participation data
+  foreach ( $battle_data->users->{ $user_id }->team as $_pokemon ) {
+
+    if ( ! $_pokemon->hp ) {
+      $_pokemon->happiness -= 1; // Happiness reduction of 1 due to fainting
+      $_pokemon->happiness = max( 0, $_pokemon->happiness ); // Ensure we don't go below 0
+    }
+
+    $battle_pokemon_by_ts[ $_pokemon->ts ] = $_pokemon;
+
+  }
+
+  // Apply new Pokemon data to the player's collection
+  foreach ( $player_data->pokemon as $_pokemon ) {
+    if ( isset( $battle_pokemon_by_ts[ $_pokemon->ts ] ) ) {
+
+      $_pokemon_intro = ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name );
+
+      $_pokemon->hp        = $battle_pokemon_by_ts[ $_pokemon->ts ]->hp;
+      $_pokemon->moves     = $battle_pokemon_by_ts[ $_pokemon->ts ]->moves;
+      $_pokemon->stats     = $battle_pokemon_by_ts[ $_pokemon->ts ]->stats;
+      $_pokemon->battles   = $battle_pokemon_by_ts[ $_pokemon->ts ]->battles;
+      $_pokemon->happiness = $battle_pokemon_by_ts[ $_pokemon->ts ]->happiness;
+
+      if ( ! $_pokemon->hp ) {
+        $pokemon_experience_message .= $_pokemon_intro . ' fainted :frowning:' . "\n";
+      } else if ( $_pokemon->battles->last_participated !== $battle_data->ts ) {
+        $pokemon_experience_message .= $_pokemon_intro . ' didn\'t participate in this battle' . "\n";
+      } else {
+        $pokemon_experience_message .= (
+          $_pokemon_intro . ' has ' . floor( $_pokemon->hp / $_pokemon->stats->hp * 100 ) . '% HP remaining' . "\n"
+        );
+      }
+
+    } // If pokemon was in this battle
+  } // Foreach player_data pokemon
+
+  // Add player XP
+  if ( $award_xp_to_user ) {
+    slackemon_add_xp( 25, $user_id );
+  }
+
+  // Put message together
+  $message = [
+    'text' => (
+      '*Your Pokémon:*' . "\n" .
+      $pokemon_experience_message . "\n" .
+      ( $award_xp_to_user ? '*+25 XP*: Participated in a battle' : '' )
+    ),
+  ];
+
+  return $message;
+
+} // Function slackemon_complete_battle_for_loser
 
 function slackemon_offer_battle_swap( $battle_hash, $user_id, $return_full_message = false, $action = null ) {
 
@@ -1840,10 +1860,10 @@ function slackemon_get_battle_hash( $ts, $user_id1, $user_id2 ) {
 
 } // Function slackemon_get_battle_hash
 
-function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = false ) {
+function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = false, $for_writing = false ) {
   global $data_folder, $_cached_slackemon_battle_data;
 
-  if ( isset( $_cached_slackemon_battle_data[ $battle_hash ] ) ) {
+  if ( ! $for_writing && isset( $_cached_slackemon_battle_data[ $battle_hash ] ) ) {
     return $_cached_slackemon_battle_data[ $battle_hash ];
   }
 
@@ -1858,7 +1878,7 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
     return false;
   }
 
-  $battle_data = json_decode( slackemon_file_get_contents( $battle_filename, 'store', true ) );
+  $battle_data = json_decode( slackemon_file_get_contents( $battle_filename, 'store', $for_writing ) );
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
 
   return $battle_data;
@@ -1884,7 +1904,7 @@ function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
 
 } // Function slackemon_get_invite_data
 
-function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage = 'battle' ) {
+function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage = 'battle', $relinquish_lock = false ) {
   global $data_folder, $_cached_slackemon_battle_data;
 
   switch ( $battle_stage ) {
@@ -1896,9 +1916,15 @@ function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage =
   $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash;
 
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
-  return slackemon_file_put_contents( $battle_filename, json_encode( $battle_data ), 'store' );
+  $return = slackemon_file_put_contents( $battle_filename, json_encode( $battle_data ), 'store' );
 
-} // Function slackemon_get_battle_data
+  if ( $relinquish_lock ) {
+    slackemon_unlock_file( $battle_filename );
+  }
+
+  return $return;
+
+} // Function slackemon_save_battle_data
 
 function slackemon_maybe_record_battle_seen_pokemon( $player_id, $pokedex_id ) {
 
