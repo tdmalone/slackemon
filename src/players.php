@@ -165,22 +165,12 @@ function slackemon_get_player_pokemon_data( $spawn_ts, $player_data = null, $use
 
 function slackemon_add_xp( $xp, $user_id = USER_ID ) {
 
-  // Accept player data being sent through instead of a user ID, in which case the modified player data will be returned.
-  // This is useful if XP needs to be added and saved together, at the same time as other changes.
-  if ( is_object( $user_id ) ) {
-    $player_data = $user_id;
-    $return_player_data = true;
-  } else {
-    $player_data = slackemon_get_player_data( $user_id, true );
-    $return_player_data = false;
-  }
-
+  $player_data = slackemon_get_player_data( $user_id );
   $player_data->xp += $xp;
+
   $player_data->xp = floor( $player_data->xp );
 
-  if ( $return_player_data ) {
-    return $player_data;
-  } else if ( slackemon_save_player_data( $player_data, $user_id ) ) {
+  if ( slackemon_save_player_data( $player_data, $user_id ) ) {
     return $player_data->xp;
   } else {
     return false;

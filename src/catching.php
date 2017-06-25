@@ -283,7 +283,7 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
 
     if ( ! $is_caught ) {
 
-      $player_data->xp = slackemon_add_xp( 25, $player_data ); // Pokemon fled, add 25 XP
+      $player_data->xp += 25; // Pokemon fled, add 25 XP
 
       foreach ( $player_data->pokedex as $pokedex_entry ) {
         if ( $spawn_data->pokedex == $pokedex_entry->id ) {
@@ -335,7 +335,7 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
         $xp_to_add += 50;
       }
 
-      $player_data->xp = slackemon_add_xp( $xp_to_add, $player_data );
+      $player_data->xp += $xp_to_add;
       $pokedex_entry->caught++;
 
       return slackemon_save_player_data( $player_data, $user_id, true );
