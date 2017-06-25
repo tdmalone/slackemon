@@ -108,7 +108,7 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
   // v0.0.36
   // - Now that spawned Pokemon are correctly saved with their species name rather than variety name, fix any previously
   //   caught Deoxys
-  if ( '0.0.36' !== $player_data->version ) {
+  if ( version_compare( $player_data->version, '0.0.36', '<' ) ) {
 
     $player_data->version = '0.0.36';
 
