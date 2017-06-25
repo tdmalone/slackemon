@@ -100,6 +100,8 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
     return slackemon_item_spawn( $trigger, $region, $timestamp );
   }
 
+  slackemon_spawn_debug( 'Ok, will spawn a ' . slackemon_readable( $item_data->name ) . '.' );
+
   // Store details of the item spawn
   $spawn = [
     'id'          => $item_data->id,

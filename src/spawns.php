@@ -232,6 +232,8 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
     return slackemon_spawn( $trigger, $region, $timestamp );
   }
 
+  slackemon_spawn_debug( 'Ok, will spawn a ' . slackemon_readable( $pokemon->name ) . '.' );
+
   // Determine nature
   $natures = slackemon_get_natures();
   $nature = $natures[ array_rand( $natures ) ];
@@ -325,7 +327,7 @@ function slackemon_save_spawn_data( $spawn_data ) {
   $spawn_filename = $data_folder . '/spawns/' . $spawn_id;
 
   $_cached_slackemon_spawn_data[ $spawn_id ] = $spawn_data;
-  return slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store' );
+  return slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store', false );
 
 } // Function slackemon_save_spawn_data
 
@@ -462,7 +464,7 @@ function slackemon_notify_spawn( $spawn ) {
     $this_message = $message;
     $is_desktop = 'desktop' === slackemon_get_player_menu_mode( $player_id );
 
-    $seen = slackemon_has_user_seen_pokemon( $player_id, $spawn['pokedex'] );
+    $seen   = slackemon_has_user_seen_pokemon(   $player_id, $spawn['pokedex'] );
     $caught = slackemon_has_user_caught_pokemon( $player_id, $spawn['pokedex'] );
 
     if ( $caught ) {
@@ -577,7 +579,7 @@ function slackemon_notify_spawn( $spawn ) {
 function slackemon_record_spawn_for_user( $user_id, $spawn ) {
   global $data_folder;
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   // Can we increment the 'seen' value on an existing spawn?
   $found_entry = false;
@@ -608,9 +610,9 @@ function slackemon_record_spawn_for_user( $user_id, $spawn ) {
     'cp'      => $spawn['cp'],
     'hp'      => $spawn['stats']['hp'],
   ];
-  slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store' );
+  slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store', false );
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_record_spawn
 

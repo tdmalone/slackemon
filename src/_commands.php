@@ -155,7 +155,7 @@ function slackemon_handle_command( $args ) {
 
     }
 
-    send2slack( [ 'attachments' => $attachments ] );
+    slackemon_send2slack( [ 'attachments' => $attachments ] );
 
   } // If slackemon_is_player / else
 

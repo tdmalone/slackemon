@@ -175,12 +175,19 @@ $_debug_vars = [
   'SLACKEMON_BATTLE_DEBUG',
   'SLACKEMON_CACHE_DEBUG',
   'SLACKEMON_DATABASE_DEBUG',
+  'SLACKEMON_LOCK_DEBUG',
   'SLACKEMON_SPAWN_DEBUG'
 ];
 
 foreach ( $_debug_vars as $var ) { // Foreach of the above vars, force the env var to boolean or default to FALSE
   define( $var, filter_var( getenv( $var ), FILTER_VALIDATE_BOOLEAN ) ?: false );
 }
+
+// In addition, 'file locking' is very rudimentary at the moment, so it's currently disabled by default.
+define(
+  'SLACKEMON_ENABLE_FILE_LOCKING',
+  filter_var( getenv( 'SLACKEMON_ENABLE_FILE_LOCKING' ), FILTER_VALIDATE_BOOLEAN ) ?: false
+);
 
 /**
  * Internal configuration.

@@ -28,7 +28,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
   if ( ! $catch_too_late && 'flee' !== $force_battle_result ) {
 
     // Send message, and wait for a bit before we continue
-    send2slack( $message );
+    slackemon_send2slack( $message );
 
     if ( 'catch' === $force_battle_result ) {
       // Don't wait here - it's obvious from a battle ending that this is going to be a catch
@@ -240,7 +240,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
 function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $battle_hash = false, $force_battle_result = '' ) {
 
   $spawn_data = slackemon_get_spawn_data( $spawn_ts, slackemon_get_player_region( $user_id ), $user_id );
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   if ( $battle_hash ) {
     $battle_data = slackemon_get_battle_data( $battle_hash );
@@ -283,7 +283,7 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
 
     if ( ! $is_caught ) {
 
-      slackemon_add_xp( 25, $user_id ); // Pokemon fled, add 25 XP
+      $player_data->xp += 25; // Pokemon fled, add 25 XP
 
       foreach ( $player_data->pokedex as $pokedex_entry ) {
         if ( $spawn_data->pokedex == $pokedex_entry->id ) {
@@ -291,7 +291,7 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
             $pokedex_entry->fled = 0;
           }
           $pokedex_entry->fled++;
-          slackemon_save_player_data( $player_data, $user_id );
+          slackemon_save_player_data( $player_data, $user_id, true );
         }
       }
 
@@ -304,14 +304,14 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
 
   // Does the wild Pokemon's HP / PP need adjusting from their battle?
   if ( $battle_hash ) {
-    $spawn_data->hp = $opponent_pokemon->hp;
+    $spawn_data->hp    = $opponent_pokemon->hp;
     $spawn_data->moves = $opponent_pokemon->moves;
     $spawn_data->battles->last_participated = $opponent_pokemon->battles->last_participated;
   }
 
   // Add entry to player's collection
   $spawn_data->is_battle_team = false;
-  $spawn_data->is_favourite = false;
+  $spawn_data->is_favourite   = false;
   unset( $spawn_data->trigger ); // We don't need this anymore
   unset( $spawn_data->users   ); // We don't need this anymore
   $player_data->pokemon[] = $spawn_data;
@@ -335,16 +335,16 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
         $xp_to_add += 50;
       }
 
-      slackemon_add_xp( $xp_to_add, $user_id );
+      $player_data->xp += $xp_to_add;
       $pokedex_entry->caught++;
 
-      return slackemon_save_player_data( $player_data, $user_id );
+      return slackemon_save_player_data( $player_data, $user_id, true );
 
     }
   }
 
   // We should have returned above, but just in case we couldn't find the Pokedex entry for some reason...
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_do_catch
 
@@ -352,7 +352,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
 
   // Are we already in battle?
   if ( slackemon_is_player_in_battle( $user_id ) ) {
-    send2slack([
+    slackemon_send2slack([
       'text'    => ':exclamation: *Oops!* You\'re already in a battle - you can\'t start another one just yet. :smile:',
       'channel' => $user_id, // Sending the channel through forces a new message to be sent, rather than potentially
                              // accidentally replacing the message which could become the battle shortly.
@@ -441,7 +441,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
   slackemon_save_battle_data( $battle_data, $battle_hash );
 
   // Get first attachment
-  send2slack([
+  slackemon_send2slack([
     'attachments' => slackemon_get_battle_attachments( $battle_hash, $inviter_id, 'first', '' ),
   ], RESPONSE_URL );
 

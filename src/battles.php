@@ -8,7 +8,7 @@
 // Cronned function (through /slackemon battle-updates) which should run every minute
 function slackemon_do_battle_updates() {
 
-  $active_players = slackemon_get_player_ids([ 'active_only' => true ]);
+  $active_players = slackemon_get_player_ids( [ 'active_only' => true ] );
 
   $now = time();
   $one_minute_ago          = $now - MINUTE_IN_SECONDS * 1;
@@ -76,7 +76,7 @@ function slackemon_do_battle_updates() {
         $_battle->last_move_ts < max( time() - SLACKEMON_FLEE_TIME_LIMIT, $twenty_five_minutes_ago )
       ) {
 
-        send2slack(
+        slackemon_send2slack(
           slackemon_get_catch_message( $opponent_id, null, true, 'flee-late', $user_id ),
           $_battle->users->{ $user_id }->response_url
         );
@@ -93,7 +93,7 @@ function slackemon_do_battle_updates() {
     // New turns
     if ( $_battle->last_move_ts < $one_minute_ago && $_battle->last_move_ts > $two_minutes_ago ) {
       
-      send2slack([
+      slackemon_send2slack([
         'text' => (
           'It\'s your turn in your battle against ' . $opponent_name . '. :simple_smile:'
         ),
@@ -103,7 +103,7 @@ function slackemon_do_battle_updates() {
 
     // Expiring turns
     if ( $_battle->last_move_ts < $twenty_minutes_ago && $_battle->last_move_ts > $twenty_one_minutes_ago ) {
-      send2slack([
+      slackemon_send2slack([
         'text' => (
           ':warning: *Heads up - ' . $opponent_name . ' has been waiting for your move for 20 minutes!*' . "\n" .
           'You need to make a move in the *next 5 minutes* to avoid forfeiting the battle. :timer_clock:'
@@ -457,7 +457,7 @@ function slackemon_start_battle( $battle_hash, $action ) {
     }
 
     // Use the built-in action response URL detector to send directly to the invitee (who invoked this action)
-    send2slack([
+    slackemon_send2slack([
       'text' => $invitee_message,
       'attachments' => [ slackemon_back_to_menu_attachment() ],
       'replace_original' => true,
@@ -519,7 +519,7 @@ function slackemon_start_battle( $battle_hash, $action ) {
 
   // Respond to the invitee
   $inviter_first_name = slackemon_get_slack_user_first_name( $inviter_id );
-  if ( send2slack([
+  if ( slackemon_send2slack([
     'text' => ':grin: *You have accepted ' . $inviter_first_name . '\'s challenge!*',
     'attachments' => slackemon_get_battle_attachments( $battle_hash, $invitee_id, 'start' ),
     'replace_original' => true,
@@ -570,7 +570,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
           'sleeve. :slightly_smiling_face:'
         );
 
-        send2slack([
+        slackemon_send2slack([
           'text' => $loser_message,
           'channel' => $loser_id,
         ]);
@@ -611,7 +611,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
         case 'p2p':
 
-          send2slack([
+          slackemon_send2slack([
             'text' => 'You have surrended the battle!', // TODO: Expand on this, lol, when surrenders become possible
           ]);
 
@@ -628,7 +628,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
             'didn\'t participate in this battle'
           );
 
-          send2slack([
+          slackemon_send2slack([
             'text' => (
               ':white_check_mark: *Ok, you got away safely!* :relieved:' . "\n\n" .
               $user_pokemon_message
@@ -1050,7 +1050,7 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
 
   if ( $send_response_to_user ) {
     $message['attachments'][] = slackemon_back_to_menu_attachment();
-    send2slack( $message );
+    slackemon_send2slack( $message );
   }
 
   return $message;
@@ -1293,13 +1293,13 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
   
   if ( 'p2p' === $battle_data->type ) {
 
-      send2slack( $user_message, RESPONSE_URL );
+      slackemon_send2slack( $user_message, RESPONSE_URL );
 
       // Do we already have an existing action response URL for the opponent?
       // If so, use it, if not, it means this is the first move of a new battle, so we create a fresh message instead
       if ( $battle_data->users->{ $opponent_id }->response_url ) {
         $opponent_message['replace_original'] = true;
-        send2slack( $opponent_message, $battle_data->users->{ $opponent_id }->response_url );
+        slackemon_send2slack( $opponent_message, $battle_data->users->{ $opponent_id }->response_url );
       } else {
         $opponent_message['channel'] = $opponent_id;
         slackemon_post2slack( $opponent_message );
@@ -1312,7 +1312,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
 
     if ( 'U' === substr( $user_id, 0, 1 ) ) {
 
-      send2slack( $user_message, RESPONSE_URL );
+      slackemon_send2slack( $user_message, RESPONSE_URL );
 
       // If neither Pokemon hasn't fainted, go ahead and move!
       if ( $user_pokemon->hp && $opponent_pokemon->hp ) {
@@ -1339,7 +1339,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
 
     } else {
 
-      send2slack( $opponent_message, RESPONSE_URL );
+      slackemon_send2slack( $opponent_message, RESPONSE_URL );
 
     } // If last move was from human user
   } // If p2p battle / else
@@ -1858,7 +1858,7 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
     return false;
   }
 
-  $battle_data = json_decode( slackemon_file_get_contents( $battle_filename, 'store' ) );
+  $battle_data = json_decode( slackemon_file_get_contents( $battle_filename, 'store', true ) );
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
 
   return $battle_data;
@@ -1868,8 +1868,8 @@ function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = fals
 function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
   global $data_folder;
 
-  if ( slackemon_file_exists( $data_folder . '/battle_invites/' . $battle_hash, 'store' ) ) {
-    $invite_filename = $data_folder . '/battle_invites/' . $battle_hash;
+  if ( slackemon_file_exists( $data_folder . '/battles_invites/' . $battle_hash, 'store' ) ) {
+    $invite_filename = $data_folder . '/battles_invites/' . $battle_hash;
   } else {
     return false;
   }
@@ -1890,7 +1890,7 @@ function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage =
   switch ( $battle_stage ) {
     case 'battle':   $battle_folder = 'battles_active';   break;
     case 'complete': $battle_folder = 'battles_complete'; break;
-    case 'invite':   $battle_folder = 'battle_invites';   break;
+    case 'invite':   $battle_folder = 'battles_invites';   break;
   }
 
   $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash;
@@ -1994,7 +1994,7 @@ function slackemon_battle_has_ended_message() {
   // Ensure the user is out of battle mode, to try to prevent them being caught in it.
   slackemon_set_player_not_in_battle();
 
-  return send2slack([
+  return slackemon_send2slack([
     'text' => (
       ':open_mouth: *Oops! It appears this battle may have ended!*' . "\n" .
       'If this doesn\'t seem right to you, check with your battle opponent.' . "\n" . 
