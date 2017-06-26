@@ -437,8 +437,8 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
   // For consistency, turn the whole thing into an object rather than an array
   $battle_data = json_decode( json_encode( $battle_data ) );
 
-  // Save battle data
-  slackemon_save_battle_data( $battle_data, $battle_hash );
+  // Save battle data without warning about it not being locked, since it is a new file
+  slackemon_save_battle_data( $battle_data, $battle_hash, 'battle', false, false );
 
   // Get first attachment
   slackemon_send2slack([
