@@ -39,17 +39,19 @@ function slackemon_register_player( $user_id = USER_ID ) {
     'version'    => SLACKEMON_VERSION,
   ];
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, false, false );
 
 } // Function slackemon_register_player
 
-function slackemon_save_player_data( $player_data, $user_id = USER_ID, $relinquish_lock = false ) {
+function slackemon_save_player_data(
+  $player_data, $user_id = USER_ID, $relinquish_lock = false, $warn_if_not_locked = true
+) {
   global $data_folder, $_cached_slackemon_player_data;
 
   $player_filename = $data_folder . '/players/' . $user_id;
 
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
-  $return = slackemon_file_put_contents( $player_filename, json_encode( $player_data ), 'store' );
+  $return = slackemon_file_put_contents( $player_filename, json_encode( $player_data ), 'store', $warn_if_not_locked );
 
   if ( $relinquish_lock ) {
     slackemon_unlock_file( $player_filename );
