@@ -770,8 +770,12 @@ function slackemon_lock_debug( $message, $force_debug = false ) {
     return;
   }
 
-  slackemon_error_log( $message );
+  // Log a message, including the function that initially caused the lock.
+  // (We go to the 5th level due to this function, the lock function, the file reading function,
+  // and the player/battle data wrapping function).
+  $debug_backtrace = debug_backtrace( null, 5 );
+  slackemon_error_log( $message . ' (' . $debug_backtrace[4]['function'] . ')' );
 
-}
+} // Function slackemon_lock_debug
 
 // The end!
