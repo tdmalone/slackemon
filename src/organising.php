@@ -603,15 +603,17 @@ function slackemon_has_user_caught_pokemon( $user_id, $pokedex_number ) {
 
 } // Function slackemon_has_user_caught_pokemon
 
+/** Removes (aka. transfers) Pokemon from a player's collection. */
 function slackemon_remove_pokemon( $spawn_timestamps, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
-  // Turn into an array if a single Pokemon was passed through
+  // Turn into an array if a single Pokemon was passed through.
   if ( ! is_array( $spawn_timestamps ) ) {
     $spawn_timestamps = [ $spawn_timestamps ];
   }
 
+  // Make an array of the remaining Pokemon, which we'll only add to if the Pokemon is not being removed.
   $remaining_pokemon = [];
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( in_array( $_pokemon->ts, $spawn_timestamps ) ) {
@@ -621,11 +623,12 @@ function slackemon_remove_pokemon( $spawn_timestamps, $user_id = USER_ID ) {
   }
 
   $pokemon_removed = count( $player_data->pokemon ) - count( $remaining_pokemon );
-  $xp_to_add = 1 === $pokemon_removed ? 10 : 5 * $pokemon_removed; // 10 XP for single transfer; 5 XP each for bulk
+  $xp_to_add = 1 === $pokemon_removed ? 10 : 5 * $pokemon_removed; // 10 XP for single transfer; 5 XP each for bulk.
   $player_data->pokemon = $remaining_pokemon;
 
-  if ( slackemon_save_player_data( $player_data, $user_id ) ) {
-    slackemon_add_xp( $xp_to_add );
+  $player_data->xp += $xp_to_add;
+
+  if ( slackemon_save_player_data( $player_data, $user_id, true ) ) {
     return $pokemon_removed;
   } else {
     return false;
