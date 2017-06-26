@@ -50,7 +50,7 @@ function slackemon_save_player_data(
 
   $player_filename = $data_folder . '/players/' . $user_id;
 
-  $_cached_slackemon_player_data[ $user_id ] = $player_data;
+  $_cached_slackemon_player_data[ $user_id ] = $player_data; // Update the in-memory cache.
   $return = slackemon_file_put_contents( $player_filename, json_encode( $player_data ), 'store', $warn_if_not_locked );
 
   if ( $relinquish_lock ) {
@@ -99,22 +99,31 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
 
   }
 
+  // Update the in-memory cache to avoid this function being run every time a player's data is accessed.
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
 
-  // Ensure player is not caught in a cancelled region if the available regions change
+  // Ensure player is not caught in a cancelled region if the available regions change.
   $regions = slackemon_get_regions();
   if ( ! array_key_exists( $player_data->region, $regions ) ) {
+
+    // Re-open the player file, for writing this time
+    $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', true ) );
+
     $player_data->region = SLACKEMON_DEFAULT_REGION;
-    slackemon_save_player_data( $player_data, $user_id );
+    slackemon_save_player_data( $player_data, $user_id, true );
   }
 
   // Version migrations for player data
 
   // v0.0.36
-  // - Now that spawned Pokemon are correctly saved with their species name rather than variety name, fix any previously
-  //   caught Deoxys
+  // - Now that spawned Pokemon are correctly saved with their species name rather than variety name, fix any
+  //   previously caught Deoxys.
   if ( version_compare( $player_data->version, '0.0.36', '<' ) ) {
 
+    // Re-open the player file, for writing this time.
+    $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', true ) );
+
+    // Update the player file version number so this update doesn't run again.
     $player_data->version = '0.0.36';
 
     foreach ( $player_data->pokemon as $_pokemon ) {
@@ -126,7 +135,7 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
 
     }
 
-    slackemon_save_player_data( $player_data, $user_id );
+    slackemon_save_player_data( $player_data, $user_id, true );
 
   } // If not version
 
@@ -267,21 +276,31 @@ function slackemon_cancel_player( $user_id = USER_ID ) {
 
 function slackemon_mute_player( $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
-  if ( 1 !== $player_data->status ) { return false; } // Prevent muting when another status is current
-  $player_data->status = 2;
+  $player_data = slackemon_get_player_data( $user_id, true );
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  // Only mute if the player is currently unmuted and another status isn't active.
+  if ( 1 == $player_data->status ) {
+    $player_data->status = 2;
+    return slackemon_save_player_data( $player_data, $user_id, true );
+  }
+
+  slackemon_save_player_data( $player_data, $user_id, true );
+  return false;
 
 } // Function slackemon_mute_player
 
 function slackemon_unmute_player( $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
-  if ( 2 !== $player_data->status ) { return false; } // Prevent unmuting when another status is current
-  $player_data->status = 1;
+  $player_data = slackemon_get_player_data( $user_id, true );
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  // Only unmute if the player is currently muted and another status isn't active.
+  if ( 2 == $player_data->status ) {
+    $player_data->status = 1;
+    return slackemon_save_player_data( $player_data, $user_id, true );
+  }
+
+  slackemon_save_player_data( $player_data, $user_id, true );
+  return false;
 
 } // Function slackemon_unmute_player
 
@@ -289,10 +308,11 @@ function slackemon_is_player_muted( $user_id = USER_ID ) {
 
   $player_data = slackemon_get_player_data( $user_id );
 
-  // Protect against status somehow not being set at all, by setting it to not-muted as default
+  // Protect against player status somehow not being set at all, by setting it to not-muted as default.
   if ( ! isset( $player_data->status ) ) {
+    $player_data = slackemon_get_player_data( $user_id, true ); // Open for writing.
     $player_data->status = 1;
-    return slackemon_save_player_data( $player_data, $user_id );
+    return slackemon_save_player_data( $player_data, $user_id, true );
   }
 
   if ( 2 === $player_data->status ) {
@@ -316,6 +336,7 @@ function slackemon_set_player_not_in_battle( $user_id = USER_ID ) {
 
   $player_data = slackemon_get_player_data( $user_id, true );
 
+  // Prevet changing the player status if they're not currently in battle.
   if ( 3 == $player_data->status ) {
     $player_data->status = 1;
     return slackemon_save_player_data( $player_data, $user_id, true );

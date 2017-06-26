@@ -24,7 +24,7 @@ function slackemon_set_player_region( $region = false, $user_id = USER_ID ) {
     $region = SLACKEMON_DEFAULT_REGION;
   }
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->region = $region;
 
   if ( ! isset( $player_data->regions ) ) {
@@ -34,7 +34,7 @@ function slackemon_set_player_region( $region = false, $user_id = USER_ID ) {
   // Have we visited this region before?
   foreach ( $player_data->regions as $_region ) {
     if ( $_region->name === $region ) {
-      return slackemon_save_player_data( $player_data, $user_id );
+      return slackemon_save_player_data( $player_data, $user_id, true );
     }
   }
 
@@ -47,10 +47,10 @@ function slackemon_set_player_region( $region = false, $user_id = USER_ID ) {
 
   // XP bonus for first visit to a new region
   if ( $region !== SLACKEMON_DEFAULT_REGION ) {
-    slackemon_add_xp( 1000 );
+    $player_data->xp += 1000;
   }
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_set_player_region
 
