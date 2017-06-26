@@ -258,7 +258,8 @@ function slackemon_send_battle_invite( $invitee_id, $action, $inviter_id = USER_
       slackemon_get_battle_team_status_attachment( $invitee_id, 'invitee' )
     );
 
-    slackemon_save_battle_data( $invite_data, $battle_hash, 'invite' );
+    // Save invite data without warning about it not being locked, since it is a new file
+    slackemon_save_battle_data( $invite_data, $battle_hash, 'invite', false, false );
 
     if ( slackemon_post2slack( $invitee_message ) ) {
       $invitee_name     = $is_desktop ? slackemon_get_slack_user_full_name( $invitee_id ) : slackemon_get_slack_user_first_name( $invitee_id );
@@ -538,8 +539,8 @@ function slackemon_start_battle( $battle_hash, $action ) {
   // For consistency, turn the whole thing into an object rather than an array
   $battle_data = json_decode( json_encode( $battle_data ) );
 
-  // Save battle data
-  slackemon_save_battle_data( $battle_data, $battle_hash );
+  // Save battle data without warning about it not being locked, since it is a new file
+  slackemon_save_battle_data( $battle_data, $battle_hash, 'battle', false, false );
 
   // Respond to the invitee
   $inviter_first_name = slackemon_get_slack_user_first_name( $inviter_id );
@@ -1160,6 +1161,11 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
     return;
   }
 
+  // Get battle data again:
+  // 1) without allowing for data from a complete battle (default), and
+  // 2) including asking for a file lock.
+  $battle_data = slackemon_get_battle_data( $battle_hash, false, true );
+
   $opponent_id = slackemon_get_battle_opponent_id( $battle_hash, $user_id );
 
   $battle_data->last_move_ts = time();
@@ -1191,6 +1197,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
       ucfirst( slackemon_get_gender_pronoun( $new_pokemon->gender ) ) . ' has ' . $new_pokemon->cp . ' CP.'
     );
 
+    // Get the current Pokemon (incl. the new Pokemon for the current user)
     $user_pokemon     = slackemon_get_battle_current_pokemon( $battle_hash, $user_id );
     $opponent_pokemon = slackemon_get_battle_current_pokemon( $battle_hash, $opponent_id );
 
@@ -1308,9 +1315,9 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
 
   } // If swap move or traditional move
 
-  // Update and save the battle data
+  // Update and save the battle data, relinquishing the lock on the battle file
   $battle_data->turn = $opponent_id;
-  slackemon_save_battle_data( $battle_data, $battle_hash );
+  slackemon_save_battle_data( $battle_data, $battle_hash, true );
 
   // Notify the user
   $last_move_notice = 'You ' . $move_message;
@@ -1930,7 +1937,9 @@ function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
 
 } // Function slackemon_get_invite_data
 
-function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage = 'battle', $relinquish_lock = false ) {
+function slackemon_save_battle_data(
+  $battle_data, $battle_hash, $battle_stage = 'battle', $relinquish_lock = false, $warn_if_not_locked = true
+) {
   global $data_folder, $_cached_slackemon_battle_data;
 
   switch ( $battle_stage ) {
@@ -1942,7 +1951,7 @@ function slackemon_save_battle_data( $battle_data, $battle_hash, $battle_stage =
   $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash;
 
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
-  $return = slackemon_file_put_contents( $battle_filename, json_encode( $battle_data ), 'store' );
+  $return = slackemon_file_put_contents( $battle_filename, json_encode( $battle_data ), 'store', $warn_if_not_locked );
 
   if ( $relinquish_lock ) {
     slackemon_unlock_file( $battle_filename );

@@ -39,6 +39,7 @@ function slackemon_register_player( $user_id = USER_ID ) {
     'version'    => SLACKEMON_VERSION,
   ];
 
+  // Save new player data without warning about not being locked, since it is a new file
   return slackemon_save_player_data( $player_data, $user_id, false, false );
 
 } // Function slackemon_register_player

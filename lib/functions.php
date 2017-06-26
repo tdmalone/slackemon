@@ -152,6 +152,7 @@ function slackemon_run_in_background( $data, $path ) {
 /** Builds URLs for background command and action runs, where Slackemon basically calls itself. */
 function slackemon_build_background_url( $path ) {
 
+  // TODO: Test use of https here as well, probably depending on $_SERVER['HTTPS']
   $background_url = 'http://' . $_SERVER['HTTP_HOST'];
 
   $background_url .= (
