@@ -17,43 +17,67 @@ function slackemon_do_battle_updates() {
   $twenty_one_minutes_ago  = $now - MINUTE_IN_SECONDS * 21;
   $twenty_five_minutes_ago = $now - MINUTE_IN_SECONDS * 25;
 
-  // First up, use this opportunity to check if any Pokemon need automatic reviving after battle
-  // Pokemon will restore HP at a rate of 5% per minute (by default), after being fainted for 10 minutes
-  // (also, because active_only is true, Pokemon will only restore if a user is online and NOT in another battle!)
+  // First up, use this opportunity to check if any Pokemon and their moves need reviving after battle (i.e. HP & PP)
+  // HP & PP will restore at a rate of 5% per minute (by default), with an additional delay of 10 minutes if fainted
+  // (also, because active_only is true, Pokemon will only restore if a user is online and NOT in another battle!).
   foreach ( $active_players as $player_id ) {
 
-    $player_data = slackemon_get_player_data( $player_id, true );
-    $player_pokemon = $player_data->pokemon;
-    $changes_made = false;
+    $player_data      = slackemon_get_player_data( $player_id );
+    $player_pokemon   = $player_data->pokemon;
+    $changes_required = false; // Tracks whether changes are required for this player file, so
+                               // that we don't lock/unlock needlessly.
 
+    // TODO: These routines currently exclude fainted Pokemon from *battles that started less than 20 minutes ago*, 
+    //       rather than battles that *ended* 10 minutes ago. We need to store battle *end* time with the Pokemon
+    //       data itself.
+
+    // So we don't needlessly lock up player files that need no changes, we do a check first on our unlocked player
+    // file to see if any changes are required. As soon as we know we need to make a change, we can break the loop.
     foreach ( $player_pokemon as $_pokemon ) {
-
-      // TODO: This currently excludes fainted Pokemon from *battles that started less than 20 minutes ago*, rather
-      // than battles that *ended* 10 minutes ago. We need to store battle *end* time with the Pokemon data itself.
       if ( 0 == $_pokemon->hp && $_pokemon->battles->last_participated > $twenty_minutes_ago ) {
         continue;
       }
 
       if ( $_pokemon->hp < $_pokemon->stats->hp ) {
-        $_pokemon->hp += SLACKEMON_HP_RESTORE_RATE * $_pokemon->stats->hp;
-        $_pokemon->hp = min( ceil( $_pokemon->hp ), $_pokemon->stats->hp );
-        $changes_made = true;
+        $changes_required = true;
+        break; // We know we need to make a change, so we can break this loop.
       }
 
       foreach ( $_pokemon->moves as $_move ) {
         if ( $_move->{'pp-current'} < $_move->pp ) {
-          $_move->{'pp-current'} += SLACKEMON_HP_RESTORE_RATE * $_move->pp;
-          $_move->{'pp-current'} = min( ceil( $_move->{'pp-current'} ), $_move->pp );
-          $changes_made = true;
+          $changes_required = true;
+          break 2; // Like above, but break the outer loop.
         }
       }
 
-    }
+    } // Foreach player_pokemon
 
-    if ( $changes_made ) {
+    // If changes are required, get the player data again with a file lock, and make the required changes.
+    if ( $changes_required ) {
+      $player_data = slackemon_get_player_data( $player_id, true );
+
+      foreach ( $player_pokemon as $_pokemon ) {
+        if ( 0 == $_pokemon->hp && $_pokemon->battles->last_participated > $twenty_minutes_ago ) {
+          continue;
+        }
+
+        if ( $_pokemon->hp < $_pokemon->stats->hp ) {
+          $_pokemon->hp += SLACKEMON_HP_RESTORE_RATE * $_pokemon->stats->hp;
+          $_pokemon->hp  = min( ceil( $_pokemon->hp ), $_pokemon->stats->hp );
+        }
+
+        foreach ( $_pokemon->moves as $_move ) {
+          if ( $_move->{'pp-current'} < $_move->pp ) {
+            $_move->{'pp-current'} += SLACKEMON_HP_RESTORE_RATE * $_move->pp;
+            $_move->{'pp-current'}  = min( ceil( $_move->{'pp-current'} ), $_move->pp );
+          }
+        }
+
+      } // Foreach player_pokemon
+
       slackemon_save_player_data( $player_data, $player_id, true );
-    }
 
+    } // If changes_required
   } // Foreach player 
 
   // Check whether there's any new turns to alert players of (within the last 1-2 mins)...

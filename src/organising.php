@@ -12,10 +12,10 @@ function slackemon_do_happiness_updates() {
   // We'll also increment by 1 for favourite Pokemon, divided by the total number of favourites
   foreach ( slackemon_get_player_ids() as $player_id ) {
 
-    $player_data = slackemon_get_player_data( $player_id );
+    $player_data    = slackemon_get_player_data( $player_id, true );
     $player_pokemon = $player_data->pokemon;
-    $changes_made = false;
 
+    // Work out our total favourite count, so we can apply happiness increases appropriately
     $total_favourites = 0;
     foreach ( $player_pokemon as $_pokemon ) {
       if ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite ) {
@@ -24,24 +24,20 @@ function slackemon_do_happiness_updates() {
     }
 
     foreach ( $player_pokemon as $_pokemon ) {
+
       if ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) {
         $_pokemon->happiness++;
       }
+
       if ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite ) {
         $_pokemon->happiness += 1 / $total_favourites;
       }
-      if (
-        ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) ||
-        ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite )
-      ) {
-        $_pokemon->happiness = min( 255, $_pokemon->happiness ); // Stay within the max bounds
-        $changes_made = true;
-      }
-    }
 
-    if ( $changes_made ) {
-      slackemon_save_player_data( $player_data, $player_id );
-    }
+      $_pokemon->happiness = min( 255, $_pokemon->happiness ); // Stay within the max bounds
+
+    } // Foreach player_pokemon
+
+    slackemon_save_player_data( $player_data, $player_id, true );
 
   } // Foreach player
 } // Function slackemon_do_happiness_updates
