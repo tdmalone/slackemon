@@ -7,7 +7,8 @@
 
 function slackemon_maybe_spawn( $trigger = [] ) {
 
-  $spawn_randomizer = random_int( 1, ceil( MINUTE_IN_SECONDS / SLACKEMON_HOURLY_SPAWN_RATE ) );
+  $spawn_chance_rate = ceil( MINUTE_IN_SECONDS / SLACKEMON_HOURLY_SPAWN_RATE )
+  $spawn_randomizer = random_int( 1, $spawn_chance_rate );
   $should_spawn = 1 === $spawn_randomizer;
 
   if ( $should_spawn ) {
@@ -18,7 +19,9 @@ function slackemon_maybe_spawn( $trigger = [] ) {
     }
     return true;
   } else {
-    slackemon_spawn_debug( 'No spawn this time.' );
+    slackemon_spawn_debug(
+      'No spawn this time (looking for 1 from 1 to ' . $spawn_chance_rate . ', got ' . $spawn_randomizer . ').'
+    );
     return false;
   }
 
