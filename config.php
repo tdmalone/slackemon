@@ -110,9 +110,7 @@ define( 'SLACKEMON_BATTLE_FLEE_MULTIPLIER', getenv( 'SLACKEMON_BATTLE_FLEE_MULTI
 define( 'SLACKEMON_FLEE_TIME_LIMIT', getenv( 'SLACKEMON_FLEE_TIME_LIMIT' ) ?: MINUTE_IN_SECONDS * 5 );
 
 // Roughly how many chances there are of a spawn each hour.
-// HOWEVER, because only one Pokemon will ever spawn at once, this is not a true chance and is *heavily* weighted
-// by whatever the flee time limit is set to above.
-define( 'SLACKEMON_HOURLY_SPAWN_RATE', getenv( 'SLACKEMON_HOURLY_SPAWN_RATE' ) ?: 20 );
+define( 'SLACKEMON_HOURLY_SPAWN_RATE', getenv( 'SLACKEMON_HOURLY_SPAWN_RATE' ) ?: 10 );
 
 // At each spawn, the chance out of 100 of spawning an item instead of a Pokemon.
 define( 'SLACKEMON_ITEM_SPAWN_CHANCE', getenv( 'SLACKEMON_ITEM_SPAWN_CHANCE' ) ?:  5 );
@@ -183,10 +181,10 @@ foreach ( $_debug_vars as $var ) { // Foreach of the above vars, force the env v
   define( $var, filter_var( getenv( $var ), FILTER_VALIDATE_BOOLEAN ) ?: false );
 }
 
-// In addition, 'file locking' is very rudimentary at the moment, so it's currently disabled by default.
+// In addition, 'file locking' is new, so there's a variable that can be used to disable it if it causes issues
 define(
   'SLACKEMON_ENABLE_FILE_LOCKING',
-  filter_var( getenv( 'SLACKEMON_ENABLE_FILE_LOCKING' ), FILTER_VALIDATE_BOOLEAN ) ?: false
+  filter_var( getenv( 'SLACKEMON_ENABLE_FILE_LOCKING' ), FILTER_VALIDATE_BOOLEAN ) ?: true
 );
 
 /**

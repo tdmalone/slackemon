@@ -680,8 +680,6 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 // Tally up and apply the battle stats for the user
 function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USER_ID, $award_xp_to_user = true, $send_response_to_user = true ) {
 
-  $is_desktop  = 'desktop' === slackemon_get_player_menu_mode( $user_id );
-
   // Get the battle data, including from a 'complete' battle in case a user has already run this function
   $battle_data = slackemon_get_battle_data( $battle_hash, true );
 
@@ -718,6 +716,7 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
 
 function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp_to_user ) {
 
+  $is_desktop = 'desktop' === slackemon_get_player_menu_mode( $user_id );
   $pokemon_experience_message = '';
 
   // What's the experience & effort points gained from the opponent's fainted Pokemon?
@@ -1033,6 +1032,7 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
 
 function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_to_user ) {
 
+  $is_desktop = 'desktop' === slackemon_get_player_menu_mode( $user_id );
   $pokemon_experience_message = '';
   $battle_pokemon_by_ts = [];
 
@@ -1317,7 +1317,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
 
   // Update and save the battle data, relinquishing the lock on the battle file
   $battle_data->turn = $opponent_id;
-  slackemon_save_battle_data( $battle_data, $battle_hash, true );
+  slackemon_save_battle_data( $battle_data, $battle_hash, 'battle', true );
 
   // Notify the user
   $last_move_notice = 'You ' . $move_message;
@@ -1370,7 +1370,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
       // If neither Pokemon hasn't fainted, go ahead and move!
       if ( $user_pokemon->hp && $opponent_pokemon->hp ) {
 
-        sleep( 1 ); // Wait before the computer moves...
+        sleep( 2 ); // Wait before the computer moves...
 
         // Before we move, should we flee?
         // This doubles the chance of staying compared to a standard catch, plus increases more depending on
@@ -1671,10 +1671,14 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
   $attachments = [
 
     // Opponent's Pokemon
-    slackemon_get_battle_pokemon_attachment( $opponent_pokemon, $opponent_id, $battle_hash, 'opponent', $opponent_pretext ),
+    slackemon_get_battle_pokemon_attachment(
+      $opponent_pokemon, $opponent_id, $battle_hash, 'opponent', $opponent_pretext
+    ),
 
     // User's Pokemon
-    slackemon_get_battle_pokemon_attachment( $user_pokemon, $user_id, $battle_hash, 'user', $user_pretext ),
+    slackemon_get_battle_pokemon_attachment(
+      $user_pokemon, $user_id, $battle_hash, 'user', $user_pretext
+    ),
 
     // Last move notice (if applicable)
     (

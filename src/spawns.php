@@ -7,15 +7,6 @@
 
 function slackemon_maybe_spawn( $trigger = [] ) {
 
-  // Don't generate a new spawn while another is still active
-  $most_recent_spawn = slackemon_get_most_recent_spawn();
-  if ( $most_recent_spawn && $most_recent_spawn->ts >= time() - SLACKEMON_FLEE_TIME_LIMIT ) {
-    slackemon_spawn_debug( 'Shouldn\'t spawn as last spawn was too recent, but will proceed for spawn debugging...' );
-    if ( ! SLACKEMON_SPAWN_DEBUG ) {
-      return false;
-    }
-  }
-
   $spawn_randomizer = random_int( 1, ceil( MINUTE_IN_SECONDS / SLACKEMON_HOURLY_SPAWN_RATE ) );
   $should_spawn = 1 === $spawn_randomizer;
 
@@ -32,22 +23,6 @@ function slackemon_maybe_spawn( $trigger = [] ) {
   }
 
 } // Function slackemon_maybe_spawn
-
-function slackemon_get_most_recent_spawn() {
-  global $data_folder;
-
-  $spawns = slackemon_get_files_by_prefix( $data_folder . '/spawns/', 'store' );
-
-  if ( ! count( $spawns ) ) {
-    return false;
-  }
-
-  $most_recent_spawn = array_pop( $spawns );
-
-  $data = slackemon_file_get_contents( $most_recent_spawn, 'store' );
-  return json_decode( $data );
-
-} // Function slackemon_get_most_recent_spawn
 
 function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $pokedex_id = false ) {
 
