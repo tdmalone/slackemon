@@ -25,14 +25,15 @@ function slackemon_get_bulk_transfer_attachment() {
   $attachment = [
     'text' => (
       ':outbox_tray: *Bulk Transfer Tool*' . "\n" .
-      'Provides a list of your duplicate Pokémon, and based on evolution possibilities, level, movesets, IVs, EVs and happiness level, allows you to transfer the less \'favourable\' Pokémon all at once.'
+      'Provides a list of your duplicate Pokémon, and based on evolution possibilities, level, movesets, ' .
+      'IVs, EVs and happiness level, allows you to transfer the less \'favourable\' Pokémon all at once.'
     ),
     'color' => 'warning',
     'actions' => [
       [
-        'name' => 'tools',
-        'text' => 'See My Duplicates',
-        'type' => 'button',
+        'name'  => 'tools',
+        'text'  => 'See My Duplicates',
+        'type'  => 'button',
         'value' => 'bulk-transfer',
         'style' => 'primary',
       ],
@@ -76,7 +77,8 @@ function slackemon_get_move_deleter_attachment() {
   $attachment = [
     'text' => (
       ':radioactive_sign: *Move Deleter*' . "\n" .
-      'Allows you to have your Pokémon \'forget\' certain moves so they can be taught new ones. Some moves, however, might never be able to be learnt again, so choose wisely!'
+      'Allows you to have your Pokémon \'forget\' certain moves so they can be taught new ones. Some ' .
+      'moves, however, might never be able to be learnt again, so choose wisely!'
     ),
     'actions' => [
       array_merge(
@@ -100,7 +102,7 @@ function slackemon_bulk_transfer_tool( $do_transfers = false ) {
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
 
   $message = [
-    'text' => '*Bulk Transfer Tool*' . "\n",
+    'text' => ':outbox_tray: *Bᴜʟᴋ Tʀᴀɴsғᴇʀ Tᴏᴏʟ*' . "\n", // Bulk Transfer Tool
     'attachments' => [
       slackemon_back_to_menu_attachment(),
     ],
@@ -136,8 +138,11 @@ function slackemon_bulk_transfer_tool( $do_transfers = false ) {
     'Click _Do Transfers_ below if you are ready to transfer all Pokémon marked with an :x:.' . "\n\n" .
     (
       $is_desktop ?
-      'Pokémon have been evaluated by their *level*, *movesets*, *IVs*, *EVs* and *happiness*, and given a weighting. Moveset weightings take into account the Same Type Attack Bonus if applicable. Pokémon that evolve have had a higher weighting given to their IVs.' . "\n\n" .
-      'Pokemon with branched evolutions (eg. :eevee: Eevee and :poliwag: Poliwag) are currently not handled by this tool.' . "\n\n" :
+      'Pokémon have been evaluated by their *level*, *movesets*, *IVs*, *EVs* and *happiness*, and given a ' .
+      'weighting. Moveset weightings take into account the Same Type Attack Bonus if applicable. Pokémon that ' .
+      'evolve have had a higher weighting given to their IVs.' . "\n\n" .
+      'Pokemon with branched evolutions (eg. :eevee: Eevee and :poliwag: Poliwag) are currently not handled by ' .
+      'this tool.' . "\n\n" :
       ''
     ) .
     '*This tool will _not_ transfer favourite, battle team, or item-holding Pokémon.* ' .
@@ -208,14 +213,14 @@ function slackemon_bulk_transfer_tool( $do_transfers = false ) {
   } // Foreach collection
 
   array_unshift( $message['attachments'][0]['actions'], [
-    'name' => 'tools',
-    'text' => ':outbox_tray: Do Transfers',
-    'type' => 'button',
+    'name'  => 'tools',
+    'text'  => ':outbox_tray: Do Transfers',
+    'type'  => 'button',
     'value' => 'bulk-transfer/do',
     'style' => 'danger',
     'confirm' => [
       'title' => 'Are you sure?',
-      'text' => (
+      'text'  => (
         'Are you sure you want to transfer ' . $transfer_count . ' Pokémon? This cannot be undone. ' .
         'You will earn half the normal XP for each transfer.'
       ),
