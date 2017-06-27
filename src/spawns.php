@@ -7,7 +7,7 @@
 
 function slackemon_maybe_spawn( $trigger = [] ) {
 
-  $spawn_chance_rate = ceil( MINUTE_IN_SECONDS / SLACKEMON_HOURLY_SPAWN_RATE )
+  $spawn_chance_rate = ceil( MINUTE_IN_SECONDS / SLACKEMON_HOURLY_SPAWN_RATE );
   $spawn_randomizer = random_int( 1, $spawn_chance_rate );
   $should_spawn = 1 === $spawn_randomizer;
 
