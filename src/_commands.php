@@ -56,7 +56,8 @@ function slackemon_handle_command( $args ) {
      * Commands for dev/debug use only.
      */
 
-    // Instantly generates a spawn, of a particular Pokedex ID if supplied.
+    // Instantly generates a spawn, of a particular Pokedex ID if supplied (also accepts 'item:x' for an item ID
+    // or just 'item' for a definite random item spawn.
     if ( isset( $args[0] ) && 'spawn' === $args[0] ) {
 
       $spawn_trigger = [
@@ -64,12 +65,12 @@ function slackemon_handle_command( $args ) {
         'user_id' => USER_ID,
       ];
 
-      $spawn_region     = slackemon_get_player_region();
-      $spawn_timestamp  = false;
-      $spawn_pokedex_id = isset( $args[1] ) ? $args[1] : false;
+      $spawn_region      = slackemon_get_player_region();
+      $spawn_timestamp   = false;
+      $spawn_specific_id = isset( $args[1] ) ? $args[1] : false;
 
       slackemon_spawn_debug( 'Generating a spawn in ' . ucfirst( $spawn_region ) . ', please wait...' );
-      slackemon_spawn( $spawn_trigger, $spawn_region, $spawn_timestamp, $spawn_pokedex_id );
+      slackemon_spawn( $spawn_trigger, $spawn_region, $spawn_timestamp, $spawn_specific_id );
 
       return slackemon_exit();
 
