@@ -33,7 +33,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
     if ( 'catch' === $force_battle_result ) {
       // Don't wait here - it's obvious from a battle ending that this is going to be a catch
     } else {
-      sleep( 3 );
+      sleep( 5 );
     }
 
   }
@@ -446,7 +446,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
   ], RESPONSE_URL );
 
   // Wild Pokemon gets to move first
-  sleep( 2 ); // Wait before the computer moves...
+  sleep( 4 ); // Wait before the computer moves...
   $move = slackemon_get_best_move( $invitee_pokemon, $inviter_pokemon );
   slackemon_do_battle_move( $move->name, $battle_hash, $action, true, $invitee_id );
 
