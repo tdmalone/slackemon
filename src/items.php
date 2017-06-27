@@ -712,8 +712,8 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
   $flavour_text = '';
 
   // Get description - for machines, the flavour text shows the effect of the move rather than the item
-  $effect_text  = slackemon_get_effect_text( $item_data );
-  $flavour_text = slackemon_get_flavour_text( $item_data );
+  $effect_text  = slackemon_get_effect_text( $item_data, false );
+  $flavour_text = slackemon_get_flavour_text( $item_data, false );
 
   if ( in_array( $item_data->original_category_name, slackemon_get_effect_text_categories() ) ) {
     $description = $effect_text;
@@ -735,7 +735,7 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
 
         $fields[] = [
           'title' => 'Move Effect',
-          'value' => str_replace( "\n", ' ', slackemon_get_flavour_text( $move_data ) ),
+          'value' => slackemon_get_flavour_text( $move_data ),
           'short' => false,
         ];
 
@@ -1101,9 +1101,9 @@ function slackemon_get_item_description( $item_name_or_id ) {
   // This is because for machines, the flavour text shows the *effect* of the move rather than the move taught
 
   if ( in_array( $item_data->original_category_name, slackemon_get_effect_text_categories() ) ) {
-    $description = slackemon_get_effect_text( $item_data );
+    $description = slackemon_get_effect_text( $item_data, false );
   } else {
-    $description = slackemon_get_flavour_text( $item_data );
+    $description = slackemon_get_flavour_text( $item_data, false );
   }
 
   if ( $description ) {
