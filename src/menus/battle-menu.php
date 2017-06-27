@@ -346,7 +346,10 @@ function slackemon_get_battle_menu_add_attachment( $count_helper = 'a' ) {
 
 } // Function slackemon_get_battle_menu_add_attachment
 
-/** Abstracts the formatting of option values for adding to battle teams within the battle menu. */
+/**
+ * Abstracts the formatting of option values for adding to battle teams within the battle menu.
+ * Can really be used elsewhere as well.
+ */
 function slackemon_get_battle_menu_add_option( $_pokemon ) {
 
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();

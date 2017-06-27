@@ -10,29 +10,8 @@ function slackemon_get_tools_menu() {
   $message = [
     'text' => '*Tᴏᴏʟs*', // Tools
     'attachments' => [
-      [
-        'text' => (
-          ':outbox_tray: *Bulk Transfer Tool*' . "\n" .
-          'Provides a list of your duplicate Pokémon, and based on evolution possibilities, level, movesets, IVs, EVs and happiness level, allows you to transfer the less \'favourable\' Pokémon all at once.'
-        ),
-        'color' => 'warning',
-        'actions' => [
-          [
-            'name' => 'tools',
-            'text' => 'See My Duplicates',
-            'type' => 'button',
-            'value' => 'bulk-transfer',
-            'style' => 'primary',
-          ],
-        ],
-      ], [
-        'text' => (
-          ':radioactive_sign: *Move Deleter*' . "\n" .
-          'Allows you to have your Pokémon \'forget\' certain moves so they can be taught new ones. Some moves, however, might never be able to be learnt again, so choose wisely!' . "\n" .
-          '*_Coming soon._*'
-        ),
-        'color' => 'warning',
-      ],
+      slackemon_get_bulk_transfer_attachment(),
+      slackemon_get_move_deleter_attachment(),
       slackemon_back_to_menu_attachment(),
     ],
   ];
@@ -41,7 +20,82 @@ function slackemon_get_tools_menu() {
 
 } // Function slackemon_get_tools_menu
 
-function slackemon_get_bulk_transfer_menu( $do_transfers = false ) {
+function slackemon_get_bulk_transfer_attachment() {
+
+  $attachment = [
+    'text' => (
+      ':outbox_tray: *Bulk Transfer Tool*' . "\n" .
+      'Provides a list of your duplicate Pokémon, and based on evolution possibilities, level, movesets, IVs, EVs and happiness level, allows you to transfer the less \'favourable\' Pokémon all at once.'
+    ),
+    'color' => 'warning',
+    'actions' => [
+      [
+        'name' => 'tools',
+        'text' => 'See My Duplicates',
+        'type' => 'button',
+        'value' => 'bulk-transfer',
+        'style' => 'primary',
+      ],
+    ],
+  ];
+
+  return $attachment;
+
+} // Function slackemon_get_bulk_transfer_attachment
+
+function slackemon_get_move_deleter_attachment() {
+
+  // TODO: Rather than re-doing most of the code that is used in slackemon_get_battle_menu_add_attachment(),
+  //       we should instead abstract the sorting and constructing of a Pokemon drop-down menu. Can probably
+  //       also be used for items as well (move teaching, item use and item giving).
+
+  $player_data = slackemon_get_player_data();
+  slackemon_sort_player_pokemon( $player_data->pokemon, [ 'name', 'is_favourite', 'level', 'cp', 'ts' ] );
+
+  // Prepare message menu options - if we have more than 100 Pokemon, we need to set up an interactive search to
+  // prevent Slack from cutting the additional Pokemon off.
+  if ( count( $player_data->pokemon ) > 100 ) {
+    $message_menu_options = [
+      'data_source' => 'external',
+      'min_query_length' => 1,
+    ];
+  } else {
+    $message_menu_options = [
+      'options' => array_map(
+        function( $_pokemon ) {
+
+          // Use the same funciton that the battle menu uses.
+          return slackemon_get_battle_menu_add_option( $_pokemon );
+
+        },
+        $player_data->pokemon
+      ),
+    ];
+  }
+
+  $attachment = [
+    'text' => (
+      ':radioactive_sign: *Move Deleter*' . "\n" .
+      'Allows you to have your Pokémon \'forget\' certain moves so they can be taught new ones. Some moves, however, might never be able to be learnt again, so choose wisely!'
+    ),
+    'actions' => [
+      array_merge(
+        [
+          'name' => 'tools/move-deleter',
+          'text' => 'Choose a Pokémon...',
+          'type' => 'select',
+        ],
+        $message_menu_options
+      )
+    ],
+    'color' => 'warning',
+  ];
+
+  return $attachment;
+
+} // Function slackemon_get_move_deleter_attachment
+
+function slackemon_bulk_transfer_tool( $do_transfers = false ) {
 
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
 
@@ -170,6 +224,19 @@ function slackemon_get_bulk_transfer_menu( $do_transfers = false ) {
 
   return $message;
 
-} // Function slackemon_get_bulk_transfer_menu
+} // Function slackemon_bulk_transfer_tool
+
+function slackemon_move_deleter_tool( $spawn_ts ) {
+
+  $message = [
+    'text' => 'Coming shortly...',
+    'attachments' => [
+      slackemon_back_to_menu_attachment(),
+    ],
+  ];
+
+  return $message;
+
+} // Function slackemon_move_deleter_tool
 
 // The end!
