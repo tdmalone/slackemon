@@ -792,7 +792,7 @@ function slackemon_lock_debug( $message, $force_debug = false ) {
   }
 
   // Log the message
-  slackemon_error_log( $message . ' (' . join( ', ', $backtrace_function ) . ')' );
+  slackemon_error_log( $message . ' (' . $backtrace_function . ')' );
 
 } // Function slackemon_lock_debug
 
