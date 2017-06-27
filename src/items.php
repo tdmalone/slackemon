@@ -5,12 +5,16 @@
  * @package Slackemon
  */
 
-function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = false ) {
+function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = false, $specific_id = false ) {
 
-  // Get total item count, choose a random one, and grab its data
-  $items_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/' ) );
-  $random_item = random_int( 1, $items_data->count );
-  $item_data = slackemon_get_item_data( $random_item );
+  // Choose a random item from the total item count (or a specific one if we've asked for it), and grab its data
+  if ( $specific_id ) {
+    $item_id = (int) $specific_id;
+  } else {
+    $items_data  = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/' ) );
+    $item_id     = random_int( 1, $items_data->count );
+  }
+  $item_data = slackemon_get_item_data( $item_id );
 
   $unsupported_items = [
     'safari-ball',  // We don't have the Great Marsh location set up for it
@@ -58,20 +62,19 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
     'spelunking',   // We could implement this....
   ];
 
-  // Try again if...
-  if (
-    ! $item_data || // We didn't pick a valid item for some reason
-    ! isset( $item_data->name ) // We didn't pick a valid item for some reason
-  ) {
-    slackemon_spawn_debug( 'Not spawning item ' . $random_item . ' as it doesn\'t appear to be valid.' );
+  // Try again if we didn't pick a valid item for some reason.
+  if ( ! $item_data || ! isset( $item_data->name ) ) {
+    slackemon_spawn_debug( 'Not spawning item ' . $item_id . ' as it doesn\'t appear to be valid.' );
     return slackemon_item_spawn( $trigger, $region, $timestamp );
   }
 
   // Try again if...
   if (
-    //! $item_data->cost || // Item is priceless, and therefore probably quite valuable
-    in_array( $item_data->name, $unsupported_items ) ||
-    in_array( $item_data->category->name, $unsupported_categories )
+    ! $specific_id && ( // We didn't request a specific item ID and...
+      //! $item_data->cost || // Item is priceless, and therefore probably quite valuable
+      in_array( $item_data->name, $unsupported_items ) ||
+      in_array( $item_data->category->name, $unsupported_categories )
+    )
   ) {
     slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; its category is ' . slackemon_readable( $item_data->category->name ) . '.' );
     return slackemon_item_spawn( $trigger, $region, $timestamp );
@@ -79,14 +82,14 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
 
   // In addition to the above, we assign a certain rarity to some categories by making a chance that we'll respawn...
 
-  if ( 'tms' === $item_data->category->name ) {
+  if ( ! $specific_id && 'tms' === $item_data->category->name ) {
     if ( random_int( 1, 2 ) > 1 ) {
       slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; random chance says to skip it make it rarer this time.' );
       return slackemon_item_spawn( $trigger, $region, $timestamp );
     }
   }
 
-  if ( 'hms' === $item_data->category->name ) {
+  if ( ! $specific_id && 'hms' === $item_data->category->name ) {
     if ( random_int( 1, 5 ) > 1 ) {
       slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; random chance says to skip it make it rarer this time.' );
       return slackemon_item_spawn( $trigger, $region, $timestamp );

@@ -27,7 +27,7 @@ function slackemon_maybe_spawn( $trigger = [] ) {
 
 } // Function slackemon_maybe_spawn
 
-function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $pokedex_id = false ) {
+function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $specific_id = false ) {
 
   // Default region
   if ( ! $region ) {
@@ -45,12 +45,12 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
     return;
   }
 
-  // Before we do anything else, should this be an item spawn, or a Pokemon spawn?
-  if ( 'onboarding' !== $trigger['type'] && ! $pokedex_id ) {
-    $item_spawn = random_int( 1, 100 ) <= SLACKEMON_ITEM_SPAWN_CHANCE;
+  // Should this be an item spawn, or a Pokemon spawn?
+  if ( 'onboarding' !== $trigger['type'] && ( ! $specific_id || 'item' === substr( $specific_id, 0, 4 ) ) ) {
+    $item_spawn = 'item' === substr( $specific_id, 0, 4 ) || random_int( 1, 100 ) <= SLACKEMON_ITEM_SPAWN_CHANCE;
     if ( $item_spawn ) {
       slackemon_spawn_debug( 'This will be an item spawn...' );
-      return slackemon_item_spawn( $trigger, $region, $timestamp );
+      return slackemon_item_spawn( $trigger, $region, $timestamp, substr( $specific_id, 5 ) );
     }
   }
 
@@ -65,8 +65,8 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
   // We get the ID from the URL specified in the region Pokedex
   $region_pokedex = $region_data['region_pokedex'];
   $pokedex_id = (
-    $pokedex_id ?
-    (int) $pokedex_id :
+    $specific_id ?
+    (int) $specific_id :
     trim( basename( $region_pokedex[ array_rand( $region_pokedex ) ]->pokemon_species->url ), '/' )
   );
 
@@ -93,7 +93,7 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
     'Cold'    => 'Ice',
     'Sunny'   => 'Grass',
   ];
-  if ( array_key_exists( $weather_condition, $weather_types ) ) {
+  if ( ! $specific_id && array_key_exists( $weather_condition, $weather_types ) ) {
     if ( ! in_array( $weather_types[ $weather_condition ], $types ) ) {
 
       // We don't want to be exclusive based on the weather - just have an increased chance
@@ -160,13 +160,13 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
   } // If weather_condition exists
 
   // Make sure we don't have an excluded Pokemon
-  if ( in_array( $pokedex_id, explode( '|', SLACKEMON_EXCLUDED_POKEMON ) ) ) {
+  if ( ! $specific_id && in_array( $pokedex_id, explode( '|', SLACKEMON_EXCLUDED_POKEMON ) ) ) {
     slackemon_spawn_debug( 'Can\'t spawn ' . slackemon_readable( $pokemon->name ) . ' as it is specifically excluded.' );
     return slackemon_spawn( $trigger, $region, $timestamp ); // Loops until we have an allowed Pokemon
   }
 
   // If legendaries are excluded, make sure we don't have one (unless the weather is favourable)
-  if ( slackemon_is_legendary( $pokedex_id ) ) {
+  if ( ! $specific_id && slackemon_is_legendary( $pokedex_id ) ) {
     if ( SLACKEMON_EXCLUDE_LEGENDARIES && ( ! SLACKEMON_ALLOW_LEGENDARY_WEATHER_SPAWNS || ! $weather_spawn ) ) {
       slackemon_spawn_debug( 'Can\'t spawn ' . slackemon_readable( $pokemon->name ) . ' as it is legendary.' );
       return slackemon_spawn( $trigger, $region, $timestamp );
@@ -176,7 +176,7 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
   // If it's daytime, make sure we're not spawning a Ghost or Dark Pokemon (or Zubat or Abra)
   // And at night, no Grass Pokemon or Normal+Flying Pokemon (because birds don't fly at night)
   // (we also double check to ensure that eg. a Grass+Ghost/Dark type wouldn't be excluded completely!)
-  if ( SLACKEMON_EXCLUDE_ON_TIME_OF_DAY && slackemon_is_daytime() ) {
+  if ( ! $specific_id && SLACKEMON_EXCLUDE_ON_TIME_OF_DAY && slackemon_is_daytime() ) {
     if ( in_array( 'Ghost', $types ) || in_array( 'Dark', $types ) ) {
       slackemon_spawn_debug( 'Can\'t spawn Ghost or Dark type during the day (' . slackemon_readable( $pokemon->name ) . ').' );
       return slackemon_spawn( $trigger, $region, $timestamp );
@@ -184,7 +184,7 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
       slackemon_spawn_debug( 'Can\'t spawn Zubat or Abra during the day (' . slackemon_readable( $pokemon->name ) . ').' );
       return slackemon_spawn( $trigger, $region, $timestamp );
     }
-  } else if ( SLACKEMON_EXCLUDE_ON_TIME_OF_DAY ) {
+  } else if ( ! $specific_id && SLACKEMON_EXCLUDE_ON_TIME_OF_DAY ) {
     if ( in_array( 'Grass', $types ) && ! in_array( 'Ghost', $types ) && ! in_array( 'Dark', $types )  ) {
       slackemon_spawn_debug( 'Can\'t spawn Grass type at night (' . slackemon_readable( $pokemon->name ) . ').' );
       return slackemon_spawn( $trigger, $region, $timestamp );
@@ -199,13 +199,13 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
   $species = slackemon_get_pokemon_species_data( $pokedex_id );
 
   // Make sure we're only spawning from the first in an evolution chain
-  if ( SLACKEMON_EXCLUDE_EVOLUTIONS && $species->evolves_from_species ) {
+  if ( ! $specific_id && SLACKEMON_EXCLUDE_EVOLUTIONS && $species->evolves_from_species ) {
     slackemon_spawn_debug( 'Cannot spawn ' . slackemon_readable( $pokemon->name ) . ' as it is not the first in an evolution chain.' );
     return slackemon_spawn( $trigger, $region, $timestamp ); // Loops until we have a non-evolved Pokemon
   }
 
   // Make sure we're not spawning a baby - they'll only be available in eggs
-  if ( SLACKEMON_EXCLUDE_BABIES && $species->is_baby ) {
+  if ( ! $specific_id && SLACKEMON_EXCLUDE_BABIES && $species->is_baby ) {
     slackemon_spawn_debug( 'Cannot spawn ' . slackemon_readable( $pokemon->name ) . ' as it is a baby Pokémon.' );
     return slackemon_spawn( $trigger, $region, $timestamp );
   }
