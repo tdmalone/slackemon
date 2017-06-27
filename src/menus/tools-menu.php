@@ -233,12 +233,83 @@ function slackemon_bulk_transfer_tool( $do_transfers = false ) {
 
 function slackemon_move_deleter_tool( $spawn_ts ) {
 
+  $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
+
   $message = [
-    'text' => 'Coming shortly...',
-    'attachments' => [
-      slackemon_back_to_menu_attachment(),
-    ],
+    'text' => ':radioactive_sign: *Mᴏᴠᴇ Dᴇʟᴇᴛᴇʀ*' . "\n", // Move Deleter
   ];
+
+  $pokemon = slackemon_get_player_pokemon_data( $spawn_ts );
+  $pokemon_data = slackemon_get_pokemon_data( $pokemon->pokedex );
+
+  $message['text'] .= 'Coming shortly...';
+  $message['attachments'] = [];
+
+  foreach ( $pokemon->moves as $move ) {
+
+    $move_data     = slackemon_get_move_data( $move->name );
+    $learn_methods = [];
+
+    foreach ( $pokemon_data->moves as $potential_move ) {
+      if ( $potential_move->move->name === $move->name ) {
+        foreach ( $potential_move->version_group_details as $version_group_details ) {
+          $learn_methods[] = $version_group_details->move_learn_method->name;
+        }
+        break;
+      }
+    }
+
+    $message['attachments'][] = [
+      'title'  => slackemon_readable( $move->name ) . ' (x' . ( $move_data->power ? $move_data->power : '0' ) . ')',
+      'text'   => (
+        slackemon_get_flavour_text( $move_data ) . ' ' .
+        (
+          in_array( 'machine', $learn_methods ) ?
+          'This move may _possibly_ be taught again by using a machine.' :
+          '*It may not be possible to learn this move again.*'
+        )
+      ),
+      'fields' => [
+        [
+          'title' => 'Type',
+          'value' => slackemon_emojify_types( slackemon_readable( $move_data->type->name ) ),
+          'short' => true,
+        ], [
+          'title' => 'Damage Type',
+          'value' => slackemon_readable( $move_data->damage_class->name ),
+          'short' => true,
+        ], [
+          'title' => 'PP',
+          'value' => $move_data->pp,
+          'short' => true,
+        ], [
+          'title' => 'Accuracy',
+          'value' => $move_data->accuracy ? $move_data->accuracy : 'n/a',
+          'short' => true,
+        ], 
+      ],
+      'actions' => [
+        [
+          'name'  => 'tools/move-deleter/do',
+          'text'  => 'Forget this Move',
+          'value' => $spawn_ts . '/' . $move->name,
+          'type'  => 'button',
+          'style' => 'danger',
+          'confirm' => [
+            'title' => 'Are you sure?',
+            'text'  => (
+              'Are you sure you want ' . slackemon_readable( $pokemon->name ) . ' ' .
+              'to forget ' . slackemon_readable( $move->name ) . '? This cannot be undone.'
+            ),
+          ],
+        ],
+      ],
+      'color' => 'warning',
+    ];
+
+  }
+
+  $message['attachments'][] = slackemon_back_to_menu_attachment();
 
   return $message;
 
