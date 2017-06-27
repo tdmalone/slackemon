@@ -172,10 +172,7 @@ function slackemon_file_put_contents( $filename, $data, $purpose, $warn_if_not_l
 
   // Warn if we're trying to write to a data store file that we don't own a lock on
   if ( 'store' === $purpose && $warn_if_not_locked && ! slackemon_is_file_owned( $filename ) ) {
-    slackemon_lock_debug(
-      'WARNING: Writing to ' . $filename . ' without a file lock.' . PHP_EOL . slackemon_debug_backtrace(),
-      true
-    );
+    slackemon_lock_debug( 'WARNING: Writing to ' . $filename . ' without a file lock', true );
   }
 
   switch ( slackemon_get_data_method( $purpose ) ) {
@@ -441,7 +438,7 @@ function slackemon_rename( $old_filename, $new_filename, $purpose ) {
       // Possibly should also, if the unlink fails, undo the put.
 
       $data = slackemon_file_get_contents( $old_filename, $purpose );
-      slackemon_file_put_contents( $new_filename, $data, $purpose );
+      slackemon_file_put_contents( $new_filename, $data, $purpose, false ); // 'false' = no need to warn on no lock
       slackemon_unlink( $old_filename, $purpose );
 
     break;
@@ -773,8 +770,13 @@ function slackemon_lock_debug( $message, $force_debug = false ) {
   // Log a message, including the function that initially caused the lock.
   // (We go to the 5th level due to this function, the lock function, the file reading function,
   // and the player/battle data wrapping function).
-  $debug_backtrace = debug_backtrace( null, 5 );
-  slackemon_error_log( $message . ' (' . $debug_backtrace[4]['function'] . ')' );
+  $backtrace = debug_backtrace( null, 5 );
+  array_shift( $backtrace ); // Drop this function off the stack
+  $backtrace_functions = [];
+  foreach ( $backtrace as $trace_level ) {
+    $backtrace_functions[] = $trace_level['function'];
+  }
+  slackemon_error_log( $message . ' (' . join( ', ', $backtrace_functions ) . ')' );
 
 } // Function slackemon_lock_debug
 
