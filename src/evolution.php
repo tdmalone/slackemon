@@ -26,6 +26,10 @@ function slackemon_evolve_user_pokemon( $spawn_ts, $evolve_to_id = null, $user_i
   $new_pokemon_data = slackemon_get_pokemon_data( $evolve_to_id );
   $new_pokemon_species = slackemon_get_pokemon_species_data( $evolve_to_id );
 
+  // Get player data for writing, and re-get the same Pokemon from the new object
+  $player_data  = slackemon_get_player_data( $user_id, true );
+  $user_pokemon = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
+
   // Types
   $types = [];
   foreach ( $new_pokemon_data->types as $type ) {
@@ -64,13 +68,6 @@ function slackemon_evolve_user_pokemon( $spawn_ts, $evolve_to_id = null, $user_i
 
   // Recalculate HP to the same percentage it was before evolution
   $user_pokemon->hp = floor( $user_pokemon->stats->hp * $old_hp_percentage );
-
-  // Get player data for writing
-  $player_data = slackemon_get_player_data( $user_id, true );
-
-  // Apply the newly evolved Pokemon data over the existing one
-  $existing_pokemon = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
-  $existing_pokemon = $user_pokemon;
 
   // Can we increment the 'seen' value on an existing Pokedex entry?
   $pokemon_seen_before = false;

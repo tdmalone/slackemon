@@ -972,7 +972,11 @@ function slackemon_change_pokemon_held_item( $item_id, $spawn_ts, $user_id = USE
     slackemon_add_item( $pokemon->held_item, $user_id );
   }
 
+  // Get player data for writing, and re-get the same Pokemon from the new object
   $player_data = slackemon_get_player_data( $user_id, true );
+  $pokemon     = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
+
+  // Update the held item on this Pokemon
   $pokemon->held_item = $item_id;
 
   return slackemon_save_player_data( $player_data, $user_id, true );

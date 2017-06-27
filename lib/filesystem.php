@@ -708,7 +708,7 @@ function slackemon_unlock_file( $filename ) {
   $lock_filename = slackemon_get_lock_filename( $filename );
 
   if ( slackemon_unlink( $lock_filename, 'store' ) ) {
-    slackemon_lock_debug( 'Lock individually removed on ' . $filename );
+    slackemon_lock_debug( 'Lock removed on ' . $filename );
     unset( $_slackemon_file_locks[ md5( $filename ) ] );
     return true;
   } else {
@@ -735,9 +735,9 @@ function slackemon_remove_file_locks() {
     $lock_filename = slackemon_get_lock_filename( $filename );
 
     if ( slackemon_unlink( $lock_filename, 'store' ) ) {
-      slackemon_lock_debug( 'Lock removed on ' . $filename );
+      slackemon_lock_debug( 'Lock removed wholesale on ' . $filename );
     } else {
-      slackemon_lock_debug( 'WARNING: Lock COULD NOT be REMOVED on ' . $filename, true );
+      slackemon_lock_debug( 'WARNING: Lock COULD NOT be REMOVED wholesale on ' . $filename, true );
     }
   }
 
