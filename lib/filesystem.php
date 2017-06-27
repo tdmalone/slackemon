@@ -767,16 +767,32 @@ function slackemon_lock_debug( $message, $force_debug = false ) {
     return;
   }
 
-  // Log a message, including the function that initially caused the lock.
-  // (We go to the 5th level due to this function, the lock function, the file reading function,
-  // and the player/battle data wrapping function).
-  $backtrace = debug_backtrace( null, 5 );
-  array_shift( $backtrace ); // Drop this function off the stack
-  $backtrace_functions = [];
+  // Get the most recent relevant function that caused the lock debug message to be sent.
+  // Non-relevant functions include this current one, as well as the locking, unlocking, and file
+  // writing/reading functions - because all of those are involved in every lock/unlock process anyway.
+  $backtrace = debug_backtrace();
+  $functions_to_skip = [
+    __FUNCTION__,
+    'slackemon_lock_file',
+    'slackemon_unlock_file',
+    'slackemon_file_get_contents',
+    'slackemon_file_put_contents',
+    'slackemon_get_player_data',
+    'slackemon_save_player_data',
+    'slackemon_get_battle_data',
+    'slackemon_save_battle_data',
+  ];
   foreach ( $backtrace as $trace_level ) {
-    $backtrace_functions[] = $trace_level['function'];
+    if ( in_array( $trace_level['function'], $functions_to_skip ) ) {
+      continue;
+    }
+
+    $backtrace_function = $trace_level['function'];
+    break;
   }
-  slackemon_error_log( $message . ' (' . join( ', ', $backtrace_functions ) . ')' );
+
+  // Log the message
+  slackemon_error_log( $message . ' (' . join( ', ', $backtrace_function ) . ')' );
 
 } // Function slackemon_lock_debug
 
