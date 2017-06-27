@@ -11,6 +11,35 @@
       }
     ]
   },
+  "dusk-stone": {
+    "requirements": [
+      {
+        "pokedex": 198
+      },
+      {
+        "pokedex": 200
+      },
+      {
+        "pokedex": 608
+      }
+    ]
+  },
+  "fire-stone": {
+    "requirements": [
+      {
+        "pokedex": 37
+      },
+      {
+        "pokedex": 58
+      },
+      {
+        "pokedex": 133
+      },
+      {
+        "pokedex": 513
+      }
+    ]
+  },
   "leaf-stone": {
     "requirements": [
       {
@@ -94,6 +123,28 @@
       }
     ]
   },
+  "water-stone": {
+    "requirements": [
+      {
+        "pokedex": 61
+      },
+      {
+        "pokedex": 90
+      },
+      {
+        "pokedex": 120
+      },
+      {
+        "pokedex": 133
+      },
+      {
+        "pokedex": 271
+      },
+      {
+        "pokedex": 515
+      }
+    ]
+  },
   "hyper-potion": {
     "comment": "Sample only",
     "situations": [
@@ -138,7 +189,8 @@
         "effect-situation": "battle",
         "move-type": "ice",
         "value": ""
-      },{
+      },
+      {
         "effect-type": "ev-increase",
         "effect-target": "pokemon",
         "effect-situation": "overworld",
