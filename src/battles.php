@@ -1967,7 +1967,7 @@ function slackemon_save_battle_data(
 
 function slackemon_maybe_record_battle_seen_pokemon( $player_id, $pokedex_id ) {
 
-  $player_data = slackemon_get_player_data( $player_id, true );
+  $player_data = slackemon_get_player_data( $player_id );
 
   // Bow out if the user already has a Pokedex entry for this Pokemon
   foreach ( $player_data->pokedex as $pokedex_entry ) {
@@ -1975,6 +1975,9 @@ function slackemon_maybe_record_battle_seen_pokemon( $player_id, $pokedex_id ) {
       return;
     }
   }
+
+  // Get player data again, for writing this time
+  $player_data = slackemon_get_player_data( $player_id, true );
 
   // First seen - time to create a new entry!
   $player_data->pokedex[] = [
