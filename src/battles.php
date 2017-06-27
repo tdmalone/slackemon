@@ -54,7 +54,8 @@ function slackemon_do_battle_updates() {
 
     // If changes are required, get the player data again with a file lock, and make the required changes.
     if ( $changes_required ) {
-      $player_data = slackemon_get_player_data( $player_id, true );
+      $player_data    = slackemon_get_player_data( $player_id, true );
+      $player_pokemon = $player_data->pokemon;
 
       foreach ( $player_pokemon as $_pokemon ) {
         if ( 0 == $_pokemon->hp && $_pokemon->battles->last_participated > $twenty_minutes_ago ) {
