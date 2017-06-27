@@ -280,8 +280,8 @@ function slackemon_get_best_move( $attacker, $defender ) {
 function slackemon_get_backup_move() {
 
   $move = [
-    'name' => 'struggle',
-    'pp' => '999',
+    'name'       => 'struggle',
+    'pp'         => '999',
     'pp-current' => '999',
   ];
 

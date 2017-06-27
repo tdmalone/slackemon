@@ -7,15 +7,6 @@
 
 function slackemon_maybe_spawn( $trigger = [] ) {
 
-  // Don't generate a new spawn while another is still active
-  $most_recent_spawn = slackemon_get_most_recent_spawn();
-  if ( $most_recent_spawn && $most_recent_spawn->ts >= time() - SLACKEMON_FLEE_TIME_LIMIT ) {
-    slackemon_spawn_debug( 'Shouldn\'t spawn as last spawn was too recent, but will proceed for spawn debugging...' );
-    if ( ! SLACKEMON_SPAWN_DEBUG ) {
-      return false;
-    }
-  }
-
   $spawn_randomizer = random_int( 1, ceil( MINUTE_IN_SECONDS / SLACKEMON_HOURLY_SPAWN_RATE ) );
   $should_spawn = 1 === $spawn_randomizer;
 
@@ -32,22 +23,6 @@ function slackemon_maybe_spawn( $trigger = [] ) {
   }
 
 } // Function slackemon_maybe_spawn
-
-function slackemon_get_most_recent_spawn() {
-  global $data_folder;
-
-  $spawns = slackemon_get_files_by_prefix( $data_folder . '/spawns/', 'store' );
-
-  if ( ! count( $spawns ) ) {
-    return false;
-  }
-
-  $most_recent_spawn = array_pop( $spawns );
-
-  $data = slackemon_file_get_contents( $most_recent_spawn, 'store' );
-  return json_decode( $data );
-
-} // Function slackemon_get_most_recent_spawn
 
 function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $pokedex_id = false ) {
 
@@ -232,6 +207,8 @@ function slackemon_spawn( $trigger = [], $region = false, $timestamp = false, $p
     return slackemon_spawn( $trigger, $region, $timestamp );
   }
 
+  slackemon_spawn_debug( 'Ok, will spawn a ' . slackemon_readable( $pokemon->name ) . '.' );
+
   // Determine nature
   $natures = slackemon_get_natures();
   $nature = $natures[ array_rand( $natures ) ];
@@ -325,7 +302,7 @@ function slackemon_save_spawn_data( $spawn_data ) {
   $spawn_filename = $data_folder . '/spawns/' . $spawn_id;
 
   $_cached_slackemon_spawn_data[ $spawn_id ] = $spawn_data;
-  return slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store' );
+  return slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store', false );
 
 } // Function slackemon_save_spawn_data
 
@@ -462,7 +439,7 @@ function slackemon_notify_spawn( $spawn ) {
     $this_message = $message;
     $is_desktop = 'desktop' === slackemon_get_player_menu_mode( $player_id );
 
-    $seen = slackemon_has_user_seen_pokemon( $player_id, $spawn['pokedex'] );
+    $seen   = slackemon_has_user_seen_pokemon(   $player_id, $spawn['pokedex'] );
     $caught = slackemon_has_user_caught_pokemon( $player_id, $spawn['pokedex'] );
 
     if ( $caught ) {
@@ -577,7 +554,7 @@ function slackemon_notify_spawn( $spawn ) {
 function slackemon_record_spawn_for_user( $user_id, $spawn ) {
   global $data_folder;
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   // Can we increment the 'seen' value on an existing spawn?
   $found_entry = false;
@@ -608,9 +585,9 @@ function slackemon_record_spawn_for_user( $user_id, $spawn ) {
     'cp'      => $spawn['cp'],
     'hp'      => $spawn['stats']['hp'],
   ];
-  slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store' );
+  slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store', false );
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_record_spawn
 

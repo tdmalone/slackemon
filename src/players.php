@@ -39,24 +39,33 @@ function slackemon_register_player( $user_id = USER_ID ) {
     'version'    => SLACKEMON_VERSION,
   ];
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  // Save new player data without warning about not being locked, since it is a new file
+  return slackemon_save_player_data( $player_data, $user_id, false, false );
 
 } // Function slackemon_register_player
 
-function slackemon_save_player_data( $player_data, $user_id = USER_ID ) {
+function slackemon_save_player_data(
+  $player_data, $user_id = USER_ID, $relinquish_lock = false, $warn_if_not_locked = true
+) {
   global $data_folder, $_cached_slackemon_player_data;
 
   $player_filename = $data_folder . '/players/' . $user_id;
 
-  $_cached_slackemon_player_data[ $user_id ] = $player_data;
-  return slackemon_file_put_contents( $player_filename, json_encode( $player_data ), 'store' );
+  $_cached_slackemon_player_data[ $user_id ] = $player_data; // Update the in-memory cache.
+  $return = slackemon_file_put_contents( $player_filename, json_encode( $player_data ), 'store', $warn_if_not_locked );
+
+  if ( $relinquish_lock ) {
+    slackemon_unlock_file( $player_filename );
+  }
+
+  return $return;
 
 } // Function slackemon_save_player_data
 
-function slackemon_get_player_data( $user_id = USER_ID ) {
+function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
   global $data_folder, $_cached_slackemon_player_data;
 
-  if ( isset( $_cached_slackemon_player_data[ $user_id ] ) ) {
+  if ( ! $for_writing && isset( $_cached_slackemon_player_data[ $user_id ] ) ) {
     return $_cached_slackemon_player_data[ $user_id ];
   }
 
@@ -64,17 +73,20 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
 
   // If we couldn't find the player file, store a trace to discover how we got here
   if ( ! slackemon_file_exists( $player_filename, 'store' ) ) {
-    slackemon_error_log( $data_folder . '/backtrace-' . $user_id, print_r( debug_backtrace(), true ) );
+    slackemon_error_log(
+      'WARNING: Attempted to access missing player file for ' . $user_id . '.' . PHP_EOL .
+      slackemon_debug_backtrace()
+    );
     return false;
   }
 
-  $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store' ) );
+  $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', $for_writing ) );
 
   // If our player data doesn't exist or is somehow corrupted (eg. JSON file in the middle of being written to),
   // we need to error out right away.
   if ( ! $player_data ) {
 
-    send2slack([
+    slackemon_send2slack([
       'text' => (
         ':exclamation: *Oops!* An error occurred accessing your player data. Please try your last action again.' . "\n" .
         'If this problem persists, talk to <@' . SLACKEMON_MAINTAINER . '>.'
@@ -88,22 +100,31 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
 
   }
 
+  // Update the in-memory cache to avoid this function being run every time a player's data is accessed.
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
 
-  // Ensure player is not caught in a cancelled region if the available regions change
+  // Ensure player is not caught in a cancelled region if the available regions change.
   $regions = slackemon_get_regions();
   if ( ! array_key_exists( $player_data->region, $regions ) ) {
+
+    // Re-open the player file, for writing this time
+    $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', true ) );
+
     $player_data->region = SLACKEMON_DEFAULT_REGION;
-    slackemon_save_player_data( $player_data, $user_id );
+    slackemon_save_player_data( $player_data, $user_id, true );
   }
 
   // Version migrations for player data
 
   // v0.0.36
-  // - Now that spawned Pokemon are correctly saved with their species name rather than variety name, fix any previously
-  //   caught Deoxys
-  if ( '0.0.36' !== $player_data->version ) {
+  // - Now that spawned Pokemon are correctly saved with their species name rather than variety name, fix any
+  //   previously caught Deoxys.
+  if ( version_compare( $player_data->version, '0.0.36', '<' ) ) {
 
+    // Re-open the player file, for writing this time.
+    $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', true ) );
+
+    // Update the player file version number so this update doesn't run again.
     $player_data->version = '0.0.36';
 
     foreach ( $player_data->pokemon as $_pokemon ) {
@@ -115,7 +136,7 @@ function slackemon_get_player_data( $user_id = USER_ID ) {
 
     }
 
-    slackemon_save_player_data( $player_data, $user_id );
+    slackemon_save_player_data( $player_data, $user_id, true );
 
   } // If not version
 
@@ -157,7 +178,17 @@ function slackemon_get_player_pokemon_data( $spawn_ts, $player_data = null, $use
 
 } // Function slackemon_get_player_pokemon_data
 
+/*
+ * Adds XP to a player's file.
+ *
+ * DEPRECATED: To avoid wrangling with file locking, XP should now be added to a player's data directly. The only
+ *             thing this function was doing was floor()'ing the XP after adding, which should and can be easily
+ *             done to the added amount if it is possible it is not an integer. In addition, XP is always added
+ *             in conjunction with some other action on the player's data, so the player's file is already open.
+ */
 function slackemon_add_xp( $xp, $user_id = USER_ID ) {
+
+  __slackemon_deprecated_function( __METHOD__, '0.0.41' );
 
   $player_data = slackemon_get_player_data( $user_id );
   $player_data->xp += $xp;
@@ -246,21 +277,31 @@ function slackemon_cancel_player( $user_id = USER_ID ) {
 
 function slackemon_mute_player( $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
-  if ( 1 !== $player_data->status ) { return false; } // Prevent muting when another status is current
-  $player_data->status = 2;
+  $player_data = slackemon_get_player_data( $user_id, true );
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  // Only mute if the player is currently unmuted and another status isn't active.
+  if ( 1 == $player_data->status ) {
+    $player_data->status = 2;
+    return slackemon_save_player_data( $player_data, $user_id, true );
+  }
+
+  slackemon_save_player_data( $player_data, $user_id, true );
+  return false;
 
 } // Function slackemon_mute_player
 
 function slackemon_unmute_player( $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
-  if ( 2 !== $player_data->status ) { return false; } // Prevent unmuting when another status is current
-  $player_data->status = 1;
+  $player_data = slackemon_get_player_data( $user_id, true );
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  // Only unmute if the player is currently muted and another status isn't active.
+  if ( 2 == $player_data->status ) {
+    $player_data->status = 1;
+    return slackemon_save_player_data( $player_data, $user_id, true );
+  }
+
+  slackemon_save_player_data( $player_data, $user_id, true );
+  return false;
 
 } // Function slackemon_unmute_player
 
@@ -268,10 +309,11 @@ function slackemon_is_player_muted( $user_id = USER_ID ) {
 
   $player_data = slackemon_get_player_data( $user_id );
 
-  // Protect against status somehow not being set at all, by setting it to not-muted as default
+  // Protect against player status somehow not being set at all, by setting it to not-muted as default.
   if ( ! isset( $player_data->status ) ) {
+    $player_data = slackemon_get_player_data( $user_id, true ); // Open for writing.
     $player_data->status = 1;
-    return slackemon_save_player_data( $player_data, $user_id );
+    return slackemon_save_player_data( $player_data, $user_id, true );
   }
 
   if ( 2 === $player_data->status ) {
@@ -284,20 +326,25 @@ function slackemon_is_player_muted( $user_id = USER_ID ) {
 
 function slackemon_set_player_in_battle( $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->status = 3;
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_set_player_in_battle
 
 function slackemon_set_player_not_in_battle( $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
-  if ( 3 !== $player_data->status ) { return false; }
-  $player_data->status = 1;
+  $player_data = slackemon_get_player_data( $user_id, true );
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  // Prevet changing the player status if they're not currently in battle.
+  if ( 3 == $player_data->status ) {
+    $player_data->status = 1;
+    return slackemon_save_player_data( $player_data, $user_id, true );
+  }
+
+  slackemon_save_player_data( $player_data, $user_id, true );
+  return false;
 
 } // Function slackemon_set_player_not_in_battle
 
@@ -379,10 +426,10 @@ function slackemon_get_player_menu_mode( $user_id = USER_ID ) {
 
 function slackemon_set_player_menu_mode( $menu_mode, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->menu_mode = $menu_mode;
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_set_player_menu_mode
 

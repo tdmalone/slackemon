@@ -12,10 +12,10 @@ function slackemon_do_happiness_updates() {
   // We'll also increment by 1 for favourite Pokemon, divided by the total number of favourites
   foreach ( slackemon_get_player_ids() as $player_id ) {
 
-    $player_data = slackemon_get_player_data( $player_id );
+    $player_data    = slackemon_get_player_data( $player_id, true );
     $player_pokemon = $player_data->pokemon;
-    $changes_made = false;
 
+    // Work out our total favourite count, so we can apply happiness increases appropriately
     $total_favourites = 0;
     foreach ( $player_pokemon as $_pokemon ) {
       if ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite ) {
@@ -24,24 +24,20 @@ function slackemon_do_happiness_updates() {
     }
 
     foreach ( $player_pokemon as $_pokemon ) {
+
       if ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) {
         $_pokemon->happiness++;
       }
+
       if ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite ) {
         $_pokemon->happiness += 1 / $total_favourites;
       }
-      if (
-        ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) ||
-        ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite )
-      ) {
-        $_pokemon->happiness = min( 255, $_pokemon->happiness ); // Stay within the max bounds
-        $changes_made = true;
-      }
-    }
 
-    if ( $changes_made ) {
-      slackemon_save_player_data( $player_data, $player_id );
-    }
+      $_pokemon->happiness = min( 255, $_pokemon->happiness ); // Stay within the max bounds
+
+    } // Foreach player_pokemon
+
+    slackemon_save_player_data( $player_data, $player_id, true );
 
   } // Foreach player
 } // Function slackemon_do_happiness_updates
@@ -607,15 +603,17 @@ function slackemon_has_user_caught_pokemon( $user_id, $pokedex_number ) {
 
 } // Function slackemon_has_user_caught_pokemon
 
+/** Removes (aka. transfers) Pokemon from a player's collection. */
 function slackemon_remove_pokemon( $spawn_timestamps, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
-  // Turn into an array if a single Pokemon was passed through
+  // Turn into an array if a single Pokemon was passed through.
   if ( ! is_array( $spawn_timestamps ) ) {
     $spawn_timestamps = [ $spawn_timestamps ];
   }
 
+  // Make an array of the remaining Pokemon, which we'll only add to if the Pokemon is not being removed.
   $remaining_pokemon = [];
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( in_array( $_pokemon->ts, $spawn_timestamps ) ) {
@@ -625,11 +623,12 @@ function slackemon_remove_pokemon( $spawn_timestamps, $user_id = USER_ID ) {
   }
 
   $pokemon_removed = count( $player_data->pokemon ) - count( $remaining_pokemon );
-  $xp_to_add = 1 === $pokemon_removed ? 10 : 5 * $pokemon_removed; // 10 XP for single transfer; 5 XP each for bulk
+  $xp_to_add = 1 === $pokemon_removed ? 10 : 5 * $pokemon_removed; // 10 XP for single transfer; 5 XP each for bulk.
   $player_data->pokemon = $remaining_pokemon;
 
-  if ( slackemon_save_player_data( $player_data, $user_id ) ) {
-    slackemon_add_xp( $xp_to_add );
+  $player_data->xp += $xp_to_add;
+
+  if ( slackemon_save_player_data( $player_data, $user_id, true ) ) {
     return $pokemon_removed;
   } else {
     return false;
@@ -639,25 +638,25 @@ function slackemon_remove_pokemon( $spawn_timestamps, $user_id = USER_ID ) {
 
 function slackemon_set_player_pokemon_sort_mode( $sort_mode = 'recent', $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->sort_mode = $sort_mode;
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_set_player_pokemon_sort_mode
 
 function slackemon_set_player_pokemon_type_mode( $type_mode = 'all_types', $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->type_mode = $type_mode;
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_set_player_pokemon_type_mode
 
 function slackemon_favourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( $spawn_ts == $_pokemon->ts ) {
@@ -665,13 +664,13 @@ function slackemon_favourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
     }
   }
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_favourite_pokemon
 
 function slackemon_unfavourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( $spawn_ts == $_pokemon->ts ) {
@@ -679,13 +678,13 @@ function slackemon_unfavourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
     }
   }
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_unfavourite_pokemon
 
 function slackemon_add_to_battle_team( $spawn_ts, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( $spawn_ts == $_pokemon->ts ) {
@@ -693,13 +692,13 @@ function slackemon_add_to_battle_team( $spawn_ts, $user_id = USER_ID ) {
     }
   }
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_add_to_battle_team
 
 function slackemon_remove_from_battle_team( $spawn_ts, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
+  $player_data = slackemon_get_player_data( $user_id, true );
 
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( $spawn_ts == $_pokemon->ts ) {
@@ -707,7 +706,7 @@ function slackemon_remove_from_battle_team( $spawn_ts, $user_id = USER_ID ) {
     }
   }
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_remove_from_battle_team
 
@@ -966,17 +965,21 @@ function slackemon_get_duplicate_pokemon( $user_id = USER_ID ) {
 /** Change the item a Pokemon is using. Can also be used to remove a held item by sending null as the item_id. */
 function slackemon_change_pokemon_held_item( $item_id, $spawn_ts, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
-  $pokemon     = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
+  $pokemon = slackemon_get_player_pokemon_data( $spawn_ts );
   
   // Return the old held item back to the bag
   if ( isset( $pokemon->held_item ) && $pokemon->held_item ) {
     slackemon_add_item( $pokemon->held_item, $user_id );
   }
 
+  // Get player data for writing, and re-get the same Pokemon from the new object
+  $player_data = slackemon_get_player_data( $user_id, true );
+  $pokemon     = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
+
+  // Update the held item on this Pokemon
   $pokemon->held_item = $item_id;
 
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_change_pokemon_held_item
 

@@ -6,11 +6,15 @@
  */
 
 /** Send a message to a Slack incoming webhook, given in response to a slash command or action invocation. */
-function send2slack( $message, $hook_url = '' ) {
+function slackemon_send2slack( $payload, $hook_url = '' ) {
   global $action, $data_folder;
 
-  // Supports either a single string message, or a standard Slack payload array
-  $payload = is_array( $message ) ? $message : [ 'text' => $message ];
+  // Supports a single string message, or a standard Slack payload array (incl. expressed as an object)
+  if ( is_object( $payload ) ) {
+    $payload = (array) $payload;
+  } else if ( is_string( $payload ) ) {
+    $payload = [ 'text' => $payload ];
+  }
 
   // Unlike Slack, default to mrkdwn being turned on if we haven't explicitly turned it off
   $payload['mrkdwn'] = isset( $payload['mrkdwn'] ) ? $payload['mrkdwn'] : true;
@@ -135,6 +139,34 @@ function slackemon_post2slack( $payload ) {
   return $response;
 
 } // Function slackemon_post2slack
+
+/**
+ * Assists with long-waiting actions, including while waiting to acquire a file lock, by advising the user and ensuring
+ * they don't involve any further actions. Only updates once per session.
+ */
+function slackemon_send_waiting_message_to_user() {
+  global $_slackemon_waiting_message_sent;
+
+  if ( $_slackemon_waiting_message_sent ) {
+    return;
+  }
+
+  if ( isset( $_REQUEST['action'] ) ) {
+
+    $action  = json_decode( $_REQUEST['action'] );
+    $message = $action->original_message;
+
+    foreach ( $message->attachments as $attachment ) {
+      $attachment->actions = [];
+    }
+
+    $message->attachments[ $action->attachment_id - 1 ]->footer = 'Loading... :loading:';
+
+    slackemon_send2slack( $message );
+    $_slackemon_waiting_message_sent = true;
+
+  } // If action
+} // Function slackemon_send_waiting_message_to_user
 
 /** Does what it says on the tin. */
 function slackemon_get_slack_user_full_name( $user_id = USER_ID ) {

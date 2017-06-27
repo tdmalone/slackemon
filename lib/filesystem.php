@@ -53,11 +53,13 @@ if (
  * DO NOT USE THIS FUNCTION FOR IMAGE CACHING. Image caching relies on its own method, and still needs local access
  * even when images are stored remotely.
  *
- * @param string $filename Name of the file to read.
- * @param string $purpose  The purpose of the read - 'cache' or 'store'.
+ * @param string $filename     Name of the file to read.
+ * @param string $purpose      The purpose of the read - 'cache' or 'store'.
+ * @param bool   $acquire_lock Whether to acquire a lock on the file for writing data back to it. Has no effect if the
+ *                             purpose of the read is 'cache'.
  * @link http://php.net/file_get_contents
  */
-function slackemon_file_get_contents( $filename, $purpose ) {
+function slackemon_file_get_contents( $filename, $purpose, $acquire_lock = false ) {
 
   switch ( slackemon_get_data_method( $purpose ) ) {
 
@@ -88,6 +90,13 @@ function slackemon_file_get_contents( $filename, $purpose ) {
 
     case 'aws':
 
+      // Augment S3 with a temporary local cache, if the file exists.
+      if ( 'cache' === $purpose && slackemon_file_exists( $filename, 'local' ) ) {
+        $return = slackemon_file_get_contents( $filename, 'local' );
+        slackemon_cache_debug( '', $filename, 'aws-file-get-augmented' );
+        return $return;
+      }
+
       global $slackemon_s3;
 
       try {
@@ -116,9 +125,21 @@ function slackemon_file_get_contents( $filename, $purpose ) {
 
       $return = $result['Body'];
 
+      // Facilitate augmenting S3 with a temporary local cache.
+      if ( 'cache' === $purpose ) {
+        slackemon_file_put_contents( $filename, $return, 'local' );
+      }
+
     break; // Case aws.
 
   } // Switch slackemon_get_data_method
+
+  // Acquire a lock if we have asked for one; if we can't get one we must return false
+  if ( 'store' === $purpose && $acquire_lock ) {
+    if ( ! slackemon_lock_file( $filename ) ) {
+      return false;
+    }
+  }
 
   if ( isset( $return ) ) {
     return $return;
@@ -142,11 +163,16 @@ function slackemon_file_get_contents( $filename, $purpose ) {
  * @param string $purpose  The purpose of the write - 'cache' or 'store'.
  * @link http://php.net/file_put_contents
  */
-function slackemon_file_put_contents( $filename, $data, $purpose ) {
+function slackemon_file_put_contents( $filename, $data, $purpose, $warn_if_not_locked = true ) {
 
   // Support $data being an array, like file_put_contents() does.
   if ( is_array( $data ) ) {
     $data = implode( '', $data );
+  }
+
+  // Warn if we're trying to write to a data store file that we don't own a lock on
+  if ( 'store' === $purpose && $warn_if_not_locked && ! slackemon_is_file_owned( $filename ) ) {
+    slackemon_lock_debug( 'WARNING: Writing to ' . $filename . ' without a file lock', true );
   }
 
   switch ( slackemon_get_data_method( $purpose ) ) {
@@ -275,8 +301,18 @@ function slackemon_file_exists( $filename, $purpose ) {
     break;
 
     case 'aws':
+
+      // Augment S3 with a temporary local cache.
+      if ( 'cache' === $purpose && slackemon_file_exists( $filename, 'local' ) ) {
+        slackemon_cache_debug( '', $filename, 'aws-file-exists-augmented' );
+        return true;
+      }
+
       global $slackemon_s3;
       $return = $slackemon_s3->doesObjectExist( SLACKEMON_DATA_BUCKET, slackemon_get_s3_key( $filename ) );
+
+      slackemon_cache_debug( '', $filename, 'aws-file-exists' );
+
     break;
 
   } // Switch slackemon_get_data_method
@@ -324,6 +360,13 @@ function slackemon_filemtime( $filename, $purpose ) {
 
     case 'aws':
 
+      // Augment S3 with a temporary local cache, if the file exists.
+      if ( 'cache' === $purpose && slackemon_file_exists( $filename, 'local' ) ) {
+        $return = slackemon_filemtime( $filename, 'local' );
+        slackemon_cache_debug( '', $filename, 'aws-file-mtime-augmented' );
+        return $return;
+      }
+
       global $slackemon_s3;
 
       try {
@@ -349,6 +392,8 @@ function slackemon_filemtime( $filename, $purpose ) {
       }
 
       $return = date_timestamp_get( $result['LastModified'] );
+
+      slackemon_cache_debug( '', $filename, 'aws-file-mtime' );
 
     break; // Case aws.
 
@@ -377,9 +422,9 @@ function slackemon_rename( $old_filename, $new_filename, $purpose ) {
     case 'local':
 
       // Make sure the folder exists first.
-      $folder = pathinfo( $new_filename, PATHINFO_DIRNAME );
-      if ( ! is_dir( $folder ) ) {
-        mkdir( $folder, 0777, true );
+      $new_folder = pathinfo( $new_filename, PATHINFO_DIRNAME );
+      if ( ! is_dir( $new_folder ) ) {
+        mkdir( $new_folder, 0777, true );
       }
 
       $return = rename( $old_filename, $new_filename );
@@ -393,7 +438,7 @@ function slackemon_rename( $old_filename, $new_filename, $purpose ) {
       // Possibly should also, if the unlink fails, undo the put.
 
       $data = slackemon_file_get_contents( $old_filename, $purpose );
-      slackemon_file_put_contents( $new_filename, $data, $purpose );
+      slackemon_file_put_contents( $new_filename, $data, $purpose, false ); // 'false' = no need to warn on no lock
       slackemon_unlink( $old_filename, $purpose );
 
     break;
@@ -494,7 +539,7 @@ function slackemon_get_files_by_prefix( $prefix, $purpose ) {
       $key = slackemon_get_pg_key( $prefix );
 
       $result = slackemon_pg_query(
-        "SELECT filename FROM {$key['table']} WHERE filename LIKE '{$key['filename']}%'"
+        "SELECT filename FROM {$key['table']} WHERE filename LIKE '{$key['filename']}%' ORDER BY filename ASC"
       );
 
       $return = array_map(
@@ -624,5 +669,131 @@ function slackemon_get_data_method( $purpose ) {
   return $method;
 
 } // Function slackemon_get_data_method
+
+function slackemon_lock_file( $filename ) {
+  global $_slackemon_file_locks;
+
+  // If file locking is not enabled, just return true so we don't prevent things from running
+  if ( ! SLACKEMON_ENABLE_FILE_LOCKING ) {
+    return true;
+  }
+
+  $lock_filename = slackemon_get_lock_filename( $filename );
+
+  while ( slackemon_file_exists( $lock_filename, 'store' ) ) {
+    slackemon_lock_debug( 'Waiting to acquire lock on ' . $filename . '...' );
+    slackemon_send_waiting_message_to_user();
+    sleep( 1 );
+    clearstatcache(); // Required to ensure the file_exists call doesn't rely on its cache
+  }
+
+  if ( slackemon_file_put_contents( $lock_filename, time(), 'store', false ) ) {
+    $_slackemon_file_locks[ md5( $filename ) ] = $filename;
+    slackemon_lock_debug( 'Lock acquired on ' . $filename );
+    return true;
+  } else {
+    slackemon_lock_debug( 'NOTICE: Lock COULD NOT be acquired on ' . $filename, true );
+    return false;
+  }
+
+} // Function slackemon_lock_file
+
+function slackemon_unlock_file( $filename ) {
+  global $_slackemon_file_locks;
+
+  if ( ! SLACKEMON_ENABLE_FILE_LOCKING ) {
+    return true;
+  }
+
+  $lock_filename = slackemon_get_lock_filename( $filename );
+
+  if ( slackemon_unlink( $lock_filename, 'store' ) ) {
+    slackemon_lock_debug( 'Lock removed on ' . $filename );
+    unset( $_slackemon_file_locks[ md5( $filename ) ] );
+    return true;
+  } else {
+    slackemon_lock_debug( 'WARNING: Lock COULD NOT be REMOVED on ' . $filename, true );
+    return false;
+  }
+
+} // Function slackemon_unlock_file
+
+function slackemon_is_file_owned( $filename ) {
+  global $_slackemon_file_locks;
+  return array_key_exists( md5( $filename ), (array) $_slackemon_file_locks );
+}
+
+function slackemon_remove_file_locks() {
+  global $_slackemon_file_locks;
+
+  if ( ! SLACKEMON_ENABLE_FILE_LOCKING || ! is_array( $_slackemon_file_locks ) || ! count( $_slackemon_file_locks ) ) {
+    return;
+  }
+
+  foreach ( $_slackemon_file_locks as $filename ) {
+
+    $lock_filename = slackemon_get_lock_filename( $filename );
+
+    if ( slackemon_unlink( $lock_filename, 'store' ) ) {
+      slackemon_lock_debug( 'Lock removed wholesale on ' . $filename );
+    } else {
+      slackemon_lock_debug( 'WARNING: Lock COULD NOT be REMOVED wholesale on ' . $filename, true );
+    }
+  }
+
+} // Function slackemon_remove_file_locks
+
+function slackemon_get_lock_filename( $filename ) {
+
+  $pathinfo     = pathinfo( $filename );
+  $folder_parts = explode( DIRECTORY_SEPARATOR, $pathinfo['dirname'] );
+  $final_folder = array_pop( $folder_parts );
+
+  $lock_folder  = join( DIRECTORY_SEPARATOR, $folder_parts ) . DIRECTORY_SEPARATOR . 'locks_' . $final_folder; 
+
+  if ( ! is_dir( $lock_folder ) ) {
+    mkdir( $lock_folder, 0777, true );
+  }
+
+  $lock_filename = $lock_folder . DIRECTORY_SEPARATOR . $pathinfo['basename'];
+
+  return $lock_filename;
+
+} // Function slackemon_get_lock_filename
+
+function slackemon_lock_debug( $message, $force_debug = false ) {
+
+  if ( ! $force_debug && ! SLACKEMON_LOCK_DEBUG ) {
+    return;
+  }
+
+  // Get the most recent relevant function that caused the lock debug message to be sent.
+  // Non-relevant functions include this current one, as well as the locking, unlocking, and file
+  // writing/reading functions - because all of those are involved in every lock/unlock process anyway.
+  $backtrace = debug_backtrace();
+  $functions_to_skip = [
+    __FUNCTION__,
+    'slackemon_lock_file',
+    'slackemon_unlock_file',
+    'slackemon_file_get_contents',
+    'slackemon_file_put_contents',
+    'slackemon_get_player_data',
+    'slackemon_save_player_data',
+    'slackemon_get_battle_data',
+    'slackemon_save_battle_data',
+  ];
+  foreach ( $backtrace as $trace_level ) {
+    if ( in_array( $trace_level['function'], $functions_to_skip ) ) {
+      continue;
+    }
+
+    $backtrace_function = $trace_level['function'];
+    break;
+  }
+
+  // Log the message
+  slackemon_error_log( $message . ' (' . $backtrace_function . ')' );
+
+} // Function slackemon_lock_debug
 
 // The end!

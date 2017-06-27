@@ -7,8 +7,7 @@
 
 function slackemon_evolve_user_pokemon( $spawn_ts, $evolve_to_id = null, $user_id = USER_ID ) {
 
-  $player_data = slackemon_get_player_data( $user_id );
-  $user_pokemon = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
+  $user_pokemon = slackemon_get_player_pokemon_data( $spawn_ts );
 
   if ( ! $user_pokemon ) {
     return false;
@@ -26,6 +25,10 @@ function slackemon_evolve_user_pokemon( $spawn_ts, $evolve_to_id = null, $user_i
 
   $new_pokemon_data = slackemon_get_pokemon_data( $evolve_to_id );
   $new_pokemon_species = slackemon_get_pokemon_species_data( $evolve_to_id );
+
+  // Get player data for writing, and re-get the same Pokemon from the new object
+  $player_data  = slackemon_get_player_data( $user_id, true );
+  $user_pokemon = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
 
   // Types
   $types = [];
@@ -98,16 +101,16 @@ function slackemon_evolve_user_pokemon( $spawn_ts, $evolve_to_id = null, $user_i
         $xp_to_add += 100; // Bonus on every 10
       }
 
-      slackemon_add_xp( $xp_to_add, $user_id );
+      $player_data->xp += $xp_to_add;
       $pokedex_entry->caught++;
 
-      return slackemon_save_player_data( $player_data, $user_id );
+      // We've found the Pokedex entry we want, so no need to loop through the rest
+      break;
 
     }
   }
 
-  // We should have returned above, but just in case we couldn't find the Pokedex entry for some reason...
-  return slackemon_save_player_data( $player_data, $user_id );
+  return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_evolve_user_pokemon
 
@@ -451,130 +454,3 @@ function slackemon_record_impossible_evolution( $evolution, $detail, $reason = '
 } // Function slackemon_record_impossible_evolution
 
 // The end!
-
-// ****************************
-// Sample evolution chain data:
-
-/*
-{
-  "baby_trigger_item": null,
-  "id": 138,
-  "chain":  {
-    "evolution_details": [],
-    "evolves_to":  [{
-      "evolution_details":  [
-        {
-          "min_level": 22,
-          "min_beauty": null,
-          "time_of_day": "",
-          "gender": null,
-          "relative_physical_stats": null,
-          "needs_overworld_rain": false,
-          "turn_upside_down": false,
-          "item": null,
-          "trigger":  {
-            "url": "http: \/\/pokeapi.co\/api\/v2\/evolution-trigger\/1\/",
-            "name": "level-up"
-          },
-          "known_move_type": null,
-          "min_affection": null,
-          "party_type": null,
-          "trade_species": null,
-          "party_species": null,
-          "min_happiness": null,
-          "held_item": null,
-          "known_move": null,
-          "location": null
-        }
-      ],
-      "evolves_to":  [
-      ],
-      "is_baby": false,
-      "species":  {
-        "url": "http: \/\/pokeapi.co\/api\/v2\/pokemon-species\/277\/",
-        "name": "swellow"
-      }
-    }],
-    "is_baby": false,
-    "species":  {
-      "url": "http: \/\/pokeapi.co\/api\/v2\/pokemon-species\/276\/",
-      "name": "taillow"
-    }
-  }
-}
-
-{
-  "baby_trigger_item": null,
-  "id": 17,
-  "chain": {
-    "evolution_details": [],
-    "evolves_to": [{
-      "evolution_details": [{
-        "min_level": 22,
-        "min_beauty": null,
-        "time_of_day": "",
-        "gender": null,
-        "relative_physical_stats": null,
-        "needs_overworld_rain": false,
-        "turn_upside_down": false,
-        "item": null,
-        "trigger": {
-          "url": "http:\/\/pokeapi.co\/api\/v2\/evolution-trigger\/1\/",
-          "name": "level-up"
-        },
-        "known_move_type": null,
-        "min_affection": null,
-        "party_type": null,
-        "trade_species": null,
-        "party_species": null,
-        "min_happiness": null,
-        "held_item": null,
-        "known_move": null,
-        "location": null
-      }],
-      "evolves_to": [{
-        "evolution_details": [{
-          "min_level": null,
-          "min_beauty": null,
-          "time_of_day": "",
-          "gender": null,
-          "relative_physical_stats": null,
-          "needs_overworld_rain": false,
-          "turn_upside_down": false,
-          "item": null,
-          "trigger": {
-            "url": "http:\/\/pokeapi.co\/api\/v2\/evolution-trigger\/1\/",
-            "name": "level-up"
-          },
-          "known_move_type": null,
-          "min_affection": null,
-          "party_type": null,
-          "trade_species": null,
-          "party_species": null,
-          "min_happiness": 220,
-          "held_item": null,
-          "known_move": null,
-          "location": null
-        }],
-        "evolves_to": [],
-        "is_baby": false,
-        "species": {
-          "url": "http:\/\/pokeapi.co\/api\/v2\/pokemon-species\/169\/",
-          "name": "crobat"
-        }
-      }],
-      "is_baby": false,
-      "species": {
-        "url": "http:\/\/pokeapi.co\/api\/v2\/pokemon-species\/42\/",
-        "name": "golbat"
-      }
-    }],
-    "is_baby": false,
-    "species": {
-      "url": "http:\/\/pokeapi.co\/api\/v2\/pokemon-species\/41\/",
-      "name": "zubat"
-    }
-  }
-}
-
-*/
