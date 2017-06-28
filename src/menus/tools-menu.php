@@ -231,7 +231,7 @@ function slackemon_bulk_transfer_tool( $do_transfers = false ) {
 
 } // Function slackemon_bulk_transfer_tool
 
-function slackemon_move_deleter_tool( $spawn_ts ) {
+function slackemon_move_deleter_tool( $spawn_ts, $move_just_deleted = '', $move_deletion_successful = null ) {
 
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
 
@@ -239,7 +239,7 @@ function slackemon_move_deleter_tool( $spawn_ts ) {
     'text' => ':radioactive_sign: *Mᴏᴠᴇ Dᴇʟᴇᴛᴇʀ*' . "\n", // Move Deleter
   ];
 
-  $pokemon = slackemon_get_player_pokemon_data( $spawn_ts );
+  $pokemon      = slackemon_get_player_pokemon_data( $spawn_ts );
   $pokemon_data = slackemon_get_pokemon_data( $pokemon->pokedex );
 
   $message['text'] .= (
@@ -252,6 +252,19 @@ function slackemon_move_deleter_tool( $spawn_ts ) {
 
   $message['attachments'] = [];
   $final_actions = [];
+
+  if ( $move_just_deleted ) {
+    $message['attachments'][] = [
+      'color' => '#333333',
+      'text'  => (
+        $move_deletion_successful ?
+        ':white_check_mark: *' . slackemon_readable( $pokemon->name ) . ' has ' .
+        'forgotten how to use ' . slackemon_readable( $move_just_deleted ) . '.*' :
+        ':exclamation: *Sorry, an error occurred getting ' . slackemon_readable( $pokemon->name ) . ' to ' .
+        'forget ' . slackemon_readable( $move_just_deleted ) . '.*'
+      ),
+    ];
+  }
 
   foreach ( $pokemon->moves as $move ) {
 
@@ -277,7 +290,7 @@ function slackemon_move_deleter_tool( $spawn_ts ) {
           'This move may _possibly_ be taught again by using a machine.' :
           '_It may not be possible to learn this move again._'
         ) . "\n\n" .
-        '*' . slackemon_emojify_types( slackemon_readable( $move_data->type->name ) ) . '* • ' .
+        '' . slackemon_emojify_types( slackemon_readable( $move_data->type->name ) ) . ' • ' .
         slackemon_readable( $move_data->damage_class->name ) . ' • ' .
         $move_data->pp . ' PP' .
         ( $move_data->accuracy ? ' • ' . $move_data->accuracy . ' accuracy' : '' )
@@ -299,11 +312,21 @@ function slackemon_move_deleter_tool( $spawn_ts ) {
       ],
     ];
 
-    // Display all actions together on desktop, otherwise with each attachment on mobile.
-    if ( $is_desktop ) {
-      $final_actions[] = $action;
+    if ( count( $pokemon->moves ) > 1 ) {
+
+      // Display all actions together on desktop, otherwise with each attachment on mobile.
+      if ( $is_desktop ) {
+        $final_actions[] = $action;
+      } else {
+        $attachment['actions'] = [ $action ];
+      }
+
     } else {
-      $attachment['actions'] = [ $action ];
+      $attachment['text'] .= (
+        "\n\n" .
+        '_' . slackemon_readable( $pokemon->name ) . ' cannot forget ' . slackemon_readable( $move->name ) . ', ' .
+        'as it is the only move ' . slackemon_get_gender_pronoun( $pokemon->gender ) . ' knows!_'
+      );
     }
 
     $message['attachments'][] = $attachment;
