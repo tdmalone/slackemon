@@ -207,9 +207,15 @@ define( 'SLACKEMON_ANIMATED_GIF_BASE',
 );
 
 // The number of seconds that will be waited for when calling a background command/action.
-// You will usually want 1 second for this, but some servers may need longer.
+// You will usually want 1 second for this, but some servers have been observed to need 2 seconds.
 // Keep in mind that too long will cause Slack itself to timeout (it allows up to 3 seconds for the *total* roundtrip).
 define( 'SLACKEMON_CURL_TIMEOUT', getenv( 'SLACKEMON_CURL_TIMEOUT' ) ?: 1 );
+
+// When running Slackemon on a server behind a proxy, you may find that calling background commands/actions takes
+// longer than it should. When in this situation, you can define a local URL such as 'http://localhost/'.
+// Defaults to whatever the inbound URL is set to.
+// Please always include the trailing slash.
+define( 'SLACKEMON_LOCAL_URL', getenv( 'SLACKEMON_LOCAL_URL' ) ?: SLACKEMON_INBOUND_URL );
 
 // In-message pagination configuration.
 // Don't set these values too high - you might hit the Slack attachment limit.
