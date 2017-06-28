@@ -130,9 +130,9 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
       }
     }
 
-    $pokemon_evolution = '';
-    $evolution_data  = slackemon_get_pokemon_evolution_data( $pokemon->pokedex );
-    $evolution_chain = slackemon_get_evolution_chain_pokemon( $evolution_data->chain, $pokemon->pokedex );
+    $pokemon_evolution  = '';
+    $evolution_data     = slackemon_get_pokemon_evolution_data( $pokemon->pokedex );
+    $evolution_chain    = slackemon_get_evolution_chain_pokemon( $evolution_data->chain, $pokemon->pokedex );
     $possible_evolution = false;
 
     foreach ( $evolution_chain->evolves_to as $_evolution ) {

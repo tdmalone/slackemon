@@ -242,8 +242,16 @@ function slackemon_move_deleter_tool( $spawn_ts ) {
   $pokemon = slackemon_get_player_pokemon_data( $spawn_ts );
   $pokemon_data = slackemon_get_pokemon_data( $pokemon->pokedex );
 
-  $message['text'] .= 'Coming shortly...';
+  $message['text'] .= (
+    'Select a move for :' . $pokemon->name . ': *' . slackemon_readable( $pokemon->name ) . '* to forget.' . "\n" .
+    $pokemon->cp . ' CP • ' .
+    'L' . floor( $pokemon->level ) . ' • ' .
+    slackemon_appraise_ivs( $pokemon->ivs, false ) . ' (' . slackemon_get_iv_percentage( $pokemon->ivs ) .'%) • ' .
+    slackemon_get_evolution_chain( $pokemon->pokedex, '_(does not evolve)_' )
+  );
+
   $message['attachments'] = [];
+  $final_actions = [];
 
   foreach ( $pokemon->moves as $move ) {
 
@@ -259,54 +267,55 @@ function slackemon_move_deleter_tool( $spawn_ts ) {
       }
     }
 
-    $message['attachments'][] = [
-      'title'  => slackemon_readable( $move->name ) . ' (x' . ( $move_data->power ? $move_data->power : '0' ) . ')',
-      'text'   => (
+    $attachment = [
+      'color' => slackemon_get_type_color( $move_data->type->name ),
+      'title' => slackemon_readable( $move->name ) . ' (x' . ( $move_data->power ? $move_data->power : '0' ) . ')',
+      'text'  => (
         slackemon_get_flavour_text( $move_data ) . ' ' .
         (
           in_array( 'machine', $learn_methods ) ?
           'This move may _possibly_ be taught again by using a machine.' :
-          '*It may not be possible to learn this move again.*'
-        )
+          '_It may not be possible to learn this move again._'
+        ) . "\n\n" .
+        '*' . slackemon_emojify_types( slackemon_readable( $move_data->type->name ) ) . '* • ' .
+        slackemon_readable( $move_data->damage_class->name ) . ' • ' .
+        $move_data->pp . ' PP' .
+        ( $move_data->accuracy ? ' • ' . $move_data->accuracy . ' accuracy' : '' )
       ),
-      'fields' => [
-        [
-          'title' => 'Type',
-          'value' => slackemon_emojify_types( slackemon_readable( $move_data->type->name ) ),
-          'short' => true,
-        ], [
-          'title' => 'Damage Type',
-          'value' => slackemon_readable( $move_data->damage_class->name ),
-          'short' => true,
-        ], [
-          'title' => 'PP',
-          'value' => $move_data->pp,
-          'short' => true,
-        ], [
-          'title' => 'Accuracy',
-          'value' => $move_data->accuracy ? $move_data->accuracy : 'n/a',
-          'short' => true,
-        ], 
-      ],
-      'actions' => [
-        [
-          'name'  => 'tools/move-deleter/do',
-          'text'  => 'Forget this Move',
-          'value' => $spawn_ts . '/' . $move->name,
-          'type'  => 'button',
-          'style' => 'danger',
-          'confirm' => [
-            'title' => 'Are you sure?',
-            'text'  => (
-              'Are you sure you want ' . slackemon_readable( $pokemon->name ) . ' ' .
-              'to forget ' . slackemon_readable( $move->name ) . '? This cannot be undone.'
-            ),
-          ],
-        ],
-      ],
-      'color' => 'warning',
     ];
 
+    $action = [
+      'name'  => 'tools/move-deleter/do',
+      'text'  => 'Forget ' . slackemon_readable( $move->name ),
+      'value' => $spawn_ts . '/' . $move->name,
+      'type'  => 'button',
+      'style' => 'danger',
+      'confirm' => [
+        'title' => 'Are you sure?',
+        'text'  => (
+          'Are you sure you want ' . slackemon_readable( $pokemon->name ) . ' ' .
+          'to forget ' . slackemon_readable( $move->name ) . '? This cannot be undone.'
+        ),
+      ],
+    ];
+
+    // Display all actions together on desktop, otherwise with each attachment on mobile.
+    if ( $is_desktop ) {
+      $final_actions[] = $action;
+    } else {
+      $attachment['actions'] = [ $action ];
+    }
+
+    $message['attachments'][] = $attachment;
+
+  } // Foreach move
+
+  if ( count( $final_actions ) ) {
+    $message['attachments'][] = [
+      'fallback' => 'Move removal action buttons',
+      'actions'  => $final_actions,
+      'color'    => '#333333',
+    ];
   }
 
   $message['attachments'][] = slackemon_back_to_menu_attachment();
