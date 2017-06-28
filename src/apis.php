@@ -283,7 +283,7 @@ function slackemon_do_action_response( $message ) {
 
 } // Function slackemon_do_action_response
 
-function slackemon_get_flavour_text( $object ) {
+function slackemon_get_flavour_text( $object, $clean_up = true ) {
 
   $flavour_text = '';
 
@@ -298,11 +298,15 @@ function slackemon_get_flavour_text( $object ) {
     }
   }
 
+  if ( $clean_up ) {
+    $flavour_text = str_replace( "\n", ' ', $flavour_text );
+  }
+
   return $flavour_text;
 
 } // Function slackemon_get_flavour_text
 
-function slackemon_get_effect_text( $object ) {
+function slackemon_get_effect_text( $object, $clean_up = true ) {
 
   $effect_text = '';
 
@@ -315,6 +319,10 @@ function slackemon_get_effect_text( $object ) {
       $effect_text = $_entry->effect;
       break;
     }
+  }
+
+  if ( $clean_up ) {
+    $effect_text = str_replace( "\n", ' ', $effect_text );
   }
 
   return $effect_text;

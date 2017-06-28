@@ -7,11 +7,11 @@
 
 function slackemon_get_main_menu() {
 
-  $player_data = slackemon_get_player_data();
-  $latest_news = slackemon_get_latest_news();
-  $available_regions = slackemon_get_regions();
-  $version_string = slackemon_get_version_string();
-  $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
+  $player_data        = slackemon_get_player_data();
+  $latest_news        = slackemon_get_latest_news();
+  $available_regions  = slackemon_get_regions();
+  $version_string     = slackemon_get_version_string();
+  $is_desktop         = 'desktop' === slackemon_get_player_menu_mode();
   $pokemon_array_keys = array_keys( $player_data->pokemon );
 
   $most_recent_pokemon = (
@@ -229,20 +229,67 @@ function slackemon_get_main_menu() {
 
 } // Function slackemon_get_main_menu
 
-function slackemon_back_to_menu_attachment() {
+function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
+
+  // Supports main, pokemon, items, battles, travel, achievements, and tools.
+
+  $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
+  $actions    = [];
+
+  foreach ( $menus as $menu ) {
+
+    $action_name = $menu;
+    $menu_emoji  = ':leftwards_arrow_with_hook:';
+
+    // Some action names need to be re-written, and we also need to assign the correct emoji.
+    switch ( $menu ) {
+
+      case 'main':
+        $action_name = 'menu';
+        $menu_emoji  = ':leftwards_arrow_with_hook:';
+      break;
+
+      case 'pokemon':
+        $action_name = 'pokemon/list';
+        $menu_emoji  = ( $is_desktop ? ':pikachu_bounce:' : ':monkey:' );
+      break;
+
+      case 'items':
+        $menu_emoji = ':handbag:';
+      break;
+
+      case 'battles':
+        $menu_emoji = ':facepunch:';
+      break;
+
+      case 'travel':
+        $menu_emoji = ':world_map:';
+      break;
+
+      case 'achievements':
+        $menu_emoji = ':sports_medal:';
+      break;
+
+      case 'tools':
+        $menu_emoji = ':hammer:';
+      break;
+
+    }
+
+    $actions[] = [
+      'name' => $action_name,
+      'text' => $menu_emoji . ' ' . ucfirst( $menu ) .' Menu',
+      'type' => 'button',
+      'value' => 'main',
+    ];
+
+  }
 
   $attachment = [
     'fallback' => 'Back to Menu',
     'color' => '#333333',
     'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-    'actions' => [
-      [
-        'name' => 'menu',
-        'text' => ':leftwards_arrow_with_hook: Main Menu',
-        'type' => 'button',
-        'value' => 'main',
-      ],
-    ],
+    'actions' => $actions,
   ];
 
   return $attachment;

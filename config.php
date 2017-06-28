@@ -73,7 +73,7 @@ define( 'SLACKEMON_SLASH_COMMAND', getenv( 'SLACKEMON_SLASH_COMMAND' ) ?: '/slac
 // Examples:
 // 'This is a single news item'
 // ':simple_smile: A news item with a smiley!|Another news item'
-define( 'SLACKEMON_ADDITIONAL_NEWS', getenv( 'SLACKEMON_ADDITIONAL_NEWS' ) ?: '' );
+define( 'SLACKEMON_ADDITIONAL_NEWS', trim( getenv( 'SLACKEMON_ADDITIONAL_NEWS' ), '"' ) ?: '' );
 
 // The regions that players can travel to in order to catch Pokemon, and the default region that new players start in.
 // MAKE SURE YOUR DEFAULT REGION IS INCLUDED AS AN AVAILABLE REGION!
@@ -196,7 +196,7 @@ define( 'SLACKEMON_ACTION_CALLBACK_ID', getenv( 'SLACKEMON_ACTION_CALLBACK_ID' )
 define( 'SLACKEMON_TABLE_PREFIX',       getenv( 'SLACKEMON_TABLE_PREFIX'       ) ?: 'slackemon_' );
 
 // Parameters sent to Slack to control the appearance of Slackemon messages.
-define( 'SLACKEMON_USERNAME', getenv( 'SLACKEMON_USERNAME' ) ?: 'Slackémon'  );
+define( 'SLACKEMON_USERNAME', trim( getenv( 'SLACKEMON_USERNAME' ), '"' ) ?: 'Slackémon'  );
 define( 'SLACKEMON_ICON',     getenv( 'SLACKEMON_ICON'     ) ?: ':pokeball:' );
 
 // The base URL used for all animated Pokemon sprite GIFs.

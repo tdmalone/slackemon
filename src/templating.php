@@ -128,6 +128,37 @@ function slackemon_emojify_types( $type_string, $include_text = true, $emoji_pos
 
 } // Function slackemon_emojify_types
 
+function slackemon_get_type_color( $type ) {
+
+  $colors = [
+    'bug'      => '#b3d76e',
+    'dark'     => '#68487d',
+    'dragon'   => '#a7132e',
+    'electric' => '#ecda09',
+    'fairy'    => '#fb5ed4',
+    'fighting' => '#f3a32a',
+    'fire'     => '#e65822',
+    'flying'   => '#a1d8e6',
+    'ghost'    => '#46345e',
+    'grass'    => '#2ecc71',
+    'ground'   => '#967b4b',
+    'ice'      => '#54cdd4',
+    'normal'   => '#deb19c',
+    'poison'   => '#a27498',
+    'psychic'  => '#8845c6',
+    'rock'     => '#959ca6',
+    'steel'    => '#91a7be',
+    'water'    => '#1073a2',
+  ];
+
+  if ( isset( $colors[ $type ] ) ) {
+    return $colors[ $type ];
+  }
+  
+  return '';
+
+} // Function slackemon_get_type_color
+
 function slackemon_get_happiness_emoji( $happiness_rate ) {
 
   // For reference, possible base happiness rates are 0, 35, 70, 90, 100 and 140
@@ -200,9 +231,9 @@ function slackemon_get_nature_emoji( $nature ) {
 
   if ( isset( $emoji[ $nature ] ) ) {
     return $emoji[ $nature ];
-  } else {
-    return '';
   }
+  
+  return '';
 
 } // Function slackemon_get_nature_emoji
 

@@ -302,14 +302,27 @@ function slackemon_handle_action( $action ) {
         break;
 
         case 'bulk-transfer':
-          $message = slackemon_get_bulk_transfer_menu();
+          $message = slackemon_bulk_transfer_tool();
         break;
 
         case 'bulk-transfer/do':
-          $message = slackemon_get_bulk_transfer_menu( true );
+          $message = slackemon_bulk_transfer_tool( true );
         break;
 
       }
+    break;
+
+    case 'tools/move-deleter':
+      $spawn_ts = $action_value;
+      $message = slackemon_move_deleter_tool( $spawn_ts );
+    break;
+
+    case 'tools/move-deleter/do':
+      $action_value = explode( '/', $action_value );
+      $spawn_ts     = $action_value[0];
+      $move_name    = $action_value[1];
+      $result       = slackemon_delete_user_pokemon_move( $spawn_ts, $move_name );
+      $message      = slackemon_move_deleter_tool( $spawn_ts, $move_name, $result );
     break;
 
     default:

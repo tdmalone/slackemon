@@ -368,4 +368,37 @@ function slackemon_get_user_teachable_pokemon( $move_name, $cache_mode = '', $us
 
 } // Function slackemon_get_user_teachable_pokemon
 
+function slackemon_delete_user_pokemon_move( $spawn_ts, $move_name, $user_id = USER_ID ) {
+
+  // Get player data for writing.
+  $player_data = slackemon_get_player_data( $user_id, true );
+  $pokemon     = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
+
+  // Protect against deleting a move if only one remains.
+  if ( count( $pokemon->moves ) <= 1 ) {
+    slackemon_save_player_data( $player_data, $user_id, true );
+    return false;
+  }
+
+  foreach ( $pokemon->moves as $key => $move ) {
+    if ( $move->name === $move_name ) {
+      $move_found = true;
+      unset( $pokemon->moves[ $key ] );
+      break;
+    }
+  }
+
+  // Return false if we didn't find the move we were after, for some reason.
+  if ( ! $move_found ) {
+    slackemon_save_player_data( $player_data, $user_id, true );
+    return false;
+  }
+
+  // Re-index keys
+  $pokemon->moves = array_values( $pokemon->moves );
+
+  return slackemon_save_player_data( $player_data, $user_id, true );
+
+} // Function slackemon_delete_user_pokemon_move
+
 // The end!
