@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
-set -x              # Output to stdout every command that is run
-`dirname $0`/stop   # Run the stop script
-`dirname $0`/start  # Run the start script
+set -x              # Output to stdout every command that is run.
+`dirname $0`/stop   # Run the stop script.
+`dirname $0`/start  # Run the start script.

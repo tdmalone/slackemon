@@ -154,8 +154,6 @@ function slackemon_build_background_url( $path ) {
 
   $background_url = SLACKEMON_LOCAL_URL . $path;
 
-  error_log( $background_url );
-
   return $background_url;
 
 } // Function slackemon_build_background_url
