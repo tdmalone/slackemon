@@ -246,7 +246,8 @@ function slackemon_move_deleter_tool( $spawn_ts, $move_just_deleted = '', $move_
     'Select a move for :' . $pokemon->name . ': *' . slackemon_readable( $pokemon->name ) . '* to forget.' . "\n" .
     $pokemon->cp . ' CP • ' .
     'L' . floor( $pokemon->level ) . ' • ' .
-    slackemon_appraise_ivs( $pokemon->ivs, false ) . ' (' . slackemon_get_iv_percentage( $pokemon->ivs ) .'%) • ' .
+    slackemon_appraise_ivs( $pokemon->ivs, false ) . ' (' . slackemon_get_iv_percentage( $pokemon->ivs ) .'%)' .
+    ( $is_desktop ? ' • ' : "\n" ) .
     slackemon_get_evolution_chain( $pokemon->pokedex, '_(does not evolve)_' )
   );
 
@@ -341,7 +342,7 @@ function slackemon_move_deleter_tool( $spawn_ts, $move_just_deleted = '', $move_
     ];
   }
 
-  $message['attachments'][] = slackemon_back_to_menu_attachment();
+  $message['attachments'][] = slackemon_back_to_menu_attachment( [ 'tools', 'main' ] );
 
   return $message;
 
