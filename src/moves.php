@@ -394,6 +394,9 @@ function slackemon_delete_user_pokemon_move( $spawn_ts, $move_name, $user_id = U
     return false;
   }
 
+  // Re-index keys
+  $pokemon->moves = array_values( $pokemon->moves );
+
   return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_delete_user_pokemon_move
