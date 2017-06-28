@@ -152,11 +152,9 @@ function slackemon_get_item_data( $item_name_or_id ) {
 
   $item_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/' . $item_name_or_id . '/' ) );
 
-  if ( ! $item_data ) {
-    slackemon_error_log( 'Error retrieving item data for item ' . $item_name_or_id );
-  }
-  
-  if ( $item_data ) {
+  if ( ! $item_data || ( isset( $item_data->detail ) && 'Not found.' === $item_data->detail ) ) {
+    slackemon_error_log( 'Error retrieving item data for item ' . $item_name_or_id . '.' );
+  } else if ( $item_data ) {
 
     // Potential item category rewrite
     if ( isset( $item_data->category->name ) ) {
