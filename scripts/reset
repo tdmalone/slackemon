@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 
-# Resets and restarts the Slackemon environment in Docker Compose
-# YOU WILL LOSE ANY DATA STORED IN POSTGRES
+# Resets and restarts the Slackemon environment in Docker Compose.
+# YOU WILL LOSE ANY DATA STORED IN POSTGRES.
 
-set -x                              # Output to stdout every command that is run
-docker-compose down                 # Stops and removes the Docker Compose containers
-docker volume rm slackemon_db_data  # Remove Postgres data volume
+set -x                              # Output to stdout every command that is run.
+docker-compose down                 # Stops and removes the Docker Compose containers.
+docker volume rm slackemon_db_data  # Remove Postgres data volume.
+
+# Run user stop script, if it exists.
+if [ -f `dirname $0`/stop.local ]; then
+   `dirname $0`/stop.local
+fi
+
 `dirname $0`/start                  # Run the start script

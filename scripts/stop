@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
 
-set -x               # Output to stdout every command that is run
-docker-compose stop  # Stop the Docker Compose containers
+set -x               # Output to stdout every command that is run.
+docker-compose stop  # Stop the Docker Compose containers.
+
+# Run user stop script, if it exists.
+if [ -f `dirname $0`/stop.local ]; then
+   `dirname $0`/stop.local
+fi
