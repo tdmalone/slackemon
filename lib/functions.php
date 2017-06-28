@@ -151,21 +151,10 @@ function slackemon_run_in_background( $data, $path ) {
 
 /** Builds URLs for background command and action runs, where Slackemon basically calls itself. */
 function slackemon_build_background_url( $path ) {
-  $background_url = '';
 
-  // TODO: Test use of $_SERVER['HTTPS'] here as well
-  $protocol = isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ? $_SERVER['HTTP_X_FORWARDED_PROTO'] : 'http';
+  $background_url = SLACKEMON_LOCAL_URL . $path;
 
-  $background_url .= $protocol . '://' . $_SERVER['HTTP_HOST'];
-
-  $background_url .= (
-    80 != $_SERVER['SERVER_PORT'] && 443 != $_SERVER['SERVER_PORT'] ?
-    ':' . $_SERVER['SERVER_PORT'] :
-    ''
-  );
-
-  $background_url .= str_replace( basename( $_SERVER['SCRIPT_NAME'] ), '', $_SERVER['SCRIPT_NAME'] );
-  $background_url .= $path;
+  error_log( $background_url );
 
   return $background_url;
 
