@@ -57,6 +57,11 @@ function slackemon_handle_command( $args ) {
         return slackemon_exit();
       break;
 
+      case 'clean-up':
+        slackemon_clean_up();
+        return slackemon_exit();
+      break;
+
       /**
        * Commands for dev/debug use only.
        */

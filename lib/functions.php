@@ -283,4 +283,29 @@ function slackemon_debug_backtrace( $levels = 3, $skip_first = false, $ignore_ar
 
 } // Function slackemon_debug_backtrace
 
+/** Cleans up stale files. Generally run regularly by cron. */
+function slackemon_clean_up() {
+  global $data_folder;
+
+  $folders_to_clean = [
+    'battles_active',
+    'battles_complete',
+    'battles_invites',
+    'moves',
+    'spawns',
+  ];
+
+  foreach ( $folders_to_clean as $folder ) {
+
+    $files = slackemon_get_files_by_prefix( $data_folder . '/' . $folder . '/', 'store' );
+
+    foreach ( $files as $file ) {
+      if ( slackemon_filemtime( $file, 'store' ) < time() - HOUR_IN_SECONDS * 24 ) {
+        slackemon_unlink( $file, 'store' );
+      }
+    }
+
+  } // Foreach folder
+} // Function slackemon_clean_up
+
 // The end!

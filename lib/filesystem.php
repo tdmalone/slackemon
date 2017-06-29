@@ -522,7 +522,8 @@ function slackemon_unlink( $filename, $purpose ) {
 /**
  * Sort of a replacement for PHP's glob() function, that supports S3's prefixes search if using S3 as the data cache.
  *
- * @param string $prefix  The filename prefix to search for.
+ * @param string $prefix  The filename prefix to search for. To work properly across each storage method, this should
+ *                        generally be in the format `$data_folder . '/folder-name/'`.
  * @param string $purpose The purpose of the search - 'cache' or 'store'.
  * @link http://php.net/glob
  */
