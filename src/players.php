@@ -433,4 +433,80 @@ function slackemon_set_player_menu_mode( $menu_mode, $user_id = USER_ID ) {
 
 } // Function slackemon_set_player_menu_mode
 
+/**
+ * Scaffolds a test player file with the requested number of random spawns. May take some time to complete.
+ * For efficiency, keeps the player file locked through-out.
+ *
+ * Side effect: runs clean-up (up to the second) so it can be assured of unique spawn timestamps.
+ */
+function slackemon_scaffold_player_file( $spawn_count = 10, $user_id = USER_ID ) {
+
+  $max_level_no   = 100;
+  $max_pokemon_no = 721; // Max available in PokeAPI
+
+  slackemon_clean_up( 0 );
+
+  $spawn_trigger = [
+    'type'    => 'scaffold',
+    'user_id' => USER_ID, // This should generally remain as USER_ID not $user_id because the trigger is meant to be
+                          // the user that actually triggered the spawn, not neccessarily the user the spawn was for.
+  ];
+
+  $player_data  = slackemon_get_player_data( $user_id, true );
+  $spawn_region = slackemon_get_player_region();
+
+  // Since we have already cleaned up all prior spawns to ensure uniqueness, we'll go back at least a minute plus
+  // our total spawn count in seconds, and then increment the timestamp after each spawn. This ensures that even if
+  // this is fast, our spawn timestamps will be unique, and even if a real spawn happens at the same time, it will
+  // also still be unique.
+  $spawn_timestamp = time() - MINUTE_IN_SECONDS - $spawn_count;
+
+  slackemon_spawn_debug( 'Scaffolding ' . $spawn_count . ' random spawns for ' . $user_id . '...' );
+
+  for ( $i = 1; $i <= $spawn_count; $i++ ) {
+
+    $spawn_timestamp      = $spawn_timestamp + 1;
+
+    // Use the same item spawn chance as the main spawner.
+    if ( random_int( 1, 100 ) <= SLACKEMON_ITEM_SPAWN_CHANCE ) {
+      $spawn_specific_id    = 'item';
+      $spawn_specific_level = false;
+    } else {
+      $spawn_specific_id    = random_int( 1, $max_pokemon_no );
+      $spawn_specific_level = random_int( 1, $max_level_no   );
+    }
+
+    $spawn_data = slackemon_spawn(
+      $spawn_trigger, $spawn_region, $spawn_timestamp, $spawn_specific_id, $spawn_specific_level
+    );
+
+    // Recursively convert to a simple object.
+    $spawn_data = json_decode( json_encode( $spawn_data ) );
+
+    // Clean up and add to player's collection.
+    if ( 'item' === $spawn_specific_id ) {
+
+      unset( $spawn_data->region );
+      unset( $spawn_data->description );
+      unset( $spawn_data->users );
+
+      $player_data->items[] = $spawn_data;
+
+    } else {
+
+      $spawn_data->is_battle_team = false;
+      $spawn_data->is_favourite   = false;
+
+      unset( $spawn_data->users );
+
+      $player_data->pokemon[] = $spawn_data;
+
+    }
+
+  } // For spawn_count
+
+  return slackemon_save_player_data( $player_data, $user_id, true );
+
+} // Function slackemon_scaffold_player_file
+
 // The end!

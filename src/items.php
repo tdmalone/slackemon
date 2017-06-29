@@ -115,7 +115,7 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
     'users'       => new stdClass(),
   ];
 
-  if ( slackemon_save_spawn_data( $spawn ) ) {
+  if ( 'scaffold' !== $trigger['type'] && slackemon_save_spawn_data( $spawn ) ) {
     slackemon_notify_item_spawn( $spawn );
   }
 

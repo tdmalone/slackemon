@@ -287,7 +287,7 @@ function slackemon_debug_backtrace( $levels = 3, $skip_first = false, $ignore_ar
  * Cleans up stale files. Generally run regularly by cron.
  * TODO: Could directly access the database if that is the data store to run much more efficient commands here.
  */
-function slackemon_clean_up() {
+function slackemon_clean_up( $age_limit = HOUR_IN_SECONDS * 24 ) {
   global $data_folder;
 
   $folders_to_clean = [
@@ -303,7 +303,7 @@ function slackemon_clean_up() {
     $files = slackemon_get_files_by_prefix( $data_folder . '/' . $folder . '/', 'store' );
 
     foreach ( $files as $file ) {
-      if ( slackemon_filemtime( $file, 'store' ) < time() - HOUR_IN_SECONDS * 24 ) {
+      if ( slackemon_filemtime( $file, 'store' ) < time() - $age_limit ) {
         slackemon_unlink( $file, 'store' );
       }
     }
