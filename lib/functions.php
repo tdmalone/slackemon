@@ -283,7 +283,10 @@ function slackemon_debug_backtrace( $levels = 3, $skip_first = false, $ignore_ar
 
 } // Function slackemon_debug_backtrace
 
-/** Cleans up stale files. Generally run regularly by cron. */
+/**
+ * Cleans up stale files. Generally run regularly by cron.
+ * TODO: Could directly access the database if that is the data store to run much more efficient commands here.
+ */
 function slackemon_clean_up() {
   global $data_folder;
 
