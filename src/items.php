@@ -397,7 +397,7 @@ function slackemon_get_item_action_message( $method, $item_id, $action, $user_id
       [] :
       [
 
-        'name' => 'items/' . $method . '/' . $item_id,
+        'name' => 'items/' . $method . '/' . $item_id . ( isset( $move_name ) ? '/' . $move_name : '' ),
         'text' => $finish_this_sentence,
         'type' => 'select',
         'data_source' => 'external',
@@ -556,7 +556,7 @@ function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $use
   $move_name   = slackemon_get_machine_move_data( $item_id, true );
 
   $message = [
-    'text' => $action->original_message->text,
+    'text'        => $action->original_message->text,
     'attachments' => $action->original_message->attachments,
   ];
 
@@ -599,9 +599,19 @@ function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $use
   $move_data = slackemon_get_move_data( $move_name );
   $new_move  = [ 'name' => $move_data->name, 'pp' => $move_data->pp, 'pp-current' => $move_data->pp ];
 
-  // If the item is a TM, remove it from the player's collection
+  // If the item is a TM, remove it from the player's collection and update the attachment text.
   if ( 'tms' === $item_data->category->name ) {
+
     slackemon_remove_item( $item_id, $user_id );
+
+    $message['attachments'][ $action->attachment_id - 1 ]->text = preg_replace_callback(
+      '/(\*TM\d+\*) \((\d+)\)/',
+      function ( $matches ) {
+        return $matches[1] . ' (' . ( $matches[2] - 1 ) . ')';
+      },
+      $message['attachments'][ $action->attachment_id - 1 ]->text
+    );
+
   }
 
   // Add new move to the Pokemon
@@ -619,7 +629,31 @@ function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $use
     slackemon_readable( $move_data->name ) . '!'
   );
 
-  $message['attachments'][ $action->attachment_id - 1 ]->actions = [];
+  // Reset the actions
+  $actions = [];
+
+  // If there are more of this item (multiple of same TM, or if it's an HM), supply the Teach & Discard buttons again.
+  if ( 'hms' === $item_data->category->name || slackemon_does_user_own_item( $item_id, $user_id ) ) {
+    $actions = [
+      [
+        'name'  => 'items/teach',
+        'text'  => ':trophy: Teach Again' . ( 'tms' === $item_data->category->name ? ' (1)' : '' ),
+        'type'  => 'button',
+        'value' => $item_id,
+        'style' => 'primary',
+      ], [
+        'name'  => 'items/discard',
+        'text'  => ':heavy_multiplication_x: Discard (1)',
+        'type'  => 'button',
+        'value' => $item_id,
+        'style' => 'danger',
+      ],
+    ];
+  } else {
+    
+  }
+
+  $message['attachments'][ $action->attachment_id - 1 ]->actions = $actions;
 
   return $message;
 
@@ -630,7 +664,10 @@ function slackemon_get_item_discard_message( $item_id, $action, $user_id = USER_
   $items = slackemon_get_player_data( $user_id )->items;
   $item_data = slackemon_get_item_data( $item_id );
 
-  $item = [ 'id' => $item_id, 'count' => 0 ];
+  $item = [
+    'id'    => $item_id,
+    'count' => 0,
+  ];
 
   foreach ( $items as $_item ) {
     if ( $_item->id == $item['id'] ) {
@@ -642,7 +679,7 @@ function slackemon_get_item_discard_message( $item_id, $action, $user_id = USER_
   $item['count']--;
 
   $message = [
-    'text' => $action->original_message->text,
+    'text'        => $action->original_message->text,
     'attachments' => $action->original_message->attachments,
   ];
 
@@ -703,6 +740,20 @@ function slackemon_remove_item( $item_id, $user_id = USER_ID ) {
   return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_remove_pokemon
+
+function slackemon_does_user_own_item( $item_id, $user_id = USER_ID ) {
+
+  $player_data = slackemon_get_player_data( $user_id );
+
+  foreach( $player_data->items as $_item ) {
+    if ( $_item->id == $item_id ) {
+      return true;
+    }
+  }
+
+  return false;
+
+} // Function slackemon_does_user_own_item
 
 function slackemon_get_item_attachment( $item, $expanded = false ) {
 

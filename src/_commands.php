@@ -65,12 +65,13 @@ function slackemon_handle_command( $args ) {
         'user_id' => USER_ID,
       ];
 
-      $spawn_region      = slackemon_get_player_region();
-      $spawn_timestamp   = false;
-      $spawn_specific_id = isset( $args[1] ) ? $args[1] : false;
+      $spawn_region         = slackemon_get_player_region();
+      $spawn_timestamp      = false;
+      $spawn_specific_id    = isset( $args[1] ) ? $args[1] : false;
+      $spawn_specific_level = isset( $args[2] ) ? $args[2] : false;
 
       slackemon_spawn_debug( 'Generating a spawn in ' . ucfirst( $spawn_region ) . ', please wait...' );
-      slackemon_spawn( $spawn_trigger, $spawn_region, $spawn_timestamp, $spawn_specific_id );
+      slackemon_spawn( $spawn_trigger, $spawn_region, $spawn_timestamp, $spawn_specific_id, $spawn_specific_level );
 
       return slackemon_exit();
 

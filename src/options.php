@@ -1,6 +1,7 @@
 <?php
 /**
  * Provides the logic for responding to message menu option requests.
+ * Any work done here needs to be completed fairly quickly, so anything intensive should be already cached locally.
  *
  * @package Slackemon
  */
@@ -55,8 +56,9 @@ function slackemon_get_slack_message_menu_options( $action_name, $action_value )
         return false;
       }
 
-      $method  = $action_name[1]; // 'give' 'use' or 'teach'.
-      $item_id = $action_name[2];
+      $method    = $action_name[1]; // 'give' 'use' or 'teach'.
+      $item_id   = $action_name[2];
+      $move_name = isset( $action_name[3] ) ? $action_name[3] : '';
 
       $pokemon_collection = slackemon_search_player_pokemon( $action_value );
 
@@ -69,14 +71,24 @@ function slackemon_get_slack_message_menu_options( $action_name, $action_value )
           // NOTE that the function called below is intensive, so it should have been cached shortly before this
           // option request was made available to the user.
 
-          $move_name = slackemon_get_machine_move_data( $item_id, true );
           $teachable_pokemon = slackemon_get_user_teachable_pokemon( $move_name, 'force_use_cache' );
 
           $pokemon_collection = array_filter(
             $pokemon_collection,
-            function( $_pokemon ) use ( $teachable_pokemon ) {
+            function( $_pokemon ) use ( $teachable_pokemon, $move_name ) {
               if ( in_array( $_pokemon->ts, $teachable_pokemon ) ) {
+
+                // In case the user is loading the list a short time after teaching a Pokemon the same move (and thus
+                // when the initial teachable list is still cached), we do a last check to remove that Pokemon from
+                // the list.
+                foreach ( $_pokemon->moves as $_move ) {
+                  if ( $_move->name === $move_name ) {
+                    return false;
+                  }
+                }
+
                 return true;
+
               }
             }
           );
