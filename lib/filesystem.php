@@ -522,7 +522,12 @@ function slackemon_unlink( $filename, $purpose ) {
 /**
  * Sort of a replacement for PHP's glob() function, that supports S3's prefixes search if using S3 as the data cache.
  *
- * @param string $prefix  The filename prefix to search for.
+ * WARNING: S3 will only return up to 1000 objects at a time, and this function does not support pagination. However,
+ *          this is unlikely to be a limit Slackemon will hit (unless there are ever over 1000 players??), particularly
+ *          because S3 is not recommended to be used as the data _store_.
+ *
+ * @param string $prefix  The filename prefix to search for. To work properly across each storage method, this should
+ *                        generally be in the format `$data_folder . '/folder-name/'`.
  * @param string $purpose The purpose of the search - 'cache' or 'store'.
  * @link http://php.net/glob
  */
