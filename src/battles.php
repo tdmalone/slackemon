@@ -707,8 +707,28 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
   }
 
   if ( $send_response_to_user ) {
-    $message['attachments'][] = slackemon_back_to_menu_attachment();
+
+    $back_to_menu_attachment = slackemon_back_to_menu_attachment();
+
+    // Show a button to view the Pokemon the user just fought with, if this was a wild battle (i.e. only 1 Pokemon).
+    if ( 1 === count( $battle_data->users->{ $user_id }->team ) ) {
+      $battle_pokemon = $battle_data->users->{ $user_id }->team[0];
+
+      array_unshift(
+        $back_to_menu_attachment['actions'],
+        [
+          'name' => 'pokemon/view/battle',
+          'text' => ':eye: View ' . slackemon_readable( $battle_pokemon->name ),
+          'type' => 'button',
+          'value' => $battle_pokemon->ts,
+        ]
+      );
+
+    }
+
+    $message['attachments'][] = $back_to_menu_attachment;
     slackemon_send2slack( $message );
+
   }
 
   return $message;

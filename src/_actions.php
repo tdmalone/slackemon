@@ -66,9 +66,10 @@ function slackemon_handle_action( $action ) {
       $message = slackemon_get_pokemon_menu( $sort_page_value );
     break;
 
-    case 'pokemon/view': // Viewing a Pokemon's data from the Pokemon menu
-    case 'pokemon/view/caught': // Viewing a Pokemon's data immediately after catching it
-    case 'pokemon/view/caught/battle': // Viewing a Pokemon's data immediately after catching it after a battle...whew!
+    case 'pokemon/view': // Viewing a Pokemon's data from the Pokemon menu.
+    case 'pokemon/view/caught': // Viewing a Pokemon's data immediately after catching it.
+    case 'pokemon/view/battle': // Viewing a Pokemon's data after a battle that didn't result in a catch.
+    case 'pokemon/view/caught/battle': // Viewing a Pokemon's data immediately after a catch after a battle...whew!
     case 'pokemon/view/from-battle-menu':
       $spawn_ts = $action_value;
       $message = slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action );

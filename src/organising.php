@@ -559,14 +559,26 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     'image_url' => slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' ),
   ];
 
-  // If this is being displayed immediately after a catch, remove the original spawn data & add a main menu link
+  // If this is being displayed immediately after a battle/catch, remove the spawn data & add a main menu link.
   if ( 'pokemon/view/caught' === $action_name ) {
+
     array_shift( $message['attachments'] );
     array_shift( $message['attachments'] );
+
     $message['attachments'][] = slackemon_back_to_menu_attachment();
+
+  } else if ( 'pokemon/view/battle' === $action_name ) {
+
+    // When viewing after a no-catch battle, no prior attachments need removing. The message text does, though.
+    $message['text'] = '';
+    $message['attachments'][] = slackemon_back_to_menu_attachment();
+
   } else if ( 'pokemon/view/caught/battle' === $action_name ) {
-    array_shift( $message['attachments'] ); // Only cut out one attachment if after a battle, because we will have already cut out the other one
+
+    // Only need to cut out one attachment here, because the first has already been removed by catching routines.
+    array_shift( $message['attachments'] );
     $message['attachments'][] = slackemon_back_to_menu_attachment();
+
   }
 
   return $message;
