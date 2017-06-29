@@ -57,7 +57,7 @@ function slackemon_get_move_deleter_attachment() {
   // prevent Slack from cutting the additional Pokemon off.
   if ( count( $player_data->pokemon ) > 100 ) {
     $message_menu_options = [
-      'data_source' => 'external',
+      'data_source'      => 'external',
       'min_query_length' => 1,
     ];
   } else {
