@@ -219,8 +219,8 @@ function slackemon_spawn(
   $nature = $natures[ array_rand( $natures ) ];
 
   // Put stats together, including IVs
-  $xp    = 0;
   $level = $specific_level ? (int) $specific_level : 1;
+  $xp    = $specific_level ? (int) slackemon_get_xp_for_level( $pokedex_id, $specific_level ) : 0;
   $evs   = [];
   $ivs   = [
     'attack'  => random_int( $min_ivs, $max_ivs ),
