@@ -5,12 +5,16 @@
  * @package Slackemon
  */
 
-function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = false ) {
+function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = false, $specific_id = false ) {
 
-  // Get total item count, choose a random one, and grab its data
-  $items_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/' ) );
-  $random_item = random_int( 1, $items_data->count );
-  $item_data = slackemon_get_item_data( $random_item );
+  // Choose a random item from the total item count (or a specific one if we've asked for it), and grab its data
+  if ( $specific_id ) {
+    $item_id = (int) $specific_id;
+  } else {
+    $items_data  = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/' ) );
+    $item_id     = random_int( 1, $items_data->count );
+  }
+  $item_data = slackemon_get_item_data( $item_id );
 
   $unsupported_items = [
     'safari-ball',  // We don't have the Great Marsh location set up for it
@@ -58,20 +62,19 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
     'spelunking',   // We could implement this....
   ];
 
-  // Try again if...
-  if (
-    ! $item_data || // We didn't pick a valid item for some reason
-    ! isset( $item_data->name ) // We didn't pick a valid item for some reason
-  ) {
-    slackemon_spawn_debug( 'Not spawning item ' . $random_item . ' as it doesn\'t appear to be valid.' );
+  // Try again if we didn't pick a valid item for some reason.
+  if ( ! $item_data || ! isset( $item_data->name ) ) {
+    slackemon_spawn_debug( 'Not spawning item ' . $item_id . ' as it doesn\'t appear to be valid.' );
     return slackemon_item_spawn( $trigger, $region, $timestamp );
   }
 
   // Try again if...
   if (
-    //! $item_data->cost || // Item is priceless, and therefore probably quite valuable
-    in_array( $item_data->name, $unsupported_items ) ||
-    in_array( $item_data->category->name, $unsupported_categories )
+    ! $specific_id && ( // We didn't request a specific item ID and...
+      //! $item_data->cost || // Item is priceless, and therefore probably quite valuable
+      in_array( $item_data->name, $unsupported_items ) ||
+      in_array( $item_data->category->name, $unsupported_categories )
+    )
   ) {
     slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; its category is ' . slackemon_readable( $item_data->category->name ) . '.' );
     return slackemon_item_spawn( $trigger, $region, $timestamp );
@@ -79,14 +82,14 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
 
   // In addition to the above, we assign a certain rarity to some categories by making a chance that we'll respawn...
 
-  if ( 'tms' === $item_data->category->name ) {
+  if ( ! $specific_id && 'tms' === $item_data->category->name ) {
     if ( random_int( 1, 2 ) > 1 ) {
       slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; random chance says to skip it make it rarer this time.' );
       return slackemon_item_spawn( $trigger, $region, $timestamp );
     }
   }
 
-  if ( 'hms' === $item_data->category->name ) {
+  if ( ! $specific_id && 'hms' === $item_data->category->name ) {
     if ( random_int( 1, 5 ) > 1 ) {
       slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; random chance says to skip it make it rarer this time.' );
       return slackemon_item_spawn( $trigger, $region, $timestamp );
@@ -394,7 +397,7 @@ function slackemon_get_item_action_message( $method, $item_id, $action, $user_id
       [] :
       [
 
-        'name' => 'items/' . $method . '/' . $item_id,
+        'name' => 'items/' . $method . '/' . $item_id . ( isset( $move_name ) ? '/' . $move_name : '' ),
         'text' => $finish_this_sentence,
         'type' => 'select',
         'data_source' => 'external',
@@ -553,7 +556,7 @@ function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $use
   $move_name   = slackemon_get_machine_move_data( $item_id, true );
 
   $message = [
-    'text' => $action->original_message->text,
+    'text'        => $action->original_message->text,
     'attachments' => $action->original_message->attachments,
   ];
 
@@ -596,9 +599,19 @@ function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $use
   $move_data = slackemon_get_move_data( $move_name );
   $new_move  = [ 'name' => $move_data->name, 'pp' => $move_data->pp, 'pp-current' => $move_data->pp ];
 
-  // If the item is a TM, remove it from the player's collection
+  // If the item is a TM, remove it from the player's collection and update the attachment text.
   if ( 'tms' === $item_data->category->name ) {
+
     slackemon_remove_item( $item_id, $user_id );
+
+    $message['attachments'][ $action->attachment_id - 1 ]->text = preg_replace_callback(
+      '/(\*TM\d+\*) \((\d+)\)/',
+      function ( $matches ) {
+        return $matches[1] . ' (' . ( $matches[2] - 1 ) . ')';
+      },
+      $message['attachments'][ $action->attachment_id - 1 ]->text
+    );
+
   }
 
   // Add new move to the Pokemon
@@ -616,7 +629,31 @@ function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $use
     slackemon_readable( $move_data->name ) . '!'
   );
 
-  $message['attachments'][ $action->attachment_id - 1 ]->actions = [];
+  // Reset the actions
+  $actions = [];
+
+  // If there are more of this item (multiple of same TM, or if it's an HM), supply the Teach & Discard buttons again.
+  if ( 'hms' === $item_data->category->name || slackemon_does_user_own_item( $item_id, $user_id ) ) {
+    $actions = [
+      [
+        'name'  => 'items/teach',
+        'text'  => ':trophy: Teach Again' . ( 'tms' === $item_data->category->name ? ' (1)' : '' ),
+        'type'  => 'button',
+        'value' => $item_id,
+        'style' => 'primary',
+      ], [
+        'name'  => 'items/discard',
+        'text'  => ':heavy_multiplication_x: Discard (1)',
+        'type'  => 'button',
+        'value' => $item_id,
+        'style' => 'danger',
+      ],
+    ];
+  } else {
+    
+  }
+
+  $message['attachments'][ $action->attachment_id - 1 ]->actions = $actions;
 
   return $message;
 
@@ -627,7 +664,10 @@ function slackemon_get_item_discard_message( $item_id, $action, $user_id = USER_
   $items = slackemon_get_player_data( $user_id )->items;
   $item_data = slackemon_get_item_data( $item_id );
 
-  $item = [ 'id' => $item_id, 'count' => 0 ];
+  $item = [
+    'id'    => $item_id,
+    'count' => 0,
+  ];
 
   foreach ( $items as $_item ) {
     if ( $_item->id == $item['id'] ) {
@@ -639,7 +679,7 @@ function slackemon_get_item_discard_message( $item_id, $action, $user_id = USER_
   $item['count']--;
 
   $message = [
-    'text' => $action->original_message->text,
+    'text'        => $action->original_message->text,
     'attachments' => $action->original_message->attachments,
   ];
 
@@ -701,6 +741,20 @@ function slackemon_remove_item( $item_id, $user_id = USER_ID ) {
 
 } // Function slackemon_remove_pokemon
 
+function slackemon_does_user_own_item( $item_id, $user_id = USER_ID ) {
+
+  $player_data = slackemon_get_player_data( $user_id );
+
+  foreach( $player_data->items as $_item ) {
+    if ( $_item->id == $item_id ) {
+      return true;
+    }
+  }
+
+  return false;
+
+} // Function slackemon_does_user_own_item
+
 function slackemon_get_item_attachment( $item, $expanded = false ) {
 
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
@@ -712,8 +766,8 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
   $flavour_text = '';
 
   // Get description - for machines, the flavour text shows the effect of the move rather than the item
-  $effect_text  = slackemon_get_effect_text( $item_data );
-  $flavour_text = slackemon_get_flavour_text( $item_data );
+  $effect_text  = slackemon_get_effect_text( $item_data, false );
+  $flavour_text = slackemon_get_flavour_text( $item_data, false );
 
   if ( in_array( $item_data->original_category_name, slackemon_get_effect_text_categories() ) ) {
     $description = $effect_text;
@@ -735,7 +789,7 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
 
         $fields[] = [
           'title' => 'Move Effect',
-          'value' => str_replace( "\n", ' ', slackemon_get_flavour_text( $move_data ) ),
+          'value' => slackemon_get_flavour_text( $move_data ),
           'short' => false,
         ];
 
@@ -1101,9 +1155,9 @@ function slackemon_get_item_description( $item_name_or_id ) {
   // This is because for machines, the flavour text shows the *effect* of the move rather than the move taught
 
   if ( in_array( $item_data->original_category_name, slackemon_get_effect_text_categories() ) ) {
-    $description = slackemon_get_effect_text( $item_data );
+    $description = slackemon_get_effect_text( $item_data, false );
   } else {
-    $description = slackemon_get_flavour_text( $item_data );
+    $description = slackemon_get_flavour_text( $item_data, false );
   }
 
   if ( $description ) {

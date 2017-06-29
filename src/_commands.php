@@ -20,61 +20,74 @@ function slackemon_handle_command( $args ) {
    */
 
   if (
-    ( isset( $_POST['run_mode'] ) && 'cron' === $_POST['run_mode'] ) ||
-    ( APP_ENV && 'live' !== APP_ENV )
+    isset( $args[0] ) &&
+    (
+      ( isset( $_POST['run_mode'] ) && 'cron' === $_POST['run_mode'] ) ||
+      ( APP_ENV && 'live' !== APP_ENV )
+    )
   ) {
 
-    /**
-     * Commands usually called by cron.
-     */
+    switch( $args[0] ) {
 
-    if ( isset( $args[0] ) && 'maybe-spawn' === $args[0] ) {
+      /**
+       * Commands usually called by cron.
+       */
 
-      $spawn_trigger = [
-        'type'    => isset( $_POST['run_mode'] ) && $_POST['run_mode'] ? $_POST['run_mode'] : 'manual',
-        'user_id' => USER_ID,
-      ];
+      case 'maybe-spawn':
 
-      slackemon_spawn_debug( 'Maybe spawning, please wait...' );
-      slackemon_maybe_spawn( $spawn_trigger );
+        $spawn_trigger = [
+          'type'    => isset( $_POST['run_mode'] ) && $_POST['run_mode'] ? $_POST['run_mode'] : 'manual',
+          'user_id' => USER_ID,
+        ];
 
-      return slackemon_exit();
+        slackemon_spawn_debug( 'Maybe spawning, please wait...' );
+        slackemon_maybe_spawn( $spawn_trigger );
 
-    }
+        return slackemon_exit();
 
-    if ( isset( $args[0] ) && 'battle-updates' === $args[0] ) {
-      slackemon_do_battle_updates();
-      return slackemon_exit();
-    }
+      break;
 
-    if ( isset( $args[0] ) && 'happiness-updates' === $args[0] ) {
-      slackemon_do_happiness_updates();
-      return slackemon_exit();
-    }
+      case 'battle-updates':
+        slackemon_do_battle_updates();
+        return slackemon_exit();
+      break;
 
-    /**
-     * Commands for dev/debug use only.
-     */
+      case 'happiness-updates':
+        slackemon_do_happiness_updates();
+        return slackemon_exit();
+      break;
 
-    // Instantly generates a spawn, of a particular Pokedex ID if supplied.
-    if ( isset( $args[0] ) && 'spawn' === $args[0] ) {
+      case 'clean-up':
+        slackemon_clean_up();
+        return slackemon_exit();
+      break;
 
-      $spawn_trigger = [
-        'type'    => isset( $_POST['run_mode'] ) && $_POST['run_mode'] ? $_POST['run_mode'] : 'manual',
-        'user_id' => USER_ID,
-      ];
+      /**
+       * Commands for dev/debug use only.
+       */
 
-      $spawn_region     = slackemon_get_player_region();
-      $spawn_timestamp  = false;
-      $spawn_pokedex_id = isset( $args[1] ) ? $args[1] : false;
+      // Instantly generates a spawn, of a particular Pokedex ID if supplied (also accepts 'item:x' for an item ID
+      // or just 'item' for a definite random item spawn.
+      case 'spawn':
 
-      slackemon_spawn_debug( 'Generating a spawn in ' . ucfirst( $spawn_region ) . ', please wait...' );
-      slackemon_spawn( $spawn_trigger, $spawn_region, $spawn_timestamp, $spawn_pokedex_id );
+        $spawn_trigger = [
+          'type'    => isset( $_POST['run_mode'] ) && $_POST['run_mode'] ? $_POST['run_mode'] : 'manual',
+          'user_id' => USER_ID,
+        ];
 
-      return slackemon_exit();
+        $spawn_region         = slackemon_get_player_region();
+        $spawn_timestamp      = false;
+        $spawn_specific_id    = isset( $args[1] ) ? $args[1] : false;
+        $spawn_specific_level = isset( $args[2] ) ? $args[2] : false;
 
-    }
+        slackemon_spawn_debug( 'Generating a spawn in ' . ucfirst( $spawn_region ) . ', please wait...' );
+        slackemon_spawn( $spawn_trigger, $spawn_region, $spawn_timestamp, $spawn_specific_id, $spawn_specific_level );
 
+        return slackemon_exit();
+
+      break;
+
+    } // Switch $args[0]
   } // If cron or not live
 
   /**

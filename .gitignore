@@ -1,11 +1,13 @@
 /.data/
 /.image-cache/
+/composer.phar
+/scripts/start.local
+/scripts/stop.local
+/tests/logs
 /vendor/
 .DS_Store
 .env
-/composer.phar
-/tests/logs
+docker-compose.override.yml
 error_log
 phpcs.xml
 phpunit.xml
-docker-compose.override.yml

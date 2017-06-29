@@ -46,7 +46,7 @@ function slackemon_run_automated_command( $command, $user_id, $team_id, $options
   ];
 
   // Run the command
-  $result = slackemon_get_url( SLACKEMON_INBOUND_URL, [ 'curl_options' => $curl_options ] );
+  $result = slackemon_get_url( SLACKEMON_LOCAL_URL, [ 'curl_options' => $curl_options ] );
 
   // Return the initial result of the automated command to the caller
   return $result;

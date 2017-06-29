@@ -27,6 +27,7 @@ define(
     [ '*', '*', '*', '*', '*', SLACKEMON_SLASH_COMMAND . ' maybe-spawn'       ], // Runs every minute.
     [ '*', '*', '*', '*', '*', SLACKEMON_SLASH_COMMAND . ' battle-updates'    ], // Runs every minute.
     [ '1', '1', '*', '*', '*', SLACKEMON_SLASH_COMMAND . ' happiness-updates' ], // Runs once a day.
+    [ '1', '2', '*', '*', '*', SLACKEMON_SLASH_COMMAND . ' clean-up'          ], // Runs once a day.
   ]
 );
 

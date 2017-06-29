@@ -152,11 +152,9 @@ function slackemon_get_item_data( $item_name_or_id ) {
 
   $item_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/' . $item_name_or_id . '/' ) );
 
-  if ( ! $item_data ) {
-    slackemon_error_log( 'Error retrieving item data for item ' . $item_name_or_id );
-  }
-  
-  if ( $item_data ) {
+  if ( ! $item_data || ( isset( $item_data->detail ) && 'Not found.' === $item_data->detail ) ) {
+    slackemon_error_log( 'Error retrieving item data for item ' . $item_name_or_id . '.' );
+  } else if ( $item_data ) {
 
     // Potential item category rewrite
     if ( isset( $item_data->category->name ) ) {
@@ -285,7 +283,7 @@ function slackemon_do_action_response( $message ) {
 
 } // Function slackemon_do_action_response
 
-function slackemon_get_flavour_text( $object ) {
+function slackemon_get_flavour_text( $object, $clean_up = true ) {
 
   $flavour_text = '';
 
@@ -300,11 +298,15 @@ function slackemon_get_flavour_text( $object ) {
     }
   }
 
+  if ( $clean_up ) {
+    $flavour_text = str_replace( "\n", ' ', $flavour_text );
+  }
+
   return $flavour_text;
 
 } // Function slackemon_get_flavour_text
 
-function slackemon_get_effect_text( $object ) {
+function slackemon_get_effect_text( $object, $clean_up = true ) {
 
   $effect_text = '';
 
@@ -317,6 +319,10 @@ function slackemon_get_effect_text( $object ) {
       $effect_text = $_entry->effect;
       break;
     }
+  }
+
+  if ( $clean_up ) {
+    $effect_text = str_replace( "\n", ' ', $effect_text );
   }
 
   return $effect_text;

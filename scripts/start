@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
-set -x                                 # Output to stdout every command that is run
+set -x                                 # Output to stdout every command that is run.
 docker-compose up -d --remove-orphans  # Start the Docker Compose containers detached from the
-                                       # current terminal, removing any previous containers
+                                       # current terminal, removing any previous containers.
+
+# Run user start script, if it exists.
+if [ -f `dirname $0`/start.local ]; then
+   `dirname $0`/start.local
+fi

@@ -11,8 +11,8 @@ git:
 matrix:
   allow_failures:
     - php: nightly
-  # It would be nice to have fast_finish on, but travis sends multiple build notifications if so
-  #fast_finish: true
+  # Note that travis will send multiple build notifications with fast_finish on.
+  fast_finish: true
 
 install:
   - travis_retry curl -s http://getcomposer.org/installer | php
