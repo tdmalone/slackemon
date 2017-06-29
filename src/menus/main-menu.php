@@ -304,7 +304,8 @@ function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
 function slackemon_get_latest_news() {
 
   $latest_news = [
-    // No latest news at the moment! Developers please add new news items here at release time.
+    // Developers please add new news items here at release time.
+    ':radioactive_sign: The *move deleter* has arrived! Your Pokémon can \'forget\' moves in the Tools menu.',
   ];
 
   $latest_news = array_merge( explode( '|', SLACKEMON_ADDITIONAL_NEWS ), $latest_news );
