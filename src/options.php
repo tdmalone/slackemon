@@ -49,6 +49,32 @@ function slackemon_get_slack_message_menu_options( $action_name, $action_value )
 
     break;
 
+    // Tools that involve Pokemon lists.
+    case 'tools':
+
+      if ( ! isset( $action_name[1] ) ) {
+        return false;
+      }
+
+      // We only support the 'tools/move-deleter' action here for now.
+      if ( 'move-deleter' !== $action_name[1] ) {
+        return false;
+      }
+
+      $pokemon_collection = slackemon_search_player_pokemon( $action_value );
+
+      slackemon_sort_player_pokemon( $pokemon_collection, [ 'name', 'is_favourite', 'level', 'cp', 'ts' ] );
+
+      $options = [];
+
+      foreach ( $pokemon_collection as $_pokemon ) {
+        $options[] = slackemon_get_battle_menu_add_option( $_pokemon );
+      }
+
+      return json_encode( [ 'options' => $options ] );
+
+    break;
+
     // Item give/use/teach request.
     case 'items':
 
