@@ -443,6 +443,7 @@ function slackemon_scaffold_player_file( $spawn_count = 10, $user_id = USER_ID )
 
   $max_level_no   = 100;
   $max_pokemon_no = 721; // Max available in PokeAPI
+  $spawned_ids    = [];
 
   slackemon_clean_up( 0 );
 
@@ -469,7 +470,8 @@ function slackemon_scaffold_player_file( $spawn_count = 10, $user_id = USER_ID )
 
     // Use the same item spawn chance as the main spawner.
     if ( random_int( 1, 100 ) <= SLACKEMON_ITEM_SPAWN_CHANCE ) {
-      $spawn_specific_id    = 'item';
+      $items_data           = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/' ) );
+      $spawn_specific_id    = 'item:' . random_int( 1, $items_data->count );
       $spawn_specific_level = false;
     } else {
       $spawn_specific_id    = random_int( 1, $max_pokemon_no );
@@ -484,7 +486,7 @@ function slackemon_scaffold_player_file( $spawn_count = 10, $user_id = USER_ID )
     $spawn_data = json_decode( json_encode( $spawn_data ) );
 
     // Clean up and add to player's collection.
-    if ( 'item' === $spawn_specific_id ) {
+    if ( 'item' === substr( $spawn_specific_id, 0, 4 ) ) {
 
       unset( $spawn_data->region );
       unset( $spawn_data->description );
@@ -500,10 +502,40 @@ function slackemon_scaffold_player_file( $spawn_count = 10, $user_id = USER_ID )
       unset( $spawn_data->users );
 
       $player_data->pokemon[] = $spawn_data;
+      $spawned_ids[] = $spawn_data->pokedex;
 
     }
 
   } // For spawn_count
+
+  // Increment seen & caught values in the Pokedex
+  foreach ( $spawned_ids as $spawned_id ) {
+
+    $found_entry = false;
+
+    foreach ( $player_data->pokedex as $pokedex_entry ) {
+      if ( $spawned_id == $pokedex_entry->id ) {
+        $pokedex_entry->seen++;
+        $pokedex_entry->caught++;
+        $found_entry = true;
+        break;
+      }
+    }
+
+    if ( ! $found_entry ) {
+
+      $pokedex_data = [
+        'id'     => (int) $spawned_id,
+        'seen'   => 1,
+        'caught' => 1,
+      ];
+
+      $pokedex_data = json_decode( json_encode( $pokedex_data ) );
+      $player_data->pokedex[] = $pokedex_data;
+
+    }
+
+  } // Foreach spawned_ids
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
