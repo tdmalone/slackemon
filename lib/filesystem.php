@@ -61,6 +61,13 @@ if (
  */
 function slackemon_file_get_contents( $filename, $purpose, $acquire_lock = false ) {
 
+  // Acquire a lock if we have asked for one; if we can't get one we must return false
+  if ( 'store' === $purpose && $acquire_lock ) {
+    if ( ! slackemon_lock_file( $filename ) ) {
+      return false;
+    }
+  }
+
   switch ( slackemon_get_data_method( $purpose ) ) {
 
     case 'local':
@@ -133,13 +140,6 @@ function slackemon_file_get_contents( $filename, $purpose, $acquire_lock = false
     break; // Case aws.
 
   } // Switch slackemon_get_data_method
-
-  // Acquire a lock if we have asked for one; if we can't get one we must return false
-  if ( 'store' === $purpose && $acquire_lock ) {
-    if ( ! slackemon_lock_file( $filename ) ) {
-      return false;
-    }
-  }
 
   if ( isset( $return ) ) {
     return $return;
