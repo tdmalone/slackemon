@@ -195,7 +195,7 @@ function slackemon_get_achievements_menu( $current_page ) {
       $caught . ' caught, ' .
       $seen . ' seen' .
       ( $is_desktop ? ' - ' : "\n" . '             ' ) .
-      ( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate' .
+      floor( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate' .
       ( $is_desktop ? "\n" : "\n\n" )
     );
 
