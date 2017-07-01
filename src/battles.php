@@ -1169,7 +1169,9 @@ function slackemon_offer_battle_swap( $battle_hash, $user_id, $return_full_messa
 
 } // Function slackemon_offer_battle_swap
 
-function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_move = false, $user_id = USER_ID ) {
+function slackemon_do_battle_move(
+  $move_name, $battle_hash, $action, $first_move = false, $user_id = USER_ID, $previous_move_notice = ''
+) {
 
   $battle_data = slackemon_get_battle_data( $battle_hash );
 
@@ -1295,13 +1297,13 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
       if ( $move_data->meta->healing > 0 ) {
         $meta_message .= (
           '_' . slackemon_readable( $user_pokemon->name ) . ' got healed ' .
-          'by ' . $healing_percentage . '%!_' . "\n"
+          'by ' . $healing_percentage . '%!_'
         );
       } else {
         $meta_message .= (
           '_' . slackemon_readable( $user_pokemon->name ) . ' hurt ' .
           ( 'male' === $user_pokemon->gender ? 'him' : 'her' ) . 'self, ' .
-          'causing ' . abs( $healing_percentage ) . '% damage!_' . "\n"
+          'causing ' . abs( $healing_percentage ) . '% damage!_'
         );
       }
 
@@ -1314,8 +1316,8 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
         'It ' . ( 1 == $damage->damage_percentage ? 'only ' : '' ) .
         'did ' . $damage->damage_percentage . '% damage' .
         ( 1 != $damage->damage_percentage && $damage->damage_percentage < 10 ? '.' : '!' ) . ' ' .
-        $damage->type_message . "\n" .
-        $meta_message
+        $damage->type_message .
+        ( $meta_message ? "\n" . $meta_message : '' )
       );
     } else {
       $move_message .= $meta_message;
@@ -1334,33 +1336,38 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
       $user_pokemon->battles->last_participated = $battle_data->ts;
     }
 
-  } // If swap move or traditional move
+  } // If swap move or traditional move.
 
-  // Update and save the battle data, relinquishing the lock on the battle file
+  // Update and save the battle data, relinquishing the lock on the battle file.
   $battle_data->turn = $opponent_id;
   slackemon_save_battle_data( $battle_data, $battle_hash, 'battle', true );
 
-  // Notify the user
-  $last_move_notice = 'You ' . $move_message;
+  // Prepare notice of the previous move (if available) for prepending to this move's notice.
+  if ( $previous_move_notice ) {
+    $previous_move_notice .= "\n\n";
+  }
+
+  // Notify the user.
+  $this_move_notice_user = $previous_move_notice . 'You ' . $move_message;
   $user_message = [
-    'attachments' => slackemon_get_battle_attachments( $battle_hash, $user_id, 'during', $last_move_notice ),
+    'attachments' => slackemon_get_battle_attachments( $battle_hash, $user_id, 'during', $this_move_notice_user ),
     'replace_original' => true,
   ];
 
-  // Notify the opponent
+  // Notify the opponent.
   $user_first_name = (
     'wild' === $battle_data->type ?
     slackemon_readable( $user_pokemon->name ) :
     slackemon_get_slack_user_first_name( $user_id )
   );
-  $last_move_notice = $user_first_name . ' ' . $move_message;
+  $this_move_notice_opponent = $previous_move_notice . $user_first_name . ' ' . $move_message;
   $opponent_message = [
     'attachments' => (
       slackemon_get_battle_attachments(
         $battle_hash,
         $opponent_id,
         $first_move ? 'first' : 'during',
-        $last_move_notice
+        $this_move_notice_opponent
       )
     ),
   ];
@@ -1401,13 +1408,16 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
           random_int( 1, SLACKEMON_BASE_FLEE_CHANCE * SLACKEMON_BATTLE_FLEE_MULTIPLIER / $hp_percentage_integer ) > 1
         );
 
-        if ( ! $is_staying ) {
+        if ( 1 !== 1 && ! $is_staying ) {
           slackemon_do_action_response( slackemon_get_catch_message( $opponent_pokemon->ts, $action, true, 'flee' ) );
           return false;
         }
 
         $move = slackemon_get_best_move( $opponent_pokemon, $user_pokemon );
-        slackemon_do_battle_move( $move->name, $battle_hash, $action, false, $opponent_id );
+
+        call_user_func(
+          __FUNCTION__, $move->name, $battle_hash, $action, false, $opponent_id, $this_move_notice_user
+        );
 
       } // If either pokemon has hp
 
@@ -1419,7 +1429,7 @@ function slackemon_do_battle_move( $move_name, $battle_hash, $action, $first_mov
   } // If p2p battle / else
 } // Function slackemon_do_battle_move
 
-function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage, $last_move_notice = '' ) {
+function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage, $this_move_notice = '' ) {
 
   $is_desktop  = 'U' === substr( $user_id, 0, 1 ) && 'desktop' === slackemon_get_player_menu_mode( $user_id );
   $player_data = 'U' === substr( $user_id, 0, 1 ) ? slackemon_get_player_data( $user_id ) : false;
@@ -1453,7 +1463,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
   }
 
   $opponent_pretext = '';
-  $user_pretext = '';
+
   switch ( $battle_stage ) {
 
     case 'start': // Brand new battle is starting
@@ -1467,22 +1477,12 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
           'Take care - a wild Pokémon could flee at any time.'
         );
 
-        $user_pretext = (
-          'You have chosen *' . slackemon_readable( $user_pokemon->name ) . '*, with ' .
-          '*' . $user_pokemon->cp . ' CP*.'
-        );
-
       } else {
 
         $opponent_pretext = (
           $opponent_first_name . ' has chosen *' . slackemon_readable( $opponent_pokemon->name ) . '*! ' .
           ucfirst( slackemon_get_gender_pronoun( $opponent_pokemon->gender ) ) . ' has ' .
           '*' . $opponent_pokemon->cp . ' CP*.'
-        );
-
-        $user_pretext = (
-          'Your first Pokémon up is *' . slackemon_readable( $user_pokemon->name ) . '*, with ' .
-          '*' . $user_pokemon->cp . ' CP*.'
         );
 
       }
@@ -1689,24 +1689,24 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
 
   }
 
-  $attachments = [
+  // Opponent's Pokemon
+  $opponent_pokemon_attachments = slackemon_get_battle_pokemon_attachments(
+    $opponent_pokemon, $opponent_id, $battle_hash, 'opponent', $opponent_pretext
+  );
 
-    // Opponent's Pokemon
-    slackemon_get_battle_pokemon_attachment(
-      $opponent_pokemon, $opponent_id, $battle_hash, 'opponent', $opponent_pretext
-    ),
+  // User's Pokemon
+  $user_pokemon_attachments = slackemon_get_battle_pokemon_attachments(
+    $user_pokemon, $user_id, $battle_hash, 'user'
+  );
 
-    // User's Pokemon
-    slackemon_get_battle_pokemon_attachment(
-      $user_pokemon, $user_id, $battle_hash, 'user', $user_pretext
-    ),
+  $general_attachments = [
 
-    // Last move notice (if applicable)
+    // Notice on the most recent move (if applicable)
     (
-      $last_move_notice ?
+      $this_move_notice ?
       [
-        'text' => $last_move_notice,
-        'color' => '#333333',
+        'text'      => $this_move_notice,
+        'color'     => '#333333',
         'mrkdwn_in' => [ 'text' ],
       ] :
       []
@@ -1718,9 +1718,9 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
       $user_pokemon->hp ?
       [
         'text' => (
+          $this_move_notice . "\n" .
           $battle_data->turn === $user_id ?
-          '*It\'s your move' . ( 'start' === $battle_stage ? ' first' : '' ) . '.*' .
-          ( $is_desktop ? "\n" . 'What would you like to do?' : '' ) :
+          '' :
           (
             $opponent_pokemon->hp || $opponent_swaps_available ?
             '*It\'s ' . $opponent_first_name . '\'s move' .
@@ -1772,11 +1772,17 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
     ),
   ];
 
+  $attachments = array_merge(
+    $opponent_pokemon_attachments,
+    $user_pokemon_attachments,
+    $general_attachments
+  );
+
   return $attachments;
 
 } // Function slackemon_get_battle_attachments
 
-function slackemon_get_battle_pokemon_attachment( $pokemon, $player_id, $battle_hash, $player_type, $pretext = '' ) {
+function slackemon_get_battle_pokemon_attachments( $pokemon, $player_id, $battle_hash, $player_type, $pretext = '' ) {
 
   $user_id    = 'user' === $player_type ? $player_id : slackemon_get_battle_opponent_id( $battle_hash, $player_id );
   $is_desktop = 'U' === substr( $user_id, 0, 1 ) && 'desktop' === slackemon_get_player_menu_mode( $user_id );
@@ -1786,24 +1792,34 @@ function slackemon_get_battle_pokemon_attachment( $pokemon, $player_id, $battle_
   $hp_color = '';
   $hp_emoji = '';
 
-  if ( $hp_percentage >= 50 ) {
+  if ( $hp_percentage >= 100 ) {
     $hp_color = 'good';
-    $hp_emoji .= str_repeat( ':green_circle:', floor( $hp_percentage / 10 ) );
-    $hp_emoji .= str_repeat( ':yellow_circle:', $hp_percentage % 10 ? 1 : 0 );
-    $hp_emoji .= str_repeat( ':white_circle:', floor( 10 - $hp_percentage / 10 ) );
-  } else if ( $hp_percentage >= 30 ) {
+    $hp_emoji .= ':hp_left_green:';
+    $hp_emoji .= str_repeat( ':hp_green:', 8 );
+    $hp_emoji .= ':hp_right_green:';
+  } else if ( $hp_percentage >= 50 ) {
+    $hp_color = 'good';
+    $hp_emoji .= ':hp_left_green:';
+    $hp_emoji .= str_repeat( ':hp_green:', floor(      $hp_percentage / 10 ) - 1 );
+    $hp_emoji .= str_repeat( ':hp_white:', floor( 10 - $hp_percentage / 10 )     );
+    $hp_emoji .= ':hp_right_white:';
+  } else if ( $hp_percentage >= 20 ) {
     $hp_color = 'warning';
-    $hp_emoji .= str_repeat( ':yellow_circle:', floor( $hp_percentage / 10 ) );
-    $hp_emoji .= str_repeat( ':red_circle:', $hp_percentage % 10 ? 1 : 0 );
-    $hp_emoji .= str_repeat( ':white_circle:', floor( 10 - $hp_percentage / 10 ) );
+    $hp_emoji .= ':hp_left_yellow:';
+    $hp_emoji .= str_repeat( ':hp_yellow:', floor(      $hp_percentage / 10 ) - 1 );
+    $hp_emoji .= str_repeat( ':hp_white:',  floor( 10 - $hp_percentage / 10 )     );
+    $hp_emoji .= ':hp_right_white:';
   } else if ( $hp_percentage >= 1 ) {
     $hp_color = 'danger';
-    $hp_emoji .= str_repeat( ':red_circle:', floor( $hp_percentage / 10 ) );
-    $hp_emoji .= str_repeat( ':black_circle:', $hp_percentage % 10 ? 1 : 0 );
-    $hp_emoji .= str_repeat( ':white_circle:', floor( 10 - $hp_percentage / 10 ) );
+    $hp_emoji .= ':hp_left_red:';
+    $hp_emoji .= str_repeat( ':hp_red:',   floor(      $hp_percentage / 10 ) - 1 );
+    $hp_emoji .= str_repeat( ':hp_white:', floor( 10 - $hp_percentage / 10 )     );
+    $hp_emoji .= ':hp_right_white:';
   } else if ( ! $hp_percentage ) {
     $hp_color = '';
-    $hp_emoji .= str_repeat( ':white_circle:', 10 );
+    $hp_emoji .= ':hp_left_white:';
+    $hp_emoji .= str_repeat( ':hp_white:', 8 );
+    $hp_emoji .= ':hp_right_white:';
   }
 
   $player_battle_team = $battle_data->users->{ $player_id }->team;
@@ -1828,7 +1844,13 @@ function slackemon_get_battle_pokemon_attachment( $pokemon, $player_id, $battle_
   // If Pokemon hasn't fainted, show the animated sprite
   // If it has fainted, show the front static sprite if a wild battle (because it's catchable), otherwise back static
   if ( $pokemon->hp ) {
-    $image_url = SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif';
+
+    $image_url = (
+      SLACKEMON_ANIMATED_GIF_BASE .
+      '/ani-' . ( 'opponent' === $player_type ? 'front' : 'back' ) . '/' .
+      $pokemon->name . '.gif'
+    );
+
   } else if ( 'wild' === $battle_data->type ) {
     $pokemon_data = slackemon_get_pokemon_data( $pokemon->pokedex );
     $image_url = (
@@ -1845,8 +1867,8 @@ function slackemon_get_battle_pokemon_attachment( $pokemon, $player_id, $battle_
     );
   }
 
-  $attachment = [
-    'pretext' => $pretext,
+  $status_attachment = [
+    'pretext'  => $pretext,
     'fallback' => $pretext,
     'text' => (
       (
@@ -1863,22 +1885,28 @@ function slackemon_get_battle_pokemon_attachment( $pokemon, $player_id, $battle_
       '*' .
       slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
-      ( $is_desktop ? '        ' : '    L' . $pokemon->level . '   ' ) .
-      $pokemon->cp . ' CP' .
-      ( $is_desktop ? '            ' : '      ' ) .
-      slackemon_emojify_types( join( ' ' , $pokemon->types ), false ) .
-      '*' . "\n" .
-      $hp_emoji . ( $is_desktop ? '' : '   ' . $hp_percentage . '%' )
+      '*' . '     ' .
+      'L' . $pokemon->level . '     ' . $pokemon->cp . ' CP' . '       ' .
+      slackemon_emojify_types( join( ' ' , $pokemon->types ), false ) . "\n" .
+      $hp_percentage . '%' . $hp_emoji
     ),
-    'footer' => $is_desktop ? $hp_percentage . '% HP' . '  •  ' . 'Level ' . $pokemon->level : '',
     'color' => $hp_color,
-    'image_url' => slackemon_get_cached_image_url( $image_url ),
     'mrkdwn_in' => [ 'pretext', 'text' ],
   ];
 
-  return $attachment;
+  $image_attachment = [
+    'fallback'  => $pretext,
+    'text'      => ' ',
+    'image_url' => slackemon_get_cached_image_url( $image_url ),
+  ];
 
-} // Function slackemon_get_battle_pokemon_attachment
+  if ( 'opponent' === $player_type ) {
+    return [ $status_attachment, $image_attachment ];
+  }
+
+  return [ $image_attachment, $status_attachment ];
+
+} // Function slackemon_get_battle_pokemon_attachments
 
 function slackemon_get_battle_opponent_id( $battle_hash, $user_id ) {
 
