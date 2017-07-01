@@ -60,8 +60,7 @@ function slackemon_get_url( $url, $options = [] ) {
       'channel' => USER_ID,
     ]);
 
-    // TODO: Is there an alternative to exiting here? Exiting is untestable.
-    exit();
+    slackemon_exit();
 
   } // If no result
 
