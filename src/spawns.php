@@ -60,17 +60,20 @@ function slackemon_spawn(
   $min_ivs = SLACKEMON_MIN_IVS;
   $max_ivs = SLACKEMON_MAX_IVS;
 
-  // Get region data
-  $region_data = slackemon_get_regions()[ $region ];
+  // If a specific Pokedex ID has not been passed through, use that now.
+  if ( $specific_id ) {
+    $pokedex_id = (int) $specific_id;
+  } else {
 
-  // Generate spawned Pokemon by region-specific Pokedex ID, if a specific ID has not been passed through already
-  // We get the ID from the URL specified in the region Pokedex
-  $region_pokedex = $region_data['region_pokedex'];
-  $pokedex_id = (
-    $specific_id ?
-    (int) $specific_id :
-    trim( basename( $region_pokedex[ array_rand( $region_pokedex ) ]->pokemon_species->url ), '/' )
-  );
+    // Get region data
+    $region_data = slackemon_get_regions()[ $region ];
+
+    // Generate spawned Pokemon by region-specific Pokedex ID.
+    // We then get the Pokemon ID from the URL specified in the region Pokedex.
+    $region_pokedex = $region_data['region_pokedex'];
+    $pokedex_id = trim( basename( $region_pokedex[ array_rand( $region_pokedex ) ]->pokemon_species->url ), '/' );
+
+  }
 
   // Get Pokemon data
   $pokemon = slackemon_get_pokemon_data( $pokedex_id );
@@ -83,95 +86,100 @@ function slackemon_spawn(
 
   // In some weather situations, there's a chance we will skip this Pokemon if it's not the right type
   // If our randomizer decides to do this, we will intentionally select a random Pokemon of the correct type
-  $weather_condition = slackemon_get_weather_condition([ 'expiry_age' => MINUTE_IN_SECONDS * 15 ]);
-  $weather_spawn = false; // For now... this might change in a sec!
-  $weather_types = [
-    'Windy'   => 'Flying',
-    'Hot'     => 'Fire',
-    'Raining' => 'Water',
-    'Stormy'  => 'Electric',
-    'Snowing' => 'Ice',
-    'Hailing' => 'Ice',
-    'Cold'    => 'Ice',
-    'Sunny'   => 'Grass',
-  ];
-  if ( ! $specific_id && array_key_exists( $weather_condition, $weather_types ) ) {
-    if ( ! in_array( $weather_types[ $weather_condition ], $types ) ) {
+  if ( ! $specific_id ) {
 
-      // We don't want to be exclusive based on the weather - just have an increased chance
-      // So, what should we do this time?
-      $weather_randomizer = random_int( 1, max( 2, ceil( MINUTE_IN_SECONDS / SLACKEMON_HOURLY_SPAWN_RATE ) / 2 ) );
-      $weather_spawn = 1 !== $weather_randomizer;
+    $weather_condition = slackemon_get_weather_condition([ 'expiry_age' => MINUTE_IN_SECONDS * 15 ]);
+    $weather_spawn = false; // For now... this might change in a sec!
 
-      if ( $weather_spawn ) {
+    $weather_types = [
+      'Windy'   => 'Flying',
+      'Hot'     => 'Fire',
+      'Raining' => 'Water',
+      'Stormy'  => 'Electric',
+      'Snowing' => 'Ice',
+      'Hailing' => 'Ice',
+      'Cold'    => 'Ice',
+      'Sunny'   => 'Grass',
+    ];
 
-        slackemon_spawn_debug( 'Deciding not to spawn ' . join( ', ', $types ) . ' type while the weather is ' . $weather_condition . ' (looking for ' . $weather_types[ $weather_condition ] . ' type)' );
+    if ( array_key_exists( $weather_condition, $weather_types ) ) {
+      if ( ! in_array( $weather_types[ $weather_condition ], $types ) ) {
 
-        // Let's look for a Pokemon of the specific type we're after!
-        // We need to do a bit of API wrangling for this
+        // We don't want to be exclusive based on the weather - just have an increased chance
+        // So, what should we do this time?
+        $weather_randomizer = random_int( 1, max( 2, ceil( MINUTE_IN_SECONDS / SLACKEMON_HOURLY_SPAWN_RATE ) / 2 ) );
+        $weather_spawn = 1 !== $weather_randomizer;
 
-        // Get all types, then get a collection of Pokemon for the specific type we're after
-        $_all_types = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' ) );
-        $_desired_type = strtolower( $weather_types[ $weather_condition ] );
-        foreach ( $_all_types->results as $_type ) {
-          if ( $_desired_type === $_type->name ) {
-            $_weather_type_collection = json_decode( slackemon_get_cached_url( $_type->url ) )->pokemon;
-            break;
-          }
-        }
+        if ( $weather_spawn ) {
 
-        // Filter the collection to ensure it's not from the wrong region
-        $_weather_type_collection = array_filter(
-          $_weather_type_collection,
-          function( $_pokemon ) use ( $region_pokedex ) {
+          slackemon_spawn_debug( 'Deciding not to spawn ' . join( ', ', $types ) . ' type while the weather is ' . $weather_condition . ' (looking for ' . $weather_types[ $weather_condition ] . ' type)' );
 
-            $_pokedex_id = trim( basename( $_pokemon->pokemon->url ), '/' );
+          // Let's look for a Pokemon of the specific type we're after!
+          // We need to do a bit of API wrangling for this
 
-            foreach ( $region_pokedex as $region_pokemon ) {
-              if ( $_pokedex_id == trim( basename( $region_pokemon->pokemon_species->url ), '/' ) ) {
-                return true;
-              }
+          // Get all types, then get a collection of Pokemon for the specific type we're after
+          $_all_types = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' ) );
+          $_desired_type = strtolower( $weather_types[ $weather_condition ] );
+          foreach ( $_all_types->results as $_type ) {
+            if ( $_desired_type === $_type->name ) {
+              $_weather_type_collection = json_decode( slackemon_get_cached_url( $_type->url ) )->pokemon;
+              break;
             }
+          }
 
-            return false;
+          // Filter the collection to ensure it's not from the wrong region
+          $_weather_type_collection = array_filter(
+            $_weather_type_collection,
+            function( $_pokemon ) use ( $region_pokedex ) {
 
-        });
+              $_pokedex_id = trim( basename( $_pokemon->pokemon->url ), '/' );
 
-        // Get a random Pokemon, then Pokedex ID, Pokemon data, and process the type(s) of our new Pokemon selection
-        // From here, we'll then continue as normal (including checking for Pokemon exclusions, evolution chains, etc.)
-        $_random_of_type = $_weather_type_collection[ array_rand( $_weather_type_collection ) ];
-        $pokedex_id = trim( basename( $_random_of_type->pokemon->url ), '/' ); // The ID is only available from the URL
-        $pokemon = slackemon_get_pokemon_data( $pokedex_id );
-        $types = [];
-        foreach ( $pokemon->types as $type ) {
-          $types[] = slackemon_readable( $type->type->name );
-        }
+              foreach ( $region_pokedex as $region_pokemon ) {
+                if ( $_pokedex_id == trim( basename( $region_pokemon->pokemon_species->url ), '/' ) ) {
+                  return true;
+                }
+              }
 
-        // Because this Pokemon likes the weather, it's gonna have higher IVs - so we cut the range in half
-        $min_ivs = ( $min_ivs + $max_ivs ) / 2;
+              return false;
 
-      } else {
+          });
 
-        slackemon_spawn_debug(
-          'The weather is ' . $weather_condition . ' so I\'d prefer ' . $weather_types[ $weather_condition ] . ' ' .
-          'type, but I will still allow a spawn of ' . join( ', ', $types ) . ' type this time.'
-        );
+          // Get a random Pokemon, then Pokedex ID, Pokemon data, and process the type(s) of our new Pokemon selection
+          // From here, we'll then continue as normal (including checking for Pokemon exclusions, evolution chains, etc.)
+          $_random_of_type = $_weather_type_collection[ array_rand( $_weather_type_collection ) ];
+          $pokedex_id = trim( basename( $_random_of_type->pokemon->url ), '/' ); // The ID is only available from the URL
+          $pokemon = slackemon_get_pokemon_data( $pokedex_id );
+          $types = [];
+          foreach ( $pokemon->types as $type ) {
+            $types[] = slackemon_readable( $type->type->name );
+          }
 
-      } // If weather_spawn / else
-    } // If type matches weather_condition
-  } // If weather_condition exists
+          // Because this Pokemon likes the weather, it's gonna have higher IVs - so we cut the range in half
+          $min_ivs = ( $min_ivs + $max_ivs ) / 2;
+
+        } else {
+
+          slackemon_spawn_debug(
+            'The weather is ' . $weather_condition . ' so I\'d prefer ' . $weather_types[ $weather_condition ] . ' ' .
+            'type, but I will still allow a spawn of ' . join( ', ', $types ) . ' type this time.'
+          );
+
+        } // If weather_spawn / else
+      } // If type matches weather_condition
+    } // If weather_condition exists
+  } // If not specific_id
 
   // Make sure we don't have an excluded Pokemon
   if ( ! $specific_id && in_array( $pokedex_id, explode( '|', SLACKEMON_EXCLUDED_POKEMON ) ) ) {
     slackemon_spawn_debug( 'Can\'t spawn ' . slackemon_readable( $pokemon->name ) . ' as it is specifically excluded.' );
-    return slackemon_spawn( $trigger, $region, $timestamp ); // Loops until we have an allowed Pokemon
+    return call_user_func_array( __FUNCTION__, func_get_args() );
   }
 
   // If legendaries are excluded, make sure we don't have one (unless the weather is favourable)
   if ( ! $specific_id && slackemon_is_legendary( $pokedex_id ) ) {
     if ( SLACKEMON_EXCLUDE_LEGENDARIES && ( ! SLACKEMON_ALLOW_LEGENDARY_WEATHER_SPAWNS || ! $weather_spawn ) ) {
       slackemon_spawn_debug( 'Can\'t spawn ' . slackemon_readable( $pokemon->name ) . ' as it is legendary.' );
-      return slackemon_spawn( $trigger, $region, $timestamp );
+      return call_user_func_array( __FUNCTION__, func_get_args() );
     }
   }
 
@@ -181,18 +189,18 @@ function slackemon_spawn(
   if ( ! $specific_id && SLACKEMON_EXCLUDE_ON_TIME_OF_DAY && slackemon_is_daytime() ) {
     if ( in_array( 'Ghost', $types ) || in_array( 'Dark', $types ) ) {
       slackemon_spawn_debug( 'Can\'t spawn Ghost or Dark type during the day (' . slackemon_readable( $pokemon->name ) . ').' );
-      return slackemon_spawn( $trigger, $region, $timestamp );
+      return call_user_func_array( __FUNCTION__, func_get_args() );
     } else if ( 41 == $pokedex_id || 63 == $pokedex_id ) {
       slackemon_spawn_debug( 'Can\'t spawn Zubat or Abra during the day (' . slackemon_readable( $pokemon->name ) . ').' );
-      return slackemon_spawn( $trigger, $region, $timestamp );
+      return call_user_func_array( __FUNCTION__, func_get_args() );
     }
   } else if ( ! $specific_id && SLACKEMON_EXCLUDE_ON_TIME_OF_DAY ) {
     if ( in_array( 'Grass', $types ) && ! in_array( 'Ghost', $types ) && ! in_array( 'Dark', $types )  ) {
       slackemon_spawn_debug( 'Can\'t spawn Grass type at night (' . slackemon_readable( $pokemon->name ) . ').' );
-      return slackemon_spawn( $trigger, $region, $timestamp );
+      return call_user_func_array( __FUNCTION__, func_get_args() );
     } else if ( in_array( 'Normal', $types ) && in_array( 'Flying', $types ) ) {
       slackemon_spawn_debug( 'Can\'t spawn Normal & Flying type at night (' . slackemon_readable( $pokemon->name ) . ').' );
-      return slackemon_spawn( $trigger, $region, $timestamp );
+      return call_user_func_array( __FUNCTION__, func_get_args() );
     }
   }
 
@@ -203,20 +211,20 @@ function slackemon_spawn(
   // Make sure we're only spawning from the first in an evolution chain
   if ( ! $specific_id && SLACKEMON_EXCLUDE_EVOLUTIONS && $species->evolves_from_species ) {
     slackemon_spawn_debug( 'Cannot spawn ' . slackemon_readable( $pokemon->name ) . ' as it is not the first in an evolution chain.' );
-    return slackemon_spawn( $trigger, $region, $timestamp ); // Loops until we have a non-evolved Pokemon
+    return call_user_func_array( __FUNCTION__, func_get_args() );
   }
 
   // Make sure we're not spawning a baby - they'll only be available in eggs
   if ( ! $specific_id && SLACKEMON_EXCLUDE_BABIES && $species->is_baby ) {
     slackemon_spawn_debug( 'Cannot spawn ' . slackemon_readable( $pokemon->name ) . ' as it is a baby Pokémon.' );
-    return slackemon_spawn( $trigger, $region, $timestamp );
+    return call_user_func_array( __FUNCTION__, func_get_args() );
   }
 
   slackemon_spawn_debug( 'Ok, will spawn a ' . slackemon_readable( $pokemon->name ) . '.' );
 
   // Determine nature
   $natures = slackemon_get_natures();
-  $nature = $natures[ array_rand( $natures ) ];
+  $nature  = $natures[ array_rand( $natures ) ];
 
   // Put stats together, including IVs
   $level = $specific_level ? (int) $specific_level : 1;
@@ -292,7 +300,7 @@ function slackemon_spawn(
     $spawn['variety'] = $pokemon->name;
   }
 
-  if ( slackemon_save_spawn_data( $spawn ) ) {
+  if ( 'scaffold' !== $trigger['type'] && slackemon_save_spawn_data( $spawn ) ) {
     slackemon_notify_spawn( $spawn, $specific_level );
   }
 
@@ -544,7 +552,6 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
         slackemon_spawn_debug( 'User ' . $player_id . ' does not have enough Pokemon to battle, so this spawn will be at level 1 for them.' );
 
       } // If battle team / else
-
     } // If not specific_level
 
     $this_message['channel'] = $player_id;

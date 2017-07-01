@@ -65,7 +65,7 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
   // Try again if we didn't pick a valid item for some reason.
   if ( ! $item_data || ! isset( $item_data->name ) ) {
     slackemon_spawn_debug( 'Not spawning item ' . $item_id . ' as it doesn\'t appear to be valid.' );
-    return slackemon_item_spawn( $trigger, $region, $timestamp );
+    return call_user_func_array( __FUNCTION__, func_get_args() );
   }
 
   // Try again if...
@@ -77,7 +77,7 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
     )
   ) {
     slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; its category is ' . slackemon_readable( $item_data->category->name ) . '.' );
-    return slackemon_item_spawn( $trigger, $region, $timestamp );
+    return call_user_func_array( __FUNCTION__, func_get_args() );
   }
 
   // In addition to the above, we assign a certain rarity to some categories by making a chance that we'll respawn...
@@ -85,14 +85,14 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
   if ( ! $specific_id && 'tms' === $item_data->category->name ) {
     if ( random_int( 1, 2 ) > 1 ) {
       slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; random chance says to skip it make it rarer this time.' );
-      return slackemon_item_spawn( $trigger, $region, $timestamp );
+      return call_user_func_array( __FUNCTION__, func_get_args() );
     }
   }
 
   if ( ! $specific_id && 'hms' === $item_data->category->name ) {
     if ( random_int( 1, 5 ) > 1 ) {
       slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . '; random chance says to skip it make it rarer this time.' );
-      return slackemon_item_spawn( $trigger, $region, $timestamp );
+      return call_user_func_array( __FUNCTION__, func_get_args() );
     }
   }
 
@@ -100,7 +100,7 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
 
   if ( ! $description ) {
     slackemon_spawn_debug( 'Not spawning ' . slackemon_readable( $item_data->name ) . ' because we could not find a suitable description for it.' );
-    return slackemon_item_spawn( $trigger, $region, $timestamp );
+    return call_user_func_array( __FUNCTION__, func_get_args() );
   }
 
   slackemon_spawn_debug( 'Ok, will spawn a ' . slackemon_readable( $item_data->name ) . '.' );
@@ -115,7 +115,7 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
     'users'       => new stdClass(),
   ];
 
-  if ( slackemon_save_spawn_data( $spawn ) ) {
+  if ( 'scaffold' !== $trigger['type'] && slackemon_save_spawn_data( $spawn ) ) {
     slackemon_notify_item_spawn( $spawn );
   }
 
