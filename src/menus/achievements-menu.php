@@ -10,30 +10,38 @@ function slackemon_get_achievements_menu( $current_page ) {
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
 
   $message = [
-    'text' => '',
+    'text'        => '',
     'attachments' => [],
   ];
 
   // Pokedex
 
-  $pokedex = slackemon_get_player_data()->pokedex;
+  $pokedex        = slackemon_get_player_data()->pokedex;
   $pokedex_sorted = [];
-  $total_seen = 0;
-  $total_caught = 0;
+  $total_seen     = 0;
+  $total_caught   = 0;
 
   foreach ( $pokedex as $entry ) {
+
     $pokedex_sorted[ $entry->id ] = $entry;
-    if ( $entry->seen   ) { $total_seen++;   }
-    if ( $entry->caught ) { $total_caught++; }
+
+    if ( $entry->seen ) {
+      $total_seen++;
+    }
+
+    if ( $entry->caught ) {
+      $total_caught++;
+    }
+
   }
 
   ksort( $pokedex_sorted );
 
   // Set up pagination
-  $current_page = is_numeric( $current_page ) ? $current_page : 1; // Default to page 1 if no page number
-  $total_in_pokedex = count( $pokedex_sorted );
-  $total_pages = ceil( $total_in_pokedex / SLACKEMON_POKEDEX_PER_PAGE );
-  $current_page = $current_page <= $total_pages ? $current_page : 1; // Default to page 1 if page no. is too big
+  $current_page        = is_numeric( $current_page ) ? $current_page : 1; // Default to page 1 if no page number
+  $total_in_pokedex    = count( $pokedex_sorted );
+  $total_pages         = ceil( $total_in_pokedex / SLACKEMON_POKEDEX_PER_PAGE );
+  $current_page        = $current_page <= $total_pages ? $current_page : 1; // Default to pg 1 if page no. is too big
   $sorted_pokedex_page = array_chunk( $pokedex_sorted, SLACKEMON_POKEDEX_PER_PAGE )[ $current_page - 1 ];
 
   $message['text'] .= (
@@ -46,9 +54,11 @@ function slackemon_get_achievements_menu( $current_page ) {
   );
 
   foreach ( $sorted_pokedex_page as $entry ) {
-    $species_data = slackemon_get_pokemon_species_data( $entry->id );
-    $readable_name = slackemon_readable( $species_data->name );
+
+    $species_data   = slackemon_get_pokemon_species_data( $entry->id );
+    $readable_name  = slackemon_readable( $species_data->name );
     $gender_symbols = [ '♂', '♀' ];
+
     $message['text'] .= (
       ( $entry->caught ? ':' . $species_data->name . ':' : ':grey_question:' ) . ' ' .
       '#' . $entry->id . ' - ' . 
@@ -57,6 +67,7 @@ function slackemon_get_achievements_menu( $current_page ) {
       'Seen ' . $entry->seen . ', Caught ' . $entry->caught .
       "\n"
     );
+
   }
 
   // Pagination buttons
@@ -184,7 +195,7 @@ function slackemon_get_achievements_menu( $current_page ) {
       $caught . ' caught, ' .
       $seen . ' seen' .
       ( $is_desktop ? ' - ' : "\n" . '             ' ) .
-      $player_data->battles->won . ' / ' . $player_data->battles->participated . ' trainer battles won' .
+      ( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate' .
       ( $is_desktop ? "\n" : "\n\n" )
     );
 
