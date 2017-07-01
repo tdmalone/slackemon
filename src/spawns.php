@@ -387,9 +387,12 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
           ], [
             'title' => 'Stats',
             'value' => (
-              'Attack '     . $spawn['stats']['attack']          . ' / ' .
-              'Defense '    . $spawn['stats']['defense']         . ' / ' .
-              'HP '         . $spawn['stats']['hp']              . "\n"  .
+              'Attack '    . $spawn['stats']['attack']          . ' / ' .
+              'Defense '   . $spawn['stats']['defense']         . ' / ' .
+              'HP '        . $spawn['stats']['hp']              . "\n"  .
+              'Sp Attk '   . $spawn['stats']['special-attack']  . ' / ' .
+              'Sp Def '    . $spawn['stats']['special-defense'] . ' / ' .
+              'Speed '     . $spawn['stats']['speed']           . "\n"  .
               (
                 isset( $spawn['ivs'] ) ?
                 slackemon_appraise_ivs( $spawn['ivs'] ) . ' ' .
