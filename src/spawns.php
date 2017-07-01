@@ -144,10 +144,10 @@ function slackemon_spawn(
 
           });
 
-          // Get a random Pokemon, then Pokedex ID, Pokemon data, and process the type(s) of our new Pokemon selection
-          // From here, we'll then continue as normal (including checking for Pokemon exclusions, evolution chains, etc.)
+          // Get a random Pokemon, then Pokedex ID, Pokemon data, and process the type(s) of our new Pokemon selection.
+          // From here, we'll then continue as normal (incl. checking for Pokemon exclusions, evolution chains etc.).
           $_random_of_type = $_weather_type_collection[ array_rand( $_weather_type_collection ) ];
-          $pokedex_id = trim( basename( $_random_of_type->pokemon->url ), '/' ); // The ID is only available from the URL
+          $pokedex_id = trim( basename( $_random_of_type->pokemon->url ), '/' ); // ID is only available from the URL.
           $pokemon = slackemon_get_pokemon_data( $pokedex_id );
           $types = [];
           foreach ( $pokemon->types as $type ) {
