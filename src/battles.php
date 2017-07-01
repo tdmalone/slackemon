@@ -1408,7 +1408,7 @@ function slackemon_do_battle_move(
           random_int( 1, SLACKEMON_BASE_FLEE_CHANCE * SLACKEMON_BATTLE_FLEE_MULTIPLIER / $hp_percentage_integer ) > 1
         );
 
-        if ( 1 !== 1 && ! $is_staying ) {
+        if ( ! $is_staying ) {
           slackemon_do_action_response( slackemon_get_catch_message( $opponent_pokemon->ts, $action, true, 'flee' ) );
           return false;
         }
@@ -1700,25 +1700,10 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
   );
 
   $general_attachments = [
-
-    // Notice on the most recent move (if applicable)
-    (
-      $this_move_notice ?
-      [
-        'text'      => $this_move_notice,
-        'color'     => '#333333',
-        'mrkdwn_in' => [ 'text' ],
-      ] :
-      []
-    ),
-
-    // User's options
-
     (
       $user_pokemon->hp ?
       [
-        'text' => (
-          $this_move_notice . "\n" .
+        'pretext' => $this_move_notice . "\n\n" . (
           $battle_data->turn === $user_id ?
           '' :
           (
@@ -1729,30 +1714,30 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
             (
               'wild' === $battle_data->type ?
               ':tada: *You won the battle!* :party_parrot:' :
-              ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!* :party_parrot: :party_parrot:' . "\n" . // Congratulations
+              ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!* :party_parrot: :party_parrot:' . "\n" .
               'Click the _Complete_ button to get your XP bonus and power up your Pokémon! :100:'
             )
           )
         ),
         'color' => (
-          $battle_data->turn !== $user_id && ! $opponent_pokemon->hp && ! $opponent_swaps_available ? // User won battle
+          $battle_data->turn !== $user_id && ! $opponent_pokemon->hp && ! $opponent_swaps_available ? // User won!
           'good' :
           '#333333'
         ),
-        'mrkdwn_in' => [ 'text' ],
+        'mrkdwn_in'   => [ 'text', 'pretext' ],
+        'actions'     => $actions,
         'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-        'actions' => $actions,
       ] :
       // User's current Pokemon has fainted - do we offer a swap, or was that their last mon??
       (
         $user_swaps_available ?
         slackemon_offer_battle_swap( $battle_hash, $user_id ) :
         [
-          'text' => (
+          'pretext' => $this_move_notice . "\n\n" . (
             ':expressionless: *Nooo... you lost the battle!*' . "\n" .
             'Click the _Complete_ button to get your XP bonus and see your Pokémon.'
           ),
-          'mrkdwn_in' => [ 'text' ],
+          'mrkdwn_in' => [ 'text', 'pretext' ],
           'color' => 'danger',
           'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
           'actions' => [
@@ -1800,20 +1785,20 @@ function slackemon_get_battle_pokemon_attachments( $pokemon, $player_id, $battle
   } else if ( $hp_percentage >= 50 ) {
     $hp_color = 'good';
     $hp_emoji .= ':hp_left_green:';
-    $hp_emoji .= str_repeat( ':hp_green:', floor(      $hp_percentage / 10 ) - 1 );
-    $hp_emoji .= str_repeat( ':hp_white:', floor( 10 - $hp_percentage / 10 )     );
+    $hp_emoji .= str_repeat( ':hp_green:', max( floor(      $hp_percentage / 10 ) - 1, 0 ) );
+    $hp_emoji .= str_repeat( ':hp_white:',      floor( 10 - $hp_percentage / 10 )          );
     $hp_emoji .= ':hp_right_white:';
   } else if ( $hp_percentage >= 20 ) {
     $hp_color = 'warning';
     $hp_emoji .= ':hp_left_yellow:';
-    $hp_emoji .= str_repeat( ':hp_yellow:', floor(      $hp_percentage / 10 ) - 1 );
-    $hp_emoji .= str_repeat( ':hp_white:',  floor( 10 - $hp_percentage / 10 )     );
+    $hp_emoji .= str_repeat( ':hp_yellow:', max( floor(      $hp_percentage / 10 ) - 1, 0 ) );
+    $hp_emoji .= str_repeat( ':hp_white:',       floor( 10 - $hp_percentage / 10 )          );
     $hp_emoji .= ':hp_right_white:';
   } else if ( $hp_percentage >= 1 ) {
     $hp_color = 'danger';
     $hp_emoji .= ':hp_left_red:';
-    $hp_emoji .= str_repeat( ':hp_red:',   floor(      $hp_percentage / 10 ) - 1 );
-    $hp_emoji .= str_repeat( ':hp_white:', floor( 10 - $hp_percentage / 10 )     );
+    $hp_emoji .= str_repeat( ':hp_red:',   max( floor(      $hp_percentage / 10 ) - 1, 0 ) );
+    $hp_emoji .= str_repeat( ':hp_white:',      floor( 10 - $hp_percentage / 10 )          );
     $hp_emoji .= ':hp_right_white:';
   } else if ( ! $hp_percentage ) {
     $hp_color = '';

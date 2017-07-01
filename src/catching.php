@@ -103,8 +103,10 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
 
     }
 
+    // Cut out the user's own battle attachment, and their battle header attachment.
     if ( $from_battle ) {
-      array_pop( $message['attachments'] ); // Cut out the user's own battle attachment
+      array_pop(   $message['attachments'] );
+      array_shift( $message['attachments'] );
     }
 
     // Quick catch logic, to determine XP message for this bonus
@@ -192,10 +194,15 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
       'fallback' => slackemon_readable( $spawn_data->name ),
     ];
 
-    // Remove the stats attachment (only if it's there) & the message default text
+    // Remove the spawn stats attachment (only if it's there) & the message default text.
     $message['text'] = '';
     if ( count( $message['attachments'] ) > 1 ) {
       array_pop( $message['attachments'] );
+
+      // An additional attachment needs to popped if it's from a battle, due to the battle header attachment.
+      if ( $from_battle ) {
+        array_pop( $message['attachments'] );
+      }
     }
 
     // More appropriate verb for flee?
