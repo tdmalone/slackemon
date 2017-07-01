@@ -3,6 +3,6 @@
 BACKUP_APP_ENV=$APP_ENV
 APP_ENV=testing
 
-vendor/bin/phpunit
+vendor/bin/phpunit "$@"
 
 APP_ENV=$BACKUP_APP_ENV

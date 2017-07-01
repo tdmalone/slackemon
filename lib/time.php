@@ -49,7 +49,7 @@ function slackemon_get_relative_time( $ts, $long = true ) {
 
         } else if ( $day_diff < 7 ) {
             return $day_diff . ' days ago';
-        } else if ( $day_diff < 31 ) {
+        } else if ( $day_diff < 30 ) {
             $weeks = ceil( $day_diff / 7 );
             return $weeks . ' week' . ( 1 == $weeks ? '' : 's' ) . ' ago';
         } else if ( $day_diff < 60 ) {
