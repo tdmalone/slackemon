@@ -87,6 +87,23 @@ function slackemon_handle_command( $args ) {
 
       break;
 
+      // Scaffolds a test player file with the requested number of random spawns. May take some time to complete.
+      // Side effect: runs clean-up (up to the second) so it can be assured of unique spawn timestamps.
+      case 'scaffold':
+
+        $spawn_count = isset( $args[1] ) ? $args[1] : 10;
+
+        slackemon_send2slack( 'Scaffolding ' . $spawn_count . ' spawns...' );
+
+        if ( slackemon_scaffold_player_file( $spawn_count ) ) {
+          slackemon_send2slack( 'Your scaffold is complete.' );
+        }
+
+        // Intentionally don't exit here - it can be useful to go straight to the main menu to show the
+        // new Pokemon count.
+
+      break;
+
     } // Switch $args[0]
   } // If cron or not live
 

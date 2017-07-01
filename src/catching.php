@@ -50,7 +50,10 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
     $active_battle   = slackemon_get_user_active_battles( $user_id )[0];
     $battle_result   = 'catch' === $force_battle_result ? 'won' : 'lost';
     $award_battle_xp = 'catch' === $force_battle_result ? true : false;
-    $battle_message  = slackemon_complete_battle( $battle_result, $active_battle->hash, $user_id, $award_battle_xp, false );
+
+    $battle_message  = slackemon_complete_battle(
+      $battle_result, $active_battle->hash, $user_id, $award_battle_xp, false
+    );
 
     $battle_pokemon = slackemon_get_battle_current_pokemon( $active_battle->hash, $user_id );
 
@@ -100,8 +103,10 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
 
     }
 
+    // Cut out the user's own battle attachment, and their battle header attachment.
     if ( $from_battle ) {
-      array_pop( $message['attachments'] ); // Cut out the user's own battle attachment
+      array_pop(   $message['attachments'] );
+      array_shift( $message['attachments'] );
     }
 
     // Quick catch logic, to determine XP message for this bonus
@@ -109,10 +114,11 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
     $quick_catch_grace = MINUTE_IN_SECONDS / 4; // To allow for long spawn decisions
     $quick_catch_readable = floor( $quick_catch_limit / 60 ); // In minute(s)
 
-    // Add a new actions attachment
+    // Add new results & actions attachments
+
     $message['attachments'][] = [
-      'color' => '#333333',
-      'text' => (
+      'color'   => '#333333',
+      ( $from_battle ? 'pretext' : 'text' ) => (
         (
           $total_caught_all > 1 ?
           '*YAY! You caught ' . slackemon_readable( $spawn_data->name ) . '!* :tada:' . "\n" :
@@ -141,27 +147,32 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
           'minute' . ( 1 == $quick_catch_readable ? '' : 's' ) . '!' . "\n" :
           ''
         )
-      ),
+      )
+    ];
+
+    $message['attachments'][] = [
+      'color'    => '#333333',
+      'fallback' => 'Return to Main Menu',
       'actions' => [
         [
-          'name' => $from_battle ? 'pokemon/view/caught/battle' : 'pokemon/view/caught',
-          'text' => ':eye: About ' . slackemon_readable( $spawn_data->name ),
-          'type' => 'button',
+          'name'  => $from_battle ? 'pokemon/view/caught/battle' : 'pokemon/view/caught',
+          'text'  => ':eye: About ' . slackemon_readable( $spawn_data->name ),
+          'type'  => 'button',
           'value' => $spawn_ts,
           'style' => 'primary',
         ], (
           $from_battle ?
           [
-            'name' => 'pokemon/view/caught/battle',
-            'text' => ':eye: View ' . slackemon_readable( $battle_pokemon->name ),
-            'type' => 'button',
+            'name'  => 'pokemon/view/caught/battle',
+            'text'  => ':eye: View ' . slackemon_readable( $battle_pokemon->name ),
+            'type'  => 'button',
             'value' => $battle_pokemon->ts,
           ] :
           []
         ), [
-          'name' => 'menu',
-          'text' => ':leftwards_arrow_with_hook: Main Menu',
-          'type' => 'button',
+          'name'  => 'menu',
+          'text'  => ':leftwards_arrow_with_hook: Main Menu',
+          'type'  => 'button',
           'value' => 'main',
         ],
       ],
@@ -183,10 +194,15 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
       'fallback' => slackemon_readable( $spawn_data->name ),
     ];
 
-    // Remove the stats attachment (only if it's there) & the message default text
+    // Remove the spawn stats attachment (only if it's there) & the message default text.
     $message['text'] = '';
     if ( count( $message['attachments'] ) > 1 ) {
       array_pop( $message['attachments'] );
+
+      // An additional attachment needs to popped if it's from a battle, due to the battle header attachment.
+      if ( $from_battle ) {
+        array_pop( $message['attachments'] );
+      }
     }
 
     // More appropriate verb for flee?

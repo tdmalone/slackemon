@@ -192,16 +192,18 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     $base_stats_attachment = [
       'title' => 'Base Stats',
       'value' => (
-        'Attack '  . $base_stats->attack   . ( $is_desktop ? ' / ' : "\n" ) .
-        'Defense ' . $base_stats->defense  . ( $is_desktop ? ' / ' : "\n" ) .
-        'HP '      . $base_stats->hp       . "\n" .
+        'Attack '  . $base_stats->attack  . ' / ' .
+        ( $is_desktop ? '' : 'Sp ' . $base_stats->{'special-attack'} . "\n" ) .
+        'Defense ' . $base_stats->defense  . ' / ' .
+        ( $is_desktop ? '' : 'Sp ' . $base_stats->{'special-defense'} . "\n" ) .
+        'HP '      . $base_stats->hp .
         (
           $is_desktop ?
+          "\n" .
           'Sp Att '  . $base_stats->{'special-attack'}  . ' / ' .
-          'Sp Def '  . $base_stats->{'special-defense'} . ' / ' .
-          'Speed '   . $base_stats->speed . "\n" :
+          'Sp Def '  . $base_stats->{'special-defense'} :
           ''
-        )
+        ) . ' / ' . 'Speed '   . $base_stats->speed . "\n"
       ),
       'short' => true,
     ];
@@ -209,16 +211,18 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     $current_stats_attachment = [
       'title' => 'Current Stats',
       'value' => (
-        'Attack '  . $pokemon->stats->attack  . ( $is_desktop ? ' / ' : "\n" ) .
-        'Defense ' . $pokemon->stats->defense . ( $is_desktop ? ' / ' : "\n" ) .
-        'HP '      . $pokemon->stats->hp . "\n" .
+        'Attack '  . $pokemon->stats->attack  . ' / ' .
+        ( $is_desktop ? '' : 'Sp ' . $pokemon->stats->{'special-attack'} . "\n" ) .
+        'Defense ' . $pokemon->stats->defense . ' / ' .
+        ( $is_desktop ? '' : 'Sp ' . $pokemon->stats->{'special-defense'} . "\n" ) .
+        'HP '      . $pokemon->stats->hp .
         (
           $is_desktop ?
+          "\n" .
           'Sp Att '  . $pokemon->stats->{'special-attack'}  . ' / ' .
-          'Sp Def '  . $pokemon->stats->{'special-defense'} . ' / ' .
-          'Speed '   . $pokemon->stats->speed . "\n" :
+          'Sp Def '  . $pokemon->stats->{'special-defense'} :
           ''
-        ) .
+        ) . ' / ' . 'Speed '   . $pokemon->stats->speed . "\n" .
         'Level ' . $pokemon->level . ' - ' . $pokemon->cp . ' CP'
       ),
       'short' => true,
@@ -276,14 +280,10 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
           'Attack '  . $pokemon->ivs->attack  . ' / ' .
           'Defense ' . $pokemon->ivs->defense . ' / ' .
           'HP '      . $pokemon->ivs->hp . "\n" .
-          (
-            $is_desktop ?
-            'Sp Att '  . $pokemon->ivs->{'special-attack'}  . ' / ' .
-            'Sp Def '  . $pokemon->ivs->{'special-defense'} . ' / ' .
-            'Speed '   . $pokemon->ivs->speed . "\n" .
-            'Total: '  . slackemon_get_iv_percentage( $pokemon->ivs ) . '%' . "\n" :
-            ''
-          )
+          'Sp Att '  . $pokemon->ivs->{'special-attack'}  . ' / ' .
+          'Sp Def '  . $pokemon->ivs->{'special-defense'} . ' / ' .
+          'Speed '   . $pokemon->ivs->speed . "\n" .
+          'Total: '  . slackemon_get_iv_percentage( $pokemon->ivs ) . '%'
         ),
         'short' => $is_desktop,
       ],
@@ -295,14 +295,10 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
           'Attack '  . $pokemon->evs->attack  . ' / ' .
           'Defense ' . $pokemon->evs->defense . ' / ' .
           'HP '      . $pokemon->evs->hp . "\n" .
-          (
-            $is_desktop ?
-            'Sp Att '  . $pokemon->evs->{'special-attack'}  . ' / ' .
-            'Sp Def '  . $pokemon->evs->{'special-defense'} . ' / ' .
-            'Speed '   . $pokemon->evs->speed . "\n" .
-            'Total: '  . slackemon_get_combined_evs( $pokemon->evs ) . "\n" :
-            ''
-          ) :
+          'Sp Att '  . $pokemon->evs->{'special-attack'}  . ' / ' .
+          'Sp Def '  . $pokemon->evs->{'special-defense'} . ' / ' .
+          'Speed '   . $pokemon->evs->speed . "\n" .
+          'Total: '  . slackemon_get_combined_evs( $pokemon->evs ) :
           '_(none yet)_'
         ),
         'short' => $is_desktop,
