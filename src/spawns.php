@@ -516,18 +516,42 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
 
         if ( $highest_level > 1 ) {
 
-          // Protect some of the gameplay by ensuring we don't spawn a level that's too close to evolving
-          // If the user doesn't have the evolved form yet, we'll make sure we're even further away from making it too easy
+          // Protect some of the gameplay by ensuring we don't spawn a level that's too close to evolving.
+          // If the user doesn't have the evolved form yet, we'll make sure we're even further from making it too easy.
           if ( $pokemon_evolves_at_level ) {
             if ( slackemon_has_user_caught_pokemon( $player_id, $pokemon_evolves_into ) ) {
-              $highest_level = min( $highest_level, $pokemon_evolves_at_level * .75 ); // User already has the evolved form
-              slackemon_spawn_debug( 'This spawn will be up to level ' . $highest_level . ' for ' . $player_id . ' - their battle team highest is ' . $highest_battle_team_level . ' but we need to ensure the Pokemon isn\'t ready to evolve into #' . $pokemon_evolves_into . ' right-away.' );
+
+              // User already has evolved form.
+
+              $highest_level = min( $highest_level, $pokemon_evolves_at_level * .75 );
+
+              slackemon_spawn_debug(
+                'This spawn will be up to level ' . $highest_level . ' for ' . $player_id . ' - ' .
+                'their battle team highest is ' . $highest_battle_team_level . ' but we need to ensure ' .
+                'the Pokemon isn\'t ready to evolve into #' . $pokemon_evolves_into . ' right-away.'
+              );
+
             } else {
-              $highest_level = min( $highest_level, $pokemon_evolves_at_level * .5 ); // User DOESN'T have evolved form yet
-              slackemon_spawn_debug( 'This spawn will be up to level ' . $highest_level . ' for ' . $player_id . ' - their battle team highest is ' . $highest_battle_team_level . ' but they don\'t have evolution Pokemon #' . $pokemon_evolves_into . ' yet.' );
+
+              // User DOESN'T have evolved form yet.
+
+              $highest_level = min( $highest_level, $pokemon_evolves_at_level * .5 );
+
+              slackemon_spawn_debug(
+                'This spawn will be up to level ' . $highest_level . ' for ' . $player_id . ' - ' .
+                'their battle team highest is ' . $highest_battle_team_level . ' but they don\'t ' .
+                'have evolution Pokemon #' . $pokemon_evolves_into . ' yet.'
+              );
+
             }
+
           } else {
-            slackemon_spawn_debug( 'This spawn will be up to level ' . $highest_level . ' for ' . $player_id . ' - the highest level in their battle team.' );
+
+            slackemon_spawn_debug(
+              'This spawn will be up to level ' . $highest_level . ' for ' . $player_id . ' - ' .
+              'the highest level in their battle team.'
+            );
+
           }
 
           $random_level = random_int( 1, floor( $highest_level ) );
@@ -546,17 +570,30 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
 
         } else {
 
-          slackemon_spawn_debug( 'User ' . $player_id . ' does not have any Pokemon over level 1 in their battle team, so this spawn will be at level 1 for them.' );
+          slackemon_spawn_debug(
+            'User ' . $player_id . ' does not have any Pokemon over level 1 in their battle team, ' .
+            'so this spawn will be at level 1 for them.'
+          );
 
         } // If highest_level > 1 / else
 
       } else {
 
-        slackemon_spawn_debug( 'User ' . $player_id . ' does not have enough Pokemon to battle, so this spawn will be at level 1 for them.' );
+        slackemon_spawn_debug(
+          'User ' . $player_id . ' does not have enough Pokemon to battle, ' .
+          'so this spawn will be at level 1 for them.'
+        );
 
       } // If battle team / else
     } // If not specific_level
 
+    // If the CP is higher than any this player has seen before, hide it to increase the mystique. :)
+    $player_top_pokemon = slackemon_get_top_player_pokemon( 'cp', 1, null, $player_id );
+    if ( $player_top_pokemon->cp < $spawn['cp'] ) {
+      $this_message['attachments'][1]['fields'][1]['value'] = '??? (Level ' . $spawn['level'] . ')';
+    }
+
+    // Make sure we go to the correct player.
     $this_message['channel'] = $player_id;
 
     if ( slackemon_record_spawn_for_user( $player_id, $spawn ) ) {

@@ -178,6 +178,28 @@ function slackemon_get_player_pokemon_data( $spawn_ts, $player_data = null, $use
 
 } // Function slackemon_get_player_pokemon_data
 
+/** Returns a player's top Pokemon by CP, or another sorting category. Optionally more than 1, in order. */
+function slackemon_get_top_player_pokemon( $sort_by = 'cp', $count = 1, $player_data = null, $user_id = USER_ID ) {
+  
+  if ( ! $player_data ) {
+    $player_data = slackemon_get_player_data( $user_id );
+  }
+
+  usort( $player_data->pokemon, function( $pokemon1, $pokemon2 ) use ( $sort_by ) {
+    return $pokemon1->{ $sort_by } < $pokemon2->{ $sort_by } ? 1 : -1;
+  });
+
+  $collection = array_slice( $player_data->pokemon, 0, $count );
+
+  // Return the object on its own if it is the only one.
+  if ( 1 === count( $collection ) ) {
+    return $collection[0];
+  }
+
+  return $collection;
+  
+} // Function slackemon_get_top_player_pokemon
+
 /*
  * Adds XP to a player's file.
  *
