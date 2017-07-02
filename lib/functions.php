@@ -37,7 +37,7 @@ function slackemon_change_data_folder( $new_data_folder ) {
  * @link http://php.net/exit
  */
 function slackemon_exit( $status = '' ) {
-  
+
   // Remove any open file locks
   slackemon_remove_file_locks();
 
@@ -51,6 +51,7 @@ function slackemon_exit( $status = '' ) {
     return $status;
   }
 
+  // TODO: Are there alternatives to exiting here? Exiting is untestable.
   exit( $status );
 
 } // Function slackemon_exit
@@ -66,12 +67,14 @@ function check_subcommands( $allowed_subcommands = [], $welcome_message = '' ) {
 
   if ( $welcome_message ) {
     if ( ! count( $args ) || ! $args[0] || ! in_array( $args[0], $allowed_subcommands ) ) {
+
       if ( is_string( $welcome_message ) ) {
         return slackemon_exit( $welcome_message );
-      } else {
-        header( 'Content-type: application/json' );
-        return slackemon_exit( json_encode( $welcome_message ) );
       }
+      
+      header( 'Content-type: application/json' );
+      return slackemon_exit( json_encode( $welcome_message ) );
+
     }
   }
 
@@ -80,11 +83,11 @@ function check_subcommands( $allowed_subcommands = [], $welcome_message = '' ) {
 } // Function check_subcommands
 
 /** Run a command in the background while the main file returns a response to Slack. */
-function slackemon_run_background_command( $path, $args, $additional_fields = [], $additional_fields_as_json = false ) {
+function slackemon_run_background_command( $path, $args ) {
 
   $command_data = [
 
-    // Pass through all the usual expected data
+    // Pass through all the usual expected data.
     // Reference: https://api.slack.com/slash-commands#triggering_a_command
     'token'        => SLACKEMON_SLACK_TOKEN,
     'team_id'      => TEAM_ID,
@@ -103,13 +106,6 @@ function slackemon_run_background_command( $path, $args, $additional_fields = []
     'run_mode'     => isset( $_POST['run_mode'] ) ? $_POST['run_mode'] : '',
     
   ];
-
-  // Hook in any additional fields
-  if ( $additional_fields_as_json ) {
-    $command_data['additional_fields'] = json_encode( $additional_fields );
-  } else {
-    $command_data = array_merge( $command_data, $additional_fields );
-  }
 
   return slackemon_run_in_background( $command_data, $path );
 
@@ -196,7 +192,7 @@ function maybe_truncate( $string = '', $max_chars = 100 ) {
 
 } // Function maybe_truncate
 
-// Converts $title to Title Case, and returns the result. 
+// Converts $title to Title Case, and returns the result.
 // HT: https://www.sitepoint.com/title-case-in-php/
 function strtotitle( $title ) {
 
@@ -228,7 +224,7 @@ function strtotitle( $title ) {
  *
  * @link https://stackoverflow.com/a/13818126/1982136
  */
-function slackemon_is_ip_private( $ip ) {
+function slackemon_is_ip_private( $ip_address ) {
 
   $private_ranges = [
     '10.0.0.0|10.255.255.255',      // Single class A network
@@ -238,7 +234,7 @@ function slackemon_is_ip_private( $ip ) {
     '127.0.0.0|127.255.255.255'     // Localhost
   ];
 
-  $long_ip = ip2long( $ip );
+  $long_ip = ip2long( $ip_address );
 
   if ( $long_ip && -1 !== $long_ip ) {
 
@@ -256,7 +252,7 @@ function slackemon_is_ip_private( $ip ) {
 } // Function slackemon_is_ip_private
 
 /** Call this function from the top of a function that is deprecated and should no longer be used. */
-function __slackemon_deprecated_function( $function, $version, $replacement = '' ) {
+function __slackemon_deprecated_function( $function, $version ) {
 
   slackemon_error_log(
     'WARNING: Using ' . $function . ' which was deprecated in v' . $version . '.' . PHP_EOL .

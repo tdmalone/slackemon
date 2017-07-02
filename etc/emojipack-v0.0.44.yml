@@ -1,0 +1,22 @@
+title: slackemon-v0.0.44-hp-status-bar
+emojis:
+  - name: hp_green
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/2af347c1e5c/media/emoji/hp_green.png
+  - name: hp_left_green
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/2af347c1e5c/media/emoji/hp_left_green.png
+  - name: hp_left_red
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/2af347c1e5c/media/emoji/hp_left_red.png
+  - name: hp_left_white
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/2af347c1e5c/media/emoji/hp_left_white.png
+  - name: hp_left_yellow
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/2af347c1e5c/media/emoji/hp_left_yellow.png
+  - name: hp_red
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/2af347c1e5c/media/emoji/hp_red.png
+  - name: hp_right_green
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/2af347c1e5c/media/emoji/hp_right_green.png
+  - name: hp_right_white
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/2af347c1e5c/media/emoji/hp_right_white.png
+  - name: hp_white
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/2af347c1e5c/media/emoji/hp_white.png
+  - name: hp_yellow
+    src: https://raw.githubusercontent.com/tdmalone/slackemon/2af347c1e5c/media/emoji/hp_yellow.png
