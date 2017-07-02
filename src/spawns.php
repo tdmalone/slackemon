@@ -412,12 +412,8 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
               'Sp Attk '   . $spawn['stats']['special-attack']  . ' / ' .
               'Sp Def '    . $spawn['stats']['special-defense'] . ' / ' .
               'Speed '     . $spawn['stats']['speed']           . "\n"  .
-              (
-                isset( $spawn['ivs'] ) ?
-                slackemon_appraise_ivs( $spawn['ivs'] ) . ' ' .
-                slackemon_get_iv_percentage( $spawn['ivs'] ) .'%' :
-                ''
-              )
+              slackemon_appraise_ivs( $spawn['ivs'] ) . ' ' .
+              slackemon_get_iv_percentage( $spawn['ivs'] ) .'%'
             ),
             'short' => true, // WARNING: This attachment & field key will be set false below if not on desktop mode
           ],
@@ -480,17 +476,18 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
   foreach ( slackemon_get_player_ids( $player_args ) as $player_id ) {
 
     $this_message = $message;
+    $this_spawn   = $spawn;
     $is_desktop   = 'desktop' === slackemon_get_player_menu_mode( $player_id );
 
-    $seen   = slackemon_has_user_seen_pokemon(   $player_id, $spawn['pokedex'] );
-    $caught = slackemon_has_user_caught_pokemon( $player_id, $spawn['pokedex'] );
+    $seen   = slackemon_has_user_seen_pokemon(   $player_id, $this_spawn['pokedex'] );
+    $caught = slackemon_has_user_caught_pokemon( $player_id, $this_spawn['pokedex'] );
 
     if ( $caught ) {
       $seen_caught_text = '';
     } else if ( $seen ) {
       $seen_caught_text = (
         "\n" .
-        'You haven\'t caught a ' . slackemon_readable( $spawn['name'] ) . ' yet - good luck! :fingers_crossed:'
+        'You haven\'t caught a ' . slackemon_readable( $this_spawn['name'] ) . ' yet - good luck! :fingers_crossed:'
       );
     } else {
       $seen_caught_text = 'You\'ve never seen one before!';
@@ -580,17 +577,26 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
 
           $random_level = random_int( 1, floor( $highest_level ) );
 
-          foreach ( $spawn['stats'] as $key => $value ) {
-            $spawn['stats'][ $key ] = slackemon_calculate_stats(
-              $key, $spawn['pokedex'], $random_level, $spawn['ivs'], $spawn['evs'], $spawn['nature']
+          foreach ( $this_spawn['stats'] as $key => $value ) {
+
+            $this_spawn['stats'][ $key ] = slackemon_calculate_stats(
+              $key,
+              $this_spawn['pokedex'],
+              $random_level,
+              $this_spawn['ivs'],
+              $this_spawn['evs'],
+              $this_spawn['nature']
             );
+
           }
 
-          $spawn['level'] = $random_level;
-          $spawn['cp']    = slackemon_calculate_cp( $spawn['stats'] );
-          $spawn['xp']    = slackemon_get_xp_for_level( $spawn['pokedex'], $spawn['level'] );
+          $this_spawn['level'] = $random_level;
+          $this_spawn['cp']    = slackemon_calculate_cp( $this_spawn['stats'] );
+          $this_spawn['xp']    = slackemon_get_xp_for_level( $this_spawn['pokedex'], $this_spawn['level'] );
 
-          $this_message['attachments'][1]['fields'][1]['value'] = $spawn['cp'] . ' (Level ' . $spawn['level'] . ')';
+          $this_message['attachments'][1]['fields'][1]['value'] = (
+            $this_spawn['cp'] . ' (Level ' . $this_spawn['level'] . ')'
+          );
 
         } else {
 
@@ -613,14 +619,23 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
 
     // If the CP is higher than any this player has seen before, hide it to increase the mystique. :)
     $player_top_pokemon = slackemon_get_top_player_pokemon( 'cp', 1, null, $player_id );
-    if ( $player_top_pokemon->cp < $spawn['cp'] ) {
-      $this_message['attachments'][1]['fields'][1]['value'] = '??? (Level ' . $spawn['level'] . ')';
+    if ( $player_top_pokemon->cp < $this_spawn['cp'] ) {
+
+      $this_spawn['flags'] = [ 'hide_stats' ];
+
+      $this_message['attachments'][1]['fields'][1]['value'] = '???';
+
+      $this_message['attachments'][1]['fields'][3]['value'] = (
+        slackemon_appraise_ivs( $this_spawn['ivs'] ) . ' ' .
+        slackemon_get_iv_percentage( $this_spawn['ivs'] ) .'%'
+      );
+
     }
 
     // Make sure we go to the correct player.
     $this_message['channel'] = $player_id;
 
-    if ( slackemon_record_spawn_for_user( $player_id, $spawn ) ) {
+    if ( slackemon_record_spawn_for_user( $player_id, $this_spawn ) ) {
 
       $response = slackemon_post2slack( $this_message );
 
@@ -669,6 +684,7 @@ function slackemon_record_spawn_for_user( $user_id, $spawn ) {
     'xp'      => $spawn['xp'],
     'cp'      => $spawn['cp'],
     'hp'      => $spawn['stats']['hp'],
+    'flags'   => $spawn['flags'],
   ];
   slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store', false );
 
