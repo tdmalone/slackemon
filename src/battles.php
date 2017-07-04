@@ -1276,12 +1276,12 @@ function slackemon_do_battle_move(
       if ( $move_data->meta->drain > 0 ) {
         $meta_message .= (
           '_' . slackemon_readable( $user_pokemon->name ) . ' drained ' .
-          $drain_percentage . '% HP from ' . slackemon_readable( $opponent_pokemon->name ) . '!_' . "\n"
+          $drain_percentage . '% HP from ' . slackemon_readable( $opponent_pokemon->name ) . '!_'
         );
       } else {
         $meta_message .= (
           '_The recoil damaged ' . slackemon_readable( $user_pokemon->name ) . ' ' .
-          'by ' . abs( $drain_percentage ) . '%!_' . "\n"
+          'by ' . abs( $drain_percentage ) . '%!_'
         );
       }
 
@@ -1328,7 +1328,7 @@ function slackemon_do_battle_move(
 
     // Did the opponent faint?
     if ( ! $opponent_pokemon->hp ) {
-      $move_message .= "\n" . '*' . slackemon_readable( $opponent_pokemon->name ) . ' has fainted!*';
+      $move_message .= "\n\n" . '*' . slackemon_readable( $opponent_pokemon->name ) . ' has fainted!*';
     }
 
     // Make sure the Pokemon gets credit if this was its first move in this battle
