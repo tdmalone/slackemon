@@ -132,7 +132,7 @@ $_exclude_vars = [
   'SLACKEMON_EXCLUDE_ON_TIME_OF_DAY'
 ];
 foreach ( $_exclude_vars as $var ) { // Foreach of the above vars, force the env var to boolean or default to TRUE
-  define( $var, filter_var( getenv( $var ), FILTER_VALIDATE_BOOLEAN ) ?: true );
+  define( $var, getenv( $var ) ? filter_var( getenv( $var ), FILTER_VALIDATE_BOOLEAN ) : true );
 }
 
 // Should legendary Pokemon be allowed to spawn when their type is weather-friendly?
@@ -140,7 +140,9 @@ foreach ( $_exclude_vars as $var ) { // Foreach of the above vars, force the env
 // there's nothing for Registeel.
 define(
   'SLACKEMON_ALLOW_LEGENDARY_WEATHER_SPAWNS',
-  filter_var( getenv( 'SLACKEMON_ALLOW_LEGENDARY_WEATHER_SPAWNS' ), FILTER_VALIDATE_BOOLEAN ) ?: true
+  getenv( 'SLACKEMON_ALLOW_LEGENDARY_WEATHER_SPAWNS' ) ?
+  filter_var( getenv( 'SLACKEMON_ALLOW_LEGENDARY_WEATHER_SPAWNS' ), FILTER_VALIDATE_BOOLEAN ) :
+  true
 );
 
 // Certain individual Pokemon that are excluded from spawns altogether.
@@ -178,13 +180,15 @@ $_debug_vars = [
 ];
 
 foreach ( $_debug_vars as $var ) { // Foreach of the above vars, force the env var to boolean or default to FALSE
-  define( $var, filter_var( getenv( $var ), FILTER_VALIDATE_BOOLEAN ) ?: false );
+  define( $var, getenv( $var ) ? filter_var( getenv( $var ), FILTER_VALIDATE_BOOLEAN ) : false );
 }
 
 // In addition, 'file locking' is new, so there's a variable that can be used to disable it if it causes issues
 define(
   'SLACKEMON_ENABLE_FILE_LOCKING',
-  filter_var( getenv( 'SLACKEMON_ENABLE_FILE_LOCKING' ), FILTER_VALIDATE_BOOLEAN ) ?: true
+  getenv( 'SLACKEMON_ENABLE_FILE_LOCKING' ) ?
+  filter_var( getenv( 'SLACKEMON_ENABLE_FILE_LOCKING' ), FILTER_VALIDATE_BOOLEAN ) :
+  true
 );
 
 /**
