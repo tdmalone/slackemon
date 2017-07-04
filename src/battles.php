@@ -1712,7 +1712,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
           (
             $opponent_pokemon->hp || $opponent_swaps_available ?
             '*It\'s ' . $opponent_first_name . '\'s move' .
-            ( 'p2p' === $battle_data->type ? '.' : '... :loading:' ) .
+            ( 'p2p' === $battle_data->type ? '.' : '... ' . slackemon_get_loading_indicator( $user_id, false ) ) .
             '*' :
             (
               'wild' === $battle_data->type ?
@@ -1808,6 +1808,10 @@ function slackemon_get_battle_pokemon_attachments( $pokemon, $player_id, $battle
     $hp_emoji .= ':hp_left_white:';
     $hp_emoji .= str_repeat( ':hp_white:', 8 );
     $hp_emoji .= ':hp_right_white:';
+  }
+
+  if ( ! SLACKEMON_ENABLE_CUSTOM_EMOJI ) {
+    $hp_emoji = '';
   }
 
   $player_battle_team = $battle_data->users->{ $player_id }->team;

@@ -367,7 +367,7 @@ function slackemon_get_item_action_message( $method, $item_id, $action, $user_id
   if ( 'teach' === $method ) {
 
     $message['attachments'][ $action->attachment_id - 1 ]->footer = (
-      'Checking who can learn this move... :loading:'
+      'Checking who can learn this move... ' . slackemon_get_loading_indicator( $user_id, false )
     );
 
     $message['attachments'][ $action->attachment_id - 1 ]->actions = [];

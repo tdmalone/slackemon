@@ -111,6 +111,11 @@ function slackemon_appraise_ivs( $ivs, $include_emoji = true, $abbrev = false ) 
  */
 function slackemon_emojify_types( $type_string, $include_text = true, $emoji_position = 'before' ) {
 
+  // If custom emoji are not enabled, just separate multiple types with a slash.
+  if ( ! SLACKEMON_ENABLE_CUSTOM_EMOJI ) {
+    return preg_replace( '/\s+/', '/', $type_string );
+  }
+
   $type_string = preg_replace_callback(
     '|(\S*)|',
     function( $matches ) use ( $include_text, $emoji_position ) {
@@ -471,5 +476,19 @@ function slackemon_build_evolution_chain( $chain, $pokemon_name ) {
   return $output;
 
 } // Function slackemon_build_evolution_chain
+
+function slackemon_get_loading_indicator( $user_id = USER_ID, $include_fallback = true ) {
+  
+  if ( SLACKEMON_ENABLE_CUSTOM_EMOJI && 'desktop' === slackemon_get_player_menu_mode( $user_id ) ) {
+    return ':loading:';
+  }
+
+  if ( $include_fallback ) {
+    return 'Loading...';
+  }
+
+  return '';
+
+} // Function slackemon_get_loading_indicator
 
 // The end!

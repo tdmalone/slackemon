@@ -23,10 +23,10 @@ function slackemon_get_battle_menu() {
 
 } // Function slackemon_get_battle_menu
 
-function slackemon_get_battle_menu_attachments() {
+function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
   $attachments = [];
-  $battle_team = slackemon_get_battle_team( USER_ID, false, true );
+  $battle_team = slackemon_get_battle_team( $user_id, false, true );
   $is_desktop  = 'desktop' === slackemon_get_player_menu_mode();
 
   $faint_count = 0;
@@ -69,7 +69,7 @@ function slackemon_get_battle_menu_attachments() {
   }
 
   // Don't allow the player to proceed with sending an invite if their battle team isn't full
-  if ( ! slackemon_is_battle_team_full( USER_ID, false, true ) && ! count( $outstanding_invites ) ) {
+  if ( ! slackemon_is_battle_team_full( $user_id, false, true ) && ! count( $outstanding_invites ) ) {
     return $attachments;
   }
 
@@ -84,7 +84,7 @@ function slackemon_get_battle_menu_attachments() {
 
   } else if ( count( $outstanding_invites ) ) {
 
-    if ( USER_ID === $outstanding_invites[0]->inviter_id ) {
+    if ( $user_id === $outstanding_invites[0]->inviter_id ) {
 
       $opponent_id = $outstanding_invites[0]->invitee_id;
       $battle_hash = $outstanding_invites[0]->hash;
@@ -93,7 +93,7 @@ function slackemon_get_battle_menu_attachments() {
       $_first_name = slackemon_get_slack_user_first_name( $opponent_id );
 
       $attachment['pretext'] = (
-        ( $is_desktop ? ':loading: ' : '' ) .
+        slackemon_get_loading_indicator( $user_id, false ) . ' ' .
         '*Waiting for ' . $_first_name . '\'s response to your ' . ( $is_desktop ? 'battle ' : '' ) . 'invite...*'
       );
 

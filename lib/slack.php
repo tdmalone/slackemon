@@ -144,7 +144,7 @@ function slackemon_post2slack( $payload ) {
  * Assists with long-waiting actions, including while waiting to acquire a file lock, by advising the user and ensuring
  * they don't involve any further actions. Only updates once per session.
  */
-function slackemon_send_waiting_message_to_user() {
+function slackemon_send_waiting_message_to_user( $user_id = USER_ID ) {
   global $_slackemon_waiting_message_sent;
 
   if ( $_slackemon_waiting_message_sent ) {
@@ -160,7 +160,9 @@ function slackemon_send_waiting_message_to_user() {
       $attachment->actions = [];
     }
 
-    $message->attachments[ $action->attachment_id - 1 ]->footer = 'Loading... :loading:';
+    $message->attachments[ $action->attachment_id - 1 ]->footer = (
+      'Loading... ' . slackemon_get_loading_indicator( $user_id, false )
+    );
 
     slackemon_send2slack( $message );
     $_slackemon_waiting_message_sent = true;

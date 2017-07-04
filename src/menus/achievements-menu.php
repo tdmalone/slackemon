@@ -177,14 +177,19 @@ function slackemon_get_achievements_menu( $current_page ) {
     }
 
     $full_name = slackemon_get_slack_user_full_name( $player_id );
-    $emoji = (
-      slackemon_is_player_active( $player_id ) ?
-      ':green_circle:' : (
-        slackemon_is_player_in_battle( $player_id ) ?
-        ':yellow_circle:' :
-        ':black_circle:'
-      )
-    );
+
+    $emoji = '';
+
+    if ( SLACKEMON_ENABLE_CUSTOM_EMOJI ) {
+      $emoji = (
+        slackemon_is_player_active( $player_id ) ?
+        ':green_circle:' : (
+          slackemon_is_player_in_battle( $player_id ) ?
+          ':yellow_circle:' :
+          ':black_circle:'
+        )
+      );
+    }
 
     $leaderboard .= (
       $emoji . ' *#' . $player_count . '*. ' .
@@ -205,11 +210,13 @@ function slackemon_get_achievements_menu( $current_page ) {
 
   } // Foreach players
 
-  $leaderboard .= (
-    ( $is_desktop ? "\n" : '' ) .
-    '_Players in green are online and available to battle!_' . "\n" .
-    '_Players in yellow are currently battling._'
-  );
+  if ( SLACKEMON_ENABLE_CUSTOM_EMOJI ) {
+    $leaderboard .= (
+      ( $is_desktop ? "\n" : '' ) .
+      '_Players in green are online and available to battle!_' . "\n" .
+      '_Players in yellow are currently battling._'
+    );
+  }
 
   $message['attachments'][] = [
     'pretext' => $leaderboard,

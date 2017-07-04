@@ -82,6 +82,15 @@ define( 'SLACKEMON_ADDITIONAL_NEWS', trim( getenv( 'SLACKEMON_ADDITIONAL_NEWS' )
 define( 'SLACKEMON_AVAILABLE_REGIONS', getenv( 'SLACKEMON_AVAILABLE_REGIONS' ) ?: 'kanto' );
 define( 'SLACKEMON_DEFAULT_REGION',    getenv( 'SLACKEMON_DEFAULT_REGION'    ) ?: 'kanto' );
 
+// If you aren't able to upload custom emoji to your Slack team, you can turn off all use of them.
+// Note that this will most likely reduce the visual appeal of some features, particularly the battle HP meter!
+define(
+  'SLACKEMON_ENABLE_CUSTOM_EMOJI',
+  getenv( 'SLACKEMON_ENABLE_CUSTOM_EMOJI' ) ?
+  filter_var( getenv( 'SLACKEMON_ENABLE_CUSTOM_EMOJI' ), FILTER_VALIDATE_BOOLEAN ) :
+  true
+);
+
 // The hours that Slackemon cannot be played by any user.
 // TODO: This feature is not yet implemented.
 // TODO: Document how to use this feature when it is implemented.

@@ -488,7 +488,8 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
     } else if ( $seen ) {
       $seen_caught_text = (
         "\n" .
-        'You haven\'t caught a ' . slackemon_readable( $this_spawn['name'] ) . ' yet - good luck! :fingers_crossed:'
+        'You haven\'t caught a ' . slackemon_readable( $this_spawn['name'] ) . ' yet - good luck!' .
+        ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :fingers_crossed:' : '' )
       );
     } else {
       $seen_caught_text = 'You\'ve never seen one before!';
