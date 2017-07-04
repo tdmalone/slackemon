@@ -309,6 +309,7 @@ function slackemon_spawn(
       'last_won'          => false,
       'last_participated' => false,
     ],
+    'flags'     => [],
     'users'     => new stdClass(),
   ];
 
@@ -621,7 +622,7 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
     $player_top_pokemon = slackemon_get_top_player_pokemon( 'cp', 1, null, $player_id );
     if ( $player_top_pokemon->cp < $this_spawn['cp'] ) {
 
-      $this_spawn['flags'] = [ 'hide_stats' ];
+      $this_spawn['flags'][] = 'hide_stats';
 
       $this_message['attachments'][1]['fields'][1]['value'] = '???';
 

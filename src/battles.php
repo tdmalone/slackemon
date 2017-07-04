@@ -1874,7 +1874,11 @@ function slackemon_get_battle_pokemon_attachments( $pokemon, $player_id, $battle
       slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
       '*' . '     ' .
-      'L' . $pokemon->level . '     ' . $pokemon->cp . ' CP' . '       ' .
+      (
+        isset( $pokemon->flags ) && in_array( 'hide_stats', $pokemon->flags ) ?
+        '???' . '     ' . '???' :
+        'L' . $pokemon->level . '     ' . $pokemon->cp . ' CP'
+      ) . '       ' .
       slackemon_emojify_types( join( ' ' , $pokemon->types ), false ) . "\n" .
       $hp_percentage . '%' . $hp_emoji
     ),

@@ -328,11 +328,12 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
   // Add entry to player's collection
   $spawn_data->is_battle_team = false;
   $spawn_data->is_favourite   = false;
-  unset( $spawn_data->trigger ); // We don't need this anymore
-  unset( $spawn_data->users   ); // We don't need this anymore
+  unset( $spawn_data->trigger ); // We don't need this anymore.
+  unset( $spawn_data->flags   ); // We don't need this anymore.
+  unset( $spawn_data->users   ); // We don't need this anymore.
   $player_data->pokemon[] = $spawn_data;
 
-  // Find the correct Pokedex entry to increment, and do the XP add too
+  // Find the correct Pokedex entry to increment, and do the XP add too.
   foreach ( $player_data->pokedex as $pokedex_entry ) {
     if ( $spawn_data->pokedex == $pokedex_entry->id ) {
 
