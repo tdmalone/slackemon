@@ -34,7 +34,8 @@ function slackemon_get_travel_menu() {
       'text' => (
         '*' . slackemon_readable( $region['name'] ) . ' - ' . slackemon_readable( $region['generation'] ) . '*' . "\n" .
         $region['description'] . "\n\n" .
-        ':pokeball: You have caught *' . $totals['caught'] . '* and seen *' . $totals['seen'] . '* of the ' .
+        ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball: ' : '' ) .
+        'You have caught *' . $totals['caught'] . '* and seen *' . $totals['seen'] . '* of the ' .
         'Pokémon found in this region.' . "\n" .
         ':bar_chart: There are *' . $total_in_region . '* Pokémon ' .
         'in ' . slackemon_readable( $region['name'] ) . '; ' .
@@ -120,7 +121,8 @@ function slackemon_get_region_message( $new_region_name ) {
           (
             $is_region_new ?
             ':tada: *+1000 XP*: First visit to a new region!' :
-            ':pokeball: You have caught *' . $totals['caught'] . '* and seen *' . $totals['seen'] . '* of the ' .
+            ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball: ' : '' ) .
+            'You have caught *' . $totals['caught'] . '* and seen *' . $totals['seen'] . '* of the ' .
             'Pokémon found in this region.' . "\n" .
             ':bar_chart: There are *' . $total_in_region . '* Pokémon ' .
             'in ' . slackemon_readable( $new_region_name ) . '; ' .

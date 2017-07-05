@@ -157,7 +157,7 @@ function slackemon_get_top_pokemon_list( $user_id = USER_ID ) {
   $top_pokemon = [];
   foreach ( $top_pokemon_sorted as $pokemon ) {
     $top_pokemon[] = (
-      ':' . $pokemon->name . ': ' .
+      ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $pokemon->name . ': ' : '' ) .
       slackemon_readable( $pokemon->name ) . ' ' .
       $pokemon->cp . ' CP'
     );
@@ -466,10 +466,32 @@ function slackemon_start_battle( $battle_hash, $action ) {
 
     // Cancel battle - we don't have enough non-fainted Pokemon on at least one of the teams!
 
-    $invitee_fail_to_self = ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to accept this invite!' . "\n" . ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait for them to regain their strength, or catch some more Pokémon. :pokeball:';
-    $invitee_fail_to_other = ':slightly_frowning_face: *Oh no!* ' . slackemon_get_slack_user_first_name( $invitee_id ) . ' doesn\'t have enough revived Pokémon to accept your battle invite at the moment.' . "\n" . 'I\'ve sent them a message too. Perhaps try inviting them again later! :slightly_smiling_face:';
-    $inviter_fail_to_self = ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to participate in the battle you invited ' . slackemon_get_slack_user_first_name( $invitee_id ) . ' to!' . "\n" . ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait for them to regain their strength, or catch some more Pokémon. :pokeball:';
-    $inviter_fail_to_other = ':slightly_frowning_face: *Oh no!* ' . slackemon_get_slack_user_first_name( $inviter_id ) . ' doesn\'t seem to have enough revived Pokémon to participate in this battle!' . "\n" . 'I\'ve sent them a message too. Perhaps they\'ll invite you again soon! :slightly_smiling_face:';
+    $invitee_fail_to_self = (
+      ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to accept this invite!' . "\n" .
+      ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait ' .
+      'for them to regain their strength, or catch some more Pokémon.' .
+      ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :pokeball:' : '' )
+    );
+
+    $invitee_fail_to_other = (
+      ':slightly_frowning_face: *Oh no!* ' . slackemon_get_slack_user_first_name( $invitee_id ) . ' doesn\'t ' .
+      'have enough revived Pokémon to accept your battle invite at the moment.' . "\n" .
+      'I\'ve sent them a message too. Perhaps try inviting them again later! :slightly_smiling_face:'
+    );
+
+    $inviter_fail_to_self = (
+      ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to participate in the battle you ' .
+      'invited ' . slackemon_get_slack_user_first_name( $invitee_id ) . ' to!' . "\n" .
+      ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait ' .
+      'for them to regain their strength, or catch some more Pokémon.' .
+      ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :pokeball:' : '' )
+    );
+
+    $inviter_fail_to_other = (
+      ':slightly_frowning_face: *Oh no!* ' . slackemon_get_slack_user_first_name( $inviter_id ) . ' doesn\'t ' .
+      'seem to have enough revived Pokémon to participate in this battle!' . "\n" .
+      'I\'ve sent them a message too. Perhaps they\'ll invite you again soon! :slightly_smiling_face:'
+    );
 
     if ( false === $inviter_battle_team && false === $invitee_battle_team ) {
       $inviter_message = $inviter_fail_to_self;
@@ -647,7 +669,10 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
           $user_pokemon = $battle_data->users->{ $user_id }->team[0];
           
-          $user_pokemon_message = ':' . $user_pokemon->name . ': ' . slackemon_readable( $user_pokemon->name ) . ' ';
+          $user_pokemon_message = '';
+
+          $user_pokemon_message .= SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $user_pokemon->name . ': ' : '';
+          $user_pokemon_message .= slackemon_readable( $user_pokemon->name ) . ' ';
           $user_pokemon_message .= (
             $user_pokemon->battles->last_participated == $battle_data->ts ?
             'has ' . floor( $user_pokemon->hp / $user_pokemon->stats->hp * 100 ) . '% HP remaining' :
@@ -798,7 +823,8 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
       $_pokemon->happiness = max( 0, $_pokemon->happiness ); // Ensure we don't go below 0
       $battle_pokemon_by_ts[ $_pokemon->ts ] = $_pokemon;
       $pokemon_experience_message .= (
-        ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false ) . ' ' .
+        ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $_pokemon->name . ': ' : '' ) .
+        slackemon_readable( $_pokemon->name, false ) . ' ' .
         'fainted :frowning:' . "\n"
       );
 
@@ -810,7 +836,8 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
     if ( $_pokemon->battles->last_participated !== $battle_data->ts ) {
 
       $pokemon_experience_message .= (
-        ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false ) . ' ' .
+        ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $_pokemon->name . ': ' : '' ) .
+        slackemon_readable( $_pokemon->name, false ) . ' ' .
         'didn\'t participate in this battle' . "\n"
       );
 
@@ -929,7 +956,10 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
       // Did this Pokemon participate and not faint? It will have an XP difference if so - that's how we detect it
       if ( $_pokemon->xp != $battle_pokemon_by_ts[ $_pokemon->ts ]->xp ) {
 
-        $_pokemon_intro = ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name, false );
+        $_pokemon_intro = (
+          ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $_pokemon->name . ': ' : '' ) .
+          slackemon_readable( $_pokemon->name, false )
+        );
 
         if ( $battle_pokemon_by_ts[ $_pokemon->ts ]->level > $_pokemon->level ) {
 
@@ -1011,7 +1041,8 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
         ( $_pokemon['experience_gained'] < 10 ?  '   ' : '' ) . // Spacing
         ( $_pokemon['experience_gained'] < 100 ? '   ' : '' ) . // More spacing
         '*+' . $_pokemon['experience_gained'] . ' XP*: Defeated a ' .
-        'level ' . $_pokemon['level'] . ' :' . $_pokemon['name'] . ': ' .
+        'level ' . $_pokemon['level'] . ' ' .
+        ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $_pokemon['name'] . ': ' : '' ) .
         slackemon_readable( $_pokemon['name'] ) .
         (
           SLACKEMON_EXP_GAIN_MODIFIER > 1 ?
@@ -1079,7 +1110,10 @@ function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( isset( $battle_pokemon_by_ts[ $_pokemon->ts ] ) ) {
 
-      $_pokemon_intro = ':' . $_pokemon->name . ': ' . slackemon_readable( $_pokemon->name );
+      $_pokemon_intro = (
+        ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $_pokemon->name . ': ' : '' ) .
+        slackemon_readable( $_pokemon->name )
+      );
 
       $_pokemon->hp        = $battle_pokemon_by_ts[ $_pokemon->ts ]->hp;
       $_pokemon->moves     = $battle_pokemon_by_ts[ $_pokemon->ts ]->moves;
@@ -1143,7 +1177,7 @@ function slackemon_offer_battle_swap( $battle_hash, $user_id, $return_full_messa
     $swap_actions[] = [
       'name' => 'battles/swap/do',
       'text' => (
-        ( $is_desktop ? ':' . $pokemon->name . ': ' : '' ) .
+        ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ':' . $pokemon->name . ': ' : '' ) .
         slackemon_readable( $pokemon->name ) . ' (' . $pokemon->cp . ' CP)'
       ),
       'type' => 'button',
@@ -1276,12 +1310,12 @@ function slackemon_do_battle_move(
       if ( $move_data->meta->drain > 0 ) {
         $meta_message .= (
           '_' . slackemon_readable( $user_pokemon->name ) . ' drained ' .
-          $drain_percentage . '% HP from ' . slackemon_readable( $opponent_pokemon->name ) . '!_' . "\n"
+          $drain_percentage . '% HP from ' . slackemon_readable( $opponent_pokemon->name ) . '!_'
         );
       } else {
         $meta_message .= (
           '_The recoil damaged ' . slackemon_readable( $user_pokemon->name ) . ' ' .
-          'by ' . abs( $drain_percentage ) . '%!_' . "\n"
+          'by ' . abs( $drain_percentage ) . '%!_'
         );
       }
 
@@ -1328,7 +1362,7 @@ function slackemon_do_battle_move(
 
     // Did the opponent faint?
     if ( ! $opponent_pokemon->hp ) {
-      $move_message .= "\n" . '*' . slackemon_readable( $opponent_pokemon->name ) . ' has fainted!*';
+      $move_message .= "\n\n" . '*' . slackemon_readable( $opponent_pokemon->name ) . ' has fainted!*';
     }
 
     // Make sure the Pokemon gets credit if this was its first move in this battle
@@ -1509,7 +1543,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
         'text' => 'Pokéballs',
         'options' => [
           [
-            'text'  => 'Pokéball' . ( $is_desktop ? ' :pokeball:' : '' ),
+            'text'  => 'Pokéball' . ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ' :pokeball:' : '' ),
             'value' => 'pokeball/' . $opponent_id,
           ],
         ],
@@ -1603,10 +1637,14 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
       $move_options[] = [
         'text' => (
           $damage_class_readable . '  ' .
-          ( $is_desktop ? slackemon_emojify_types( ucfirst( $_move_data->type->name ), false ) . ' ' : '' ) .
+          (
+            SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ?
+            slackemon_emojify_types( ucfirst( $_move_data->type->name ), false ) . ' ' :
+            ''
+          ) .
           ( 999 != $_move->{'pp-current'} ? $_move->{'pp-current'} . '/' . $_move->pp . ' • ' : '' ) .
           slackemon_readable( $_move->name ) . ' x' . ( $_move_data->power ? $_move_data->power : 0 ) .
-          ( $is_desktop ? '' : ' (' . ucfirst( $_move_data->type->name ) . ')' )
+          ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? '' : ' (' . ucfirst( $_move_data->type->name ) . ')' )
         ),
         'value' => $battle_hash . '/' . $_move->name . '/' . ( 'start' === $battle_stage ? 'first' : '' ),
       ];
@@ -1675,7 +1713,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
     if ( 'wild' === $battle_data->type ) {
       $actions[] = [
         'name' => 'catch/end-battle',
-        'text' => ':pokeball: Throw Pokéball',
+        'text' => ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball:' : ':volleyball:' ) . ' Throw Pokéball',
         'type' => 'button',
         'value' => $opponent_id,
         'style' => 'primary',
@@ -1702,6 +1740,8 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
     $user_pokemon, $user_id, $battle_hash, 'user'
   );
 
+  $celebration_emoji = ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :party_parrot:' : '' );
+
   $general_attachments = [
     (
       $user_pokemon->hp ?
@@ -1712,12 +1752,12 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
           (
             $opponent_pokemon->hp || $opponent_swaps_available ?
             '*It\'s ' . $opponent_first_name . '\'s move' .
-            ( 'p2p' === $battle_data->type ? '.' : '... :loading:' ) .
+            ( 'p2p' === $battle_data->type ? '.' : '... ' . slackemon_get_loading_indicator( $user_id, false ) ) .
             '*' :
             (
               'wild' === $battle_data->type ?
-              ':tada: *You won the battle!* :party_parrot:' :
-              ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!* :party_parrot: :party_parrot:' . "\n" .
+              ':tada: *You won the battle!*' . $celebration_emoji :
+              ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!*' . $celebration_emoji . $celebration_emoji . "\n" .
               'Click the _Complete_ button to get your XP bonus and power up your Pokémon! :100:'
             )
           )
@@ -1810,21 +1850,39 @@ function slackemon_get_battle_pokemon_attachments( $pokemon, $player_id, $battle
     $hp_emoji .= ':hp_right_white:';
   }
 
+  if ( ! SLACKEMON_ENABLE_CUSTOM_EMOJI ) {
+    $hp_emoji = '';
+  }
+
   $player_battle_team = $battle_data->users->{ $player_id }->team;
   $player_battle_team_readable = [ 'fainted' => '', 'known' => '', 'unknown' => '' ];
 
   foreach ( $player_battle_team as $_pokemon ) {
+
     if (
       $_pokemon->battles->last_participated !== $battle_data->ts && // Pokemon hasn't participated in this battle yet
       $pokemon->ts !== $_pokemon->ts && // Pokemon is not the Pokemon we're sending through now
       $player_type === 'opponent' // This player is the opponent, not the user owning this Pokemon attachment
     ) {
+
       $player_battle_team_readable['unknown'] .= ':grey_question:';
+
     } else if ( ! $_pokemon->hp ) {
+
       $player_battle_team_readable['fainted'] .= ':heavy_multiplication_x: ';
+
     } else {
-      if ( $player_battle_team_readable['known'] ) { $player_battle_team_readable['known'] .= '  '; }
-      $player_battle_team_readable['known'] .= ':' . $_pokemon->name . ':';
+
+      if ( $player_battle_team_readable['known'] ) {
+        $player_battle_team_readable['known'] .= '  ';
+      }
+
+      if ( SLACKEMON_ENABLE_CUSTOM_EMOJI ) {
+        $player_battle_team_readable['known'] .= ':' . $_pokemon->name . ':';
+      } else {
+        $player_battle_team_readable['known'] .= ':smiling_imp:';
+      }
+
     }
   }
 
@@ -1874,7 +1932,11 @@ function slackemon_get_battle_pokemon_attachments( $pokemon, $player_id, $battle
       slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
       '*' . '     ' .
-      'L' . $pokemon->level . '     ' . $pokemon->cp . ' CP' . '       ' .
+      (
+        isset( $pokemon->flags ) && in_array( 'hide_stats', $pokemon->flags ) ?
+        '???' . '     ' . '???' :
+        'L' . $pokemon->level . '     ' . $pokemon->cp . ' CP'
+      ) . '       ' .
       slackemon_emojify_types( join( ' ' , $pokemon->types ), false ) . "\n" .
       $hp_percentage . '%' . $hp_emoji
     ),
