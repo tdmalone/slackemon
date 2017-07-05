@@ -791,6 +791,27 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
 
 } // Function slackemon_get_battle_team
 
+/**
+ * Returns the ts (spawn timestamp) of the Pokemon that the user has set as their battle team leader.
+ *
+ * Note that if the leader has been removed from the team and no new leader has beens et, the old leader's ts will
+ * still be returned.
+ *
+ * @param string $user_id
+ * @return int|bool The ts of the Pokemon, or false if there is no leader set.
+ */
+function slackemon_get_player_battle_team_leader( $user_id = USER_ID ) {
+
+  $player_data = slackemon_get_player_data( $user_id );
+
+  if ( ! isset( $player_data->battle_team_leader ) ) {
+    return false;
+  }
+
+  return $player_data->battle_team_leader;
+
+} // Function slackemon_get_player_battle_team_leader
+
 function slackemon_get_pokemon_transfer_message( $spawn_ts, $action ) {
 
   $player_data = slackemon_get_player_data();

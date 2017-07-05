@@ -282,7 +282,16 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon ) {
         'text'  => ':x: Remove',
         'type'  => 'button',
         'value' => $pokemon->ts,
-      ],
+      ], (
+        slackemon_get_player_battle_team_leader() === $pokemon->ts ?
+        [] :
+        [
+          'name'  => 'battle-team/set-leader',
+          'text'  => ':smiling_imp: Promote to Leader',
+          'type'  => 'button',
+          'value' => $pokemon->ts,
+        ]
+      ),
     ],
     'color' => $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : '',
     'thumb_url' => (
