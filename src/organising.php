@@ -5,17 +5,17 @@
  * @package Slackemon
  */
 
-// Cronned function (through /slackemon happiness-updates) which should run once a day (probs at midnight)
+// Cronned function (through /slackemon happiness-updates) which should run once a day (probs at midnight).
 function slackemon_do_happiness_updates() {
 
-  // Increment friendship value by 1 for those Pokemon in the battle team
-  // We'll also increment by 1 for favourite Pokemon, divided by the total number of favourites
+  // Increment happiness value by 1 for those Pokemon in the battle team.
+  // We'll also increment by 1 for favourite Pokemon, divided by the total number of favourites.
   foreach ( slackemon_get_player_ids() as $player_id ) {
 
     $player_data    = slackemon_get_player_data( $player_id, true );
     $player_pokemon = $player_data->pokemon;
 
-    // Work out our total favourite count, so we can apply happiness increases appropriately
+    // Work out our total favourite count, so we can apply happiness increases appropriately.
     $total_favourites = 0;
     foreach ( $player_pokemon as $_pokemon ) {
       if ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite ) {
@@ -27,13 +27,18 @@ function slackemon_do_happiness_updates() {
 
       if ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) {
         $_pokemon->happiness++;
+
+        // Extra happiness for the battle team leader, since the trainer trusts them more.
+        if ( slackemon_get_battle_team_leader( $player_id ) == $_pokemon->ts ) {
+          $_pokemon->happiness++;
+        }
       }
 
       if ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite ) {
         $_pokemon->happiness += 1 / $total_favourites;
       }
 
-      $_pokemon->happiness = min( 255, $_pokemon->happiness ); // Stay within the max bounds
+      $_pokemon->happiness = min( 255, $_pokemon->happiness ); // Stay within the max bounds.
 
     } // Foreach player_pokemon
 
@@ -751,6 +756,7 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     return $battle_team;
   }
 
+  // Get the battle team Pokemon
   foreach ( $pokemon_collection as $_pokemon ) {
     if ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) {
       if ( $exclude_fainted && 0 == $_pokemon->hp ) { continue; }
