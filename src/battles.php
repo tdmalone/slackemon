@@ -1752,7 +1752,11 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
           (
             $opponent_pokemon->hp || $opponent_swaps_available ?
             '*It\'s ' . $opponent_first_name . '\'s move' .
-            ( 'p2p' === $battle_data->type ? '.' : '... ' . slackemon_get_loading_indicator( $user_id, false ) ) .
+            (
+              'p2p' === $battle_data->type ?
+              '.' :
+              '... ' . ( 'U' === substr( $user_id, 0, 1 ) ? slackemon_get_loading_indicator( $user_id, false ) : '' )
+            ) .
             '*' :
             (
               'wild' === $battle_data->type ?
