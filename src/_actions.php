@@ -285,6 +285,12 @@ function slackemon_handle_action( $action ) {
       $message = slackemon_get_battle_team_remove_message( $action, $action_name );
     break;
 
+    case 'battle-team/set-leader':
+      $spawn_ts = $action_value;
+      slackemon_set_battle_team_leader( $spawn_ts );
+      $message = slackemon_get_battle_menu();
+    break;
+
     case 'evolve':
       $spawn_ts = $action_value;
       slackemon_start_evolution_message( $spawn_ts, $action );
