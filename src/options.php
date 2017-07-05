@@ -187,7 +187,7 @@ function slackemon_get_slack_message_menu_options( $action_name, $action_value )
 
         $options[] = [
           'text' => (
-            ( $is_desktop ? ':' . $_pokemon->name . ': ' : '' ) .
+            ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ':' . $_pokemon->name . ': ' : '' ) .
             slackemon_readable( $_pokemon->name ) .
             ' (L' . floor( $_pokemon->level ) .
             ( $additional_info ? ', ' . $additional_info : '' ) .

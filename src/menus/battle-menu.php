@@ -356,7 +356,7 @@ function slackemon_get_battle_menu_add_option( $_pokemon ) {
 
   $option = [
     'text' => (
-      ( $is_desktop ? ':' . $_pokemon->name . ': ' : '' ) .
+      ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ':' . $_pokemon->name . ': ' : '' ) .
       slackemon_readable( $_pokemon->name ) .
       ' (L' . floor( $_pokemon->level ) .
       ')' .

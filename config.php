@@ -210,7 +210,11 @@ define( 'SLACKEMON_TABLE_PREFIX',       getenv( 'SLACKEMON_TABLE_PREFIX'       )
 
 // Parameters sent to Slack to control the appearance of Slackemon messages.
 define( 'SLACKEMON_USERNAME', trim( getenv( 'SLACKEMON_USERNAME' ), '"' ) ?: 'Slackémon'  );
-define( 'SLACKEMON_ICON',     getenv( 'SLACKEMON_ICON'     ) ?: ':pokeball:' );
+define(
+  'SLACKEMON_ICON',
+  getenv( 'SLACKEMON_ICON' ) ?:
+  ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball:' : ':monkey:' )
+);
 
 // The base URL used for all animated Pokemon sprite GIFs.
 // Note that changing this will start your image cache again from scratch, as cache keys are based on the full URL.

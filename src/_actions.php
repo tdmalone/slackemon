@@ -72,7 +72,7 @@ function slackemon_handle_action( $action ) {
     case 'pokemon/view/caught/battle': // Viewing a Pokemon's data immediately after a catch after a battle...whew!
     case 'pokemon/view/from-battle-menu':
       $spawn_ts = $action_value;
-      $message = slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action );
+      $message  = slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action );
     break;
 
     case 'pokemon/stats':

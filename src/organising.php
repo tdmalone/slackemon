@@ -529,7 +529,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
   $message['attachments'][ $action->attachment_id - 1 ] = [
     'color' => $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : '',
     'text' => (
-      ( $is_desktop ? ':' . $pokemon->name . ': ' : '' ) .
+      ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ':' . $pokemon->name . ': ' : '' ) .
       '*' .
       slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
@@ -549,10 +549,12 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
       ) . "\n\n" .
       ( $more_stats ? '' : $pokemon_description )
     ),
-    'fields'  => $attachment_fields,
-    'footer'  => $attachment_footer,
-    'actions' => $attachment_actions,
-    'image_url' => slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' ),
+    'fields'    => $attachment_fields,
+    'footer'    => $attachment_footer,
+    'actions'   => $attachment_actions,
+    'image_url' => (
+      slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' )
+    ),
   ];
 
   // If this is being displayed immediately after a battle/catch, remove the spawn data & add a main menu link.

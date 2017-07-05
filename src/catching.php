@@ -22,7 +22,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
   // Add a new actions attachment
   $message['attachments'][] = [
     'title' => 'Trying to catch ' . slackemon_readable( $spawn_data->name ) . '...',
-    'text' => ':pokeball_bounce:',
+    'text'  => SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball_bounce:' : '',
   ];
 
   if ( ! $catch_too_late && 'flee' !== $force_battle_result ) {
@@ -402,7 +402,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
         'actions' => [
           [
             'name' => 'catch',
-            'text' => ':pokeball: Throw Pokéball',
+            'text' => ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball: ' : '' ) . 'Throw Pokéball',
             'type' => 'button',
             'value' => $spawn['ts'],
             'style' => 'primary',

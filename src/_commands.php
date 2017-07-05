@@ -139,7 +139,8 @@ function slackemon_handle_command( $args ) {
       $attachments = [
         [
           'text' => (
-            ':pokeball: *Welcome to Slackémon!*' . "\n\n" .
+            ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball: ' : '' ) . 
+            '*Welcome to Slackémon!*' . "\n\n" .
             'It looks like you are currently in :no_entry: *Do Not Disturb* mode. Slackémon can only notify ' .
             'you of nearby Pokémon when you are fully online.'
           ),
@@ -158,7 +159,8 @@ function slackemon_handle_command( $args ) {
       $attachments = [
         [
           'text' => (
-            ':pokeball: *Welcome to Slackémon!*' . "\n\n" .
+            ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball: ' : '' ) . 
+            '*Welcome to Slackémon!*' . "\n\n" .
             'Slackémon is a Pokémon Go-inspired game for :slack:. Once you start playing, Pokémon randomly appear ' .
             'on Slack - and you\'ll have a short time to catch them before they run away!' . "\n\n" .
             'Using slash commands, you can then manage your Pokémon collection - and even use them in battle ' .

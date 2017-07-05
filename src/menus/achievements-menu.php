@@ -60,7 +60,11 @@ function slackemon_get_achievements_menu( $current_page ) {
     $gender_symbols = [ '♂', '♀' ];
 
     $message['text'] .= (
-      ( $entry->caught ? ':' . $species_data->name . ':' : ':grey_question:' ) . ' ' .
+      (
+        $entry->caught ?
+        ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $species_data->name . ':' : ':heavy_check_mark:' ) :
+        ':grey_question:'
+      ) . ' ' .
       '#' . $entry->id . ' - ' . 
       '*' . $readable_name . '*' .
       ( ! $is_desktop && in_array( substr( $readable_name, -1, 1 ), $gender_symbols ) ? '' : ' ' ) . '- ' .

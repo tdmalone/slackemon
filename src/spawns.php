@@ -427,7 +427,7 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
         'actions' => [
           [
             'name'  => 'catch',
-            'text'  => ':pokeball: Throw Pokéball',
+            'text'  => ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball:' : ':volleyball:' ) .' Throw Pokéball',
             'type'  => 'button',
             'value' => $spawn['ts'],
           ], [ // WARNING: This array key will be cleared below if the user doesn't have an available battle team
