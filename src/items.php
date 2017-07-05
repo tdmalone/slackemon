@@ -367,7 +367,7 @@ function slackemon_get_item_action_message( $method, $item_id, $action, $user_id
   if ( 'teach' === $method ) {
 
     $message['attachments'][ $action->attachment_id - 1 ]->footer = (
-      'Checking who can learn this move... :loading:'
+      'Checking who can learn this move... ' . slackemon_get_loading_indicator( $user_id, false )
     );
 
     $message['attachments'][ $action->attachment_id - 1 ]->actions = [];
@@ -1074,13 +1074,13 @@ function slackemon_clean_item_description( $text, $extended_clean = false ) {
 function slackemon_get_item_category_emoji( $category_name, $include_space = 'after' ) {
 
   $emoji = [
-    'hms' => ':dvd:',
-    'tms' => ':cd:',
-    'vitamins' => ':pill:',
-    'stat-boosts' => ':chart_with_upwards_trend:',
-    'jewels' => ':gem:',
-    'standard-balls' => ':pokeball:',
-    'healing' => ':syringe:',
+    'hms'            => ':dvd:',
+    'tms'            => ':cd:',
+    'vitamins'       => ':pill:',
+    'stat-boosts'    => ':chart_with_upwards_trend:',
+    'jewels'         => ':gem:',
+    'standard-balls' => SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball:' : ':volleyball:',
+    'healing'        => ':syringe:',
   ];
 
   if ( isset( $emoji[ $category_name ] ) ) {

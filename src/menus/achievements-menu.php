@@ -60,7 +60,11 @@ function slackemon_get_achievements_menu( $current_page ) {
     $gender_symbols = [ '♂', '♀' ];
 
     $message['text'] .= (
-      ( $entry->caught ? ':' . $species_data->name . ':' : ':grey_question:' ) . ' ' .
+      (
+        $entry->caught ?
+        ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $species_data->name . ':' : ':heavy_check_mark:' ) :
+        ':grey_question:'
+      ) . ' ' .
       '#' . $entry->id . ' - ' . 
       '*' . $readable_name . '*' .
       ( ! $is_desktop && in_array( substr( $readable_name, -1, 1 ), $gender_symbols ) ? '' : ' ' ) . '- ' .
@@ -177,14 +181,19 @@ function slackemon_get_achievements_menu( $current_page ) {
     }
 
     $full_name = slackemon_get_slack_user_full_name( $player_id );
-    $emoji = (
-      slackemon_is_player_active( $player_id ) ?
-      ':green_circle:' : (
-        slackemon_is_player_in_battle( $player_id ) ?
-        ':yellow_circle:' :
-        ':black_circle:'
-      )
-    );
+
+    $emoji = '';
+
+    if ( SLACKEMON_ENABLE_CUSTOM_EMOJI ) {
+      $emoji = (
+        slackemon_is_player_active( $player_id ) ?
+        ':green_circle:' : (
+          slackemon_is_player_in_battle( $player_id ) ?
+          ':yellow_circle:' :
+          ':black_circle:'
+        )
+      );
+    }
 
     $leaderboard .= (
       $emoji . ' *#' . $player_count . '*. ' .
@@ -194,18 +203,24 @@ function slackemon_get_achievements_menu( $current_page ) {
       ( $is_desktop ? ' - ' : "\n" . '             ' ) .
       $caught . ' caught, ' .
       $seen . ' seen' .
-      ( $is_desktop ? ' - ' : "\n" . '             ' ) .
-      floor( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate' .
+      (
+        $player_data->battles->participated ?
+        ( $is_desktop ? ' - ' : "\n" . '             ' ) .
+        floor( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate' :
+        ''
+      ) .
       ( $is_desktop ? "\n" : "\n\n" )
     );
 
   } // Foreach players
 
-  $leaderboard .= (
-    ( $is_desktop ? "\n" : '' ) .
-    '_Players in green are online and available to battle!_' . "\n" .
-    '_Players in yellow are currently battling._'
-  );
+  if ( SLACKEMON_ENABLE_CUSTOM_EMOJI ) {
+    $leaderboard .= (
+      ( $is_desktop ? "\n" : '' ) .
+      '_Players in green are online and available to battle!_' . "\n" .
+      '_Players in yellow are currently battling._'
+    );
+  }
 
   $message['attachments'][] = [
     'pretext' => $leaderboard,

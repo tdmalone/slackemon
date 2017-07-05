@@ -155,7 +155,8 @@ function slackemon_bulk_transfer_tool( $do_transfers = false ) {
     $pokemon_name = $collection_data['pokemon'][0]['data']->name;
 
     $message['text'] .= (
-      ':' . $pokemon_name . ': *' . slackemon_readable( $pokemon_name ) . '* ' .
+      ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $pokemon_name . ': ' : '' ) .
+      '*' . slackemon_readable( $pokemon_name ) . '* ' .
       ( $collection_data['evolves'] ? '_(evolves)_' : '_(does not evolve)_' ) .
       "\n"
     );
@@ -243,7 +244,9 @@ function slackemon_move_deleter_tool( $spawn_ts, $move_just_deleted = '', $move_
   $pokemon_data = slackemon_get_pokemon_data( $pokemon->pokedex );
 
   $message['text'] .= (
-    'Select a move for :' . $pokemon->name . ': *' . slackemon_readable( $pokemon->name ) . '* to forget.' . "\n" .
+    'Select a move for ' .
+    ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $pokemon->name . ': ' : '' ) .
+    '*' . slackemon_readable( $pokemon->name ) . '* to forget.' . "\n" .
     $pokemon->cp . ' CP • ' .
     'L' . floor( $pokemon->level ) . ' • ' .
     slackemon_appraise_ivs( $pokemon->ivs, false ) . ' (' . slackemon_get_iv_percentage( $pokemon->ivs ) .'%)' .
