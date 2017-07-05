@@ -542,12 +542,23 @@ function slackemon_start_battle( $battle_hash, $action ) {
     'turn' => $invitee_id,
   ];
 
-  // Start with a random Pokemon from the team, for now (until we code in choosing at the start)
-  $inviter_random_key = array_rand( $battle_data['users'][ $inviter_id ]['team'] );
-  $invitee_random_key = array_rand( $battle_data['users'][ $invitee_id ]['team'] );
-  $inviter_pokemon = $battle_data['users'][ $inviter_id ]['team'][ $inviter_random_key ];
-  $invitee_pokemon = $battle_data['users'][ $invitee_id ]['team'][ $invitee_random_key ];
+  // If we have a battle team leader, start with them. Otherwise, start with a random Pokemon from the team.
+  $inviter_team_leader = slackemon_get_battle_team_leader( $inviter_id );
+  $invitee_team_leader = slackemon_get_battle_team_leader( $invitee_id );
+  if ( $inviter_team_leader ) {
+    $inviter_pokemon = slackemon_get_player_pokemon_data( $inviter_team_leader, null, $inviter_id );
+  } else {
+    $inviter_random_key = array_rand( $battle_data['users'][ $inviter_id ]['team'] );
+    $inviter_pokemon = $battle_data['users'][ $inviter_id ]['team'][ $inviter_random_key ];
+  }
+  if ( $invitee_team_leader ) {
+    $invitee_pokemon = slackemon_get_player_pokemon_data( $invitee_team_leader, null, $invitee_id );
+  } else {
+    $invitee_random_key = array_rand( $battle_data['users'][ $invitee_id ]['team'] );
+    $invitee_pokemon = $battle_data['users'][ $invitee_id ]['team'][ $invitee_random_key ];
+  }
 
+  // Set the start Pokemon.
   $battle_data['users'][ $inviter_id ]['status']['current'] = $inviter_pokemon->ts;
   $battle_data['users'][ $invitee_id ]['status']['current'] = $invitee_pokemon->ts;
 
@@ -555,11 +566,11 @@ function slackemon_start_battle( $battle_hash, $action ) {
   slackemon_maybe_record_battle_seen_pokemon( $inviter_id, $invitee_pokemon->pokedex );
   slackemon_maybe_record_battle_seen_pokemon( $invitee_id, $inviter_pokemon->pokedex );
 
-  // Set players in battle
+  // Set players in battle.
   slackemon_set_player_in_battle( $inviter_id );
   slackemon_set_player_in_battle( $invitee_id );
 
-  // For consistency, turn the whole thing into an object rather than an array
+  // For consistency, turn the whole thing into an object rather than an array.
   $battle_data = json_decode( json_encode( $battle_data ) );
 
   // Save battle data without warning about it not being locked, since it is a new file
