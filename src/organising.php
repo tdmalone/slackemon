@@ -562,6 +562,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
 
     array_shift( $message['attachments'] );
     array_shift( $message['attachments'] );
+    array_shift( $message['attachments'] );
 
     $message['attachments'][] = slackemon_back_to_menu_attachment();
 
@@ -573,7 +574,8 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
 
   } else if ( 'pokemon/view/caught/battle' === $action_name ) {
 
-    // Only need to cut out one attachment here, because the first has already been removed by catching routines.
+    // Only need to cut two attachments here, because the first has already been removed by catching routines.
+    array_shift( $message['attachments'] );
     array_shift( $message['attachments'] );
     $message['attachments'][] = slackemon_back_to_menu_attachment();
 
