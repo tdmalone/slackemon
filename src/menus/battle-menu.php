@@ -241,7 +241,7 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon, $user_id = USER
     'text' => (
       '*' .
       ( 0 == $pokemon->hp ? ':skull: ' : '' ) .
-      ( slackemon_get_battle_team_leader( $user_id ) === $pokemon->ts ? ':smiling_imp: ' : '' ) .
+      ( slackemon_get_battle_team_leader( $user_id ) === $pokemon->ts ? ':one: ' : '' ) .
       ( slackemon_is_legendary( $pokemon->pokedex ) ? ':star2: ' : '' ) .
       slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
@@ -288,7 +288,7 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon, $user_id = USER
         [] :
         [
           'name'  => 'battle-team/set-leader',
-          'text'  => ':smiling_imp: Promote to Leader',
+          'text'  => ':one: Promote to Leader',
           'type'  => 'button',
           'value' => $pokemon->ts,
         ]
