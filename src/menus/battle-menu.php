@@ -16,7 +16,7 @@ function slackemon_get_battle_menu() {
     'attachments' => [],
   ];
 
-  $message['attachments'] = slackemon_get_battle_menu_attachments();
+  $message['attachments']   = slackemon_get_battle_menu_attachments();
   $message['attachments'][] = slackemon_back_to_menu_attachment();
 
   return $message;
@@ -78,7 +78,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
     // TODO: Show stats on current battle, include links to get back to it, stop it, etc.
 
     $attachments[] = [
-      'text' => ':exclamation: _You can\'t send a new battle invite until your current battle has finished._',
+      'text'  => ':exclamation: _You can\'t send a new battle invite until your current battle has finished._',
       'color' => '#333333',
     ];
 
@@ -89,7 +89,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
       $opponent_id = $outstanding_invites[0]->invitee_id;
       $battle_hash = $outstanding_invites[0]->hash;
 
-      $attachment = slackemon_get_player_battle_attachment( $opponent_id );
+      $attachment  = slackemon_get_player_battle_attachment( $opponent_id );
       $_first_name = slackemon_get_slack_user_first_name( $opponent_id );
 
       $attachment['pretext'] = (
@@ -99,9 +99,9 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
       $attachment['actions'] = [
         [
-          'name' => 'battles/cancel',
-          'text' => 'Cancel Invitation',
-          'type' => 'button',
+          'name'  => 'battles/cancel',
+          'text'  => 'Cancel Invitation',
+          'type'  => 'button',
           'value' => $battle_hash,
           'style' => 'danger',
         ]
@@ -114,21 +114,21 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
       $opponent_id = $outstanding_invites[0]->inviter_id;
       $battle_hash = $outstanding_invites[0]->hash;
 
-      $attachment = slackemon_get_player_battle_attachment( $opponent_id );
+      $attachment  = slackemon_get_player_battle_attachment( $opponent_id );
       $_first_name = slackemon_get_slack_user_first_name( $opponent_id );
       $attachment['pretext'] = ':arrow_right: *You have an outstanding battle invite from ' . $_first_name . ':*';
 
       $attachment['actions'] = [
         [
-          'name' => 'battles/accept',
-          'text' => 'Accept',
-          'type' => 'button',
+          'name'  => 'battles/accept',
+          'text'  => 'Accept',
+          'type'  => 'button',
           'value' => $battle_hash,
           'style' => 'primary',
         ], [
-          'name' => 'battles/decline',
-          'text' => 'Decline',
-          'type' => 'button',
+          'name'  => 'battles/decline',
+          'text'  => 'Decline',
+          'type'  => 'button',
           'value' => $battle_hash,
           'style' => 'danger',
         ]
@@ -147,7 +147,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
     $attachments[] = [
       'pretext' => ':arrow_right: *Please choose your opponent:*',
-      'color' => '#333333',
+      'color'   => '#333333',
     ];
 
     foreach ( $online_players as $player_id ) {
@@ -156,9 +156,9 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
       $attachment['actions'] = [
         [
-          'name' => 'battles/invite',
-          'text' => 'Challenge ' . slackemon_get_slack_user_first_name( $player_id ) . '!',
-          'type' => 'button',
+          'name'  => 'battles/invite',
+          'text'  => 'Challenge ' . slackemon_get_slack_user_first_name( $player_id ) . '!',
+          'type'  => 'button',
           'value' => $player_id,
           'style' => 'primary',
         ],
@@ -200,7 +200,9 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID 
   $battles_lost = $player_data->battles->participated - $player_data->battles->won;
 
   $attachment = [
-    'text' => '*' . slackemon_get_slack_user_full_name( $player_id ) . ' - ' . number_format( $player_data->xp ) . ' XP*',
+    'text' => (
+      '*' . slackemon_get_slack_user_full_name( $player_id ) . ' - ' . number_format( $player_data->xp ) . ' XP*'
+    ),
     'fields' => [
       [
         'title' => 'Battles Won',
@@ -221,9 +223,9 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID 
       'their battle team!' . ( $is_desktop ? "\n" : ' ' ) .
       'That remains a secret until your battle starts.'
     ),
-    'thumb_url' => $player_user_data->profile->image_192,
-    'color' => $player_user_data->color,
-    'mrkdwn_in' => [ 'pretext', 'text', 'fields', 'footer' ],
+    'thumb_url'   => $player_user_data->profile->image_192,
+    'color'       => $player_user_data->color,
+    'mrkdwn_in'   => [ 'pretext', 'text', 'fields', 'footer' ],
     'callback_id' => SLACKEMON_ACTION_CALLBACK_ID
   ];
 
@@ -294,7 +296,9 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon, $user_id = USER
         ]
       ),
     ],
-    'color' => $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : '',
+    'color' => (
+      $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : ''
+    ),
     'thumb_url' => (
       $is_desktop ?
       slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' ) :
@@ -315,7 +319,7 @@ function slackemon_get_battle_menu_add_attachment( $count_helper = 'a' ) {
   // prevent Slack from cutting the additional Pokemon off.
   if ( count( $player_data->pokemon ) > 100 ) {
     $message_menu_options = [
-      'data_source' => 'external',
+      'data_source'      => 'external',
       'min_query_length' => 1,
     ];
   } else {
