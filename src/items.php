@@ -597,7 +597,11 @@ function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $use
 
   // Put the new move together
   $move_data = slackemon_get_move_data( $move_name );
-  $new_move  = [ 'name' => $move_data->name, 'pp' => $move_data->pp, 'pp-current' => $move_data->pp ];
+  $new_move  = [
+    'name'       => $move_data->name,
+    'pp'         => $move_data->pp,
+    'pp-current' => $move_data->pp
+  ];
 
   // If the item is a TM, remove it from the player's collection and update the attachment text.
   if ( 'tms' === $item_data->category->name ) {

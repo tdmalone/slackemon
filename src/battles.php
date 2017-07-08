@@ -66,13 +66,13 @@ function slackemon_do_battle_updates() {
 
         if ( $_pokemon->hp < $_pokemon->stats->hp ) {
           $_pokemon->hp += SLACKEMON_HP_RESTORE_RATE * $_pokemon->stats->hp;
-          $_pokemon->hp  = min( ceil( $_pokemon->hp ), $_pokemon->stats->hp );
+          $_pokemon->hp  = min( $_pokemon->hp, $_pokemon->stats->hp );
         }
 
         foreach ( $_pokemon->moves as $_move ) {
           if ( $_move->{'pp-current'} < $_move->pp ) {
             $_move->{'pp-current'} += SLACKEMON_HP_RESTORE_RATE * $_move->pp;
-            $_move->{'pp-current'}  = min( ceil( $_move->{'pp-current'} ), $_move->pp );
+            $_move->{'pp-current'}  = min( $_move->{'pp-current'}, $_move->pp );
           }
         }
 
@@ -1358,7 +1358,7 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
     }
 
     // If move was not found or has no PP, we resort to our backup move instead (usually Struggle).
-    if ( ! isset( $move ) || ! $move->{'pp-current'} ) {
+    if ( ! isset( $move ) || ! floor( $move->{'pp-current'} ) ) {
       $move = slackemon_get_backup_move();
     }
 
@@ -1723,7 +1723,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
     $available_moves = [];
 
     foreach ( $user_pokemon->moves as $_move ) {
-      if ( $_move->{'pp-current'} ) {
+      if ( floor( $_move->{'pp-current'} ) ) {
         $available_moves[] = $_move;
       }
     }
@@ -1751,7 +1751,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
             slackemon_emojify_types( ucfirst( $_move_data->type->name ), false ) . ' ' :
             ''
           ) .
-          ( 999 != $_move->{'pp-current'} ? $_move->{'pp-current'} . '/' . $_move->pp . ' • ' : '' ) .
+          ( 999 != $_move->{'pp-current'} ? floor( $_move->{'pp-current'} ) . '/' . $_move->pp . ' • ' : '' ) .
           slackemon_readable( $_move->name ) . ' x' . ( $_move_data->power ? $_move_data->power : 0 ) .
           ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? '' : ' (' . ucfirst( $_move_data->type->name ) . ')' )
         ),
