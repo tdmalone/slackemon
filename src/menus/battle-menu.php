@@ -150,17 +150,46 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
       'color'   => '#333333',
     ];
 
+    $challenge_option_groups = [
+      'standard' => [
+        'text'    => 'Standard Challenges',
+        'options' => [
+          [
+            'text'  => 'Standard Battle',
+            'value' => 'standard',
+          ],
+        ],
+      ],
+      'level_limited' => [
+        'text'    => 'Level Limited',
+        'options' => [],
+      ],
+    ];
+
+    $user_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $user_id )->level;
+
     foreach ( $online_players as $player_id ) {
 
-      $attachment = slackemon_get_player_battle_attachment( $player_id );
+      $attachment         = slackemon_get_player_battle_attachment( $player_id );
+      $opponent_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $player_id )->level;
+
+      $this_option_groups = $challenge_option_groups;
+
+      $lowest_level = min( $user_top_level, $opponent_top_level );
+
+      for ( $i = 1; $i <= $lowest_level; $i++ ) {
+        $this_option_groups['level_limited']['options'][] = [
+          'text'  => 'Level ' . $i,
+          'value' => 'level/' . $i,
+        ];
+      }
 
       $attachment['actions'] = [
         [
-          'name'  => 'battles/invite',
-          'text'  => 'Challenge ' . slackemon_get_slack_user_first_name( $player_id ) . '!',
-          'type'  => 'button',
-          'value' => $player_id,
-          'style' => 'primary',
+          'name'          => 'battles/invite/' . $player_id,
+          'text'          => 'Challenge ' . slackemon_get_slack_user_first_name( $player_id ),
+          'type'          => 'select',
+          'option_groups' => $this_option_groups,
         ],
       ];
 
@@ -201,18 +230,12 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID 
 
   $attachment = [
     'text' => (
-      '*' . slackemon_get_slack_user_full_name( $player_id ) . ' - ' . number_format( $player_data->xp ) . ' XP*'
+      '*' . slackemon_get_slack_user_full_name( $player_id ) . '*' . "\n" .
+      number_format( $player_data->xp ) . ' XP • ' .
+      floor( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate'
     ),
     'fields' => [
       [
-        'title' => 'Battles Won',
-        'value' => 0 == $battles_won ? '(none)' : $battles_won,
-        'short' => true,
-      ], [
-        'title' => 'Battles Lost',
-        'value' => 0 == $battles_lost ? '(none)' : $battles_lost,
-        'short' => true,
-      ], [
         'title' => 'Top Pokémon',
         'value' => join( $is_desktop ? '   ' : "\n", slackemon_get_top_pokemon_list( $player_id ) ),
         'short' => false,

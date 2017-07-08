@@ -1649,7 +1649,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
 
     if ( 'wild' === $battle_data->type ) {
       $item_option_groups['pokeballs'] = [
-        'text' => 'Pokéballs',
+        'text'    => 'Pokéballs',
         'options' => [
           [
             'text'  => 'Pokéball' . ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ' :pokeball:' : '' ),
@@ -1774,16 +1774,16 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
     }
 
     $actions[] = [
-      'name' => 'battles/move',
-      'text' => 'Make a Move',
-      'type' => 'select',
+      'name'    => 'battles/move',
+      'text'    => 'Make a Move',
+      'type'    => 'select',
       'options' => $move_options,
     ];
 
     $actions[] = [
-      'name' => 'battles/item',
-      'text' => 'Use Item',
-      'type' => 'select',
+      'name'          => 'battles/item',
+      'text'          => 'Use Item',
+      'type'          => 'select',
       'option_groups' => $item_option_groups,
     ];
 
