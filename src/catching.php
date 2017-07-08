@@ -5,7 +5,9 @@
  * @package Slackemon
  */
 
-function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, $force_battle_result = '', $user_id = USER_ID ) {
+function slackemon_get_catch_message(
+  $spawn_ts, $action, $from_battle = false, $force_battle_result = '', $user_id = USER_ID
+) {
 
   $catch_attempt_ts = time();
   $spawn_data = slackemon_get_spawn_data( $spawn_ts, slackemon_get_player_region( $user_id ), $user_id );
@@ -422,30 +424,35 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
   $battle_hash = slackemon_get_battle_hash( $battle_ts, $inviter_id, $invitee_id );
   $spawn_data  = slackemon_get_spawn_data( $spawn_ts, slackemon_get_player_region( $user_id ), $user_id );
 
-  // Start with a random Pokemon from the team, for now (until we code in choosing at the start)
-  $inviter_pokemon = $battle_team[ array_rand( $battle_team ) ];
+  // If we have a battle team leader, start with them. Otherwise, start with a random Pokemon from the team.
+  $inviter_team_leader = slackemon_get_battle_team_leader( $inviter_id );
+  if ( $inviter_team_leader ) {
+    $inviter_pokemon = slackemon_get_player_pokemon_data( $inviter_team_leader, null, $inviter_id );
+  } else {
+    $inviter_pokemon = $battle_team[ array_rand( $battle_team ) ];
+  }
 
-  // Wild Pokemon, naturally, battles as itself
+  // Wild Pokemon, naturally, battles as itself!
   $invitee_pokemon = $spawn_data;
 
   $battle_data = [
-    'ts' => $battle_ts,
-    'hash' => $battle_hash,
-    'type' => 'wild',
+    'ts'    => $battle_ts,
+    'hash'  => $battle_hash,
+    'type'  => 'wild',
     'users' => [
       $inviter_id => [
-        'team' => [ $inviter_pokemon ],
-        'status' => [ 'current' => $inviter_pokemon->ts ],
+        'team'         => [ $inviter_pokemon ],
+        'status'       => [ 'current' => $inviter_pokemon->ts ],
         'response_url' => RESPONSE_URL,
       ],
       $invitee_id => [
-        'team' => [ $invitee_pokemon ],
-        'status' => [ 'current' => $invitee_pokemon->ts ],
+        'team'         => [ $invitee_pokemon ],
+        'status'       => [ 'current' => $invitee_pokemon->ts ],
         'response_url' => false,
       ],
     ],
     'last_move_ts' => $battle_ts,
-    'turn' => $invitee_id,
+    'turn'         => $invitee_id,
   ];
 
   // Set player in battle

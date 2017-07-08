@@ -231,7 +231,7 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID 
 
 } // Function slackemon_get_player_battle_attachment
 
-function slackemon_get_battle_menu_pokemon_attachment( $pokemon ) {
+function slackemon_get_battle_menu_pokemon_attachment( $pokemon, $user_id = USER_ID ) {
 
   $species_data = slackemon_get_pokemon_species_data( $pokemon->pokedex );
   $combined_evs = slackemon_get_combined_evs( $pokemon->evs );
@@ -241,6 +241,7 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon ) {
     'text' => (
       '*' .
       ( 0 == $pokemon->hp ? ':skull: ' : '' ) .
+      ( slackemon_get_battle_team_leader( $user_id ) === $pokemon->ts ? ':smiling_imp: ' : '' ) .
       ( slackemon_is_legendary( $pokemon->pokedex ) ? ':star2: ' : '' ) .
       slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
@@ -282,7 +283,16 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon ) {
         'text'  => ':x: Remove',
         'type'  => 'button',
         'value' => $pokemon->ts,
-      ],
+      ], (
+        slackemon_get_battle_team_leader() === $pokemon->ts ?
+        [] :
+        [
+          'name'  => 'battle-team/set-leader',
+          'text'  => ':smiling_imp: Promote to Leader',
+          'type'  => 'button',
+          'value' => $pokemon->ts,
+        ]
+      ),
     ],
     'color' => $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : '',
     'thumb_url' => (

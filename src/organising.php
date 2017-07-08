@@ -5,17 +5,17 @@
  * @package Slackemon
  */
 
-// Cronned function (through /slackemon happiness-updates) which should run once a day (probs at midnight)
+// Cronned function (through /slackemon happiness-updates) which should run once a day (probs at midnight).
 function slackemon_do_happiness_updates() {
 
-  // Increment friendship value by 1 for those Pokemon in the battle team
-  // We'll also increment by 1 for favourite Pokemon, divided by the total number of favourites
+  // Increment happiness value by 1 for those Pokemon in the battle team.
+  // We'll also increment by 1 for favourite Pokemon, divided by the total number of favourites.
   foreach ( slackemon_get_player_ids() as $player_id ) {
 
     $player_data    = slackemon_get_player_data( $player_id, true );
     $player_pokemon = $player_data->pokemon;
 
-    // Work out our total favourite count, so we can apply happiness increases appropriately
+    // Work out our total favourite count, so we can apply happiness increases appropriately.
     $total_favourites = 0;
     foreach ( $player_pokemon as $_pokemon ) {
       if ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite ) {
@@ -27,13 +27,18 @@ function slackemon_do_happiness_updates() {
 
       if ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) {
         $_pokemon->happiness++;
+
+        // Extra happiness for the battle team leader, since the trainer trusts them more.
+        if ( slackemon_get_battle_team_leader( $player_id ) == $_pokemon->ts ) {
+          $_pokemon->happiness++;
+        }
       }
 
       if ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite ) {
         $_pokemon->happiness += 1 / $total_favourites;
       }
 
-      $_pokemon->happiness = min( 255, $_pokemon->happiness ); // Stay within the max bounds
+      $_pokemon->happiness = min( 255, $_pokemon->happiness ); // Stay within the max bounds.
 
     } // Foreach player_pokemon
 
@@ -751,11 +756,30 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     return $battle_team;
   }
 
+  // Get the battle team Pokemon
   foreach ( $pokemon_collection as $_pokemon ) {
     if ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) {
       if ( $exclude_fainted && 0 == $_pokemon->hp ) { continue; }
       $battle_team[ $_pokemon->ts ] = $_pokemon;
     }
+  }
+
+  // Put the leader first, if there is one.
+  $battle_team_leader = slackemon_get_battle_team_leader( $user_id );
+  if ( $battle_team_leader ) {
+    uksort( $battle_team, function( $key1, $key2 ) use ( $battle_team_leader ) {
+
+      if ( $key1 === $battle_team_leader ) {
+        return -1;
+      }
+
+      if ( $key2 === $battle_team_leader ) {
+        return 1;
+      }
+
+      return 0;
+
+    });
   }
 
   // If our battle team is too big, we need to remove Pokemon from it
@@ -781,8 +805,13 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     $_pokemon = $pokemon_collection[ $random_key ];
 
     if ( ! isset( $battle_team[ $_pokemon->ts ] ) ) { // Ensure we don't add the same Pokemon twice
-      if ( $exclude_fainted && 0 == $_pokemon->hp ) { continue; }
+
+      if ( $exclude_fainted && 0 == $_pokemon->hp ) {
+        continue;
+      }
+
       $battle_team[ $_pokemon->ts ] = $_pokemon;
+
     }
 
   }
@@ -790,6 +819,43 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
   return $battle_team;
 
 } // Function slackemon_get_battle_team
+
+/**
+ * Returns the ts (spawn timestamp) of the Pokemon that the user has set as their battle team leader.
+ *
+ * Note that if the leader has been removed from the team and no new leader has beens et, the old leader's ts will
+ * still be returned.
+ *
+ * @param string $user_id
+ * @return int|bool The ts of the Pokemon, or false if there is no leader set.
+ */
+function slackemon_get_battle_team_leader( $user_id = USER_ID ) {
+
+  $player_data = slackemon_get_player_data( $user_id );
+
+  if ( ! isset( $player_data->battle_team_leader ) ) {
+    return false;
+  }
+
+  return $player_data->battle_team_leader;
+
+} // Function slackemon_get_battle_team_leader
+
+/**
+ * Sets the ts (spawn timestamp) of the Pokemon that the user wants as their battle team leader.
+ *
+ * @param string|int $spawn_ts
+ * @return bool Whether or not the action was successful.
+ */
+function slackemon_set_battle_team_leader( $spawn_ts, $user_id = USER_ID ) {
+
+  $player_data = slackemon_get_player_data( $user_id, true );
+
+  $player_data->battle_team_leader = (int) $spawn_ts;
+
+  return slackemon_save_player_data( $player_data, $user_id, true );
+
+} // Function slackemon_get_battle_team_leader
 
 function slackemon_get_pokemon_transfer_message( $spawn_ts, $action ) {
 
@@ -977,7 +1043,7 @@ function slackemon_get_duplicate_pokemon( $user_id = USER_ID ) {
 /** Change the item a Pokemon is using. Can also be used to remove a held item by sending null as the item_id. */
 function slackemon_change_pokemon_held_item( $item_id, $spawn_ts, $user_id = USER_ID ) {
 
-  $pokemon = slackemon_get_player_pokemon_data( $spawn_ts );
+  $pokemon = slackemon_get_player_pokemon_data( $spawn_ts, null, $user_id );
   
   // Return the old held item back to the bag
   if ( isset( $pokemon->held_item ) && $pokemon->held_item ) {
