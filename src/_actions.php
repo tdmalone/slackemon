@@ -183,22 +183,37 @@ function slackemon_handle_action( $action ) {
       $move_name    = $action_value[1];
       $move_type    = $action_value[2];
 
+      // If the user has requested a swap, we need to provide the swap menu.
       if ( 'swap' === $move_type ) {
-        $return_full_battle_message = true;
-        $message = slackemon_offer_battle_swap( $battle_hash, USER_ID, $return_full_battle_message, $action );
+
+        $user_initiated = true;
+        $message = slackemon_offer_battle_swap( $battle_hash, USER_ID, $user_initiated, $action );
+
       } else {
-        slackemon_do_battle_move( $move_name, $battle_hash, $action, 'first' === $move_type );
+
+        $options = [
+          'is_first_move' => 'first' === $move_type,
+        ];
+
+        slackemon_do_battle_move( $move_name, $battle_hash, $action, USER_ID, $options );
+
       }
 
     break; // Case battles/move.
 
     case 'battles/swap/do':
-    
+    case 'battles/swap/do/user_initiated':
+
       $action_value   = explode( '/', $action_value );
       $battle_hash    = $action_value[0];
       $new_pokemon_ts = $action_value[1];
 
-      slackemon_do_battle_move( $new_pokemon_ts, $battle_hash, $action );
+      $options = [
+        'is_swap'                => true,
+        'is_user_initiated_swap' => 'battles/swap/do/user_initiated' === $action_name,
+      ];
+
+      slackemon_do_battle_move( $new_pokemon_ts, $battle_hash, $action, USER_ID, $options );
 
     break;
 
