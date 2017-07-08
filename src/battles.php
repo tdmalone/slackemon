@@ -1221,6 +1221,15 @@ function slackemon_offer_battle_swap( $battle_hash, $user_id, $user_initiated = 
 
   }
 
+  // Add a button to cancel the swap, in case it was accidentally selected by the user.
+  $swap_actions[] = [
+    'name'  => 'battles/swap/cancel',
+    'text'  => 'Cancel',
+    'type'  => 'button',
+    'value' => $battle_hash,
+    'style' => 'danger',
+  ];
+
   $swap_attachment = [
     'text' => (
       '*Who would you like to send into battle' .

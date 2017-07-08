@@ -217,6 +217,15 @@ function slackemon_handle_action( $action ) {
 
     break;
 
+    case 'battles/swap/cancel':
+
+      $battle_hash = $action_value;
+      $message     = [
+        'attachments' => slackemon_get_battle_attachments( $battle_hash, USER_ID, 'during' ),
+      ];
+
+    break;
+
     case 'battles/surrender':
       $battle_hash = $action_value;
       slackemon_end_battle( $battle_hash, 'surrender' );
