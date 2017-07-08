@@ -34,6 +34,7 @@ function slackemon_do_battle_updates() {
     // So we don't needlessly lock up player files that need no changes, we do a check first on our unlocked player
     // file to see if any changes are required. As soon as we know we need to make a change, we can break the loop.
     foreach ( $player_pokemon as $_pokemon ) {
+
       if ( 0 == $_pokemon->hp && $_pokemon->battles->last_participated > $twenty_minutes_ago ) {
         continue;
       }
@@ -58,19 +59,20 @@ function slackemon_do_battle_updates() {
       $player_pokemon = $player_data->pokemon;
 
       foreach ( $player_pokemon as $_pokemon ) {
+
         if ( 0 == $_pokemon->hp && $_pokemon->battles->last_participated > $twenty_minutes_ago ) {
           continue;
         }
 
         if ( $_pokemon->hp < $_pokemon->stats->hp ) {
           $_pokemon->hp += SLACKEMON_HP_RESTORE_RATE * $_pokemon->stats->hp;
-          $_pokemon->hp  = min( ceil( $_pokemon->hp ), $_pokemon->stats->hp );
+          $_pokemon->hp  = min( $_pokemon->hp, $_pokemon->stats->hp );
         }
 
         foreach ( $_pokemon->moves as $_move ) {
           if ( $_move->{'pp-current'} < $_move->pp ) {
             $_move->{'pp-current'} += SLACKEMON_HP_RESTORE_RATE * $_move->pp;
-            $_move->{'pp-current'}  = min( ceil( $_move->{'pp-current'} ), $_move->pp );
+            $_move->{'pp-current'}  = min( $_move->{'pp-current'}, $_move->pp );
           }
         }
 
@@ -93,7 +95,7 @@ function slackemon_do_battle_updates() {
     $opponent_id = slackemon_get_battle_opponent_id( $_battle->hash, $user_id );
 
     // For non P2P battles, we expire a lot sooner (assuming the flee limit is a lot sooner, that is!)
-    // We also just do it directly to the user
+    // We also just do it directly to the user.
     if ( 'p2p' !== $_battle->type ) {
 
       if (
@@ -108,10 +110,10 @@ function slackemon_do_battle_updates() {
         
       }
 
-      // Don't run the rest of this loop iteration, it's for P2P battles only
+      // Don't run the rest of this loop iteration, it's for P2P battles only.
       continue;
 
-    } // If not p2p battle
+    } // If not p2p battle.
 
     $opponent_name = slackemon_get_slack_user_first_name( $opponent_id );
 
@@ -120,7 +122,7 @@ function slackemon_do_battle_updates() {
       
       slackemon_send2slack([
         'text' => (
-          'It\'s your turn in your battle against ' . $opponent_name . '. :simple_smile:'
+          'Heads up - it\'s your turn in your battle against ' . $opponent_name . '. :simple_smile:'
         ),
         'channel' => $user_id,
       ]);
@@ -130,7 +132,7 @@ function slackemon_do_battle_updates() {
     if ( $_battle->last_move_ts < $twenty_minutes_ago && $_battle->last_move_ts > $twenty_one_minutes_ago ) {
       slackemon_send2slack([
         'text' => (
-          ':warning: *Heads up - ' . $opponent_name . ' has been waiting for your move for 20 minutes!*' . "\n" .
+          ':warning: *Uh oh - ' . $opponent_name . ' has been waiting for your move for 20 minutes!*' . "\n" .
           'You need to make a move in the *next 5 minutes* to avoid forfeiting the battle. :timer_clock:'
         ),
         'channel' => $user_id,
@@ -511,35 +513,41 @@ function slackemon_start_battle( $battle_hash, $action ) {
       'replace_original' => true,
     ]);
 
-    // Create a new Slackemon message for the inviter
+    // Create a new Slackemon message for the inviter.
     slackemon_post2slack([
-      'text' => $inviter_message,
+      'text'        => $inviter_message,
       'attachments' => [ slackemon_back_to_menu_attachment() ],
-      'channel' => $inviter_id,
+      'channel'     => $inviter_id,
     ]);
 
     return false;
 
-  } // If not enough revived Pokemon for either team
+  } // If not enough revived Pokemon for either team.
 
   $battle_data = [
-    'ts' => $battle_ts,
-    'hash' => $battle_hash,
-    'type' => 'p2p',
+    'ts'    => $battle_ts,
+    'hash'  => $battle_hash,
+    'type'  => 'p2p',
     'users' => [
       $inviter_id => [
-        'team' => $inviter_battle_team,
-        'status' => [ 'current' => false ],
-        'response_url' => '', // Not available until the inviter is given an action to perform
+        'team'            => $inviter_battle_team,
+        'status'          => [
+          'current'         => false,
+          'swaps_remaining' => SLACKEMON_BATTLE_SWAP_LIMIT,
+        ],
+        'response_url'    => '', // Not available until the inviter is given an action to perform.
       ],
       $invitee_id => [
-        'team' => $invitee_battle_team,
-        'status' => [ 'current' => false ],
-        'response_url' => RESPONSE_URL,
+        'team'            => $invitee_battle_team,
+        'status'          => [
+          'current'         => false,
+          'swaps_remaining' => SLACKEMON_BATTLE_SWAP_LIMIT,
+        ],
+        'response_url'    => RESPONSE_URL,
       ],
     ],
     'last_move_ts' => time(),
-    'turn' => $invitee_id,
+    'turn'         => $invitee_id,
   ];
 
   // If we have a battle team leader, start with them. Otherwise, start with a random Pokemon from the team.
@@ -579,15 +587,16 @@ function slackemon_start_battle( $battle_hash, $action ) {
   // Respond to the invitee
   $inviter_first_name = slackemon_get_slack_user_first_name( $inviter_id );
   if ( slackemon_send2slack([
-    'text' => ':grin: *You have accepted ' . $inviter_first_name . '\'s challenge!*',
-    'attachments' => slackemon_get_battle_attachments( $battle_hash, $invitee_id, 'start' ),
+    'text'             => ':grin: *You have accepted ' . $inviter_first_name . '\'s challenge!*',
+    'attachments'      => slackemon_get_battle_attachments( $battle_hash, $invitee_id, 'start' ),
     'replace_original' => true,
   ]) ) {
 
     // Alert the inviter
     slackemon_post2slack([
       'text' => (
-        ':laughing: *' . slackemon_get_slack_user_first_name( $invitee_id ) . ' has accepted your battle challenge!*' . "\n" .
+        ':laughing: *' . slackemon_get_slack_user_first_name( $invitee_id ) . ' has accepted ' .
+        'your battle challenge!*' . "\n" .
         'It\'s their move first - so hang tight just a sec!'
       ),
       'channel' => $inviter_id,
@@ -795,15 +804,15 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
 
   foreach ( $battle_data->users->{ $opponent_id }->team as $_pokemon ) {
 
-    // Skip if this opponent Pokemon didn't faint
+    // Skip if this opponent Pokemon didn't faint.
     if ( $_pokemon->hp ) {
       continue;
     }
 
-    // Grab the fainted Pokemon's API data
+    // Grab the fainted Pokemon's API data.
     $_pokemon_data = slackemon_get_pokemon_data( $_pokemon->pokedex );
 
-    // Calculate the experience yielded by this Pokemon
+    // Calculate the experience yielded by this Pokemon.
     $experience = (int) slackemon_calculate_battle_experience( $_pokemon );
     $total_experience_gained += $experience;
 
@@ -814,24 +823,31 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
       'experience_gained' => (int) $experience,
     ];
 
-    // Calculate the effort point gain
+    // Calculate the effort point gain.
     foreach ( $_pokemon_data->stats as $_stat ) {
-      if ( ! $_stat->effort ) { continue; }
-      $effort_points_gained[ $_stat->stat->name ] += (int) $_stat->effort; break;
+
+      if ( ! $_stat->effort ) {
+        continue;
+      }
+
+      $effort_points_gained[ $_stat->stat->name ] += (int) $_stat->effort;
+
+      break;
+
     }
 
-  } // Foreach opponent pokemon
+  } // Foreach opponent pokemon.
 
   $battle_pokemon_by_ts = [];
 
-  // Apply experience & any other relevant changes to eligible Pokemon
+  // Apply experience & any other relevant changes to eligible Pokemon.
   foreach ( $battle_data->users->{ $user_id }->team as $_pokemon ) {
 
-    // Skip recalculation if this Pokemon fainted; just add it to the interim collection to save HP/participation
+    // Skip recalculation if this Pokemon fainted; just add it to the interim collection to save HP/participation.
     if ( ! $_pokemon->hp ) {
 
-      $_pokemon->happiness -= 1; // Happiness reduction of 1 due to fainting
-      $_pokemon->happiness = max( 0, $_pokemon->happiness ); // Ensure we don't go below 0
+      $_pokemon->happiness -= 1; // Happiness reduction of 1 due to fainting.
+      $_pokemon->happiness  = max( 0, $_pokemon->happiness ); // Ensure we don't go below 0.
       $battle_pokemon_by_ts[ $_pokemon->ts ] = $_pokemon;
       $pokemon_experience_message .= (
         ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $_pokemon->name . ': ' : '' ) .
@@ -843,7 +859,7 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
       
     }
 
-    // Skip everything if this Pokemon didn't get to participate at all
+    // Skip everything if this Pokemon didn't get to participate at all.
     if ( $_pokemon->battles->last_participated !== $battle_data->ts ) {
 
       $pokemon_experience_message .= (
@@ -856,12 +872,12 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
 
     }
 
-    // Experience
+    // Experience.
     $_pokemon->xp += $total_experience_gained;
 
-    // EVs
+    // EVs.
 
-    // First, turn it into an object if it was an array - how it is first created at spawn time
+    // First, turn it into an object if it was an array - how it is first created at spawn time.
     if ( is_array( $_pokemon->evs ) ) {
       $_pokemon->evs = json_decode( json_encode( [
         'attack'  => 0,
@@ -873,29 +889,29 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
       ]));
     }
 
-    // Apply EVs from all defeated Pokemon, and ensure it stays below the maximum
+    // Apply EVs from all defeated Pokemon, and ensure it stays below the maximum.
     $current_evs = slackemon_get_combined_evs( $_pokemon->evs );
     foreach ( $effort_points_gained as $key => $value ) {
 
-      // Max 510 across all EV stats - reduce the value we're applying if it would otherwise take us over the limit
+      // Max 510 across all EV stats - reduce the value we're applying if it would otherwise take us over the limit.
       if ( $current_evs + $value > 510 ) {
         $value = $current_evs + $value - 510;
       }
 
-      // Apply the value
+      // Apply the value.
       $_pokemon->evs->{ $key } += $value;
 
-      // Ensure a max 252 per EV stat
+      // Ensure a max 252 per EV stat.
       $_pokemon->evs->{ $key } = min( 252, $_pokemon->evs->{ $key } );
 
     }
 
-    // Recalculate level
-    $old_level = $_pokemon->level; // Store for happiness calculation shortly
+    // Recalculate level.
+    $old_level = $_pokemon->level; // Store for happiness calculation shortly.
     $growth_rate_data = slackemon_get_pokemon_growth_rate_data( $_pokemon->pokedex );
     foreach ( $growth_rate_data->levels as $_level ) {
 
-      // Levels in the API go from 100 down to 1
+      // Levels in the API go from 100 down to 1.
       // If our experience is greater than the experience required for this level, *this* is our level!
       if ( $_pokemon->xp >= $_level->experience ) {
 
@@ -908,20 +924,21 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
           $_pokemon->level = $_level->level;
         }
 
-        // Limit levels to 1 decimal point
+        // Limit levels to 1 decimal point.
         $_pokemon->level = round( $_pokemon->level, 1, PHP_ROUND_HALF_DOWN );
 
         break;
 
       }
 
-      // Pass experience required down to previous level as the loop continues
+      // Pass experience required down to previous level as the loop continues.
       $next_level_experience = $_level->experience;
-    }
 
-    // Recalculate happiness as a result of levelling up
-    // +5 per additional level if happiness 0-99; +3 if happiness 100-199; or +2 if 200-255
-    // Reference: http://bulbapedia.bulbagarden.net/wiki/Friendship#In_Generation_I
+    } // Foreach growth rate level
+
+    // Recalculate happiness as a result of levelling up.
+    // +5 per additional level if happiness 0-99; +3 if happiness 100-199; or +2 if 200-255.
+    // Reference: http://bulbapedia.bulbagarden.net/wiki/Friendship#In_Generation_I.
     for ( $i = floor( $old_level ); $i < floor( $_pokemon->level ); $i++ ) {
       if ( $_pokemon->happiness < 100 ) {
         $_pokemon->happiness += 5;
@@ -932,10 +949,10 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
       }
     }
 
-    // Ensure we don't exceed the 255 happiness cap
+    // Ensure we don't exceed the 255 happiness cap.
     $_pokemon->happiness = min( 255, $_pokemon->happiness );
 
-    // Recalculate stats
+    // Recalculate stats.
     $_pokemon->stats->attack  = slackemon_calculate_stats( 'attack',  $_pokemon );
     $_pokemon->stats->defense = slackemon_calculate_stats( 'defense', $_pokemon );
     $_pokemon->stats->hp      = slackemon_calculate_stats( 'hp',      $_pokemon );
@@ -1094,7 +1111,7 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
 
   return $message;
 
-} // Function slackemon_complete_battle_for_winner
+} // Function slackemon_complete_battle_for_winner.
 
 function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_to_user ) {
 
@@ -1102,12 +1119,12 @@ function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_
   $pokemon_experience_message = '';
   $battle_pokemon_by_ts = [];
 
-  // Save HP, happiness and participation data
+  // Save HP, happiness and participation data.
   foreach ( $battle_data->users->{ $user_id }->team as $_pokemon ) {
 
     if ( ! $_pokemon->hp ) {
-      $_pokemon->happiness -= 1; // Happiness reduction of 1 due to fainting
-      $_pokemon->happiness = max( 0, $_pokemon->happiness ); // Ensure we don't go below 0
+      $_pokemon->happiness -= 1; // Happiness reduction of 1 due to fainting.
+      $_pokemon->happiness  = max( 0, $_pokemon->happiness ); // Ensure we don't go below 0.
     }
 
     $battle_pokemon_by_ts[ $_pokemon->ts ] = $_pokemon;
@@ -1173,7 +1190,8 @@ function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_
 
 } // Function slackemon_complete_battle_for_loser
 
-function slackemon_offer_battle_swap( $battle_hash, $user_id, $return_full_message = false, $action = null ) {
+/** Battle swaps are either offered when a user's Pokemon faints, or when the user specifically requests a swap. */
+function slackemon_offer_battle_swap( $battle_hash, $user_id, $user_initiated = false, $action = null ) {
 
   $battle_data     = slackemon_get_battle_data( $battle_hash );
   $current_pokemon = slackemon_get_battle_current_pokemon( $battle_hash, $user_id );
@@ -1183,16 +1201,35 @@ function slackemon_offer_battle_swap( $battle_hash, $user_id, $return_full_messa
   $swap_actions = [];
 
   foreach ( $battle_team as $pokemon ) {
-    if ( ! $pokemon->hp ) { continue; }
-    if ( $pokemon->ts === $current_pokemon->ts ) { continue; }
+
+    if ( ! $pokemon->hp ) {
+      continue;
+    }
+
+    if ( $pokemon->ts === $current_pokemon->ts ) {
+      continue;
+    }
+
     $swap_actions[] = [
-      'name' => 'battles/swap/do',
+      'name' => 'battles/swap/do' . ( $user_initiated ? '/user_initiated' : '' ),
       'text' => (
         ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ':' . $pokemon->name . ': ' : '' ) .
         slackemon_readable( $pokemon->name ) . ' (' . $pokemon->cp . ' CP)'
       ),
-      'type' => 'button',
+      'type'  => 'button',
       'value' => $battle_hash . '/' . $pokemon->ts,
+    ];
+
+  }
+
+  // Add a button to cancel the swap, in case it was accidentally selected by the user.
+  if ( $user_initiated ) {
+    $swap_actions[] = [
+      'name'  => 'battles/swap/cancel',
+      'text'  => 'Cancel',
+      'type'  => 'button',
+      'value' => $battle_hash,
+      'style' => 'danger',
     ];
   }
 
@@ -1201,13 +1238,15 @@ function slackemon_offer_battle_swap( $battle_hash, $user_id, $return_full_messa
       '*Who would you like to send into battle' .
       ( $is_desktop ? ' to replace ' . slackemon_readable( $current_pokemon->name ) : '' ) . '?*'
     ),
-    'color' => '#333333',
-    'actions' => $swap_actions,
-    'mrkdwn_in' => [ 'text' ],
+    'color'       => '#333333',
+    'actions'     => $swap_actions,
+    'mrkdwn_in'   => [ 'text' ],
     'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
   ];
 
-  if ( $return_full_message ) {
+  // If the user requested the swap, we need to return the entire message as an action response.
+  // Otherwise, all we're returning is a collection of actions to include in an already constructed message.
+  if ( $user_initiated ) {
     $message = [ 'attachments' => $action->original_message->attachments ];
     $message['attachments'][ $action->attachment_id - 1 ] = $swap_attachment;
     return $message;
@@ -1215,11 +1254,26 @@ function slackemon_offer_battle_swap( $battle_hash, $user_id, $return_full_messa
     return $swap_attachment;
   }
 
-} // Function slackemon_offer_battle_swap
+} // Function slackemon_offer_battle_swap.
 
-function slackemon_do_battle_move(
-  $move_name, $battle_hash, $action, $first_move = false, $user_id = USER_ID, $previous_move_notice = ''
-) {
+function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action, $user_id = USER_ID, $options = [] ) {
+
+  // Parse options and make our initial decisions on them.
+
+  $defaults = [
+    'is_first_move'          => false,
+    'is_swap'                => false,
+    'is_user_initiated_swap' => false,
+    'previous_move_notice'   => '',
+  ];
+
+  $options = array_merge( $defaults, $options );
+
+  if ( $options['is_swap'] ) {
+    $new_pokemon_ts = $move_name_or_swap_ts;
+  } else {
+    $move_name      = $move_name_or_swap_ts;
+  }
 
   $battle_data = slackemon_get_battle_data( $battle_hash );
 
@@ -1227,8 +1281,17 @@ function slackemon_do_battle_move(
     return slackemon_battle_has_ended_message();
   }
 
-  // In case timeouts have allowed a user to move twice, we need to make sure it's this user's turn
+  // In case timeouts have allowed a user to move twice, we need to make sure it's this user's turn.
   if ( $battle_data->turn !== $user_id ) {
+    return;
+  }
+
+  // If this is a swap that the user initiated, and the user has no swaps remianing, we must fail.
+  if (
+    $options['is_swap'] &&
+    $options['is_user_initiated_swap'] &&
+    ! $battle_data->users->{ $user_id }->status->swaps_remaining
+  ) {
     return;
   }
 
@@ -1237,20 +1300,21 @@ function slackemon_do_battle_move(
   // 2) including asking for a file lock.
   $battle_data = slackemon_get_battle_data( $battle_hash, false, true );
 
+  // Get opponent ID.
   $opponent_id = slackemon_get_battle_opponent_id( $battle_hash, $user_id );
 
+  // Update the last move time to now.
   $battle_data->last_move_ts = time();
 
   if ( 'p2p' === $battle_data->type || 'U' === substr( $user_id, 0, 1 ) ) {
     $battle_data->users->{ $user_id }->response_url = RESPONSE_URL;
   }
 
-  // Is this move a swap to another Pokemon ts?
-  if ( is_numeric( $move_name ) ) {
+  // Is this move a swap?
+  if ( $options['is_swap'] ) {
 
-    $new_pokemon_ts = $move_name;
-    $old_pokemon = slackemon_get_battle_current_pokemon( $battle_hash, $user_id );
-    $battle_team = $battle_data->users->{ $user_id }->team;
+    $old_pokemon    = slackemon_get_battle_current_pokemon( $battle_hash, $user_id );
+    $battle_team    = $battle_data->users->{ $user_id }->team;
 
     foreach ( $battle_team as $_pokemon ) {
       if ( $_pokemon->ts == $new_pokemon_ts ) {
@@ -1259,46 +1323,54 @@ function slackemon_do_battle_move(
       }
     }
 
-    // Set the new current Pokemon for this user
+    // Set the new current Pokemon for this user.
     $battle_data->users->{ $user_id }->status->current = $new_pokemon->ts;
+
+    // If this was a user initiated swap, reduce the number of swaps remaining.
+    if ( $options['is_user_initiated_swap'] ) {
+      $battle_data->users->{ $user_id }->status->swaps_remaining--;
+    }
+
+    // Possibly record this in the opponent's Pokedex as a brand new 'seen' Pokemon.
     slackemon_maybe_record_battle_seen_pokemon( $opponent_id, $new_pokemon->pokedex );
 
     $move_message = (
-      'swapped ' . slackemon_readable( $old_pokemon->name ) . ' for ' . slackemon_readable( $new_pokemon->name ) . '! ' .
+      'swapped ' . slackemon_readable( $old_pokemon->name ) . ' ' .
+      'for *' . slackemon_readable( $new_pokemon->name ) . '*! ' .
       ucfirst( slackemon_get_gender_pronoun( $new_pokemon->gender ) ) . ' has ' . $new_pokemon->cp . ' CP.'
     );
 
-    // Get the current Pokemon (incl. the new Pokemon for the current user)
+    // Get the current Pokemon (incl. the new Pokemon for the current user).
     $user_pokemon     = slackemon_get_battle_current_pokemon( $battle_hash, $user_id );
     $opponent_pokemon = slackemon_get_battle_current_pokemon( $battle_hash, $opponent_id );
 
-  // This move is a traditional battle move
+  // This move is a traditional battle move.
   } else {
 
     $user_pokemon     = slackemon_get_battle_current_pokemon( $battle_hash, $user_id );
     $opponent_pokemon = slackemon_get_battle_current_pokemon( $battle_hash, $opponent_id );
 
-    // Get the move from the Pokemon's known moves
+    // Get the move from the Pokemon's known moves.
     foreach ( $user_pokemon->moves as $_move ) {
       if ( $_move->name === $move_name ) {
         $move = $_move;
       }
     }
 
-    // If move was not found or has no PP, we resort to our backup move instead (usually Struggle)
-    if ( ! isset( $move ) || ! $move->{'pp-current'} ) {
+    // If move was not found or has no PP, we resort to our backup move instead (usually Struggle).
+    if ( ! isset( $move ) || ! floor( $move->{'pp-current'} ) ) {
       $move = slackemon_get_backup_move();
     }
 
-    // Get the move data
+    // Get the move data.
     $move_data = slackemon_get_move_data( $move->name );
 
-    // Calculate the move's damage
+    // Calculate the move's damage.
     $damage = slackemon_calculate_move_damage( $move, $user_pokemon, $opponent_pokemon );
 
     // Do the damage!
     $opponent_pokemon->hp -= $damage->damage;
-    $opponent_pokemon->hp = max( 0, $opponent_pokemon->hp ); // Ensure the HP doesn't go below 0
+    $opponent_pokemon->hp  = max( 0, $opponent_pokemon->hp ); // Ensure the HP doesn't go below 0.
 
     // Update the PP
     $move->{'pp-current'}--;
@@ -1391,30 +1463,33 @@ function slackemon_do_battle_move(
   slackemon_save_battle_data( $battle_data, $battle_hash, 'battle', true );
 
   // Prepare notice of the previous move (if available) for prepending to this move's notice.
-  if ( $previous_move_notice ) {
-    $previous_move_notice .= "\n\n";
+  if ( $options['previous_move_notice'] ) {
+    $options['previous_move_notice'] .= "\n\n";
   }
 
   // Notify the user.
-  $this_move_notice_user = $previous_move_notice . 'You ' . $move_message;
+  $this_move_notice_user = $options['previous_move_notice'] . 'You ' . $move_message;
   $user_message = [
-    'attachments' => slackemon_get_battle_attachments( $battle_hash, $user_id, 'during', $this_move_notice_user ),
+    'attachments'      => slackemon_get_battle_attachments( $battle_hash, $user_id, 'during', $this_move_notice_user ),
     'replace_original' => true,
   ];
 
   // Notify the opponent.
+
   $user_first_name = (
     'wild' === $battle_data->type ?
     slackemon_readable( $user_pokemon->name ) :
     slackemon_get_slack_user_first_name( $user_id )
   );
-  $this_move_notice_opponent = $previous_move_notice . $user_first_name . ' ' . $move_message;
+
+  $this_move_notice_opponent = $options['previous_move_notice'] . $user_first_name . ' ' . $move_message;
+
   $opponent_message = [
     'attachments' => (
       slackemon_get_battle_attachments(
         $battle_hash,
         $opponent_id,
-        $first_move ? 'first' : 'during',
+        $options['is_first_move'] ? 'first' : 'during',
         $this_move_notice_opponent
       )
     ),
@@ -1425,7 +1500,7 @@ function slackemon_do_battle_move(
       slackemon_send2slack( $user_message, RESPONSE_URL );
 
       // Do we already have an existing action response URL for the opponent?
-      // If so, use it, if not, it means this is the first move of a new battle, so we create a fresh message instead
+      // If so, use it, if not, it means this is the first move of a new battle, so we create a fresh message instead.
       if ( $battle_data->users->{ $opponent_id }->response_url ) {
         $opponent_message['replace_original'] = true;
         slackemon_send2slack( $opponent_message, $battle_data->users->{ $opponent_id }->response_url );
@@ -1449,7 +1524,7 @@ function slackemon_do_battle_move(
         sleep( 2 ); // Wait before the computer moves...
 
         // Before we move, should we flee?
-        // This doubles the chance of staying compared to a standard catch, plus increases more depending on
+        // This doubles the chance of staying compared to a standard catch, plus increases more depending on.
         // how much HP the wild Pokemon has left.
         $hp_percentage_integer = $opponent_pokemon->hp / $opponent_pokemon->stats->hp;
         $is_staying = (
@@ -1463,19 +1538,25 @@ function slackemon_do_battle_move(
 
         $move = slackemon_get_best_move( $opponent_pokemon, $user_pokemon );
 
-        call_user_func(
-          __FUNCTION__, $move->name, $battle_hash, $action, false, $opponent_id, $this_move_notice_user
-        );
+        $args = [
+          $move->name,
+          $battle_hash,
+          $action,
+          $opponent_id,
+          [ 'previous_move_notice' => $this_move_notice_user ],
+        ];
 
-      } // If either pokemon has hp
+        call_user_func_array( __FUNCTION__, $args );
+
+      } // If either pokemon has hp remaining.
 
     } else {
 
       slackemon_send2slack( $opponent_message, RESPONSE_URL );
 
-    } // If last move was from human user
-  } // If p2p battle / else
-} // Function slackemon_do_battle_move
+    } // If last move was from human user.
+  } // If p2p battle / else.
+} // Function slackemon_do_battle_move.
 
 function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage, $this_move_notice = '' ) {
 
@@ -1496,18 +1577,35 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
 
   $user_pokemon->moves = slackemon_sort_battle_moves( $user_pokemon->moves, $user_pokemon->types );
 
-  // Do we have a swap available?
-  $user_swaps_available = 0;
+  // Do we have any Pokemon remaining for swapping to?
+  $user_remaining_pokemon = 0;
   foreach ( $battle_data->users->{ $user_id }->team as $_pokemon ) {
-    if ( ! $_pokemon->hp ) { continue; }
-    if ( $_pokemon->ts === $user_pokemon->ts ) { continue; }
-    $user_swaps_available++;
+    if ( ! $_pokemon->hp ) {
+      continue;
+    }
+
+    if ( $_pokemon->ts === $user_pokemon->ts ) {
+      continue;
+    }
+
+    $user_remaining_pokemon++;
+
   }
-  $opponent_swaps_available = 0;
+
+  // Does our opponent have any Pokemon remaining for swapping to?
+  $opponent_remaining_pokemon = 0;
   foreach ( $battle_data->users->{ $opponent_id }->team as $_pokemon ) {
-    if ( ! $_pokemon->hp ) { continue; }
-    if ( $_pokemon->ts === $opponent_pokemon->ts ) { continue; }
-    $opponent_swaps_available++;
+
+    if ( ! $_pokemon->hp ) {
+      continue;
+    }
+
+    if ( $_pokemon->ts === $opponent_pokemon->ts ) {
+      continue;
+    }
+
+    $opponent_remaining_pokemon++;
+
   }
 
   $opponent_pretext = '';
@@ -1625,7 +1723,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
     $available_moves = [];
 
     foreach ( $user_pokemon->moves as $_move ) {
-      if ( $_move->{'pp-current'} ) {
+      if ( floor( $_move->{'pp-current'} ) ) {
         $available_moves[] = $_move;
       }
     }
@@ -1653,7 +1751,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
             slackemon_emojify_types( ucfirst( $_move_data->type->name ), false ) . ' ' :
             ''
           ) .
-          ( 999 != $_move->{'pp-current'} ? $_move->{'pp-current'} . '/' . $_move->pp . ' • ' : '' ) .
+          ( 999 != $_move->{'pp-current'} ? floor( $_move->{'pp-current'} ) . '/' . $_move->pp . ' • ' : '' ) .
           slackemon_readable( $_move->name ) . ' x' . ( $_move_data->power ? $_move_data->power : 0 ) .
           ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? '' : ' (' . ucfirst( $_move_data->type->name ) . ')' )
         ),
@@ -1662,10 +1760,14 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
 
     }
 
-    if ( $user_swaps_available ) {
+    if ( $user_remaining_pokemon && $battle_data->users->{ $user_id }->status->swaps_remaining ) {
 
       $move_options[] = [
-        'text' => ( $is_desktop ? ':twisted_rightwards_arrows: ' : '' ) . 'Swap Pokémon',
+        'text'  => (
+          ( $is_desktop ? ':twisted_rightwards_arrows: ' : '' ) .
+          'Swap Pokémon ' .
+          '(' . $battle_data->users->{ $user_id }->status->swaps_remaining . '/' . SLACKEMON_BATTLE_SWAP_LIMIT . ')'
+        ),
         'value' => $battle_hash . '//swap',
       ];
 
@@ -1713,7 +1815,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
 
     } // If wild battle
 
-  } else if ( $opponent_pokemon->hp || $opponent_swaps_available ) {
+  } else if ( $opponent_pokemon->hp || $opponent_remaining_pokemon ) {
 
     // It's the opponent's turn
 
@@ -1761,7 +1863,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
           $battle_data->turn === $user_id ?
           '' :
           (
-            $opponent_pokemon->hp || $opponent_swaps_available ?
+            $opponent_pokemon->hp || $opponent_remaining_pokemon ?
             '*It\'s ' . $opponent_first_name . '\'s move' .
             (
               'p2p' === $battle_data->type ?
@@ -1778,7 +1880,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
           )
         ),
         'color' => (
-          $battle_data->turn !== $user_id && ! $opponent_pokemon->hp && ! $opponent_swaps_available ? // User won!
+          $battle_data->turn !== $user_id && ! $opponent_pokemon->hp && ! $opponent_remaining_pokemon ? // User won!
           'good' :
           '#333333'
         ),
@@ -1786,26 +1888,26 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
         'actions'     => $actions,
         'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
       ] :
-      // User's current Pokemon has fainted - do we offer a swap, or was that their last mon??
+      // User's current Pokemon has fainted - do we offer a swap, or was that their last Pokemon??
       (
-        $user_swaps_available ?
+        $user_remaining_pokemon ?
         slackemon_offer_battle_swap( $battle_hash, $user_id ) :
         [
           'pretext' => $this_move_notice . "\n\n" . (
             ':expressionless: *Nooo... you lost the battle!*' . "\n" .
             'Click the _Complete_ button to get your XP bonus and see your Pokémon.'
           ),
-          'mrkdwn_in' => [ 'text', 'pretext' ],
-          'color' => 'danger',
+          'mrkdwn_in'   => [ 'text', 'pretext' ],
+          'color'       => 'danger',
           'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
           'actions' => [
             /*[ // TODO ?
               'name' => 'battles/send-congratulations',
               'text' => 'Send Congratulations',
             ],*/ [
-              'name' => 'battles/complete',
-              'text' => 'Complete Battle',
-              'type' => 'button',
+              'name'  => 'battles/complete',
+              'text'  => 'Complete Battle',
+              'type'  => 'button',
               'value' => $battle_hash . '/lost',
               'style' => 'primary',
             ],

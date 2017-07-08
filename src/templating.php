@@ -24,7 +24,7 @@ function slackemon_readable_moveset( $moves, $types, $include_bullets = false, $
       slackemon_readable( $move_data->type->name ) .
       ( in_array( ucfirst( $move_data->type->name ), $types ) ? '*' : '' ) .
       ', x' . ( $move_data->power ? $move_data->power : 0 ) .
-      ( $include_pp ? ', ' . $move->{'pp-current'} . '/' . $move->pp : '' ) .
+      ( $include_pp ? ', ' . floor( $move->{'pp-current'} ) . '/' . $move->pp : '' ) .
       ')'
     );
 

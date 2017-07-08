@@ -174,6 +174,10 @@ define( 'SLACKEMON_EXP_GAIN_MODIFIER', getenv( 'SLACKEMON_EXP_GAIN_MODIFIER' ) ?
 // Example: .05 for 5% per minute.
 define( 'SLACKEMON_HP_RESTORE_RATE', getenv( 'SLACKEMON_HP_RESTORE_RATE' ) ?: .05 );
 
+// The number of times a user can swap Pokemon during a P2P battle.
+// 'Free swaps' after a Pokemon has fainted are not included in this total.
+define( 'SLACKEMON_BATTLE_SWAP_LIMIT', getenv( 'SLACKEMON_BATTLE_SWAP_LIMIT' ) ?: 5 );
+
 /**
  * Debugging configuration.
  * If enabled, outputs verbose debugging messages to the error_log.
