@@ -220,7 +220,7 @@ define(
 // Note that changing this will start your image cache again from scratch, as cache keys are based on the full URL.
 define( 'SLACKEMON_ANIMATED_GIF_BASE',
   getenv( 'SLACKEMON_ANIMATED_GIF_BASE' ) ?:
-  'https://raw.githubusercontent.com/tdmalone/pokecss-media/6fc502c0858f44c175b20ebcbf412813eeb8d7b1/graphics/pokemon'
+  'https://raw.githubusercontent.com/tdmalone/pokecss-media/3e8efb8144e2401cbcb411e685bed53c9e8f430b/graphics/pokemon'
 );
 
 // The number of seconds that will be waited for when calling a background command/action.
