@@ -587,15 +587,16 @@ function slackemon_start_battle( $battle_hash, $action ) {
   // Respond to the invitee
   $inviter_first_name = slackemon_get_slack_user_first_name( $inviter_id );
   if ( slackemon_send2slack([
-    'text' => ':grin: *You have accepted ' . $inviter_first_name . '\'s challenge!*',
-    'attachments' => slackemon_get_battle_attachments( $battle_hash, $invitee_id, 'start' ),
+    'text'             => ':grin: *You have accepted ' . $inviter_first_name . '\'s challenge!*',
+    'attachments'      => slackemon_get_battle_attachments( $battle_hash, $invitee_id, 'start' ),
     'replace_original' => true,
   ]) ) {
 
     // Alert the inviter
     slackemon_post2slack([
       'text' => (
-        ':laughing: *' . slackemon_get_slack_user_first_name( $invitee_id ) . ' has accepted your battle challenge!*' . "\n" .
+        ':laughing: *' . slackemon_get_slack_user_first_name( $invitee_id ) . ' has accepted ' .
+        'your battle challenge!*' . "\n" .
         'It\'s their move first - so hang tight just a sec!'
       ),
       'channel' => $inviter_id,
@@ -1467,7 +1468,7 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
   // Notify the user.
   $this_move_notice_user = $options['previous_move_notice'] . 'You ' . $move_message;
   $user_message = [
-    'attachments' => slackemon_get_battle_attachments( $battle_hash, $user_id, 'during', $this_move_notice_user ),
+    'attachments'      => slackemon_get_battle_attachments( $battle_hash, $user_id, 'during', $this_move_notice_user ),
     'replace_original' => true,
   ];
 
@@ -1757,7 +1758,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
 
     }
 
-    if ( $user_remaining_pokemon ) {
+    if ( $user_remaining_pokemon && $battle_data->users->{ $user_id }->status->swaps_remaining ) {
 
       $move_options[] = [
         'text'  => (
