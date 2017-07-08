@@ -530,14 +530,20 @@ function slackemon_start_battle( $battle_hash, $action ) {
     'type'  => 'p2p',
     'users' => [
       $inviter_id => [
-        'team' => $inviter_battle_team,
-        'status' => [ 'current' => false ],
-        'response_url' => '', // Not available until the inviter is given an action to perform
+        'team'            => $inviter_battle_team,
+        'status'          => [
+          'current'         => false,
+          'swaps_remaining' => SLACKEMON_BATTLE_SWAP_LIMIT,
+        ],
+        'response_url'    => '', // Not available until the inviter is given an action to perform.
       ],
       $invitee_id => [
-        'team' => $invitee_battle_team,
-        'status' => [ 'current' => false ],
-        'response_url' => RESPONSE_URL,
+        'team'            => $invitee_battle_team,
+        'status'          => [
+          'current'         => false,
+          'swaps_remaining' => SLACKEMON_BATTLE_SWAP_LIMIT,
+        ],
+        'response_url'    => RESPONSE_URL,
       ],
     ],
     'last_move_ts' => time(),
@@ -1308,6 +1314,11 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
     // Set the new current Pokemon for this user.
     $battle_data->users->{ $user_id }->status->current = $new_pokemon->ts;
 
+    // If this was a user initiated swap, reduce the number of swaps remaining.
+    if ( $options['is_user_initiated_swap'] ) {
+      $battle_data->users->{ $user_id }->status->swaps_remaining--;
+    }
+
     // Possibly record this in the opponent's Pokedex as a brand new 'seen' Pokemon.
     slackemon_maybe_record_battle_seen_pokemon( $opponent_id, $new_pokemon->pokedex );
 
@@ -1740,7 +1751,11 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
     if ( $user_remaining_pokemon ) {
 
       $move_options[] = [
-        'text' => ( $is_desktop ? ':twisted_rightwards_arrows: ' : '' ) . 'Swap Pokémon',
+        'text'  => (
+          ( $is_desktop ? ':twisted_rightwards_arrows: ' : '' ) .
+          'Swap Pokémon ' .
+          '(' . $battle_data->users->{ $user_id }->status->swaps_remaining . '/' . SLACKEMON_BATTLE_SWAP_LIMIT . ')'
+        ),
         'value' => $battle_hash . '//swap',
       ];
 
