@@ -193,10 +193,13 @@ function slackemon_handle_action( $action ) {
     break; // Case battles/move.
 
     case 'battles/swap/do':
-      $action_value = explode( '/', $action_value );
-      $battle_hash = $action_value[0];
+    
+      $action_value   = explode( '/', $action_value );
+      $battle_hash    = $action_value[0];
       $new_pokemon_ts = $action_value[1];
+
       slackemon_do_battle_move( $new_pokemon_ts, $battle_hash, $action );
+
     break;
 
     case 'battles/surrender':
@@ -205,10 +208,13 @@ function slackemon_handle_action( $action ) {
     break;
 
     case 'battles/complete': // Tally up battle stats etc. for the user.
-      $action_value = explode( '/', $action_value );
-      $battle_hash = $action_value[0];
+
+      $action_value  = explode( '/', $action_value );
+      $battle_hash   = $action_value[0];
       $battle_result = $action_value[1];
+
       slackemon_complete_battle( $battle_result, $battle_hash );
+
     break;
 
     case 'achievements':

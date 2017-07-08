@@ -469,7 +469,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
     'attachments' => slackemon_get_battle_attachments( $battle_hash, $inviter_id, 'first', '' ),
   ], RESPONSE_URL );
 
-  // Wild Pokemon gets to move first
+  // Wild Pokemon gets to move first.
   sleep( 4 ); // Wait before the computer moves...
   $move = slackemon_get_best_move( $invitee_pokemon, $inviter_pokemon );
   slackemon_do_battle_move( $move->name, $battle_hash, $action, true, $invitee_id );

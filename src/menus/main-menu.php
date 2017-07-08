@@ -141,84 +141,84 @@ function slackemon_get_main_menu() {
       ], (
         count( $latest_news ) ?
         [
-          'color' => '#333333',
-          'text' => '*Lᴀᴛᴇsᴛ Nᴇᴡs*' . "\n" . join( "\n", $latest_news ), // Latest News
+          'color'     => '#333333',
+          'text'      => '*Lᴀᴛᴇsᴛ Nᴇᴡs*' . "\n" . join( "\n", $latest_news ), // Latest News.
           'mrkdwn_in' => [ 'text' ],
         ] :
         []
       ), [
-        'text' => '*Mᴀɪɴ Mᴇɴᴜ*', // Main Menu
-        'mrkdwn_in' => [ 'text' ],
-        'color' => '#333333',
+        'text'        => '*Mᴀɪɴ Mᴇɴᴜ*', // Main Menu.
+        'mrkdwn_in'   => [ 'text' ],
+        'color'       => '#333333',
         'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-        'actions' => [
+        'actions'     => [
           [
-            'name' => 'pokemon/list',
-            'text' => ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ':pikachu_bounce:' : ':monkey:' ) . ' Pokémon',
-            'type' => 'button',
+            'name'  => 'pokemon/list',
+            'text'  => ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ':pikachu_bounce:' : ':monkey:' ) . ' Pokémon',
+            'type'  => 'button',
             'value' => 'main',
           ], (
             count( $player_data->items ) ?
             [
-              'name' => 'items',
-              'text' => ':handbag: Bag',
-              'type' => 'button',
+              'name'  => 'items',
+              'text'  => ':handbag: Bag',
+              'type'  => 'button',
               'value' => 'main',
             ] :
             []
           ), (
             count( $player_data->pokemon ) >= SLACKEMON_BATTLE_TEAM_SIZE ?
             [
-              'name' => 'battles',
-              'text' => ':facepunch: Battles',
-              'type' => 'button',
+              'name'  => 'battles',
+              'text'  => ':facepunch: Battles',
+              'type'  => 'button',
               'value' => 'main',
             ] :
             []
           ), (
             count( $available_regions ) > 1 ?
             [
-              'name' => 'travel',
-              'text' => ':world_map: Travel',
-              'type' => 'button',
+              'name'  => 'travel',
+              'text'  => ':world_map: Travel',
+              'type'  => 'button',
               'value' => 'main',
             ] :
             []
           ), [
-            'name' => 'achievements',
-            'text' => ':sports_medal: Achievements',
-            'type' => 'button',
+            'name'  => 'achievements',
+            'text'  => ':sports_medal: Achievements',
+            'type'  => 'button',
             'value' => 'main',
           ],
         ],
       ], [
         'fallback' => SLACKEMON_ACTION_CALLBACK_ID,
-        'footer' => (
+        'footer'   => (
           $version_string . ' - ' .
           $players_online . ' player' . ( 1 === $players_online ? '' : 's' ) . ' online'
         ),
         'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-        'actions' => [
+        'actions'     => [
           (
             slackemon_is_player_in_battle() ?
             [] :
             [
-              'name' => 'mute',
-              'text' => slackemon_is_player_muted() ? ':mute: Offline' : ':loud_sound: Online',
-              'type' => 'button',
+              'name'  => 'mute',
+              'text'  => slackemon_is_player_muted() ? ':mute: Offline' : ':loud_sound: Online',
+              'type'  => 'button',
               'value' => slackemon_is_player_muted() ? 'unmute' : 'mute',
               'style' => slackemon_is_player_muted() ? 'danger' : 'primary',
             ]
           ), [
-            'name' => 'menu_mode',
-            'text' => $is_desktop ? ':desktop_computer: Mobile Off' : ':iphone: Mobile On',
-            'type' => 'button',
+            'name'  => 'menu_mode',
+            'text'  => $is_desktop ? ':desktop_computer: Mobile Off' : ':iphone: Mobile On',
+            'type'  => 'button',
             'value' => $is_desktop ? 'mobile' : 'desktop',
             'style' => $is_desktop ? '' : 'primary',
           ], [
-            'name' => 'tools',
-            'text' => ':hammer: Tools',
-            'type' => 'button',
+            'name'  => 'tools',
+            'text'  => ':hammer: Tools',
+            'type'  => 'button',
             'value' => 'main',
           ],
         ],
@@ -228,7 +228,7 @@ function slackemon_get_main_menu() {
 
   return $message;
 
-} // Function slackemon_get_main_menu
+} // Function slackemon_get_main_menu.
 
 function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
 
