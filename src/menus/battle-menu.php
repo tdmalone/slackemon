@@ -280,7 +280,7 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon, $user_id = USER
       slackemon_readable_moveset( $pokemon->moves, $pokemon->types, true, true )
     ),
     'footer' => (
-      'Attack ' . $pokemon->stats->attack . ' • ' .
+      'Attack '  . $pokemon->stats->attack  . ' • ' .
       'Defense ' . $pokemon->stats->defense . ' • ' .
       'HP ' . floor( $pokemon->hp ) . '/' . $pokemon->stats->hp .
       (
