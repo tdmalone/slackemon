@@ -198,7 +198,7 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
     'invitee_id'     => $invitee_id,
   ];
 
-  // Check that either user doesn't have any outstanding invites as either invitee or inviter
+  // Check that either user doesn't have any outstanding invites as either invitee or inviter.
   $inviter_invites = slackemon_get_user_outstanding_invites( $inviter_id );
   $invitee_invites = slackemon_get_user_outstanding_invites( $invitee_id );
 
@@ -207,8 +207,8 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
     $cancel_verb = $inviter_invites[0]->inviter_id === $inviter_id ? 'cancel' : 'decline';
 
     $inviter_message = slackemon_update_triggering_attachment(
-      ':open_mouth: *Oops! You already have an outstanding battle invite.*' . "\n" .
-      'Please ' . $cancel_verb . ' your current invite before sending a new one. :smile:',
+      ':open_mouth: *Oops! You already have an outstanding battle challenge.*' . "\n" .
+      'Please ' . $cancel_verb . ' your current challenge before sending a new one. :smile:',
       $action,
       false // Don't send now, we'll return below to be sent with our default action response
     );
@@ -216,8 +216,8 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
   } else if ( count( $invitee_invites ) ) {
 
     $inviter_message = slackemon_update_triggering_attachment(
-      ':open_mouth: *Oops! That user already has an outstanding battle invite.*' . "\n" .
-      'Please try battling with this user later. :smile:',
+      ':open_mouth: *Oops! That user already has an outstanding battle challenge.*' . "\n" .
+      'Please try challenging this user later. :smile:',
       $action,
       false // Don't send now, we'll return below to be sent with our default action response
     );
@@ -243,7 +243,8 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
 
     $invitee_message = [
       'text' => (
-        ':stuck_out_tongue_closed_eyes: *You have been challenged to a Slackémon battle ' .
+        ':stuck_out_tongue_closed_eyes: *You have been challenged ' .
+        'to a ' . slackemon_readable_challenge_type( $challenge_type ) . ' Slackémon battle ' .
         'by ' . slackemon_get_slack_user_first_name( $inviter_id ) . '!*'
       ),
       'attachments' => [
@@ -277,7 +278,8 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
     if ( slackemon_post2slack( $invitee_message ) ) {
       $invitee_name     = $is_desktop ? slackemon_get_slack_user_full_name( $invitee_id ) : slackemon_get_slack_user_first_name( $invitee_id );
       $inviter_message  = slackemon_update_triggering_attachment(
-        ':white_check_mark: An invitation has been sent to *' . $invitee_name . '*.' . "\n" .
+        ':white_check_mark: A ' . slackemon_readable_challenge_type( $challenge_type ) . ' battle challenge ' .
+        'has been sent to *' . $invitee_name . '*.' . "\n" .
         'I\'ll let you know when they respond!',
         $action,
         false
@@ -318,7 +320,7 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
 
         // Inviter response
         $message = slackemon_update_triggering_attachment(
-          ':x:  *Ok, your battle invite has been cancelled.*',
+          ':x:  *Ok, your battle challenge has been cancelled.*',
           $action,
           false
         );
@@ -342,7 +344,7 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
         $message = slackemon_update_triggering_attachment(
           ':x: *You have declined ' . slackemon_get_slack_user_first_name( $invite_data->inviter_id ) . '\'s ' .
           'challenge.*' . "\n" .
-          'Not ready to battle right now? Send your own challenge later from the Battle screen!',
+          'Not ready to battle right now? Send your own challenge later from the Battle menu.',
           $action,
           false
         );
@@ -354,7 +356,7 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
   } else {
 
     $message = slackemon_update_triggering_attachment(
-      ':no_entry: *Oops!* That battle invite doesn\'t seem to exist anymore.' . "\n" .
+      ':no_entry: *Oops!* That battle challenge doesn\'t seem to exist anymore.' . "\n" .
       'It may have already been accepted, declined, or cancelled.',
       $action,
       false
@@ -458,7 +460,7 @@ function slackemon_start_battle( $battle_hash, $action ) {
   if ( ! $invite_data ) {
 
     $message = slackemon_update_triggering_attachment(
-      ':no_entry: *Oops!* That battle invite doesn\'t seem to exist anymore.' . "\n" .
+      ':no_entry: *Oops!* That battle challenge doesn\'t seem to exist anymore.' . "\n" .
       'It may have already been accepted, declined, or cancelled.',
       $action
     );
@@ -479,7 +481,7 @@ function slackemon_start_battle( $battle_hash, $action ) {
     // Cancel battle - we don't have enough non-fainted Pokemon on at least one of the teams!
 
     $invitee_fail_to_self = (
-      ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to accept this invite!' . "\n" .
+      ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to accept this challenge!' . "\n" .
       ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait ' .
       'for them to regain their strength, or catch some more Pokémon.' .
       ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :pokeball:' : '' )
@@ -487,13 +489,13 @@ function slackemon_start_battle( $battle_hash, $action ) {
 
     $invitee_fail_to_other = (
       ':slightly_frowning_face: *Oh no!* ' . slackemon_get_slack_user_first_name( $invitee_id ) . ' doesn\'t ' .
-      'have enough revived Pokémon to accept your battle invite at the moment.' . "\n" .
+      'have enough revived Pokémon to accept your battle challenge at the moment.' . "\n" .
       'I\'ve sent them a message too. Perhaps try inviting them again later! :slightly_smiling_face:'
     );
 
     $inviter_fail_to_self = (
       ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to participate in the battle you ' .
-      'invited ' . slackemon_get_slack_user_first_name( $invitee_id ) . ' to!' . "\n" .
+      'challenged ' . slackemon_get_slack_user_first_name( $invitee_id ) . ' to!' . "\n" .
       ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait ' .
       'for them to regain their strength, or catch some more Pokémon.' .
       ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :pokeball:' : '' )
@@ -502,7 +504,7 @@ function slackemon_start_battle( $battle_hash, $action ) {
     $inviter_fail_to_other = (
       ':slightly_frowning_face: *Oh no!* ' . slackemon_get_slack_user_first_name( $inviter_id ) . ' doesn\'t ' .
       'seem to have enough revived Pokémon to participate in this battle!' . "\n" .
-      'I\'ve sent them a message too. Perhaps they\'ll invite you again soon! :slightly_smiling_face:'
+      'I\'ve sent them a message too. Perhaps they\'ll challenge you again soon! :slightly_smiling_face:'
     );
 
     if ( false === $inviter_battle_team && false === $invitee_battle_team ) {
@@ -518,8 +520,8 @@ function slackemon_start_battle( $battle_hash, $action ) {
 
     // Use the built-in action response URL detector to send directly to the invitee (who invoked this action)
     slackemon_send2slack([
-      'text' => $invitee_message,
-      'attachments' => [ slackemon_back_to_menu_attachment() ],
+      'text'             => $invitee_message,
+      'attachments'      => [ slackemon_back_to_menu_attachment() ],
       'replace_original' => true,
     ]);
 
@@ -2175,7 +2177,7 @@ function slackemon_save_battle_data(
   switch ( $battle_stage ) {
     case 'battle':   $battle_folder = 'battles_active';   break;
     case 'complete': $battle_folder = 'battles_complete'; break;
-    case 'invite':   $battle_folder = 'battles_invites';   break;
+    case 'invite':   $battle_folder = 'battles_invites';  break;
   }
 
   $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash;
@@ -2246,7 +2248,7 @@ function slackemon_get_user_active_battles( $user_id = USER_ID ) {
 
   return $user_battles;
 
-} // Function slackemon_get_user_active_battles
+} // Function slackemon_get_user_active_battles.
 
 function slackemon_get_user_complete_battles( $user_id = USER_ID ) {
   global $data_folder;
@@ -2263,7 +2265,7 @@ function slackemon_get_user_complete_battles( $user_id = USER_ID ) {
 
   return $user_battles;
 
-} // Function slackemon_get_user_complete_battles
+} // Function slackemon_get_user_complete_battles.
 
 function slackemon_get_user_outstanding_invites( $user_id = USER_ID ) {
   global $data_folder;
@@ -2280,7 +2282,7 @@ function slackemon_get_user_outstanding_invites( $user_id = USER_ID ) {
 
   return $user_invites;
 
-} // Function slackemon_get_user_outstanding_invites
+} // Function slackemon_get_user_outstanding_invites.
 
 /** Sometimes a user may try to use a battle that has already ended - this returns an appropriate error message. */
 function slackemon_battle_has_ended_message() {
@@ -2300,6 +2302,10 @@ function slackemon_battle_has_ended_message() {
   ]);
 
 } // Function slackemon_battle_has_ended_message
+
+function slackemon_readable_challenge_type( $challenge_type ) {
+  return slackemon_readable( join( ' ', $challenge_type ) );
+}
 
 function slackemon_battle_debug( $message ) {
 

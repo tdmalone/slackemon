@@ -373,6 +373,7 @@ function slackemon_readable( $string, $display_gender = true, $abbrev = false ) 
   $string = preg_replace([
     '/\bHp\b/',
     '/\bPp\b/',
+    '/\bXp\b/',
     '/\bTm(\d|s)/',
     '/\bHm(\d|s)/',
   ], [
