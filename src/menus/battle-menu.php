@@ -150,32 +150,43 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
       'color'   => '#333333',
     ];
 
+    $is_legendary_in_team   = slackemon_is_legendary_in_battle_team( $user_id );
+    $legendary_status_emoji = ( $is_legendary_in_team ? ':x:' : ':heavy_check_mark:' ) . ' ';
+
     $challenge_option_groups = [
       'standard'  => [
         'text'    => 'Standard Challenges',
         'options' => [
           [
-            'text'  => 'Normal Battle',
+            'text'  =>  $legendary_status_emoji . 'Normal Battle',
             'value' => 'normal',
           ],
           [
-            'text'  => 'Legendary Battle',
+            'text'  =>  ':heavy_check_mark: Friendly Battle :heart:',
+            'value' => 'friendly',
+          ],
+          [
+            'text'  =>  ':heavy_check_mark: Double XP Battle',
+            'value' => 'double-xp',
+          ],
+          [
+            'text'  => ':heavy_check_mark: Legendary Battle :star2:',
             'value' => 'legendary',
           ],
           [
-            'text'  => 'Type Reversal Battle',
+            'text'  => $legendary_status_emoji . 'Type Reversal Battle :arrows_counterclockwise:',
             'value' => 'type-reversal',
           ],
           [
-            'text'  => 'Unlimited Swap Battle',
+            'text'  => $legendary_status_emoji . 'Unlimited Swap Battle',
             'value' => 'unlimited-swap',
           ],
           [
-            'text'  => 'Random Team Battle',
+            'text'  => $legendary_status_emoji . 'Random Team Battle',
             'value' => 'random-team',
           ],
           [
-            'text'  => 'No PP Battle',
+            'text'  => $legendary_status_emoji . 'No PP Battle',
             'value' => 'no-pp',
           ],
         ],
@@ -187,6 +198,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
     ];
 
     $user_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $user_id )->level;
+    $user_top_battle_team_level = slackemon_get_battle_team_highest_level( $user_id, true );
 
     foreach ( $online_players as $player_id ) {
 
@@ -206,7 +218,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
         }
 
         $this_option_groups['level_limited']['options'][] = [
-          'text'  => 'Level ' . $i,
+          'text'  => ( $user_top_battle_team_level > $i ? ':x:' : ':heavy_check_mark:' ) . ' Level ' . $i,
           'value' => 'level/' . $i,
         ];
 
@@ -279,11 +291,6 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID 
         'short' => false,
       ],
     ],
-    'footer' => (
-      'These are ' . slackemon_get_slack_user_first_name( $player_id ) . '\'s top Pokémon by CP, but not necessarily ' .
-      'their battle team!' . ( $is_desktop ? "\n" : ' ' ) .
-      'That remains a secret until your battle starts.'
-    ),
     'thumb_url'   => $player_user_data->profile->image_192,
     'color'       => $player_user_data->color,
     'mrkdwn_in'   => [ 'pretext', 'text', 'fields', 'footer' ],
@@ -436,7 +443,8 @@ function slackemon_get_battle_menu_add_option( $_pokemon ) {
       ' (L' . floor( $_pokemon->level ) .
       ')' .
       ( $is_desktop   && $_pokemon->is_favourite ? ' :sparkling_heart:' : '' ) .
-      ( ! $is_desktop && $_pokemon->is_favourite ? ' *'                 : '' )
+      ( ! $is_desktop && $_pokemon->is_favourite ? ' *'                 : '' ) .
+      ( $is_desktop   && slackemon_is_legendary( $_pokemon->pokedex ) ? ' :star2:' : '' )
     ),
     'value' => $_pokemon->ts,
   ];

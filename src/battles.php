@@ -147,25 +147,34 @@ function slackemon_do_battle_updates() {
   } // Foreach active_battles
 } // Function slackemon_do_battle_updates
 
-function slackemon_get_top_pokemon_list( $user_id = USER_ID ) {
+function slackemon_get_top_pokemon_list( $user_id = USER_ID, $include_legendaries = false ) {
 
   $player_data = slackemon_get_player_data( $user_id );
 
   $top_pokemon_sorted = $player_data->pokemon;
+
   usort( $top_pokemon_sorted, function( $pokemon1, $pokemon2 ) {
     return $pokemon1->cp < $pokemon2->cp ? 1 : -1;
   });
 
   $top_pokemon = [];
+
   foreach ( $top_pokemon_sorted as $pokemon ) {
+
+    if ( ! $include_legendaries && slackemon_is_legendary( $pokemon->pokedex ) ) {
+      continue;
+    }
+
     $top_pokemon[] = (
       ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $pokemon->name . ': ' : '' ) .
       slackemon_readable( $pokemon->name ) . ' ' .
       $pokemon->cp . ' CP'
     );
+
     if ( count( $top_pokemon ) >= 3 ) {
       break;
     }
+
   }
 
   return $top_pokemon;
