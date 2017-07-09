@@ -151,42 +151,60 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
     ];
 
     $is_legendary_in_team   = slackemon_is_legendary_in_battle_team( $user_id );
-    $legendary_status_emoji = ( $is_legendary_in_team ? ':x:' : ':heavy_check_mark:' ) . ' ';
+
+    // Challenge type statuses. Desktop status is generally an emoji and is prefixed later; mobile status is suffixed.
+    $status_available   = $is_desktop ? ':heavy_check_mark:' : '';
+    $status_unavailable = $is_desktop ? ':x:'                : '(unavailable)';
+
+    // Legendary statuses. If a user has a legendary in their battle team, some challenges are unavailable to them.
+    $legendary_status = ( $is_legendary_in_team ? $status_unavailable : $status_available );
+    $legendary_prefix = $is_desktop ? $legendary_status . ' ' : '';
+    $legendary_suffix = $is_desktop ? '' : ' ' . $legendary_status;
+
+    // Generic available/unavailable statuses.
+    $available_prefix   = $is_desktop ? $status_available . ' ' : '';
+    $available_suffix   = $is_desktop ? '' : ' ' . $status_available;
+    $unavailable_prefix = $is_desktop ? $status_unavailable . ' ' : '';
+    $unavailable_suffix = $is_desktop ? '' : ' ' . $status_unavailable;
 
     $challenge_option_groups = [
       'standard'  => [
         'text'    => 'Standard Challenges',
         'options' => [
           [
-            'text'  =>  $legendary_status_emoji . 'Normal Battle',
+            'text'  => $legendary_prefix . 'Normal Battle' . $legendary_suffix,
             'value' => 'normal',
           ],
           [
-            'text'  =>  ':heavy_check_mark: Friendly Battle :heart:',
+            'text'  => $available_prefix . 'Friendly Battle' . ( $is_desktop ? ' :heart:' : '' ) . $available_suffix,
             'value' => 'friendly',
           ],
           [
-            'text'  =>  ':heavy_check_mark: Double XP Battle',
+            'text'  => $legendary_prefix . 'Double XP Battle' . $legendary_suffix,
             'value' => 'double-xp',
           ],
           [
-            'text'  => ':heavy_check_mark: Legendary Battle :star2:',
+            'text'  => $available_prefix . 'Legendary Battle' . ( $is_desktop ? ' :star2:' : '' ) . $available_suffix,
             'value' => 'legendary',
           ],
           [
-            'text'  => $legendary_status_emoji . 'Type Reversal Battle :arrows_counterclockwise:',
+            'text'  => (
+              $legendary_prefix . 'Type Reversal Battle' .
+              ( $is_desktop ? ' :arrows_counterclockwise:' : '' ) .
+              $legendary_suffix
+            ),
             'value' => 'type-reversal',
           ],
           [
-            'text'  => $legendary_status_emoji . 'Unlimited Swap Battle',
+            'text'  => $legendary_prefix . 'Unlimited Swap Battle' . $legendary_suffix,
             'value' => 'unlimited-swap',
           ],
           [
-            'text'  => $legendary_status_emoji . 'Random Team Battle',
+            'text'  => $legendary_prefix . 'Random Team Battle' . $legendary_suffix,
             'value' => 'random-team',
           ],
           [
-            'text'  => $legendary_status_emoji . 'No PP Battle',
+            'text'  => $legendary_prefix . 'No PP Battle' . $legendary_suffix,
             'value' => 'no-pp',
           ],
         ],
@@ -217,8 +235,13 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
           $i--;
         }
 
+        // Is this level challenge available to the user, given the levels of Pokemon on their battle team?
+        $level_status = ( $user_top_battle_team_level > $i ? $status_unavailable : $status_available );
+        $level_prefix = $is_desktop ? $level_status . ' ' : '';
+        $level_suffix = $is_desktop ? '' : ' ' . $level_status;
+
         $this_option_groups['level_limited']['options'][] = [
-          'text'  => ( $user_top_battle_team_level > $i ? ':x:' : ':heavy_check_mark:' ) . ' Level ' . $i,
+          'text'  => $level_prefix . 'Level ' . $i . $level_suffix,
           'value' => 'level/' . $i,
         ];
 
