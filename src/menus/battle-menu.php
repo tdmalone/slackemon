@@ -189,11 +189,11 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
           ],
           [
             'text'  => (
-              $legendary_prefix . 'Type Reversal Battle' .
+              $legendary_prefix . 'Type Inverse Battle' .
               ( $is_desktop ? ' :arrows_counterclockwise:' : '' ) .
               $legendary_suffix
             ),
-            'value' => 'type-reversal',
+            'value' => 'type-inverse',
           ],
           [
             'text'  => $legendary_prefix . 'Unlimited Swap Battle' . $legendary_suffix,

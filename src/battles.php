@@ -537,10 +537,11 @@ function slackemon_start_battle( $battle_hash, $action ) {
   } // If not enough revived Pokemon for either team.
 
   $battle_data = [
-    'ts'    => $battle_ts,
-    'hash'  => $battle_hash,
-    'type'  => 'p2p',
-    'users' => [
+    'ts'             => $battle_ts,
+    'hash'           => $battle_hash,
+    'type'           => 'p2p',
+    'challenge_type' => $invite_data->challenge_type,
+    'users'          => [
       $inviter_id => [
         'team'            => $inviter_battle_team,
         'status'          => [
@@ -1378,7 +1379,10 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
     $move_data = slackemon_get_move_data( $move->name );
 
     // Calculate the move's damage.
-    $damage = slackemon_calculate_move_damage( $move, $user_pokemon, $opponent_pokemon );
+    $damage_options = [
+      'inverse_type_effectiveness' => 'type-inverse' === $battle_data->challenge_type,
+    ];
+    $damage = slackemon_calculate_move_damage( $move, $user_pokemon, $opponent_pokemon, $damage_options );
 
     // Do the damage!
     $opponent_pokemon->hp -= $damage->damage;
