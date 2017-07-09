@@ -172,7 +172,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
         'text'    => 'Standard Challenges',
         'options' => [
           [
-            'text'  => $legendary_prefix . 'Normal Battle' . $legendary_suffix,
+            'text'  => $legendary_prefix . 'Normal Battle' . ( $is_desktop ? ' :facepunch:' : '' ) . $legendary_suffix,
             'value' => 'normal',
           ],
           [
@@ -180,7 +180,19 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
             'value' => 'friendly',
           ],
           [
-            'text'  => $legendary_prefix . 'Double XP Battle' . $legendary_suffix,
+            'text'  => (
+              $legendary_prefix . 'Fast Battle' .
+              ( $is_desktop ? ' :fast_forward:' : '' ) .
+              $legendary_suffix
+            ),
+            'value' => 'fast',
+          ],
+          [
+            'text'  => (
+              $legendary_prefix . 'Double XP Battle' .
+              ( $is_desktop ? ' :part_alternation_mark:' : '' ) .
+              $legendary_suffix
+            ),
             'value' => 'double-xp',
           ],
           [
@@ -190,21 +202,29 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
           [
             'text'  => (
               $legendary_prefix . 'Type Inverse Battle' .
-              ( $is_desktop ? ' :arrows_counterclockwise:' : '' ) .
+              ( $is_desktop ? ' :left_right_arrow:' : '' ) .
               $legendary_suffix
             ),
             'value' => 'type-inverse',
           ],
           [
-            'text'  => $legendary_prefix . 'Unlimited Swap Battle' . $legendary_suffix,
+            'text'  => (
+              $legendary_prefix . 'Unlimited Swap Battle' .
+              ( $is_desktop ? ' :arrows_counterclockwise:' : '' ) .
+              $legendary_suffix
+            ),
             'value' => 'unlimited-swap',
           ],
           [
-            'text'  => $legendary_prefix . 'Random Team Battle' . $legendary_suffix,
+            'text'  => (
+              $legendary_prefix . 'Random Team Battle' .
+              ( $is_desktop ? ' :grey_question:' : '' ) .
+              $legendary_suffix
+            ),
             'value' => 'random-team',
           ],
           [
-            'text'  => $legendary_prefix . 'No PP Battle' . $legendary_suffix,
+            'text'  => $legendary_prefix . 'No PP Battle' . ( $is_desktop ? ' :rage:' : '' ) . $legendary_suffix,
             'value' => 'no-pp',
           ],
         ],
