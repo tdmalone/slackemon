@@ -142,11 +142,6 @@ function slackemon_handle_action( $action ) {
       $message = slackemon_get_battle_menu();
     break;
 
-    case 'battles/invite':
-      $invitee_id = $action_value;
-      $message = slackemon_send_battle_invite( $invitee_id, $action );
-    break;
-
     case 'battles/cancel':
       $battle_hash = $action_value;
       $message     = slackemon_cancel_battle_invite( $battle_hash, $action, 'inviter' );
@@ -402,6 +397,24 @@ function slackemon_handle_action( $action ) {
         }
 
       break; // Case 'items'.
+
+      // Battle invite requests, coming through after an options request.
+      case 'battles':
+
+        switch( $action_name[1] ) {
+
+          case 'invite':
+
+            $invitee_id     = $action_name[2];
+            $challenge_type = explode( '/', $action_value );
+
+            $message        = slackemon_send_battle_invite( $invitee_id, $action, $challenge_type );
+
+          break;
+
+        }
+
+      break; // Case 'battles'.
 
     } // Switch action_name 0.
   } // If no_match

@@ -172,7 +172,7 @@ function slackemon_get_top_pokemon_list( $user_id = USER_ID ) {
 
 } // Function slackemon_get_top_pokemon_list
 
-function slackemon_send_battle_invite( $invitee_id, $action, $inviter_id = USER_ID ) {
+function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $inviter_id = USER_ID ) {
 
   $inviter_player_data = slackemon_get_player_data( $inviter_id );
   $inviter_user_data   = slackemon_get_slack_user( $inviter_id );
@@ -182,10 +182,11 @@ function slackemon_send_battle_invite( $invitee_id, $action, $inviter_id = USER_
 
   $battle_hash = slackemon_get_battle_hash( $invite_ts, $inviter_id, $invitee_id );
   $invite_data = [
-    'ts' => $invite_ts,
-    'hash' => $battle_hash,
-    'inviter_id' => $inviter_id,
-    'invitee_id' => $invitee_id,
+    'ts'             => $invite_ts,
+    'hash'           => $battle_hash,
+    'challenge_type' => $challenge_type,
+    'inviter_id'     => $inviter_id,
+    'invitee_id'     => $invitee_id,
   ];
 
   // Check that either user doesn't have any outstanding invites as either invitee or inviter

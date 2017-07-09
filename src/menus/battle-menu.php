@@ -151,12 +151,32 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
     ];
 
     $challenge_option_groups = [
-      'standard' => [
+      'standard'  => [
         'text'    => 'Standard Challenges',
         'options' => [
           [
-            'text'  => 'Standard Battle',
-            'value' => 'standard',
+            'text'  => 'Normal Battle',
+            'value' => 'normal',
+          ],
+          [
+            'text'  => 'Legendary Battle',
+            'value' => 'legendary',
+          ],
+          [
+            'text'  => 'Type Reversal Battle',
+            'value' => 'type-reversal',
+          ],
+          [
+            'text'  => 'Unlimited Swap Battle',
+            'value' => 'unlimited-swap',
+          ],
+          [
+            'text'  => 'Random Team Battle',
+            'value' => 'random-team',
+          ],
+          [
+            'text'  => 'No PP Battle',
+            'value' => 'no-pp',
           ],
         ],
       ],
@@ -171,17 +191,35 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
     foreach ( $online_players as $player_id ) {
 
       $attachment         = slackemon_get_player_battle_attachment( $player_id );
-      $opponent_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $player_id )->level;
-
       $this_option_groups = $challenge_option_groups;
 
-      $lowest_level = min( $user_top_level, $opponent_top_level );
+      $opponent_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $player_id )->level;
+      $lowest_top_level   = min( $user_top_level, $opponent_top_level, 80 );
 
-      for ( $i = 1; $i <= $lowest_level; $i++ ) {
+      // Generate level options, up to the lowest top level that the user or opponent has in their collection.
+      // To save space we only generate an option for every 5 levels, increasing the gap as we go.
+      for ( $i = 1; $i <= $lowest_top_level; $i += 5 ) {
+
+        // If level 6, go back to level 5 to continue the 'every 5'.
+        if ( 6 === $i ) {
+          $i--;
+        }
+
         $this_option_groups['level_limited']['options'][] = [
           'text'  => 'Level ' . $i,
           'value' => 'level/' . $i,
         ];
+
+        // From level 20 onwards, add another 5 to go every 10.
+        if ( $i >= 20 ) {
+          $i += 5;
+        }
+
+        // For level 40 onwards, add another 10 to go every 20.
+        if ( $i >= 40 ) {
+          $i += 10;
+        }
+
       }
 
       $attachment['actions'] = [
