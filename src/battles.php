@@ -737,7 +737,9 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 } // Function slackemon_end_battle
 
 // Tally up and apply the battle stats for the user
-function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USER_ID, $award_xp_to_user = true, $send_response_to_user = true ) {
+function slackemon_complete_battle(
+  $battle_result, $battle_hash, $user_id = USER_ID, $award_xp_to_user = true, $send_response_to_user = true
+) {
 
   // Get the battle data, including from a 'complete' battle in case a user has already run this function
   $battle_data = slackemon_get_battle_data( $battle_hash, true );
@@ -796,60 +798,26 @@ function slackemon_complete_battle( $battle_result, $battle_hash, $user_id = USE
 
 } // Function slackemon_complete_battle
 
+/**
+ * Completes a winner's battle.
+ *
+ * @param obj $battle_data
+ * @param str $user_id
+ * @param bool $award_xp_to_user Whether or not to award the user XP. Generally always true for the winner, however
+ *                               its value will be ignored for friendly battles.
+ */
 function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp_to_user ) {
 
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode( $user_id );
   $pokemon_experience_message = '';
 
   // What's the experience & effort points gained from the opponent's fainted Pokemon?
+  $effort_gained     = slackemon_get_ev_yield( $battle_data->users->{ $opponent_id }->team );
+  $experience_gained = slackemon_get_xp_yield( $battle_data->users->{ $opponent_id }->team );
 
-  $total_experience_gained = 0;
-  $effort_points_gained = [
-    'attack'          => 0,
-    'defense'         => 0,
-    'hp'              => 0,
-    'special-attack'  => 0,
-    'special-defense' => 0,
-    'speed'           => 0
-  ];
+  
   $experience_gained_per_pokemon = [];
   $opponent_id = slackemon_get_battle_opponent_id( $battle_data->hash, $user_id );
-
-  foreach ( $battle_data->users->{ $opponent_id }->team as $_pokemon ) {
-
-    // Skip if this opponent Pokemon didn't faint.
-    if ( $_pokemon->hp ) {
-      continue;
-    }
-
-    // Grab the fainted Pokemon's API data.
-    $_pokemon_data = slackemon_get_pokemon_data( $_pokemon->pokedex );
-
-    // Calculate the experience yielded by this Pokemon.
-    $experience = (int) slackemon_calculate_battle_experience( $_pokemon );
-    $total_experience_gained += $experience;
-
-    $experience_gained_per_pokemon[] = [
-      'name'    => $_pokemon->name,
-      'pokedex' => $_pokemon->pokedex,
-      'level'   => $_pokemon->level,
-      'experience_gained' => (int) $experience,
-    ];
-
-    // Calculate the effort point gain.
-    foreach ( $_pokemon_data->stats as $_stat ) {
-
-      if ( ! $_stat->effort ) {
-        continue;
-      }
-
-      $effort_points_gained[ $_stat->stat->name ] += (int) $_stat->effort;
-
-      break;
-
-    }
-
-  } // Foreach opponent pokemon.
 
   $battle_pokemon_by_ts = [];
 
@@ -1380,7 +1348,7 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
 
     // Calculate the move's damage.
     $damage_options = [
-      'inverse_type_effectiveness' => 'type-inverse' === $battle_data->challenge_type,
+      'inverse_type_effectiveness' => 'type-inverse' === $battle_data->challenge_type[0],
     ];
     $damage = slackemon_calculate_move_damage( $move, $user_pokemon, $opponent_pokemon, $damage_options );
 

@@ -242,4 +242,101 @@ function slackemon_affection_to_happiness( $affection_level ) {
 
 } // Function slackemon_affection_to_happiness
 
+/**
+ * Returns the EV yield from defeating a team of Pokemon.
+ * See also slackemon_get_xp_yield().
+ *
+ * @param array|obj $opponent_team Usually an array of Pokemon that were beaten. Also accepts a single Pokemon object.
+ * @param bool $skip_non_fainted   Whether to skip Pokemon who haven't fainted. Usually should be true.
+ */
+function slackemon_get_ev_yield( $opponent_team, $skip_fainted = true ) {
+
+  // Accept a single Pokemon as an alternative to a whole team.
+  if ( ! is_array( $opponent_team ) ) {
+    $opponent_team = [ $opponent_team ];
+  }
+
+  $results = [
+    'attack'          => 0,
+    'defense'         => 0,
+    'hp'              => 0,
+    'special-attack'  => 0,
+    'special-defense' => 0,
+    'speed'           => 0,
+  ];
+
+  foreach ( $opponent_team as $_pokemon ) {
+
+    // Skip if this opponent Pokemon isn't fainted.
+    if ( $skip_non_fainted && $_pokemon->hp ) {
+      continue;
+    }
+
+    // Grab the fainted Pokemon's API data.
+    $_pokemon_data = slackemon_get_pokemon_data( $_pokemon->pokedex );
+
+    // Calculate the EV gain from defeating this Pokemon.
+    foreach ( $_pokemon_data->stats as $_stat ) {
+
+      if ( ! $_stat->effort ) {
+        continue;
+      }
+
+      $results[ $_stat->stat->name ] += (int) $_stat->effort;
+
+      break;
+
+    } // Foreach stats.
+  } // Foreach opponent Pokemon.
+
+  return $results;
+
+} // Function slackemon_get_ev_yield.
+
+/**
+ * Returns the itemised and combined XP yield from defeating a team of Pokemon.
+ * See also slackemon_get_ev_yield().
+ *
+ * @param array|obj $opponent_team Usually an array of Pokemon that were beaten. Also accepts a single Pokemon object.
+ * @param bool $skip_non_fainted   Whether to skip Pokemon who haven't fainted. Usually should be true.
+ */
+function slackemon_get_xp_yield( $opponent_team, $skip_non_fainted = true ) {
+
+  // Accept a single Pokemon as an alternative to a whole team.
+  if ( ! is_array( $opponent_team ) ) {
+    $opponent_team = [ $opponent_team ];
+  }
+
+  $results = [
+    'itemised' => [],
+    'total'    => 0,
+  ];
+
+  foreach ( $opponent_team as $_pokemon ) {
+
+    // Skip if this opponent Pokemon isn't fainted.
+    if ( $skip_non_fainted && $_pokemon->hp ) {
+      continue;
+    }
+
+    // Grab the fainted Pokemon's API data.
+    $_pokemon_data = slackemon_get_pokemon_data( $_pokemon->pokedex );
+
+    // Calculate the experience yielded by this Pokemon.
+    $experience        = (int) slackemon_calculate_battle_experience( $_pokemon );
+    $results['total'] += $experience;
+
+    $results['itemised'] = [
+      'name'    => $_pokemon->name,
+      'pokedex' => $_pokemon->pokedex,
+      'level'   => $_pokemon->level,
+      'xp'      => $experience,
+    ];
+
+  } // Foreach opponent Pokemon.
+
+  return $results;
+
+} // Function slackemon_get_xp_yield.
+
 // The end!
