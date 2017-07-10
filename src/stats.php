@@ -262,10 +262,11 @@ function slackemon_affection_to_happiness( $affection_level ) {
  * Returns the EV yield from defeating a team of Pokemon.
  * See also slackemon_get_xp_yield().
  *
- * @param array|obj $opponent_team Usually an array of Pokemon that were beaten. Also accepts a single Pokemon object.
- * @param bool $skip_non_fainted   Whether to skip Pokemon who haven't fainted. Usually should be true.
+ * @param arr|obj $opponent_team      Usually an array of Pokemon that were beaten. Also accepts a single Pokemon obj.
+ * @param bool    $skip_non_fainted   Whether to skip Pokemon who haven't fainted for some reason. Usually true.
+ * @return arr An array of EV stats yielded by the defeated team.
  */
-function slackemon_get_ev_yield( $opponent_team, $skip_fainted = true ) {
+function slackemon_get_ev_yield( $opponent_team, $skip_non_fainted = true ) {
 
   // Accept a single Pokemon as an alternative to a whole team.
   if ( ! is_array( $opponent_team ) ) {
@@ -315,6 +316,7 @@ function slackemon_get_ev_yield( $opponent_team, $skip_fainted = true ) {
  *
  * @param array|obj $opponent_team Usually an array of Pokemon that were beaten. Also accepts a single Pokemon object.
  * @param bool $skip_non_fainted   Whether to skip Pokemon who haven't fainted. Usually should be true.
+ * @return arr An array containing the total XP yield, plus an itemised array of Pokemon with the XP they each yielded.
  */
 function slackemon_get_xp_yield( $opponent_team, $skip_non_fainted = true ) {
 
@@ -343,10 +345,10 @@ function slackemon_get_xp_yield( $opponent_team, $skip_non_fainted = true ) {
     $results['total'] += $experience;
 
     $results['itemised'] = [
-      'name'    => $_pokemon->name,
-      'pokedex' => $_pokemon->pokedex,
-      'level'   => $_pokemon->level,
-      'xp'      => $experience,
+      'name'     => $_pokemon->name,
+      'pokedex'  => $_pokemon->pokedex,
+      'level'    => $_pokemon->level,
+      'xp_yield' => $experience,
     ];
 
   } // Foreach opponent Pokemon.
@@ -433,19 +435,19 @@ function slackemon_calculate_level_up_happiness( $old_level, $new_level_or_pokem
 
 } // Function slackemon_calculate_level_up_happiness.
 
-function slackemon_apply_evs( $current_evs_or_pokemon, $evs_to_apply ) {
+function slackemon_apply_evs( $evs_or_pokemon, $evs_to_apply ) {
 
   // Accept an entire Pokemon object being passed through.
   if ( is_object( $new_level_or_pokemon ) ) {
-    $pokemon     = $current_evs;
-    $current_evs = $pokemon->evs;
+    $pokemon = $evs_or_pokemon;
+    $evs     = $pokemon->evs;
   } else {
-    $current_evs = $current_evs_or_pokemon;
+    $evs     = $evs_or_pokemon;
   }
 
   // First, turn current EVs into an empty object values if they are an array, which is how they are created at spawn.
-  if ( is_array( $current_evs ) ) {
-    $current_evs = json_decode(
+  if ( is_array( $evs ) ) {
+    $evs = json_decode(
       json_encode([
         'attack'          => 0,
         'defense'         => 0,
@@ -458,21 +460,23 @@ function slackemon_apply_evs( $current_evs_or_pokemon, $evs_to_apply ) {
   }
 
   // Apply all EVs, ensuring they stay below the maximums.
-  $current_evs = slackemon_get_combined_evs( $_pokemon->evs );
-  foreach ( $effort_yield as $key => $value ) {
+  $current_evs_total = slackemon_get_combined_evs( $evs );
+  foreach ( $evs_to_apply as $key => $value ) {
 
     // Max 510 across all EV stats - reduce the value we're applying if it would otherwise take us over the limit.
-    if ( $current_evs + $value > 510 ) {
-      $value = $current_evs + $value - 510;
+    if ( $current_evs_total + $value > 510 ) {
+      $value = $current_evs_total + $value - 510;
     }
 
     // Apply the value.
-    $_pokemon->evs->{ $key } += $value;
+    $evs->{ $key } += $value;
 
     // Ensure a max 252 per EV stat.
-    $_pokemon->evs->{ $key } = min( 252, $_pokemon->evs->{ $key } );
+    $evs->{ $key } = min( 252, $evs->{ $key } );
 
   }
+
+  return $evs;
 
 } // Function slackemon_apply_evs.
 
