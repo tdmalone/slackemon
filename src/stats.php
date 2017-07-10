@@ -76,16 +76,32 @@ function slackemon_get_nature_stat_modifications( $nature_name ) {
 
 } // Function slackemon_get_nature_stats
 
-function slackemon_calculate_stats( $stat_name, $pokedex_id, $level = null, $ivs = null, $evs = null, $nature = null ) {
+/**
+ * Calculate a new stat for a Pokemon based on their level, IVs, EVs and nature.
+ *
+ * @param str     $stat_name             A recognised stat name. Accepts 'attack', 'defense', 'hp', 'speed',
+ *                                       'special-attack' or 'special-defense'.
+ * @param int|obj $pokedex_id_or_pokemon Either the Pokedex ID or a full Pokemon object. If a Pokemon object is
+ *                                       supplied, the rest of the arguments are not required and will not be used.
+ * @param float   $level
+ * @param arr|obj $ivs
+ * @param arr|obj $evs
+ * @param string  $nature
+ */
+function slackemon_calculate_stats(
+  $stat_name, $pokedex_id_or_pokemon, $level = null, $ivs = null, $evs = null, $nature = null
+) {
 
-  // Accept an entire Pokemon object being passed through
+  // Accept an entire Pokemon object being passed through.
   if ( is_object( $pokedex_id ) ) {
-    $pokemon    = $pokedex_id;
+    $pokemon    = $pokedex_id_or_pokemon;
     $pokedex_id = $pokemon->pokedex;
     $level      = $pokemon->level;
     $ivs        = $pokemon->ivs;
     $evs        = $pokemon->evs;
     $nature     = $pokemon->nature;
+  } else {
+    $pokedex_id = $pokedex_id_or_pokemon;
   }
 
   // Ensure things are objects
@@ -112,8 +128,8 @@ function slackemon_calculate_stats( $stat_name, $pokedex_id, $level = null, $ivs
   $L = $level;
   $n = $nature_value;
 
-  // Because we want our stats to differ a bit from the main games, we ADD (not multiply) own our modifier
-  // TODO: Try to tweak this to make the max CPs (and if possible the CP growth) more in line with Pokemon Go
+  // Because we want our stats to differ a bit from the main games, we ADD (not multiply) own our modifier.
+  // TODO: Try to tweak this to make the max CPs (and if possible the CP growth) more in line with Pokemon Go.
   $slackemon_modifier = $b;
   //$slackemon_modifier = 0;
   //$slackemon_modifier = $b * max( 1, $L / 4 );
@@ -338,5 +354,126 @@ function slackemon_get_xp_yield( $opponent_team, $skip_non_fainted = true ) {
   return $results;
 
 } // Function slackemon_get_xp_yield.
+
+function slackemon_calculate_level( $pokedex_id_or_pokemon, $xp = null ) {
+
+  // Accept an entire Pokemon object being passed through.
+  if ( is_object( $pokedex_id ) ) {
+    $pokemon    = $pokedex_id_or_pokemon;
+    $pokedex_id = $pokemon->pokedex;
+    $xp         = $pokemon->xp;
+  } else {
+    $pokedex_id = $pokedex_id_or_pokemon;
+  }
+
+  $level = 1;
+
+  $growth_rate_data = slackemon_get_pokemon_growth_rate_data( $pokedex_id );
+  foreach ( $growth_rate_data->levels as $_level ) {
+
+    // Levels in the API go from 100 down to 1.
+    // If our experience is greater than the experience required for this level, *this* is our level!
+    if ( $xp >= $_level->experience ) {
+
+      // Work out a partial level if we're well on our way to the next.
+      if ( isset( $next_level_experience ) && $xp > $_level->experience ) {
+
+        $exp_required_to_next_level    = $next_level_experience - $_level->experience;
+        $exp_gained_towards_next_level = $xp - $_level->experience;
+
+        $level = $_level->level + ( $exp_gained_towards_next_level / $exp_required_to_next_level );
+
+      } else {
+        $level = $_level->level;
+      }
+
+      // Limit levels to 1 decimal point.
+      $level = round( $level, 1, PHP_ROUND_HALF_DOWN );
+
+      break;
+
+    }
+
+    // Pass experience required down to previous level as the loop continues.
+    $next_level_experience = $_level->experience;
+
+  } // Foreach growth rate level.
+
+  return $level;
+
+} // Function slackemon_calculate_level.
+
+function slackemon_calculate_level_up_happiness( $old_level, $new_level_or_pokemon, $happiness = null ) {
+
+  // Accept an entire Pokemon object being passed through.
+  if ( is_object( $new_level_or_pokemon ) ) {
+    $pokemon   = $new_level_or_pokemon;
+    $happiness = $pokemon->happiness;
+    $new_level = $pokemon->level;
+  } else {
+    $new_level = $new_level_or_pokemon;
+  }
+
+  // +5 per additional level if happiness 0-99; +3 if happiness 100-199; or +2 if 200-255.
+  // Reference: http://bulbapedia.bulbagarden.net/wiki/Friendship#In_Generation_I.
+  for ( $i = floor( $old_level ); $i < floor( $new_level ); $i++ ) {
+    if ( $happiness < 100 ) {
+      $new_happiness += 5;
+    } else if ( $happiness < 200 ) {
+      $happiness += 3;
+    } else {
+      $happiness += 2;
+    }
+  }
+
+  // Ensure we don't exceed the 255 happiness cap.
+  $happiness = min( 255, $happiness );
+
+  return $happiness;
+
+} // Function slackemon_calculate_level_up_happiness.
+
+function slackemon_apply_evs( $current_evs_or_pokemon, $evs_to_apply ) {
+
+  // Accept an entire Pokemon object being passed through.
+  if ( is_object( $new_level_or_pokemon ) ) {
+    $pokemon     = $current_evs;
+    $current_evs = $pokemon->evs;
+  } else {
+    $current_evs = $current_evs_or_pokemon;
+  }
+
+  // First, turn current EVs into an empty object values if they are an array, which is how they are created at spawn.
+  if ( is_array( $current_evs ) ) {
+    $current_evs = json_decode(
+      json_encode([
+        'attack'          => 0,
+        'defense'         => 0,
+        'hp'              => 0,
+        'special-attack'  => 0,
+        'special-defense' => 0,
+        'speed'           => 0,
+      ])
+    );
+  }
+
+  // Apply all EVs, ensuring they stay below the maximums.
+  $current_evs = slackemon_get_combined_evs( $_pokemon->evs );
+  foreach ( $effort_yield as $key => $value ) {
+
+    // Max 510 across all EV stats - reduce the value we're applying if it would otherwise take us over the limit.
+    if ( $current_evs + $value > 510 ) {
+      $value = $current_evs + $value - 510;
+    }
+
+    // Apply the value.
+    $_pokemon->evs->{ $key } += $value;
+
+    // Ensure a max 252 per EV stat.
+    $_pokemon->evs->{ $key } = min( 252, $_pokemon->evs->{ $key } );
+
+  }
+
+} // Function slackemon_apply_evs.
 
 // The end!

@@ -782,7 +782,7 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     });
   }
 
-  // If our battle team is too big, we need to remove Pokemon from it
+  // If our battle team is too big, we need to remove Pokemon from it.
   while ( count( $battle_team ) > SLACKEMON_BATTLE_TEAM_SIZE ) {
     array_pop( $battle_team );
   }
@@ -791,7 +791,7 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     return $battle_team;
   }
 
-  // If our battle team isn't full, we need to fill it with random additions
+  // If our battle team isn't full, we need to fill it with random additions.
   $infinite_loop_protection = 0;
   while ( count( $battle_team ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
 
@@ -804,7 +804,7 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     $random_key = array_rand( $pokemon_collection );
     $_pokemon = $pokemon_collection[ $random_key ];
 
-    if ( ! isset( $battle_team[ $_pokemon->ts ] ) ) { // Ensure we don't add the same Pokemon twice
+    if ( ! isset( $battle_team[ $_pokemon->ts ] ) ) { // Ensure we don't add the same Pokemon twice.
 
       if ( $exclude_fainted && 0 == $_pokemon->hp ) {
         continue;
