@@ -831,7 +831,7 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
   $experience_yield = slackemon_get_xp_yield( $losing_team );
 
   // Apply experience & any other relevant changes to eligible Pokemon, while starting to generate the user response.
-  $results = slackemon_apply_battle_team_results( $winning_team, $effort_yield, $experience_yield );
+  $results = slackemon_apply_battle_team_results( $winning_team, $battle_data, $effort_yield, $experience_yield );
 
   // Get player data for writing.
   $player_data = slackemon_get_player_data( $user_id, true );
@@ -843,9 +843,9 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
   if ( $award_xp_to_user ) {
 
     if ( 'wild' === $battle_data->type ) {
-      $xp_to_add = 175 + $total_experience_gained;
+      $xp_to_add = 175 + $experience_yield['total'];
     } else {
-      $xp_to_add = 500 + $total_experience_gained;
+      $xp_to_add = 500 + $experience_yield['total'];
     }
 
     $player_data->xp += floor( $xp_to_add );
@@ -983,17 +983,17 @@ function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_
  * Applies results from a battle to the winning team, and supplies response data for sending back to the user.
  *
  * @param arr $battle_team      An array containing Pokemon objects. These objects will be modified in place.
+ * @param obj $battle_data      The battle data object.
  * @param arr $effort_yield     The effort yield returned by a call to slackemon_get_ev_yield().
  * @param int $experience_yield The experience yield returned by a call to slackemon_get_xp_yield().
  */
-function slackemon_apply_battle_team_results( $battle_team, $effort_yield, $experience_yield ) {
+function slackemon_apply_battle_team_results( &$battle_team, $battle_data, $effort_yield, $experience_yield ) {
 
   $results = [
-    'team'     => $battle_team,
     'response' => '',
   ];
 
-  foreach ( $results['team'] as $_pokemon ) {
+  foreach ( $battle_team as $_pokemon ) {
 
     // Skip recalculation if this Pokemon fainted.
     if ( ! $_pokemon->hp ) {
@@ -1054,6 +1054,8 @@ function slackemon_apply_battle_team_results( $battle_team, $effort_yield, $expe
 
   } // Foreach player battle team Pokemon.
 
+  $results['team'] = $battle_team;
+
   return $results;
 
 } // Function slackemon_apply_battle_team_results.
@@ -1067,7 +1069,9 @@ function slackemon_apply_battle_team_results( $battle_team, $effort_yield, $expe
  * @param arr $results      A results array as returned by slackemon_apply_battle_team_results().
  * @return arr Returns the $results array, with a modified 'response' value for sending back to the user.
  */
-function slackemon_apply_battle_winners_to_collection( $player_data, $results ) {
+function slackemon_apply_battle_winners_to_collection( &$player_data, $results ) {
+
+  $is_desktop = 'desktop' === slackemon_get_player_menu_mode( $player_data->user_id );
 
   foreach ( $player_data->pokemon as $_pokemon ) {
 

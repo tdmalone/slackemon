@@ -93,7 +93,7 @@ function slackemon_calculate_stats(
 ) {
 
   // Accept an entire Pokemon object being passed through.
-  if ( is_object( $pokedex_id ) ) {
+  if ( is_object( $pokedex_id_or_pokemon ) ) {
     $pokemon    = $pokedex_id_or_pokemon;
     $pokedex_id = $pokemon->pokedex;
     $level      = $pokemon->level;
@@ -344,7 +344,7 @@ function slackemon_get_xp_yield( $opponent_team, $skip_non_fainted = true ) {
     $experience        = (int) slackemon_calculate_battle_experience( $_pokemon );
     $results['total'] += $experience;
 
-    $results['itemised'] = [
+    $results['itemised'][] = [
       'name'     => $_pokemon->name,
       'pokedex'  => $_pokemon->pokedex,
       'level'    => $_pokemon->level,
@@ -360,7 +360,7 @@ function slackemon_get_xp_yield( $opponent_team, $skip_non_fainted = true ) {
 function slackemon_calculate_level( $pokedex_id_or_pokemon, $xp = null ) {
 
   // Accept an entire Pokemon object being passed through.
-  if ( is_object( $pokedex_id ) ) {
+  if ( is_object( $pokedex_id_or_pokemon ) ) {
     $pokemon    = $pokedex_id_or_pokemon;
     $pokedex_id = $pokemon->pokedex;
     $xp         = $pokemon->xp;
@@ -438,7 +438,7 @@ function slackemon_calculate_level_up_happiness( $old_level, $new_level_or_pokem
 function slackemon_apply_evs( $evs_or_pokemon, $evs_to_apply ) {
 
   // Accept an entire Pokemon object being passed through.
-  if ( is_object( $new_level_or_pokemon ) ) {
+  if ( is_object( $evs_or_pokemon ) ) {
     $pokemon = $evs_or_pokemon;
     $evs     = $pokemon->evs;
   } else {
