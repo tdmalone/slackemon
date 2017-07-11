@@ -566,13 +566,13 @@ function slackemon_start_battle( $battle_hash, $action ) {
   // If we have a battle team leader, start with them. Otherwise, start with a random Pokemon from the team.
   $inviter_team_leader = slackemon_get_battle_team_leader( $inviter_id );
   $invitee_team_leader = slackemon_get_battle_team_leader( $invitee_id );
-  if ( $inviter_team_leader && isset( $battle_team[ 'ts' . $inviter_team_leader ] )  ) {
+  if ( $inviter_team_leader && isset( $inviter_battle_team[ 'ts' . $inviter_team_leader ] )  ) {
     $inviter_pokemon = slackemon_get_player_pokemon_data( $inviter_team_leader, null, $inviter_id );
   } else {
     $inviter_random_key = array_rand( $battle_data['users'][ $inviter_id ]['team'] );
     $inviter_pokemon = $battle_data['users'][ $inviter_id ]['team'][ $inviter_random_key ];
   }
-  if ( $invitee_team_leader && isset( $battle_team[ 'ts' . $invitee_team_leader ] )  ) {
+  if ( $invitee_team_leader && isset( $invitee_battle_team[ 'ts' . $invitee_team_leader ] )  ) {
     $invitee_pokemon = slackemon_get_player_pokemon_data( $invitee_team_leader, null, $invitee_id );
   } else {
     $invitee_random_key = array_rand( $battle_data['users'][ $invitee_id ]['team'] );
@@ -813,11 +813,13 @@ function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp
   $opponent_id = slackemon_get_battle_opponent_id( $battle_data->hash, $user_id );
 
   // Not a lot to do here if it was a friendly battle!
-  if ( 'friendly' === $battle_data->challenge_type ) {
+  if ( 'friendly' === $battle_data->challenge_type[0] ) {
 
     slackemon_set_player_not_in_battle( $user_id );
 
-    $message = 'You won! Full message coming soon...'; // TODO
+    $message = [
+      'text' => 'You won! Full message coming soon...', // TODO
+    ];
 
     return $message;
 
