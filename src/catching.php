@@ -426,7 +426,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
 
   // If we have a battle team leader, start with them. Otherwise, start with a random Pokemon from the team.
   $inviter_team_leader = slackemon_get_battle_team_leader( $inviter_id );
-  if ( $inviter_team_leader ) {
+  if ( $inviter_team_leader && isset( $battle_team[ 'ts' . $inviter_team_leader ] ) ) {
     $inviter_pokemon = slackemon_get_player_pokemon_data( $inviter_team_leader, null, $inviter_id );
   } else {
     $inviter_pokemon = $battle_team[ array_rand( $battle_team ) ];
