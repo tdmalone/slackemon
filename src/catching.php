@@ -442,12 +442,12 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
     'challenge_type' => [ 'standard' ], // Different challenge types are not supported for wild battles.
     'users' => [
       $inviter_id => [
-        'team'         => [ $inviter_pokemon ],
+        'team'         => [ 'ts' . $inviter_pokemon->ts => $inviter_pokemon ],
         'status'       => [ 'current' => $inviter_pokemon->ts ],
         'response_url' => RESPONSE_URL,
       ],
       $invitee_id => [
-        'team'         => [ $invitee_pokemon ],
+        'team'         => [ 'ts' . $invitee_pokemon->ts => $invitee_pokemon ],
         'status'       => [ 'current' => $invitee_pokemon->ts ],
         'response_url' => false,
       ],

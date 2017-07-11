@@ -1076,32 +1076,32 @@ function slackemon_apply_battle_winners_to_collection( &$player_data, $results )
   foreach ( $player_data->pokemon as $_pokemon ) {
 
     // Skip if the Pokemon wasn't in this battle.
-    if ( ! isset( $results['team'][ $_pokemon->ts ] ) ) {
+    if ( ! isset( $results['team']->{ 'ts' . $_pokemon->ts } ) ) {
       continue;
     }
 
     // Did this Pokemon participate and not faint? It will have an XP difference if so - that's how we detect it.
-    if ( $_pokemon->xp != $results['team'][ $_pokemon->ts ]->xp ) {
+    if ( $_pokemon->xp != $results['team']->{ 'ts' . $_pokemon->ts }->xp ) {
 
       $_pokemon_intro = (
         ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $_pokemon->name . ': ' : '' ) .
         slackemon_readable( $_pokemon->name, false )
       );
 
-      if ( $results['team'][ $_pokemon->ts ]->level > $_pokemon->level ) {
+      if ( $results['team']->{ 'ts' . $_pokemon->ts }->level > $_pokemon->level ) {
 
         $results['response'] .= (
           $_pokemon_intro . ' has levelled up ' .
           ( $is_desktop ? 'from level ' . $_pokemon->level . ' ' : '' ) .
-          'to ' . $results['team'][ $_pokemon->ts ]->level . '!' . "\n"
+          'to ' . $results['team']->{ 'ts' . $_pokemon->ts }->level . '!' . "\n"
         );
 
-        if ( slackemon_can_user_pokemon_evolve( $results['team'][ $_pokemon->ts ] ) ) {
+        if ( slackemon_can_user_pokemon_evolve( $results['team']->{ 'ts' . $_pokemon->ts } ) ) {
           $results['response'] .= '*' . $_pokemon_intro . ' is ready to evolve!! :open_mouth:*' . "\n";
         }
 
         $happiness_percent_old = floor( $_pokemon->happiness / 255 * 100 );
-        $happiness_percent_new = floor( $results['team'][ $_pokemon->ts ]->happiness / 255 * 100 );
+        $happiness_percent_new = floor( $results['team']->{ 'ts' . $_pokemon->ts }->happiness / 255 * 100 );
 
         if ( $happiness_percent_new > $happiness_percent_old ) {
 
@@ -1113,19 +1113,19 @@ function slackemon_apply_battle_winners_to_collection( &$player_data, $results )
 
         } // If happiness increase.
 
-        if ( $results['team'][ $_pokemon->ts ]->cp > $_pokemon->cp ) {
+        if ( $results['team']->{ 'ts' . $_pokemon->ts }->cp > $_pokemon->cp ) {
           $results['response'] .= (
             $_pokemon_intro . '\'s CP has increased ' .
             ( $is_desktop ? 'from ' . $_pokemon->cp . ' ' : '' ) .
-            'to ' . $results['team'][ $_pokemon->ts ]->cp . "\n"
+            'to ' . $results['team']->{ 'ts' . $_pokemon->ts }->cp . "\n"
           );
         }
 
-        if ( $results['team'][ $_pokemon->ts ]->stats->hp > $_pokemon->stats->hp ) {
+        if ( $results['team']->{ 'ts' . $_pokemon->ts }->stats->hp > $_pokemon->stats->hp ) {
           $results['response'] .= (
             $_pokemon_intro . '\'s HP has increased ' .
             ( $is_desktop ? 'from ' . $_pokemon->stats->hp . ' ' : '' ) .
-            'to ' . $results['team'][ $_pokemon->ts ]->stats->hp . "\n"
+            'to ' . $results['team']->{ 'ts' . $_pokemon->ts }->stats->hp . "\n"
           );
         }
 
@@ -1137,15 +1137,15 @@ function slackemon_apply_battle_winners_to_collection( &$player_data, $results )
     } // If Pokemon has XP difference.
 
     // Apply the changes from the team to the user's collection.
-    $_pokemon->hp        = $results['team'][ $_pokemon->ts ]->hp;
-    $_pokemon->xp        = $results['team'][ $_pokemon->ts ]->xp;
-    $_pokemon->cp        = $results['team'][ $_pokemon->ts ]->cp;
-    $_pokemon->evs       = $results['team'][ $_pokemon->ts ]->evs;
-    $_pokemon->moves     = $results['team'][ $_pokemon->ts ]->moves;
-    $_pokemon->level     = $results['team'][ $_pokemon->ts ]->level;
-    $_pokemon->stats     = $results['team'][ $_pokemon->ts ]->stats;
-    $_pokemon->battles   = $results['team'][ $_pokemon->ts ]->battles;
-    $_pokemon->happiness = $results['team'][ $_pokemon->ts ]->happiness;
+    $_pokemon->hp        = $results['team']->{ 'ts' . $_pokemon->ts }->hp;
+    $_pokemon->xp        = $results['team']->{ 'ts' . $_pokemon->ts }->xp;
+    $_pokemon->cp        = $results['team']->{ 'ts' . $_pokemon->ts }->cp;
+    $_pokemon->evs       = $results['team']->{ 'ts' . $_pokemon->ts }->evs;
+    $_pokemon->moves     = $results['team']->{ 'ts' . $_pokemon->ts }->moves;
+    $_pokemon->level     = $results['team']->{ 'ts' . $_pokemon->ts }->level;
+    $_pokemon->stats     = $results['team']->{ 'ts' . $_pokemon->ts }->stats;
+    $_pokemon->battles   = $results['team']->{ 'ts' . $_pokemon->ts }->battles;
+    $_pokemon->happiness = $results['team']->{ 'ts' . $_pokemon->ts }->happiness;
 
   } // Foreach player_data pokemon.
 

@@ -269,8 +269,8 @@ function slackemon_affection_to_happiness( $affection_level ) {
 function slackemon_get_ev_yield( $opponent_team, $skip_non_fainted = true ) {
 
   // Accept a single Pokemon as an alternative to a whole team.
-  if ( ! is_array( $opponent_team ) ) {
-    $opponent_team = [ $opponent_team ];
+  if ( ! is_array( $opponent_team ) && ! is_object( $opponent_team ) ) {
+    $opponent_team = [ 'ts' . $opponent_team->ts => $opponent_team ];
   }
 
   $results = [
@@ -321,8 +321,8 @@ function slackemon_get_ev_yield( $opponent_team, $skip_non_fainted = true ) {
 function slackemon_get_xp_yield( $opponent_team, $skip_non_fainted = true ) {
 
   // Accept a single Pokemon as an alternative to a whole team.
-  if ( ! is_array( $opponent_team ) ) {
-    $opponent_team = [ $opponent_team ];
+  if ( ! is_array( $opponent_team ) && ! is_object( $opponent_team ) ) {
+    $opponent_team = [ 'ts' . $opponent_team->ts => $opponent_team ];
   }
 
   $results = [

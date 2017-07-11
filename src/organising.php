@@ -760,7 +760,7 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
   foreach ( $pokemon_collection as $_pokemon ) {
     if ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) {
       if ( $exclude_fainted && 0 == $_pokemon->hp ) { continue; }
-      $battle_team[ $_pokemon->ts ] = $_pokemon;
+      $battle_team[ 'ts' . $_pokemon->ts ] = $_pokemon;
     }
   }
 
@@ -769,11 +769,11 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
   if ( $battle_team_leader ) {
     uksort( $battle_team, function( $key1, $key2 ) use ( $battle_team_leader ) {
 
-      if ( $key1 === $battle_team_leader ) {
+      if ( $key1 === 'ts' . $battle_team_leader ) {
         return -1;
       }
 
-      if ( $key2 === $battle_team_leader ) {
+      if ( $key2 === 'ts' . $battle_team_leader ) {
         return 1;
       }
 
@@ -804,13 +804,13 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     $random_key = array_rand( $pokemon_collection );
     $_pokemon = $pokemon_collection[ $random_key ];
 
-    if ( ! isset( $battle_team[ $_pokemon->ts ] ) ) { // Ensure we don't add the same Pokemon twice.
+    if ( ! isset( $battle_team[ 'ts' . $_pokemon->ts ] ) ) { // Ensure we don't add the same Pokemon twice.
 
       if ( $exclude_fainted && 0 == $_pokemon->hp ) {
         continue;
       }
 
-      $battle_team[ $_pokemon->ts ] = $_pokemon;
+      $battle_team[ 'ts' . $_pokemon->ts ] = $_pokemon;
 
     }
 
