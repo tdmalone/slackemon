@@ -51,8 +51,14 @@ function slackemon_save_player_data(
 
   $player_filename = $data_folder . '/players/' . $user_id;
 
-  $_cached_slackemon_player_data[ $user_id ] = $player_data; // Update the in-memory cache.
-  $return = slackemon_file_put_contents( $player_filename, json_encode( $player_data ), 'store', $warn_if_not_locked );
+  // Update the in-memory cache.
+  $_cached_slackemon_player_data[ $user_id ] = $player_data;
+
+  $json_options = 'development' === APP_ENV ? JSON_PRETTY_PRINT : 0;
+
+  $return = slackemon_file_put_contents(
+    $player_filename, json_encode( $player_data, $json_options ), 'store', $warn_if_not_locked
+  );
 
   if ( $relinquish_lock ) {
     slackemon_unlock_file( $player_filename );

@@ -332,8 +332,16 @@ function slackemon_save_spawn_data( $spawn_data ) {
   $spawn_id = $spawn_data['ts'] . '-' . $spawn_data['region'];
   $spawn_filename = $data_folder . '/spawns/' . $spawn_id;
 
+  // Update the in-memory cache.
   $_cached_slackemon_spawn_data[ $spawn_id ] = $spawn_data;
-  return slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store', false );
+
+  $json_options = 'development' === APP_ENV ? JSON_PRETTY_PRINT : 0;
+
+  $return = slackemon_file_put_contents(
+    $spawn_filename, json_encode( $spawn_data, $json_options ), 'store', false
+  );
+
+  return $return;
 
 } // Function slackemon_save_spawn_data
 

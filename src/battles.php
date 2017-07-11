@@ -2136,8 +2136,14 @@ function slackemon_save_battle_data(
 
   $battle_filename = $data_folder . '/' . $battle_folder . '/' . $battle_hash;
 
+  // Update the in-memory cache.
   $_cached_slackemon_battle_data[ $battle_hash ] = $battle_data;
-  $return = slackemon_file_put_contents( $battle_filename, json_encode( $battle_data ), 'store', $warn_if_not_locked );
+
+  $json_options = 'development' === APP_ENV ? JSON_PRETTY_PRINT : 0;
+
+  $return = slackemon_file_put_contents(
+    $battle_filename, json_encode( $battle_data, $json_options ), 'store', $warn_if_not_locked
+  );
 
   if ( $relinquish_lock ) {
     slackemon_unlock_file( $battle_filename );

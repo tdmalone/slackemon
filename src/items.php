@@ -873,10 +873,10 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
         'short' => true,
       ];
 
-    } // If all-machines / else
-  } // If expanded / else
+    } // If all-machines / else.
+  } // If expanded / else.
 
-  // Clean the description
+  // Clean the description.
   $description = slackemon_clean_item_description( $description, true );
 
   $attributes = [];
@@ -884,8 +884,8 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
     $attributes[] = $_attribute->name;
   }
 
-  // How this item interacts with Pokemon
-  // Because the API is missing a lot of item data, we need to assume some attributes based on categories
+  // How this item interacts with Pokemon.
+  // Because the API is missing a lot of item data, we need to assume some attributes based on categories.
 
   $is_holdable = (
     in_array( 'holdable', $attributes )         ||
@@ -997,7 +997,7 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
 
   return $attachment;
 
-} // Function slackemon_get_item_attachment
+} // Function slackemon_get_item_attachment.
 
 function slackemon_get_item_cost( $item_id ) {
 
