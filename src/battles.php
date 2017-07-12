@@ -1533,7 +1533,7 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
  * Note that this function can currently also be called on behalf of a wild Pokemon, who is technically masquerading
  * as a user in battle. This is a TODO - it should be more efficient so we can avoid these calls, but keep that in
  * mind if operating on the player data. You can use `'U' === substr( $user_id, 0, 1 )` to check if it is a real user
- * or not.
+ * or not; some functions dealing with player data will do this for you.
  *
  * @param str $battle_hash
  * @param str $user_id
@@ -1542,31 +1542,167 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
  */
 function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage, $this_move_notice = '' ) {
 
-  // Get the menu mode and player data, ensuring we're dealing with a real user and not a wild Pokemon.
+  // First, get and massage all the data we'll need, preparing it to be passed to our other functions.
+  $battle_data = slackemon_get_battle_data( $battle_hash );
+  $opponent_id = slackemon_get_battle_opponent_id( $battle_data, $user_id );
+  $args = [
+    'is_desktop'                 => slackemon_is_desktop( $user_id ),
+    'player_data'                => slackemon_get_player_data( $user_id ),
+    'battle_data'                => $battle_data,
+    'battle_stage'               => $battle_stage,
+    'this_move_notice'           => $this_move_notice,
+    'user_id'                    => $user_id,
+    'user_pokemon'               => slackemon_get_battle_current_pokemon( $battle_data, $user_id ),
+    'user_remaining_pokemon'     => slackemon_get_user_remaining_battle_pokemon( $battle_data, $user_id ),
+    'opponent_id'                => $opponent_id,
+    'opponent_pokemon'           => slackemon_get_battle_current_pokemon( $battle_data, $opponent_id ),
+    'opponent_remaining_pokemon' => slackemon_get_user_remaining_battle_pokemon( $battle_data, $opponent_id ),
+  ];
+
+  // Get attachments.
+  $user_pokemon_attachments     = slackemon_get_battle_pokemon_attachments( $args, 'user' );
+  $opponent_pokemon_attachments = slackemon_get_battle_pokemon_attachments( $args, 'opponent' );
+  $general_attachments          = slackemon_get_battle_general_attachments( $args );
+
+  return array_merge( $opponent_pokemon_attachments, $user_pokemon_attachments, $general_attachments );
+
+} // Function slackemon_get_battle_attachments.
+
+/**
+ * Advises whether or not a battle is over. This only means that all of one user's Pokemon have fainted; not that
+ * the battle complete routines have been invoked yet (if required - which they usually are).
+ */
+function slackemon_is_battle_over( $args ) {
+
+  $is_user_turn     = $args['battle_data']->turn === $args['user_id'];
+  $is_opponent_turn = $args['battle_data']->turn === $args['opponent_id'];
+
+  $has_user_won     = $is_opponent_turn && ! $args['opponent_pokemon']->hp && ! $args['opponent_remaining_pokemon'];
+  $has_opponent_won = $is_user_turn     && ! $args['user_pokemon']->hp     && ! $args['user_remaining_pokemon'];
+
+  if ( $has_user_won || $has_opponent_won ) {
+    return true;
+  }
+
+  return false;
+
+} // Function slackemon_is_battle_over.
+
+function slackemon_get_battle_general_attachments( $args ) {
+
+  $battle_actions      = slackemon_get_battle_actions( $args );
+  $opponent_first_name = slackemon_get_battle_opponent_first_name( $args );
+  $celebration_emoji   = ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :party_parrot:' : '' );  
+
+  // For friendly battles, we will end the battle now, as there's nothing else for the user to do or acknowledge.
+  if ( slackemon_is_friendly_battle( $args['battle_data'] ) && slackemon_is_battle_over( $args ) )
+    slackemon_set_player_not_in_battle( $args['user_id'] );
+  }
+
+  $attachments = [];
+  $pretext     = $args['this_move_notice'] . "\n\n";
+
+  if ( $args['user_pokemon']->hp ) {
+
+    $is_opponent_turn = $args['battle_data']->turn === $args['opponent_id'];
+    $has_user_won     = $is_opponent_turn && ! $args['opponent_pokemon']->hp && ! $args['opponent_remaining_pokemon'];
+
+    if ( $has_user_won ) {
+
+      if ( 'wild' === $battle_data->type ) {
+        $pretext .= ':tada: *You won the battle!*' . $celebration_emoji;
+      } else {
+
+        // We celebrate a bit more if it was a trainer battle :).
+
+        $pretext .= (
+          ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!*' . // Congratulations.
+          $celebration_emoji . $celebration_emoji . "\n"
+        );
+
+        if ( slackemon_is_friendly_battle( $args['battle_data'] ) ) {
+          $pretext .= 'TODO';
+        } else {
+          $pretext .= 'Click the _Complete_ button to get your XP bonus and power up your Pokémon! :100:';
+        }
+
+      }
+
+    } else if ( $is_opponent_turn ) {
+
+      $pretext .= '*It\'s ' . $opponent_first_name . '\'s move';
+
+      // Add a loading indicator if this is not a p2p battle, as we'll be waiting for the computer to make a move.
+      if ( 'p2p' === $args['battle_data']->type ) {
+        $pretext .= '.';
+      } else {
+        $pretext .= '... ' . slackemon_get_loading_indicator( $user_id, false );
+      }
+
+      $pretext .= '*';
+
+    }
+
+    $attachments[] = [
+      'pretext'     => $pretext,
+      'color'       => $user_has_won ? 'good' : '#333333',
+      'mrkdwn_in'   => [ 'text', 'pretext' ],
+      'actions'     => $battle_actions,
+      'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
+    ];
+
+  } else if ( $args['user_remaining_pokemon'] ) {
+
+    $attachments[] = slackemon_offer_battle_swap( $args['battle_data']->hash, $args['user_id'] );
+
+  } else {
+
+    $pretext .= ':expressionless: *Nooo... you lost the battle!*' . "\n";
+
+    if ( slackemon_is_friendly_battle( $args['battle_data'] ) ) {
+
+      $pretext .= 'TODO';
+      
+
+    } else {
+
+      $pretext .= 'Click the _Complete_ button to get your XP bonus and see your Pokémon.';
+
+    }
+
+    $attachments[] = [
+
+      'pretext'     => $pretext,
+      'mrkdwn_in'   => [ 'text', 'pretext' ],
+      'color'       => 'danger',
+      'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
+
+      'actions' => [
+        'name'  => 'battles/complete',
+        'text'  => 'Complete Battle',
+        'type'  => 'button',
+        'value' => $args['battle_data']->hash . '/lost',
+        'style' => 'primary',
+      ],
+
+    ];
+
+  }
+
+  return $attachments;
+
+} // Function slackemon_get_battle_general_attachments.
+
+function slackemon_get_battle_actions( $battle_data, $battle_stage, $user_id, $user_pokemon ) {
+
   $is_desktop  = 'U' === substr( $user_id, 0, 1 ) && 'desktop' === slackemon_get_player_menu_mode( $user_id );
   $player_data = 'U' === substr( $user_id, 0, 1 ) ? slackemon_get_player_data( $user_id ) : false;
 
-  $battle_data = slackemon_get_battle_data( $battle_hash );
   $opponent_id = slackemon_get_battle_opponent_id( $battle_hash, $user_id );
 
-  $user_pokemon     = slackemon_get_battle_current_pokemon( $battle_hash, $user_id );
   $opponent_pokemon = slackemon_get_battle_current_pokemon( $battle_hash, $opponent_id );
 
-  $opponent_first_name = (
-    'wild' === $battle_data->type ?
-    slackemon_readable( $opponent_pokemon->name ) :
-    slackemon_get_slack_user_first_name( $opponent_id )
-  );
-
-  $user_pokemon->moves = slackemon_sort_battle_moves( $user_pokemon->moves, $user_pokemon->types );
-
-  // Do we or our opponent have any Pokemon remaining for swapping to?
-  $user_remaining_pokemon     = slackemon_get_user_remaining_battle_pokemon( $battle_data, $user_id     );
-  $opponent_remaining_pokemon = slackemon_get_user_remaining_battle_pokemon( $battle_data, $opponent_id );
-
-  $opponent_pretext = slackemon_get_battle_opponent_pretext( $battle_data, $opponent_pokemon );
-
-  // Put actions together
+  $user_remaining_pokemon = slackemon_get_user_remaining_battle_pokemon( $battle_data, $user_id );
 
   $actions = [];
 
@@ -1574,164 +1710,40 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
 
     // It's the user's turn - they can make a move, use an item, swap, flee/surrender...
 
-    $item_option_groups = [];
-
-    if ( 'wild' === $battle_data->type ) {
-      $item_option_groups['pokeballs'] = [
-        'text'    => 'Pokéballs',
-        'options' => [
-          [
-            'text'  => 'Pokéball' . ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ' :pokeball:' : '' ),
-            'value' => 'pokeball/' . $opponent_id,
-          ],
-        ],
-      ];
-    }
-
-    if ( $player_data ) {
-      $available_items = [];
-      foreach ( $player_data->items as $item ) {
-
-        $item_data = slackemon_get_item_data( $item->id );
-        $item_attributes = [];
-
-        foreach ( $item_data->attributes as $_attribute ) {
-          $item_attributes[] = $_attribute->name;
-        }
-
-        if ( in_array( 'usable-in-battle', $item_attributes ) ) {
-          if ( ! isset( $available_items[ 'item' . $item->id ] ) ) {
-
-            $available_items[ 'item' . $item->id ] = [
-              'id'       => $item->id,
-              'count'    => 0,
-              'name'     => $item_data->name,
-              'category' => $item_data->category->name,
-            ];
-
-          }
-
-          $available_items[ 'item' . $item->id ]['count']++;
-
-        } // If usable-in-battle
-      } // Foreach items
-
-      usort( $available_items, function( $item1, $item2 ) {
-        $cat_compare  = strcmp( $item1['category'], $item2['category'] );
-        $item_compare = strcmp( $item1['name'],     $item2['name']     );
-        if ( $cat_compare !== 0 ) {
-          return $cat_compare  > 0 ? 1 : -1;
-        } else {
-          return $item_compare > 0 ? 1 : -1;
-        }
-      });
-
-      foreach( $available_items as $item ) {
-
-        // Combine all the Pokeballs together at the top
-        if ( 'special-balls' === $item['category'] || 'standard-balls' === $item['category'] ) {
-          $item['category'] = 'pokeballs';
-        }
-
-        if ( ! isset( $item_option_groups[ $item['category'] ] ) ) {
-          $item_option_groups[ $item['category'] ] = [
-            'text'    => slackemon_readable( $item['category'] ),
-            'options' => [],
-          ];
-        }
-
-        $item_option_groups[ $item['category'] ]['options'][] = [
-          'text'  => slackemon_readable( $item['name'] ) . ' (' . $item['count'] . ')',
-          'value' => $item['id'],
-        ];
-
-      } // Foreach available_items
-    } // If player_data
-
-    $move_options = [];
-    $available_moves = [];
-
-    foreach ( $user_pokemon->moves as $_move ) {
-      if ( floor( $_move->{'pp-current'} ) ) {
-        $available_moves[] = $_move;
-      }
-    }
-
-    // If there are moves available, we resort to our backup move instead (usually Struggle)
-    if ( ! count( $available_moves ) ) {
-      $available_moves[] = slackemon_get_backup_move();
-    }
-
-    foreach ( $available_moves as $_move ) {
-
-      $_move_data = slackemon_get_move_data( $_move->name );
-
-      $damage_class_readable = (
-        999 != $_move->{'pp-current'} ? // 999 is used (interally, not in the API) for moves like Struggle
-        ucfirst( substr( $_move_data->damage_class->name, 0, 2 ) ) : // Eg. Ph, Sp, St
-        ''
-      );
-
-      $move_options[] = [
-        'text' => (
-          $damage_class_readable . '  ' .
-          (
-            SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ?
-            slackemon_emojify_types( ucfirst( $_move_data->type->name ), false ) . ' ' :
-            ''
-          ) .
-          ( 999 != $_move->{'pp-current'} ? floor( $_move->{'pp-current'} ) . '/' . $_move->pp . ' • ' : '' ) .
-          slackemon_readable( $_move->name ) . ' x' . ( $_move_data->power ? $_move_data->power : 0 ) .
-          ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? '' : ' (' . ucfirst( $_move_data->type->name ) . ')' )
-        ),
-        'value' => $battle_hash . '/' . $_move->name . '/' . ( 'start' === $battle_stage ? 'first' : '' ),
-      ];
-
-    }
-
-    if ( $user_remaining_pokemon && $battle_data->users->{ $user_id }->status->swaps_remaining ) {
-
-      $move_options[] = [
-        'text'  => (
-          ( $is_desktop ? ':twisted_rightwards_arrows: ' : '' ) .
-          'Swap Pokémon ' .
-          '(' . $battle_data->users->{ $user_id }->status->swaps_remaining . '/' . SLACKEMON_BATTLE_SWAP_LIMIT . ')'
-        ),
-        'value' => $battle_hash . '//swap',
-      ];
-
-    }
-
     $actions[] = [
-      'name'    => 'battles/move',
-      'text'    => 'Make a Move',
-      'type'    => 'select',
-      'options' => $move_options,
+      'name'          => 'battles/move',
+      'text'          => 'Make a Move',
+      'type'          => 'select',
+      'options'       => (
+        slackemon_get_battle_move_options( $battle_data, $battle_stage, $user_id, $user_pokemon )
+      ),
     ];
 
     $actions[] = [
       'name'          => 'battles/item',
       'text'          => 'Use Item',
       'type'          => 'select',
-      'option_groups' => $item_option_groups,
+      'option_groups' => (
+        slackemon_get_battle_item_option_groups( $battle_data, $battle_stage, $user_id, $user_pokemon )
+      ),
     ];
 
-    // TODO: At the moment, flee is only available for wild battles
-    // Surrender option will be available for non-wild battles later
+    // TODO: At the moment, flee is only available for wild battles.
+    // Surrender option will be available for non-wild battles later.
     if ( 'wild' === $battle_data->type ) {
 
       $verb  = 'wild' === $battle_data->type ? 'flee' : 'surrender';
       $emoji = 'flee' === $verb ? ':runner:' : ':waving_white_flag:';
 
       $actions[] = [
-        'name' => 'battles/surrender',
-        'text' => $emoji . ' ' . ucfirst( $verb ),
-        'type' => 'button',
-        'value' => $battle_hash,
+        'name'  => 'battles/surrender',
+        'text'  => $emoji . ' ' . ucfirst( $verb ),
+        'type'  => 'button',
+        'value' => $battle_data->hash,
         'style' => 'danger',
         'confirm' => [
           'title' => 'Are you sure?',
-          'text' => (
+          'text'  => (
             'Are you sure you want to ' . $verb . '? ' .
             (
               'surrender' === $verb ?
@@ -1742,127 +1754,204 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
         ],
       ];
 
-    } // If wild battle
+    } // If wild battle.
 
   } else if ( $opponent_pokemon->hp || $opponent_remaining_pokemon ) {
 
-    // It's the opponent's turn
+    // It's the opponent's turn, so no actions will be added here.
 
   } else {
 
-    // The user won!
+    // If we've got here, the user won!
 
     if ( 'wild' === $battle_data->type ) {
+
       $actions[] = [
-        'name' => 'catch/end-battle',
-        'text' => ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball:' : ':volleyball:' ) . ' Throw Pokéball',
-        'type' => 'button',
+        'name'  => 'catch/end-battle',
+        'text'  => ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball:' : ':volleyball:' ) . ' Throw Pokéball',
+        'type'  => 'button',
         'value' => $opponent_id,
         'style' => 'primary',
       ];
+
     }
 
     $actions[] = [
-      'name' => 'battles/complete',
-      'text' => ':white_check_mark: Complete Battle',
-      'type' => 'button',
-      'value' => $battle_hash . '/won',
+      'name'  => 'battles/complete',
+      'text'  => ':white_check_mark: Complete Battle',
+      'type'  => 'button',
+      'value' => $battle_data->hash . '/won',
       'style' => 'wild' === $battle_data->type ? '' : 'primary',
     ];
 
   }
 
-  // Opponent's Pokemon
-  $opponent_pokemon_attachments = slackemon_get_battle_pokemon_attachments(
-    $opponent_pokemon, $opponent_id, $battle_hash, 'opponent', $opponent_pretext
-  );
+  return $actions;
 
-  // User's Pokemon
-  $user_pokemon_attachments = slackemon_get_battle_pokemon_attachments(
-    $user_pokemon, $user_id, $battle_hash, 'user'
-  );
+} // Function slackemon_get_battle_actions.
 
-  $celebration_emoji = ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :party_parrot:' : '' );
+function slackemon_get_battle_move_options( $battle_data, $battle_stage, $user_id, $user_pokemon ) {
 
-  $general_attachments = [
-    (
-      $user_pokemon->hp ?
-      [
-        'pretext' => $this_move_notice . "\n\n" . (
-          $battle_data->turn === $user_id ?
-          '' :
-          (
-            $opponent_pokemon->hp || $opponent_remaining_pokemon ?
-            '*It\'s ' . $opponent_first_name . '\'s move' .
-            (
-              'p2p' === $battle_data->type ?
-              '.' :
-              '... ' . ( 'U' === substr( $user_id, 0, 1 ) ? slackemon_get_loading_indicator( $user_id, false ) : '' )
-            ) .
-            '*' :
-            (
-              'wild' === $battle_data->type ?
-              ':tada: *You won the battle!*' . $celebration_emoji :
-              (
-                ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!*' . // Congratulations.
-                $celebration_emoji . $celebration_emoji . "\n" .
-               'Click the _Complete_ button to get your XP bonus and power up your Pokémon! :100:'
-              )
-            )
-          )
-        ),
-        'color' => (
-          $battle_data->turn !== $user_id && ! $opponent_pokemon->hp && ! $opponent_remaining_pokemon ? // User won!
-          'good' :
-          '#333333'
-        ),
-        'mrkdwn_in'   => [ 'text', 'pretext' ],
-        'actions'     => $actions,
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-      ] :
-      // User's current Pokemon has fainted - do we offer a swap, or was that their last Pokemon??
-      (
-        $user_remaining_pokemon ?
-        slackemon_offer_battle_swap( $battle_hash, $user_id ) :
+  $is_desktop      = slackemon_is_desktop( $user_id );
+  $move_options    = [];
+  $available_moves = [];
+
+  $user_remaining_pokemon = slackemon_get_user_remaining_battle_pokemon( $battle_data, $user_id );
+  $user_pokemon->moves = slackemon_sort_battle_moves( $user_pokemon->moves, $user_pokemon->types );
+
+  foreach ( $user_pokemon->moves as $_move ) {
+    if ( floor( $_move->{'pp-current'} ) ) {
+      $available_moves[] = $_move;
+    }
+  }
+
+  // If there are no moves available, we resort to our backup move instead (usually Struggle).
+  if ( ! count( $available_moves ) ) {
+    $available_moves[] = slackemon_get_backup_move();
+  }
+
+  foreach ( $available_moves as $_move ) {
+
+    $_move_data = slackemon_get_move_data( $_move->name );
+
+    $damage_class_readable = (
+      999 != $_move->{'pp-current'} ? // 999 is used (interally, not in the API) for moves like Struggle.
+      ucfirst( substr( $_move_data->damage_class->name, 0, 2 ) ) : // Eg. Ph, Sp, St.
+      ''
+    );
+
+    $move_options[] = [
+      'text' => (
+        $damage_class_readable . '  ' .
+        (
+          SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ?
+          slackemon_emojify_types( ucfirst( $_move_data->type->name ), false ) . ' ' :
+          ''
+        ) .
+        ( 999 != $_move->{'pp-current'} ? floor( $_move->{'pp-current'} ) . '/' . $_move->pp . ' • ' : '' ) .
+        slackemon_readable( $_move->name ) . ' x' . ( $_move_data->power ? $_move_data->power : 0 ) .
+        ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? '' : ' (' . ucfirst( $_move_data->type->name ) . ')' )
+      ),
+      'value' => $battle_data->hash . '/' . $_move->name . '/' . ( 'start' === $battle_stage ? 'first' : '' ),
+    ];
+
+  }
+
+  // Are swaps available?
+  if ( $user_remaining_pokemon && $battle_data->users->{ $user_id }->status->swaps_remaining ) {
+
+    $move_options[] = [
+      'text'  => (
+        ( $is_desktop ? ':twisted_rightwards_arrows: ' : '' ) .
+        'Swap Pokémon ' .
+        '(' . $battle_data->users->{ $user_id }->status->swaps_remaining . '/' . SLACKEMON_BATTLE_SWAP_LIMIT . ')'
+      ),
+      'value' => $battle_data->hash . '//swap', // Double slash is intentional - there is no 'name' for this 'move'.
+    ];
+
+  }
+
+  return $move_options;
+
+} // Function slackemon_get_battle_move_options.
+
+/** Returns item option groups for use within in-battle message menus. */
+function slackemon_get_battle_item_option_groups( $battle_data, $battle_stage, $user_id, $user_pokemon ) {
+
+  $is_desktop   = slackemon_is_desktop( $user_id );
+  $item_options = [];
+
+  // For wild battles, allow a Pokeball to be used to catch the 'opponent'.
+  if ( 'wild' === $battle_data->type ) {
+
+    $opponent_id  = slackemon_get_battle_opponent_id( $battle_hash, $user_id );
+
+    $item_options['pokeballs'] = [
+      'text'    => 'Pokéballs',
+      'options' => [
         [
-          'pretext' => $this_move_notice . "\n\n" . (
-            ':expressionless: *Nooo... you lost the battle!*' . "\n" .
-            'Click the _Complete_ button to get your XP bonus and see your Pokémon.'
-          ),
-          'mrkdwn_in'   => [ 'text', 'pretext' ],
-          'color'       => 'danger',
-          'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-          'actions' => [
-            /*[ // TODO ?
-              'name' => 'battles/send-congratulations',
-              'text' => 'Send Congratulations',
-            ],*/ [
-              'name'  => 'battles/complete',
-              'text'  => 'Complete Battle',
-              'type'  => 'button',
-              'value' => $battle_hash . '/lost',
-              'style' => 'primary',
-            ],
-          ],
-        ]
-      )
-    ),
-  ];
+          'text'  => 'Pokéball' . ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ' :pokeball:' : '' ),
+          'value' => 'pokeball/' . $opponent_id,
+        ],
+      ],
+    ];
 
-  $attachments = array_merge(
-    $opponent_pokemon_attachments,
-    $user_pokemon_attachments,
-    $general_attachments
-  );
+  }
 
-  return $attachments;
+  // Bow out now if we couldn't access the player data for some reason.
+  if ( ! $player_data ) {
+    return $item_options;
+  }
 
-} // Function slackemon_get_battle_attachments.
+  $available_items = [];
+
+  foreach ( $player_data->items as $item ) {
+
+    $item_data = slackemon_get_item_data( $item->id );
+    $item_attributes = [];
+
+    foreach ( $item_data->attributes as $_attribute ) {
+      $item_attributes[] = $_attribute->name;
+    }
+
+    if ( in_array( 'usable-in-battle', $item_attributes ) ) {
+      if ( ! isset( $available_items[ 'item' . $item->id ] ) ) {
+
+        $available_items[ 'item' . $item->id ] = [
+          'id'       => $item->id,
+          'count'    => 0,
+          'name'     => $item_data->name,
+          'category' => $item_data->category->name,
+        ];
+
+      }
+
+      $available_items[ 'item' . $item->id ]['count']++;
+
+    } // If usable-in-battle
+  } // Foreach items
+
+  usort( $available_items, function( $item1, $item2 ) {
+    $cat_compare  = strcmp( $item1['category'], $item2['category'] );
+    $item_compare = strcmp( $item1['name'],     $item2['name']     );
+    if ( $cat_compare !== 0 ) {
+      return $cat_compare  > 0 ? 1 : -1;
+    } else {
+      return $item_compare > 0 ? 1 : -1;
+    }
+  });
+
+  foreach( $available_items as $item ) {
+
+    // Combine all the Pokeballs together at the top
+    if ( 'special-balls' === $item['category'] || 'standard-balls' === $item['category'] ) {
+      $item['category'] = 'pokeballs';
+    }
+
+    if ( ! isset( $item_options[ $item['category'] ] ) ) {
+      $item_options[ $item['category'] ] = [
+        'text'    => slackemon_readable( $item['category'] ),
+        'options' => [],
+      ];
+    }
+
+    $item_options[ $item['category'] ]['options'][] = [
+      'text'  => slackemon_readable( $item['name'] ) . ' (' . $item['count'] . ')',
+      'value' => $item['id'],
+    ];
+
+  } // Foreach available_items
+
+  return $item_options;
+
+} // Function slackemon_get_battle_item_options.
 
 function slackemon_get_battle_pokemon_attachments( $pokemon, $player_id, $battle_hash, $player_type, $pretext = '' ) {
 
   $user_id    = 'user' === $player_type ? $player_id : slackemon_get_battle_opponent_id( $battle_hash, $player_id );
   $is_desktop = 'U' === substr( $user_id, 0, 1 ) && 'desktop' === slackemon_get_player_menu_mode( $user_id );
+
+  $opponent_pretext = slackemon_get_battle_opponent_pretext( $args );
 
   $battle_data = slackemon_get_battle_data( $battle_hash );
   $hp_percentage = min( 100, floor( $pokemon->hp / $pokemon->stats->hp * 100 ) );
@@ -2040,6 +2129,23 @@ function slackemon_get_battle_opponent_pretext( $battle_data, $opponent_pokemon 
 
 } // Function slackemon_get_battle_opponent_pretext.
 
+/** Gets the first name of a battle opponent - either a wild Pokemon's name, or another player's first name. */
+function slackemon_get_battle_opponent_first_name( $args ) {
+
+  if ( 'wild' === $args['battle_data']->type ) {
+    return slackemon_readable( $args['opponent_pokemon']->name );
+  }
+    
+  return slackemon_get_slack_user_first_name( $args['opponent_id'] );
+
+} // Function slackemon_get_battle_opponent_first_name.
+
+function slackemon_is_friendly_battle( $battle_data ) {
+
+  return 'friendly' === $battle_data->challenge_type[0];
+
+} // Function slackemon_is_friendly_battle.
+
 /**
  * Gets the number of Pokemon a user has remaining (i.e. not fainted) in battle. This be used to eg. determine
  * whether they can swap or not, and also whether the battle has ended. Relies on HP to determine whether Pokemon
@@ -2077,9 +2183,12 @@ function slackemon_get_user_remaining_battle_pokemon( $battle_data, $user_id, $s
 
 } // Function slackemon_get_user_remaining_battle_pokemon.
 
-function slackemon_get_battle_opponent_id( $battle_hash, $user_id ) {
+function slackemon_get_battle_opponent_id( $battle_data, $user_id ) {
 
-  $battle_data = slackemon_get_battle_data( $battle_hash );
+  // Accept a battle hash being passed through.
+  if ( is_string( $battle_data ) ) {
+    $battle_data = slackemon_get_battle_data( $battle_data );
+  }
 
   foreach ( $battle_data->users as $_user_id => $_user_data ) {
     if ( $_user_id !== $user_id ) {
@@ -2089,9 +2198,13 @@ function slackemon_get_battle_opponent_id( $battle_hash, $user_id ) {
 
 } // Function slackemon_get_battle_opponent_id.
 
-function slackemon_get_battle_current_pokemon( $battle_hash, $user_id ) {
+function slackemon_get_battle_current_pokemon( $battle_data, $user_id ) {
 
-  $battle_data = slackemon_get_battle_data( $battle_hash );
+  // Accept a battle hash being passed through.
+  if ( is_string( $battle_data ) ) {
+    $battle_data = slackemon_get_battle_data( $battle_data );
+  }
+
   $user_pokemon = $battle_data->users->{ $user_id }->team;
 
   foreach ( $battle_data->users->{ $user_id }->team as $_pokemon ) {
@@ -2113,7 +2226,7 @@ function slackemon_get_battle_hash( $ts, $user_id1, $user_id2 ) {
 
   return $battle_hash;
 
-} // Function slackemon_get_battle_hash
+} // Function slackemon_get_battle_hash.
 
 function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = false, $for_writing = false ) {
   global $data_folder, $_cached_slackemon_battle_data;
