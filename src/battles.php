@@ -1526,8 +1526,22 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
   } // If p2p battle / else.
 } // Function slackemon_do_battle_move.
 
+/**
+ * Gets the in-battle message attachments for a user.
+ *
+ * Note that this function can currently also be called on behalf of a wild Pokemon, who is technically masquerading
+ * as a user in battle. This is a TODO - it should be more efficient so we can avoid these calls, but keep that in
+ * mind if operating on the player data. You can use `'U' === substr( $user_id, 0, 1 )` to check if it is a real user
+ * or not.
+ *
+ * @param str $battle_hash
+ * @param str $user_id
+ * @param str $battle_stage
+ * @param str $this_move_notice
+ */
 function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage, $this_move_notice = '' ) {
 
+  // Get the menu mode and player data, ensuring we're dealing with a real user and not a wild Pokemon.
   $is_desktop  = 'U' === substr( $user_id, 0, 1 ) && 'desktop' === slackemon_get_player_menu_mode( $user_id );
   $player_data = 'U' === substr( $user_id, 0, 1 ) ? slackemon_get_player_data( $user_id ) : false;
 
@@ -1545,65 +1559,11 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
 
   $user_pokemon->moves = slackemon_sort_battle_moves( $user_pokemon->moves, $user_pokemon->types );
 
-  // Do we have any Pokemon remaining for swapping to?
-  $user_remaining_pokemon = 0;
-  foreach ( $battle_data->users->{ $user_id }->team as $_pokemon ) {
-    if ( ! $_pokemon->hp ) {
-      continue;
-    }
+  // Do we or our opponent have any Pokemon remaining for swapping to?
+  $user_remaining_pokemon     = slackemon_get_user_remaining_battle_pokemon( $battle_data, $user_id     );
+  $opponent_remaining_pokemon = slackemon_get_user_remaining_battle_pokemon( $battle_data, $opponent_id );
 
-    if ( $_pokemon->ts === $user_pokemon->ts ) {
-      continue;
-    }
-
-    $user_remaining_pokemon++;
-
-  }
-
-  // Does our opponent have any Pokemon remaining for swapping to?
-  $opponent_remaining_pokemon = 0;
-  foreach ( $battle_data->users->{ $opponent_id }->team as $_pokemon ) {
-
-    if ( ! $_pokemon->hp ) {
-      continue;
-    }
-
-    if ( $_pokemon->ts === $opponent_pokemon->ts ) {
-      continue;
-    }
-
-    $opponent_remaining_pokemon++;
-
-  }
-
-  $opponent_pretext = '';
-
-  switch ( $battle_stage ) {
-
-    case 'start': // Brand new battle is starting
-    case 'first': // First move has been made by the battle invitee
-
-      if ( 'wild' === $battle_data->type ) {
-
-        $opponent_pretext = (
-          '*' . slackemon_readable( $opponent_pokemon->name ) . '* is up for a battle! ' .
-          ucfirst( slackemon_get_gender_pronoun( $opponent_pokemon->gender ) ) . ' gets to go first.' . "\n" .
-          'Take care - a wild Pokémon could flee at any time.'
-        );
-
-      } else {
-
-        $opponent_pretext = (
-          $opponent_first_name . ' has chosen *' . slackemon_readable( $opponent_pokemon->name ) . '*! ' .
-          ucfirst( slackemon_get_gender_pronoun( $opponent_pokemon->gender ) ) . ' has ' .
-          '*' . $opponent_pokemon->cp . ' CP*.'
-        );
-
-      }
-
-    break;
-
-  } // Switch battle_stage
+  $opponent_pretext = slackemon_get_battle_opponent_pretext( $battle_data, $opponent_pokemon );
 
   // Put actions together
 
@@ -1842,8 +1802,11 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
             (
               'wild' === $battle_data->type ?
               ':tada: *You won the battle!*' . $celebration_emoji :
-              ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!*' . $celebration_emoji . $celebration_emoji . "\n" .
-              'Click the _Complete_ button to get your XP bonus and power up your Pokémon! :100:'
+              (
+                ':tada: *Cᴏɴɢʀᴀᴛᴜʟᴀᴛɪᴏɴs! You won the battle!!*' . // Congratulations.
+                $celebration_emoji . $celebration_emoji . "\n" .
+               'Click the _Complete_ button to get your XP bonus and power up your Pokémon! :100:'
+              )
             )
           )
         ),
@@ -2041,7 +2004,77 @@ function slackemon_get_battle_pokemon_attachments( $pokemon, $player_id, $battle
 
   return [ $image_attachment, $status_attachment ];
 
-} // Function slackemon_get_battle_pokemon_attachments
+} // Function slackemon_get_battle_pokemon_attachments.
+
+function slackemon_get_battle_opponent_pretext( $battle_data, $opponent_pokemon ) {
+    
+  switch ( $battle_stage ) {
+
+    case 'start': // Brand new battle is starting.
+    case 'first': // First move has been made by the battle invitee.
+
+      if ( 'wild' === $battle_data->type ) {
+
+        $opponent_pretext = (
+          '*' . slackemon_readable( $opponent_pokemon->name ) . '* is up for a battle! ' .
+          ucfirst( slackemon_get_gender_pronoun( $opponent_pokemon->gender ) ) . ' gets to go first.' . "\n" .
+          'Take care - a wild Pokémon could flee at any time.'
+        );
+
+      } else {
+
+        $opponent_pretext = (
+          $opponent_first_name . ' has chosen *' . slackemon_readable( $opponent_pokemon->name ) . '*! ' .
+          ucfirst( slackemon_get_gender_pronoun( $opponent_pokemon->gender ) ) . ' has ' .
+          '*' . $opponent_pokemon->cp . ' CP*.'
+        );
+
+      }
+
+    break;
+
+  } // Switch battle_stage.
+
+  return $opponent_pretext;
+
+} // Function slackemon_get_battle_opponent_pretext.
+
+/**
+ * Gets the number of Pokemon a user has remaining (i.e. not fainted) in battle. This be used to eg. determine
+ * whether they can swap or not, and also whether the battle has ended. Relies on HP to determine whether Pokemon
+ * have fainted or not.
+ *
+ * @param obj  $battle_data
+ * @param str  $user_id      The ID of a user participating in the battle.
+ * @param bool $skip_current Whether or not to skip counting the current Pokemon in battle. Should usually be true.
+ */
+function slackemon_get_user_remaining_battle_pokemon( $battle_data, $user_id, $skip_current = true ) {
+
+  $remaining_pokemon = 0;
+
+  if ( $skip_current ) {
+    $current_pokemon = slackemon_get_battle_current_pokemon( $battle_data->hash, $user_id );
+  }
+
+  foreach ( $battle_data->users->{ $user_id }->team as $_pokemon ) {
+
+    // If Pokemon has no HP, they have fainted.
+    if ( ! $_pokemon->hp ) {
+      continue;
+    }
+
+    // Do we skip the current Pokemon?
+    if ( $skip_current && $_pokemon->ts === $current_pokemon->ts ) {
+      continue;
+    }
+
+    $remaining_pokemon++;
+
+  }
+
+  return $remaining_pokemon;
+
+} // Function slackemon_get_user_remaining_battle_pokemon.
 
 function slackemon_get_battle_opponent_id( $battle_hash, $user_id ) {
 
