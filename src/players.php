@@ -77,7 +77,7 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
 
   $player_filename = $data_folder . '/players/' . $user_id;
 
-  // If we couldn't find the player file, store a trace to discover how we got here
+  // If we couldn't find the player file, store a trace to discover how we got here.
   if ( ! slackemon_file_exists( $player_filename, 'store' ) ) {
     slackemon_error_log(
       'WARNING: Attempted to access missing player file for ' . $user_id . '.' . PHP_EOL .
@@ -365,7 +365,7 @@ function slackemon_set_player_not_in_battle( $user_id = USER_ID ) {
 
   $player_data = slackemon_get_player_data( $user_id, true );
 
-  // Prevet changing the player status if they're not currently in battle.
+  // Prevent changing the player status if they're not currently in battle.
   if ( 3 == $player_data->status ) {
     $player_data->status = 1;
     return slackemon_save_player_data( $player_data, $user_id, true );

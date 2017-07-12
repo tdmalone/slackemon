@@ -696,7 +696,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
             'text' => 'You have surrended the battle!', // TODO: Expand on this, lol, when surrenders become possible
           ]);
 
-        break; // Case p2p
+        break; // Case p2p.
 
         case 'wild':
 
@@ -722,26 +722,26 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
             ],
           ]);
 
-        break; // Case wild
+        break; // Case wild.
 
-      } // Switch battle type
+      } // Switch battle type.
 
-    break; // Case surrender
+    break; // Case surrender.
 
-  } // Switch reason
+  } // Switch reason.
 
-  // Complete the battle for the loser now
-  // The winner's completion will happen when they follow their battle complete action
+  // Complete the battle for the loser now.
+  // The winner's completion will happen when they follow their battle complete action.
   slackemon_complete_battle( 'lost', $battle_hash, $loser_id, false, false );
 
-} // Function slackemon_end_battle
+} // Function slackemon_end_battle.
 
-// Tally up and apply the battle stats for the user
+// Tally up and apply the battle stats for the user.
 function slackemon_complete_battle(
   $battle_result, $battle_hash, $user_id = USER_ID, $award_xp_to_user = true, $send_response_to_user = true
 ) {
 
-  // Get the battle data, including from a 'complete' battle in case a user has already run this function
+  // Get the battle data, including from a 'complete' battle in case a user has already run this function.
   $battle_data = slackemon_get_battle_data( $battle_hash, true );
 
   if ( ! $battle_data ) {
@@ -754,7 +754,7 @@ function slackemon_complete_battle(
     $message = slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_to_user );
   }
 
-  // Move the battle file for completion, if it hasn't been done already by the user that ran this function first
+  // Move the battle file for completion, if it hasn't been done already by the user that ran this function first.
   global $data_folder;
   if ( slackemon_file_exists( $data_folder . '/battles_active/' . $battle_hash, 'store' ) ) {
 
@@ -925,7 +925,7 @@ function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_
   // Get player data for writing
   $player_data = slackemon_get_player_data( $user_id, true );
 
-  // Apply new Pokemon data to the player's collection
+  // Apply new Pokemon data to the player's collection.
   foreach ( $player_data->pokemon as $_pokemon ) {
     if ( isset( $battle_pokemon_by_ts[ $_pokemon->ts ] ) ) {
 
@@ -950,15 +950,15 @@ function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_
         );
       }
 
-    } // If pokemon was in this battle
-  } // Foreach player_data pokemon
+    } // If pokemon was in this battle.
+  } // Foreach player_data pokemon.
 
-  // Add player XP
+  // Add player XP.
   if ( $award_xp_to_user ) {
     $player_data->xp += 25;
   }
 
-  // Modify 'trainer battle' stats
+  // Modify 'trainer battle' stats.
   if ( 'wild' !== $battle_data->type ) {
     $player_data->battles->participated++;
   }
@@ -968,7 +968,7 @@ function slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_
   slackemon_save_player_data( $player_data, $user_id, true );
   slackemon_set_player_not_in_battle( $user_id );
 
-  // Put message together
+  // Put message together.
   $message = [
     'text' => (
       '*Your Pokémon:*' . "\n" .
@@ -1856,7 +1856,7 @@ function slackemon_get_battle_attachments( $battle_hash, $user_id, $battle_stage
 
   return $attachments;
 
-} // Function slackemon_get_battle_attachments
+} // Function slackemon_get_battle_attachments.
 
 function slackemon_get_battle_pokemon_attachments( $pokemon, $player_id, $battle_hash, $player_type, $pretext = '' ) {
 
@@ -2086,7 +2086,7 @@ function slackemon_get_battle_opponent_id( $battle_hash, $user_id ) {
     }
   }
 
-} // Function slackemon_get_battle_opponent_id
+} // Function slackemon_get_battle_opponent_id.
 
 function slackemon_get_battle_current_pokemon( $battle_hash, $user_id ) {
 
@@ -2101,7 +2101,7 @@ function slackemon_get_battle_current_pokemon( $battle_hash, $user_id ) {
 
   return false;
 
-} // Function slackemon_get_battle_current_pokemon
+} // Function slackemon_get_battle_current_pokemon.
 
 function slackemon_get_battle_hash( $ts, $user_id1, $user_id2 ) {
 
