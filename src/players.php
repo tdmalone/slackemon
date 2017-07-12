@@ -44,10 +44,26 @@ function slackemon_register_player( $user_id = USER_ID ) {
 
 } // Function slackemon_register_player
 
+/**
+ * Saves a player's data file.
+ *
+ * Includes protection against accidentally writing the data of a non-human user (eg. a wild Pokemon in a battle).
+ *
+ * @param obj  $player_data
+ * @param str  $user_id
+ * @param bool $relinquish_lock
+ * @param bool $warn_if_not_locked
+ */
 function slackemon_save_player_data(
   $player_data, $user_id = USER_ID, $relinquish_lock = false, $warn_if_not_locked = true
 ) {
   global $data_folder, $_cached_slackemon_player_data;
+
+  // Protect against a wild Pokemon in battle accidentally having its 'player data' saved.
+  if ( 'U' !== substr( $user_id, 0, 1 ) ) {
+    slackemon_error_log( 'WARNING: Attempted to save player data for ' . $user_id . '.' );
+    return false;
+  }
 
   $player_filename = $data_folder . '/players/' . $user_id;
 
@@ -68,8 +84,23 @@ function slackemon_save_player_data(
 
 } // Function slackemon_save_player_data
 
+/**
+ * Gets a player's data file.
+ *
+ * Includes protection against accidentally requesting the data of a non-human user (eg. a wild Pokemon in a battle),
+ * as that can cause other issues with accidentally creating player data for a Pokemon!
+ *
+ * @param str  $user_id
+ * @param bool $for_writing
+ */
 function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
   global $data_folder, $_cached_slackemon_player_data;
+
+  // Protect against a wild Pokemon in battle accidentally having its 'player data' called.
+  if ( 'U' !== substr( $user_id, 0, 1 ) ) {
+    slackemon_error_log( 'WARNING: Attempted to access player data for ' . $user_id . '.' );
+    return false;
+  }
 
   if ( ! $for_writing && isset( $_cached_slackemon_player_data[ $user_id ] ) ) {
     return $_cached_slackemon_player_data[ $user_id ];
