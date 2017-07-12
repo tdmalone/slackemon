@@ -481,7 +481,20 @@ function slackemon_get_player_menu_mode( $user_id = USER_ID ) {
 
   return $player_data->menu_mode;
 
-} // Function slackemon_get_player_menu_mode
+} // Function slackemon_get_player_menu_mode.
+
+/**
+ * Provides a simple boolean shortcut for checking whether 'desktop' is the user's current menu mode.
+ */
+function slackemon_is_desktop( $user_id = USER_ID ) {
+
+  if ( 'desktop' === slackemon_get_player_menu_mode( $user_id ) ) {
+    return true;
+  }
+
+  return false;
+
+} // Function slackemon_is_desktop.
 
 function slackemon_set_player_menu_mode( $menu_mode, $user_id = USER_ID ) {
 
@@ -490,7 +503,7 @@ function slackemon_set_player_menu_mode( $menu_mode, $user_id = USER_ID ) {
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_set_player_menu_mode
+} // Function slackemon_set_player_menu_mode.
 
 /**
  * Scaffolds a test player file with the requested number of random spawns. May take some time to complete.
