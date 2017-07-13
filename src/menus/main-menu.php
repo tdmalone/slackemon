@@ -224,9 +224,17 @@ function slackemon_get_main_menu() {
 
 } // Function slackemon_get_main_menu.
 
-function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
-
-  // Supports main, pokemon, items, battles, travel, achievements, and tools.
+/**
+ * Returns an attachment (or optionally, actions) that can generally be dropped in anywhere to allow the user to
+ * return to the main menu (or optionally, additional top-level menus).
+ *
+ * @param arr $menus                 An array of strings of menu names that buttons will be output for. Accepts any of
+ *                                   main, pokemon, items, battles, travel, achievements, and tools. Defaults to main.
+ * @param str $attachment_or_actions Whether or not a full attachment will be returned or just an array of actions.
+ *                                   Accepts 'actions' or 'attachment'; defaults to 'attachment'.
+ * @return arr An array representing either a single attachment, OR an array of action button arrays.
+ */
+function slackemon_back_to_menu_attachment( $menus = [ 'main' ], $attachment_or_actions = 'attachment' ) {
 
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
   $actions    = [];

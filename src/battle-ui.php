@@ -208,9 +208,10 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
   $opponent_first_name = slackemon_get_battle_opponent_first_name( $battle_data, $user_id );
   $celebration_emoji   = ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :party_parrot:' : '' );  
 
-  // For friendly battles, we will end the battle now, as there's nothing else for the user to do or acknowledge.
+  // For friendly battles, we will end the battle now if it's over, as there's nothing else for the user to do.
   if ( slackemon_is_friendly_battle( $battle_data ) && slackemon_is_battle_over( $attachment_args ) ) {
     slackemon_set_player_not_in_battle( $user_id );
+    slackemon_move_completed_battle_file( $battle_hash );
   }
 
   $pretext = $this_move_notice . "\n\n";
@@ -276,22 +277,30 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
       $pretext .= 'Click the _Complete_ button to get your XP bonus and see your Pokémon.';
     }
 
-    $attachment = [
+    if ( slackemon_is_friendly_battle( $battle_data ) ) {
 
-      'pretext' => $pretext,
-      'color'   => 'danger',
+      $attachment = slackemon_back_to_menu_attachment();
 
-      'actions' => [
-        [
-          'name'  => 'battles/complete',
-          'text'  => 'Complete Battle',
-          'type'  => 'button',
-          'value' => $battle_data->hash . '/lost',
-          'style' => 'primary',
+    } else {
+
+      $attachment = [
+
+        'pretext' => $pretext,
+        'color'   => 'danger',
+
+        'actions' => [
+          [
+            'name'  => 'battles/complete',
+            'text'  => 'Complete Battle',
+            'type'  => 'button',
+            'value' => $battle_data->hash . '/lost',
+            'style' => 'primary',
+          ],
         ],
-      ],
 
-    ];
+      ];
+
+    }
 
   }
 
@@ -367,25 +376,33 @@ function slackemon_get_battle_actions( $attachment_args ) {
 
     // If we've got here, the user won!
 
-    if ( 'wild' === $battle_data->type ) {
+    if ( slackemon_is_friendly_battle( $battle_data ) ) {
+
+      $actions[] = slackemon_back_to_menu_attachment( ['main'], 'actions' )[0];
+
+    } else {
+
+      if ( 'wild' === $battle_data->type ) {
+
+        $actions[] = [
+          'name'  => 'catch/end-battle',
+          'text'  => ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball:' : ':volleyball:' ) . ' Throw Pokéball',
+          'type'  => 'button',
+          'value' => $opponent_id,
+          'style' => 'primary',
+        ];
+
+      }
 
       $actions[] = [
-        'name'  => 'catch/end-battle',
-        'text'  => ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball:' : ':volleyball:' ) . ' Throw Pokéball',
+        'name'  => 'battles/complete',
+        'text'  => ':white_check_mark: Complete Battle',
         'type'  => 'button',
-        'value' => $opponent_id,
-        'style' => 'primary',
+        'value' => $battle_data->hash . '/won',
+        'style' => 'wild' === $battle_data->type ? '' : 'primary',
       ];
 
     }
-
-    $actions[] = [
-      'name'  => 'battles/complete',
-      'text'  => ':white_check_mark: Complete Battle',
-      'type'  => 'button',
-      'value' => $battle_data->hash . '/won',
-      'style' => 'wild' === $battle_data->type ? '' : 'primary',
-    ];
 
   }
 

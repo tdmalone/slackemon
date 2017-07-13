@@ -447,17 +447,7 @@ function slackemon_complete_battle(
     $message = slackemon_complete_battle_for_loser( $battle_data, $user_id, $award_xp_to_user );
   }
 
-  // Move the battle file for completion, if it hasn't been done already by the user that ran this function first.
-  global $data_folder;
-  if ( slackemon_file_exists( $data_folder . '/battles_active/' . $battle_hash, 'store' ) ) {
-
-    slackemon_rename(
-      $data_folder . '/battles_active/' . $battle_hash,
-      $data_folder . '/battles_complete/' . $battle_hash,
-      'store'
-    );
-
-  }
+  slackemon_move_completed_battle_file( $battle_hash );
 
   if ( $send_response_to_user ) {
 
@@ -1446,6 +1436,30 @@ function slackemon_get_user_complete_battles( $user_id = USER_ID ) {
   return $user_battles;
 
 } // Function slackemon_get_user_complete_battles.
+
+/**
+ * Moves the battle file for completion. Checks that the file exists first, as this function will be run twice
+ * in every battle - whichever user triggers it first is the one who will actually move the file.
+ *
+ * @param str $battle_hash The hash used to identify the battle filename.
+ */
+function slackemon_move_completed_battle_file( $battle_hash ) {
+  global $data_folder;
+  
+  if ( slackemon_file_exists( $data_folder . '/battles_active/' . $battle_hash, 'store' ) ) {
+
+    return slackemon_rename(
+      $data_folder . '/battles_active/' . $battle_hash,
+      $data_folder . '/battles_complete/' . $battle_hash,
+      'store'
+    );
+
+  }
+
+  // Return false as we didn't move anything.
+  return false;
+
+} // Function slackemon_move_completed_battle_file.
 
 function slackemon_battle_debug( $message ) {
 
