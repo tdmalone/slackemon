@@ -493,30 +493,16 @@ function slackemon_complete_battle(
 
 /**
  * Completes a winner's battle, including applying all stat changes and providing the battle results message to be
- * sent to the user. For friendly battles, most of this function's work will be skipped.
+ * sent to the user.
  *
  * @param obj  $battle_data
  * @param str  $user_id
- * @param bool $award_xp_to_user Whether or not to award the user XP. Generally always true for the winner, however
- *                               its value will be ignored for friendly battles.
+ * @param bool $award_xp_to_user Whether or not to award the user XP. Generally always true for the winner!
  */
 function slackemon_complete_battle_for_winner( $battle_data, $user_id, $award_xp_to_user ) {
 
   $is_desktop  = 'desktop' === slackemon_get_player_menu_mode( $user_id );
   $opponent_id = slackemon_get_battle_opponent_id( $battle_data->hash, $user_id );
-
-  // Not a lot to do here if it was a friendly battle!
-  if ( 'friendly' === $battle_data->challenge_type[0] ) {
-
-    slackemon_set_player_not_in_battle( $user_id );
-
-    $message = [
-      'text' => 'You won! Full message coming soon...', // TODO
-    ];
-
-    return $message;
-
-  }
 
   $winning_team = $battle_data->users->{ $user_id     }->team;
   $losing_team  = $battle_data->users->{ $opponent_id }->team;
@@ -1196,6 +1182,12 @@ function slackemon_get_user_remaining_battle_pokemon( $battle_data, $user_id, $s
 
 } // Function slackemon_get_user_remaining_battle_pokemon.
 
+/**
+ * Returns the user ID (or spawn timestamp (ts) if a wild Pokemon) of a user's battle opponent.
+ *
+ * @param obj|str $battle_data The battle data object, or a battle hash.
+ * @param str     $user_id
+ */
 function slackemon_get_battle_opponent_id( $battle_data, $user_id ) {
 
   // Accept a battle hash being passed through.
@@ -1211,6 +1203,13 @@ function slackemon_get_battle_opponent_id( $battle_data, $user_id ) {
 
 } // Function slackemon_get_battle_opponent_id.
 
+/**
+ * Returns the Pokemon object that a user is currently using in a battle.
+ *
+ * @param obj|str $battle_data The battle data object, or a battle hash.
+ * @param str     $user_id
+ * @return obj|bool Returns the object, or false on failure.
+ */
 function slackemon_get_battle_current_pokemon( $battle_data, $user_id ) {
 
   // Accept a battle hash being passed through.
@@ -1229,6 +1228,57 @@ function slackemon_get_battle_current_pokemon( $battle_data, $user_id ) {
   return false;
 
 } // Function slackemon_get_battle_current_pokemon.
+
+/**
+ * Advises whether or not a battle is over. This only means that all of one user's Pokemon have fainted; not that
+ * the battle complete routines have been invoked yet (if required - which they usually are).
+ *
+ * Designed to be used while building battle attachments, but can be called any time.
+ *
+ * @param obj|arr $battle_data_or_attachment_args Either the battle data object, or an array of arguments as provided
+ *                                                by slackemon_get_battle_attachments().
+ * @param str     $user_id                        The user ID that this function was called on behalf on. Required only
+ *                                                if battle_data is supplied as the first argument.
+ */
+function slackemon_is_battle_over( $battle_data_or_attachment_args, $user_id = null ) {
+
+  // Support both battle_data or attachment_args.
+  if ( isset( $battle_data_or_attachment_args['battle_data'] ) ) {
+    extract( $battle_data_or_attachment_args );
+  } else {
+    $battle_data                = $battle_data_or_attachment_args;
+    $opponent_id                = slackemon_get_battle_opponent_id( $battle_data, $user_id );
+    $opponent_pokemon           = slackemon_get_battle_current_pokemon( $battle_data, $opponent_id );
+    $opponent_remaining_pokemon = slackemon_get_user_remaining_battle_pokemon( $battle_data, $opponent_id );
+  }
+
+  // Has the calling user won?
+
+  $is_opponent_turn = $battle_data->turn === $opponent_id;
+  $has_user_won     = $is_opponent_turn && ! $opponent_pokemon->hp && ! $opponent_remaining_pokemon;
+
+  if ( $has_user_won ) {
+    return true;
+  }
+
+  // Has the opponent won?
+
+  // If only battle_data was supplied, there's some more data we need to get.
+  if ( ! isset( $battle_data_or_attachment_args['battle_data'] ) ) {
+    $user_pokemon           = slackemon_get_battle_current_pokemon( $battle_data, $user_id );
+    $user_remaining_pokemon = slackemon_get_user_remaining_battle_pokemon( $battle_data, $user_id );
+  }
+
+  $is_user_turn     = $battle_data->turn === $user_id;
+  $has_opponent_won = $is_user_turn && ! $user_pokemon->hp && ! $user_remaining_pokemon;
+
+  if ( $has_opponent_won ) {
+    return true;
+  }
+
+  return false;
+
+} // Function slackemon_is_battle_over.
 
 function slackemon_get_battle_hash( $ts, $user_id1, $user_id2 ) {
 
