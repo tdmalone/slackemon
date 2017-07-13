@@ -68,7 +68,7 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
     $invitee_message = [
       'text' => (
         ':stuck_out_tongue_closed_eyes: *You have been challenged ' .
-        'to a ' . slackemon_readable_challenge_type( $challenge_type ) . ' Slackémon battle ' .
+        'to a ' . slackemon_readable_challenge_type( $challenge_type ) . ' Slackémon Battle ' .
         'by ' . slackemon_get_slack_user_first_name( $inviter_id ) . '!*'
       ),
       'attachments' => [
@@ -101,7 +101,7 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
     if ( slackemon_post2slack( $invitee_message ) ) {
       $invitee_name     = $is_desktop ? slackemon_get_slack_user_full_name( $invitee_id ) : slackemon_get_slack_user_first_name( $invitee_id );
       $inviter_message  = slackemon_update_triggering_attachment(
-        ':white_check_mark: A ' . slackemon_readable_challenge_type( $challenge_type ) . ' battle challenge ' .
+        ':white_check_mark: A *' . slackemon_readable_challenge_type( $challenge_type ) . ' Battle* challenge ' .
         'has been sent to *' . $invitee_name . '*.' . "\n" .
         'I\'ll let you know when they respond!',
         $action,

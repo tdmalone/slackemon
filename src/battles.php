@@ -1389,8 +1389,8 @@ function slackemon_maybe_record_battle_seen_pokemon( $player_id, $pokedex_id ) {
 
   // First seen - time to create a new entry!
   $player_data->pokedex[] = [
-    'id' => (int) $pokedex_id,
-    'seen' => 1, // Seen in battle - this will stay at 1 until they see again in a spawn or evolve etc.
+    'id'     => (int) $pokedex_id,
+    'seen'   => 1, // Seen in battle - this will stay at 1 until they see again in a spawn or evolve etc.
     'caught' => 0,
   ];
 

@@ -272,9 +272,9 @@ function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
     }
 
     $actions[] = [
-      'name' => $action_name,
-      'text' => $menu_emoji . ' ' . ucfirst( $menu ) .' Menu',
-      'type' => 'button',
+      'name'  => $action_name,
+      'text'  => $menu_emoji . ' ' . ucfirst( $menu ) .' Menu',
+      'type'  => 'button',
       'value' => 'main',
     ];
 
@@ -282,13 +282,13 @@ function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
 
   $attachment = [
     'fallback' => 'Back to Menu',
-    'color' => '#333333',
-    'actions' => $actions,
+    'color'    => '#333333',
+    'actions'  => $actions,
   ];
 
   return $attachment;
 
-} // Function slackemon_back_to_menu_attachment
+} // Function slackemon_back_to_menu_attachment.
 
 /**
  * Returns latest news to be displayed on the main menu.

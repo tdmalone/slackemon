@@ -8,7 +8,7 @@
 function slackemon_readable_moveset( $moves, $types, $include_bullets = false, $include_pp = false ) {
 
   $output = '';
-  $moves = slackemon_sort_battle_moves( $moves, $types );
+  $moves  = slackemon_sort_battle_moves( $moves, $types );
 
   foreach ( $moves as $move ) {
 
@@ -32,13 +32,12 @@ function slackemon_readable_moveset( $moves, $types, $include_bullets = false, $
 
   return $output;
 
-} // Function slackemon_readable_moveset
+} // Function slackemon_readable_moveset.
 
 function slackemon_condensed_moveset( $moves, $types, $abbrev = false ) {
 
   $output = '';
-
-  $moves = slackemon_sort_battle_moves( $moves, $types );
+  $moves  = slackemon_sort_battle_moves( $moves, $types );
 
   foreach ( $moves as $move ) {
     if ( $output ) { $output .= " / "; }
@@ -51,7 +50,7 @@ function slackemon_condensed_moveset( $moves, $types, $abbrev = false ) {
 
   return $output;
 
-} // Function slackemon_condensed_moveset
+} // Function slackemon_condensed_moveset.
 
 function slackemon_get_gender_symbol( $gender, $space_location = 'before' ) {
 
@@ -63,7 +62,7 @@ function slackemon_get_gender_symbol( $gender, $space_location = 'before' ) {
 
   return $gender_symbols[ $gender ];
 
-} // Function slackemon_get_gender_symbol
+} // Function slackemon_get_gender_symbol.
 
 function slackemon_get_gender_pronoun( $gender ) {
 
@@ -75,7 +74,7 @@ function slackemon_get_gender_pronoun( $gender ) {
 
   return $pronouns[ $gender ];
 
-} // Function slackemon_get_gender_pronoun
+} // Function slackemon_get_gender_pronoun.
 
 function slackemon_appraise_ivs( $ivs, $include_emoji = true, $abbrev = false ) {
 
@@ -99,7 +98,7 @@ function slackemon_appraise_ivs( $ivs, $include_emoji = true, $abbrev = false ) 
 
   return $ivs_appraisal;
 
-} // Function slackemon_appraise_ivs
+} // Function slackemon_appraise_ivs.
 
 /**
  * Accepts a string of one or more Pokemon types, separated by a space, and turns them into emoji references,
@@ -131,7 +130,7 @@ function slackemon_emojify_types( $type_string, $include_text = true, $emoji_pos
 
   return $type_string;
 
-} // Function slackemon_emojify_types
+} // Function slackemon_emojify_types.
 
 function slackemon_get_type_color( $type ) {
 
@@ -162,44 +161,44 @@ function slackemon_get_type_color( $type ) {
   
   return '';
 
-} // Function slackemon_get_type_color
+} // Function slackemon_get_type_color.
 
 function slackemon_get_happiness_emoji( $happiness_rate ) {
 
-  // For reference, possible base happiness rates are 0, 35, 70, 90, 100 and 140
-  // Happiness is capped at 0 and 255
+  // For reference, possible base happiness rates are 0, 35, 70, 90, 100 and 140.
+  // Happiness is capped at 0 and 255.
 
   if ( ! $happiness_rate ) {
-    $happiness_emoji = ':unamused:'; // 0%
-  } else if ( $happiness_rate <= 10 ) { // 3%
+    $happiness_emoji = ':unamused:'; // 0%.
+  } else if ( $happiness_rate <= 10 ) { // 3%.
     $happiness_emoji = ':pensive:';
-  } else if ( $happiness_rate <= 30 ) { // 11%
+  } else if ( $happiness_rate <= 30 ) { // 11%.
     $happiness_emoji = ':disappointed:';
-  } else if ( $happiness_rate <= 50 ) { // 19%
+  } else if ( $happiness_rate <= 50 ) { // 19%.
     $happiness_emoji = ':slightly_frowning_face:';
-  } else if ( $happiness_rate <= 70 ) { // 27%
+  } else if ( $happiness_rate <= 70 ) { // 27%.
     $happiness_emoji = ':thinking_face:';
-  } else if ( $happiness_rate <= 95 ) { // 37%
+  } else if ( $happiness_rate <= 95 ) { // 37%.
     $happiness_emoji = ':neutral_face:';
-  } else if ( $happiness_rate <= 120 ) { // 47%
+  } else if ( $happiness_rate <= 120 ) { // 47%.
     $happiness_emoji = ':slightly_smiling_face:';
-  } else if ( $happiness_rate <= 150 ) { // 58%
+  } else if ( $happiness_rate <= 150 ) { // 58%.
     $happiness_emoji = ':smiley:';
-  } else if ( $happiness_rate <= 180 ) { // 70%
+  } else if ( $happiness_rate <= 180 ) { // 70%.
     $happiness_emoji = ':smile:';
-  } else if ( $happiness_rate <= 230 ) { // 90%
+  } else if ( $happiness_rate <= 230 ) { // 90%.
     $happiness_emoji = ':relaxed:';
-  } else if ( $happiness_rate <= 254 ) { // 99%
+  } else if ( $happiness_rate <= 254 ) { // 99%.
     $happiness_emoji = ':sunglasses:';
-  } else if ( $happiness_rate == 255 ) { // 100%
+  } else if ( $happiness_rate == 255 ) { // 100%.
     $happiness_emoji = ':heart_eyes:';
   } else {
-    $happiness_emoji = ''; // This shouldn't happen    
+    $happiness_emoji = ''; // This shouldn't happen.
   }
 
   return $happiness_emoji;
 
-} // Function slackemon_get_happiness_emoji
+} // Function slackemon_get_happiness_emoji.
 
 function slackemon_get_nature_emoji( $nature ) {
 
@@ -251,16 +250,18 @@ function slackemon_paginate( $objects, $page_number, $items_per_page = 5 ) {
   $total_objects = count( $objects );
   $total_pages   = ceil( $total_objects / $items_per_page );
 
-  // Default to last page if we have requested a page that no longer exists (eg. due to transferring)
+  // Default to last page if we have requested a page that no longer exists (eg. due to transferring).
   $page_number = $page_number <= $total_pages ? $page_number : $total_pages;
 
   $paginated = array_chunk( $objects, $items_per_page )[ $page_number - 1 ];
 
   return $paginated;
 
-} // Function slackemon_paginate
+} // Function slackemon_paginate.
 
-function slackemon_get_pagination_attachment( $objects, $page_number, $action_name, $items_per_page = 5, $action_value_prefix = '' ) {
+function slackemon_get_pagination_attachment(
+  $objects, $page_number, $action_name, $items_per_page = 5, $action_value_prefix = ''
+) {
 
   $total_objects = count( $objects );
   $total_pages   = ceil( $total_objects / $items_per_page );
@@ -349,27 +350,27 @@ function slackemon_get_pagination_attachment( $objects, $page_number, $action_na
 
     return $attachment;
 
-  } // If more than 1 page
+  } // If more than 1 page.
 
   return [];
 
-}  // Function slackemon_get_pagination_attachment
+}  // Function slackemon_get_pagination_attachment.
 
-// Make a system string (generally, Pokemon names, region names, etc.) human-readable
+// Make a system string (generally, Pokemon names, region names, etc.) human-readable.
 function slackemon_readable( $string, $display_gender = true, $abbrev = false ) {
 
-  // Male & Female Pokemon species, eg. Nidoran
+  // Male & Female Pokemon species, eg. Nidoran.
   $string = preg_replace( [ '/-m$/', '/-f$/' ], $display_gender ? [ '♂', '♀' ] : '', $string );
 
-  // General word capitalisation & hyphen removal
+  // General word capitalisation & hyphen removal.
   $string = ucwords( strtolower( str_replace( '-', ' ', $string ) ) );
 
-  // Ensure Roman-numeral generation numbers are capitalised correctly
+  // Ensure Roman-numeral generation numbers are capitalised correctly.
   $string = preg_replace_callback( '/\b(I|V)(i|v){1,2}\b/', function( $matches ) {
     return strtoupper( $matches[0] );
   }, $string );
 
-  // Ensure some common two-character abbreviations are capitalised correctly
+  // Ensure some common two-character abbreviations are capitalised correctly.
   $string = preg_replace([
     '/\bHp\b/',
     '/\bPp\b/',
@@ -430,53 +431,75 @@ function slackemon_readable( $string, $display_gender = true, $abbrev = false ) 
 
   return $string;
 
-} // function slackemon_readable
+} // function slackemon_readable.
 
-/** Gets a Pokemon evolution chain, highlighting the current Pokemon. */
+/**
+ * Gets a Pokemon evolution chain, highlighting the current Pokemon.
+ *
+ * @param int  $pokedex_id
+ * @param bool $return_value_if_none
+ */
 function slackemon_get_evolution_chain( $pokedex_id, $return_value_if_none = false ) {
 
   $output = '';
 
-  $pokemon_data = slackemon_get_pokemon_data( $pokedex_id );
-  $species_data = json_decode( slackemon_get_cached_url( $pokemon_data->species->url ) );
+  $pokemon_data   = slackemon_get_pokemon_data( $pokedex_id );
+  $species_data   = json_decode( slackemon_get_cached_url( $pokemon_data->species->url ) );
   $evolution_data = json_decode( slackemon_get_cached_url( $species_data->evolution_chain->url ) );
 
-  $chain = $evolution_data->chain;
+  $chain        = $evolution_data->chain;
   $pokemon_name = $pokemon_data->name;
 
   $output = slackemon_build_evolution_chain( $chain, $pokemon_name );
 
   if ( false === strpos( $output, '>' ) ) {
-    return $return_value_if_none; // Pokemon does not evolve
+    return $return_value_if_none; // Pokemon does not evolve.
   }
 
   return $output;
 
-} // Function slackemon_get_evolution_chain
+} // Function slackemon_get_evolution_chain.
 
 function slackemon_build_evolution_chain( $chain, $pokemon_name ) {
 
   $output = '';
 
-  if ( $chain->species->name === $pokemon_name ) { $output .= '_'; }
+  if ( $chain->species->name === $pokemon_name ) {
+    $output .= '_';
+  }
+
   $output .= slackemon_readable( $chain->species->name );
-  if ( $chain->species->name === $pokemon_name ) { $output .= '_'; }
+
+  if ( $chain->species->name === $pokemon_name ) {
+    $output .= '_';
+  }
 
   if ( 1 === count( $chain->evolves_to ) ) {
+
     $output .= ' > ' . slackemon_build_evolution_chain( $chain->evolves_to[0], $pokemon_name );
+
   } else if ( count( $chain->evolves_to ) > 1 ) {
+
     $output .= ' > (';
     $branched_chain = '';
+
     foreach ( $chain->evolves_to as $evolution ) {
-      if ( $branched_chain ) { $branched_chain .= ', '; }
+
+      if ( $branched_chain ) {
+        $branched_chain .= ', ';
+      }
+
       $branched_chain .= slackemon_build_evolution_chain( $evolution, $pokemon_name );
+
     }
+
     $output .= $branched_chain . ')';
+
   }
 
   return $output;
 
-} // Function slackemon_build_evolution_chain
+} // Function slackemon_build_evolution_chain.
 
 function slackemon_get_loading_indicator( $user_id = USER_ID, $include_fallback = true ) {
   
@@ -490,6 +513,6 @@ function slackemon_get_loading_indicator( $user_id = USER_ID, $include_fallback 
 
   return '';
 
-} // Function slackemon_get_loading_indicator
+} // Function slackemon_get_loading_indicator.
 
 // The end!
