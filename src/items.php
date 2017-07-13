@@ -849,7 +849,7 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
           }, trim( $_text ) );
           
           $fields[] = [
-            'title' => strtotitle( $_title ),
+            'title' => slackemon_strtotitle( $_title ),
             'value' => $_text,
             'short' => false,
           ];

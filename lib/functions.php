@@ -179,22 +179,11 @@ function slackemon_get_version_string() {
 
   return $version_string;
 
-} // Function slackemon_get_version_string
-
-/** An easy way to quickly truncate long strings, eg. task titles. */
-function maybe_truncate( $string = '', $max_chars = 100 ) {
-
-  if ( strlen( (string) $string ) > (int) $max_chars ) {
-    return trim( substr( $string, 0, $max_chars - 3 ) ) . '...';
-  } else {
-    return $string;
-  }
-
-} // Function maybe_truncate
+} // Function slackemon_get_version_string.
 
 // Converts $title to Title Case, and returns the result.
 // HT: https://www.sitepoint.com/title-case-in-php/
-function strtotitle( $title ) {
+function slackemon_strtotitle( $title ) {
 
   // Our array of 'small words' which shouldn't be capitalised if they aren't the first word
   $smallwordsarray = [
