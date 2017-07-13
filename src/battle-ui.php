@@ -151,8 +151,7 @@ function slackemon_get_top_pokemon_list( $user_id = USER_ID, $include_legendarie
  *
  * Note that this function can currently also be called on behalf of a wild Pokemon, who is technically masquerading
  * as a user in battle. This is a TODO - it should be more efficient so we can avoid these calls, but keep that in
- * mind if operating on the player data. You can use `'U' === substr( $user_id, 0, 1 )` to check if it is a real user
- * or not; some functions dealing with player data will do this for you.
+ * mind if operating on the player data, as an error will be logged by the get/save player_data functions.
  *
  * @param str $battle_hash
  * @param str $user_id

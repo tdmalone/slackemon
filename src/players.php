@@ -61,7 +61,7 @@ function slackemon_save_player_data(
 
   // Protect against a wild Pokemon in battle accidentally having its 'player data' saved.
   if ( 'U' !== substr( $user_id, 0, 1 ) ) {
-    slackemon_error_log( 'WARNING: Attempted to save player data for ' . $user_id . '.' );
+    slackemon_error_log( 'WARNING: Attempted player data save for ' . $user_id . ': ' . slackemon_debug_backtrace() );
     return false;
   }
 
@@ -98,7 +98,7 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
 
   // Protect against a wild Pokemon in battle accidentally having its 'player data' called.
   if ( 'U' !== substr( $user_id, 0, 1 ) ) {
-    slackemon_error_log( 'WARNING: Attempted to access player data for ' . $user_id . '.' );
+    slackemon_error_log( 'WARNING: Attempted player data get for ' . $user_id . ': ' . slackemon_debug_backtrace() );
     return false;
   }
 
@@ -110,10 +110,7 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
 
   // If we couldn't find the player file, store a trace to discover how we got here.
   if ( ! slackemon_file_exists( $player_filename, 'store' ) ) {
-    slackemon_error_log(
-      'WARNING: Attempted to access missing player file for ' . $user_id . '.' . PHP_EOL .
-      slackemon_debug_backtrace()
-    );
+    slackemon_error_log( 'WARNING: Missing player file for ' . $user_id . ':' . slackemon_debug_backtrace() );
     return false;
   }
 
