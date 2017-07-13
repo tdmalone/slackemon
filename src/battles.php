@@ -1291,16 +1291,32 @@ function slackemon_is_battle_over( $battle_data_or_attachment_args, $user_id = n
 
 } // Function slackemon_is_battle_over.
 
-function slackemon_get_battle_hash( $ts, $user_id1, $user_id2 ) {
+/**
+ * Generates a hash to identify a battle, based on the start time and the two users in the battle. The order of the
+ * users does not matter. Usually only used as the unique filename of an in-progress or recently completed battle
+ * (as well as the invite/challenge filename before acceptance, if applicable).
+ *
+ * @param int $ts       The timestamp representing the start of the battle (or invite send, if applicable).
+ * @param str $user_id1 One user involved in the battle.
+ * @param str $user_id2 The other user involved in the battle.
+ * @return str The computed hash.
+ */
+function slackemon_generate_battle_hash( $ts, $user_id1, $user_id2 ) {
 
-  $battle_hash_parts = [ $ts, $user_id1, $user_id2 ];
+  $battle_hash_parts = [
+    $ts,
+    $user_id1,
+    $user_id2,
+  ];
+
+  // Sort the parts so that the order they are provided in never matters.
   asort( $battle_hash_parts );
 
   $battle_hash = md5( join( '', $battle_hash_parts ) );
 
   return $battle_hash;
 
-} // Function slackemon_get_battle_hash.
+} // Function slackemon_generate_battle_hash.
 
 function slackemon_get_battle_data( $battle_hash, $allow_completed_battle = false, $for_writing = false ) {
   global $data_folder, $_cached_slackemon_battle_data;

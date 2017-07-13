@@ -1,7 +1,5 @@
 <?php
 
-// TM 08/06/2017
-
 declare( strict_types = 1 );
 
 use PHPUnit\Framework\TestCase;

@@ -415,11 +415,11 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
     return $message;
   }
 
-  $battle_ts = time();
+  $battle_ts  = time();
   $inviter_id = $user_id;
   $invitee_id = $spawn_ts;
 
-  $battle_hash = slackemon_get_battle_hash( $battle_ts, $inviter_id, $invitee_id );
+  $battle_hash = slackemon_generate_battle_hash( $battle_ts, $inviter_id, $invitee_id );
   $spawn_data  = slackemon_get_spawn_data( $spawn_ts, slackemon_get_player_region( $user_id ), $user_id );
 
   // If we have a battle team leader, start with them. Otherwise, start with a random Pokemon from the team.

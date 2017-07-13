@@ -11,9 +11,8 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
   $inviter_user_data   = slackemon_get_slack_user( $inviter_id );
   $is_desktop          = slackemon_is_desktop( $inviter_id );
 
-  $invite_ts = time();
-
-  $battle_hash = slackemon_get_battle_hash( $invite_ts, $inviter_id, $invitee_id );
+  $invite_ts   = time();
+  $battle_hash = slackemon_generate_battle_hash( $invite_ts, $inviter_id, $invitee_id );
 
   $invite_data = [
     'ts'             => $invite_ts,

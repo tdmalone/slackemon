@@ -1,7 +1,5 @@
 <?php
 
-// TM 08/06/2017
-
 declare( strict_types = 1 );
 
 use PHPUnit\Framework\TestCase;
@@ -44,7 +42,7 @@ final class TemplatingTest extends TestCase {
       return true;
     });
 
-    // Re-index the array
+    // Re-index the array.
     $pagination_actions = array_values( $pagination_actions );
 
     return $pagination_actions;
@@ -163,7 +161,7 @@ final class TemplatingTest extends TestCase {
 
   public function testJustEnoughObjectsToStartASecondPageReturnsTwoActions() {
 
-    $pagination = $this->get_pagination_response( $this->default_items_per_page + 1 );
+    $pagination         = $this->get_pagination_response( $this->default_items_per_page + 1 );
     $pagination_actions = $this->get_pagination_actions( $pagination['actions'] );
 
     $this->assertInternalType( 'array', $pagination );
@@ -173,7 +171,7 @@ final class TemplatingTest extends TestCase {
 
   public function testJustEnoughObjectsToFillFivePagesReturnsFiveActions() {
 
-    $pagination = $this->get_pagination_response( $this->default_items_per_page * 5 );
+    $pagination         = $this->get_pagination_response( $this->default_items_per_page * 5 );
     $pagination_actions = $this->get_pagination_actions( $pagination['actions'] );
 
     $this->assertInternalType( 'array', $pagination );
@@ -183,7 +181,7 @@ final class TemplatingTest extends TestCase {
 
   public function testJustEnoughObjectsToStartASixthPageStillReturnsFiveActions() {
 
-    $pagination = $this->get_pagination_response( $this->default_items_per_page * 5 + 1 );
+    $pagination         = $this->get_pagination_response( $this->default_items_per_page * 5 + 1 );
     $pagination_actions = $this->get_pagination_actions( $pagination['actions'] );
 
     $this->assertInternalType( 'array', $pagination );

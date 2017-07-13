@@ -271,54 +271,54 @@ function slackemon_get_pagination_attachment( $objects, $page_number, $action_na
     if ( $total_pages > 5 ) {
       $pagination_actions = [
         [
-          'name' => $action_name,
-          'text' => ':rewind:',
-          'type' => 'button',
+          'name'  => $action_name,
+          'text'  => ':rewind:',
+          'type'  => 'button',
           'value' => $action_value_prefix . '1',
           'style' => 1 == $page_number ? 'primary' : '',
         ], (
           $total_pages == $page_number ?
           [
-            'name' => $action_name,
-            'text' => $page_number - 2,
-            'type' => 'button',
+            'name'  => $action_name,
+            'text'  => $page_number - 2,
+            'type'  => 'button',
             'value' => $action_value_prefix . ( $page_number - 2 ),
           ] :
           ''
         ), (
           1 == $page_number ?
           '' : [
-            'name' => $action_name,
-            'text' => $page_number - 1,
-            'type' => 'button',
+            'name'  => $action_name,
+            'text'  => $page_number - 1,
+            'type'  => 'button',
             'value' => $action_value_prefix . ( $page_number - 1 ),
           ]
         ), [
-          'name' => $action_name,
-          'text' => $page_number,
-          'type' => 'button',
+          'name'  => $action_name,
+          'text'  => $page_number,
+          'type'  => 'button',
           'value' => $action_value_prefix . $page_number,
           'style' => 'primary',
         ], (
           $total_pages == $page_number ?
           '' : [
-            'name' => $action_name,
-            'text' => $page_number + 1,
-            'type' => 'button',
+            'name'  => $action_name,
+            'text'  => $page_number + 1,
+            'type'  => 'button',
             'value' => $action_value_prefix . ( $page_number + 1 ),
           ]
         ), (
           1 == $page_number ?
           [
-            'name' => $action_name,
-            'text' => $page_number + 2,
-            'type' => 'button',
+            'name'  => $action_name,
+            'text'  => $page_number + 2,
+            'type'  => 'button',
             'value' => $action_value_prefix . ( $page_number + 2 ),
           ] : ''
         ), [
-          'name' => $action_name,
-          'text' => ':fast_forward:',
-          'type' => 'button',
+          'name'  => $action_name,
+          'text'  => ':fast_forward:',
+          'type'  => 'button',
           'value' => $action_value_prefix . $total_pages,
           'style' => $total_pages == $page_number ? 'primary' : '',
         ],
@@ -327,9 +327,9 @@ function slackemon_get_pagination_attachment( $objects, $page_number, $action_na
       $pagination_actions = [];
       for ( $i = 1; $i <= $total_pages; $i++ ) {
         $pagination_actions[] = [
-          'name' => $action_name,
-          'text' => $i,
-          'type' => 'button',
+          'name'  => $action_name,
+          'text'  => $i,
+          'type'  => 'button',
           'value' => $action_value_prefix . $i,
           'style' => $i == $page_number ? 'primary' : '',
         ];
