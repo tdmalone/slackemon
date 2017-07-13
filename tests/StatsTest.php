@@ -39,19 +39,19 @@ final class StatsTest extends TestCase {
   public function testZeroIvsReturns0Percent() {
     $iv_percentage = slackemon_get_iv_percentage([ 0, 0 ]);
     $this->assertInternalType( 'int', $iv_percentage );
-    $this->assertEquals( 0, $iv_percentage );
+    $this->assertSame( 0, $iv_percentage );
   }
 
   public function testMaxIvsReturns100Percent() {
     $iv_percentage = slackemon_get_iv_percentage([ SLACKEMON_MAX_IVS, SLACKEMON_MAX_IVS ]);
     $this->assertInternalType( 'int', $iv_percentage );
-    $this->assertEquals( 100, $iv_percentage );
+    $this->assertSame( 100, $iv_percentage );
   }
 
   public function testCombinedEvsCorrectlyAddsUpMultipleEvs() {
     $combined_evs = slackemon_get_combined_evs( $this->sample_stats );
     $this->assertInternalType( 'int', $combined_evs );
-    $this->assertEquals( $this->sample_stats_total, $combined_evs );
+    $this->assertSame( $this->sample_stats_total, $combined_evs );
   }
 
   public function testCpReturnsReasonableIntegerWhenProvidedWithArray() {

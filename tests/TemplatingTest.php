@@ -84,15 +84,15 @@ final class TemplatingTest extends TestCase {
   }
 
   public function testStringWithOneTypeAddsEmojiBeforeIt() {
-    $this->assertEquals( ':type-fire: Fire', slackemon_emojify_types( 'Fire' ) );
+    $this->assertSame( ':type-fire: Fire', slackemon_emojify_types( 'Fire' ) );
   }
 
   public function testStringWithOneTypeReturnsEmojiOnly() {
-    $this->assertEquals( ':type-fire:', slackemon_emojify_types( 'Fire', false ) );
+    $this->assertSame( ':type-fire:', slackemon_emojify_types( 'Fire', false ) );
   }
 
   public function testStringWithTwoTypesAddEmojisAfterText() {
-    $this->assertEquals(
+    $this->assertSame(
       'Fire :type-fire: Water :type-water:',
       slackemon_emojify_types( 'Fire Water', true, 'after' )
     );
@@ -118,27 +118,27 @@ final class TemplatingTest extends TestCase {
 
   public function testPaginateChunkReturnsPartialChunk() {
     $objects = slackemon_paginate( [ 1, 2, 3 ], 1 );
-    $this->assertEquals( [ 1, 2, 3 ], $objects );
+    $this->assertSame( [ 1, 2, 3 ], $objects );
   }
 
   public function testPaginateChunkReturnsOneChunk() {
     $objects = slackemon_paginate( [ 1, 2, 3, 4, 5 ], 1 );
-    $this->assertEquals( [ 1, 2, 3, 4, 5 ], $objects );
+    $this->assertSame( [ 1, 2, 3, 4, 5 ], $objects );
   }
 
   public function testPaginateChunkReturnsMiddleChunk() {
     $objects = slackemon_paginate( [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ], 2 );
-    $this->assertEquals( [ 6, 7, 8, 9, 10 ], $objects );
+    $this->assertSame( [ 6, 7, 8, 9, 10 ], $objects );
   }
 
   public function testPaginateChunkReturnsLastChunk() {
     $objects = slackemon_paginate( [ 1, 2, 3, 4, 5, 6 ], 2 );
-    $this->assertEquals( [ 6 ], $objects );
+    $this->assertSame( [ 6 ], $objects );
   }
 
   public function testPaginateChunkReturnsLastChunkWhenInvalidPageGiven() {
     $objects = slackemon_paginate( [ 1, 2, 3, 4, 5, 6 ], 20 );
-    $this->assertEquals( [ 6 ], $objects );
+    $this->assertSame( [ 6 ], $objects );
   }
 
   public function testEmptyPaginationReturnsEmptyArray() {
@@ -191,53 +191,53 @@ final class TemplatingTest extends TestCase {
 
   public function testFivePagesReturnsActionButtonsForEachPage() {
 
-    $pagination = $this->get_pagination_response( $this->default_items_per_page * 5 );
+    $pagination         = $this->get_pagination_response( $this->default_items_per_page * 5 );
     $pagination_actions = $this->get_pagination_actions( $pagination['actions'] );
 
-    $this->assertEquals( '1', $pagination_actions[0]['text'] );
-    $this->assertEquals( '2', $pagination_actions[1]['text'] );
-    $this->assertEquals( '3', $pagination_actions[2]['text'] );
-    $this->assertEquals( '4', $pagination_actions[3]['text'] );
-    $this->assertEquals( '5', $pagination_actions[4]['text'] );
+    $this->assertSame( 1, $pagination_actions[0]['text'] );
+    $this->assertSame( 2, $pagination_actions[1]['text'] );
+    $this->assertSame( 3, $pagination_actions[2]['text'] );
+    $this->assertSame( 4, $pagination_actions[3]['text'] );
+    $this->assertSame( 5, $pagination_actions[4]['text'] );
 
   }
 
   public function testTenPagesOnPageOneReturnsFirstThreePagesAndPrevNextButtons() {
 
-    $pagination = $this->get_pagination_response( $this->default_items_per_page * 10, 1 );
+    $pagination         = $this->get_pagination_response( $this->default_items_per_page * 10, 1 );
     $pagination_actions = $this->get_pagination_actions( $pagination['actions'] );
 
-    $this->assertEquals( ':rewind:',       $pagination_actions[0]['text'] );
-    $this->assertEquals( '1',              $pagination_actions[1]['text'] );
-    $this->assertEquals( '2',              $pagination_actions[2]['text'] );
-    $this->assertEquals( '3',              $pagination_actions[3]['text'] );
-    $this->assertEquals( ':fast_forward:', $pagination_actions[4]['text'] );
+    $this->assertSame( ':rewind:',       $pagination_actions[0]['text'] );
+    $this->assertSame( 1,                $pagination_actions[1]['text'] );
+    $this->assertSame( 2,                $pagination_actions[2]['text'] );
+    $this->assertSame( 3,                $pagination_actions[3]['text'] );
+    $this->assertSame( ':fast_forward:', $pagination_actions[4]['text'] );
 
   }
 
   public function testTenPagesOnPageFiveReturnsOnePageEitherSideAndPrevNextButtons() {
 
-    $pagination = $this->get_pagination_response( $this->default_items_per_page * 10, 5 );
+    $pagination         = $this->get_pagination_response( $this->default_items_per_page * 10, 5 );
     $pagination_actions = $this->get_pagination_actions( $pagination['actions'] );
 
-    $this->assertEquals( ':rewind:',       $pagination_actions[0]['text'] );
-    $this->assertEquals( '4',              $pagination_actions[1]['text'] );
-    $this->assertEquals( '5',              $pagination_actions[2]['text'] );
-    $this->assertEquals( '6',              $pagination_actions[3]['text'] );
-    $this->assertEquals( ':fast_forward:', $pagination_actions[4]['text'] );
+    $this->assertSame( ':rewind:',       $pagination_actions[0]['text'] );
+    $this->assertSame( 4,                $pagination_actions[1]['text'] );
+    $this->assertSame( 5,                $pagination_actions[2]['text'] );
+    $this->assertSame( 6,                $pagination_actions[3]['text'] );
+    $this->assertSame( ':fast_forward:', $pagination_actions[4]['text'] );
 
   }
 
   public function testTenPagesOnPageTenReturnsLastThreePagesAndPrevNextButtons() {
 
-    $pagination = $this->get_pagination_response( $this->default_items_per_page * 10, 10 );
+    $pagination         = $this->get_pagination_response( $this->default_items_per_page * 10, 10 );
     $pagination_actions = $this->get_pagination_actions( $pagination['actions'] );
 
-    $this->assertEquals( ':rewind:',       $pagination_actions[0]['text'] );
-    $this->assertEquals( '8',              $pagination_actions[1]['text'] );
-    $this->assertEquals( '9',              $pagination_actions[2]['text'] );
-    $this->assertEquals( '10',             $pagination_actions[3]['text'] );
-    $this->assertEquals( ':fast_forward:', $pagination_actions[4]['text'] );
+    $this->assertSame( ':rewind:',       $pagination_actions[0]['text'] );
+    $this->assertSame( 8,                $pagination_actions[1]['text'] );
+    $this->assertSame( 9,                $pagination_actions[2]['text'] );
+    $this->assertSame( 10,               $pagination_actions[3]['text'] );
+    $this->assertSame( ':fast_forward:', $pagination_actions[4]['text'] );
 
   }
 
