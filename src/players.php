@@ -523,7 +523,7 @@ function slackemon_scaffold_player_file( $spawn_count = 10, $user_id = USER_ID )
   ];
 
   $player_data  = slackemon_get_player_data( $user_id, true );
-  $spawn_region = slackemon_get_player_region();
+  $spawn_region = slackemon_get_player_region( $user_id );
 
   // Since we have already cleaned up all prior spawns to ensure uniqueness, we'll go back at least a minute plus
   // our total spawn count in seconds, and then increment the timestamp after each spawn. This ensures that even if
