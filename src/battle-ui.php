@@ -206,16 +206,15 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
   extract( $attachment_args );
 
   $battle_actions      = slackemon_get_battle_actions( $attachment_args );
-  $opponent_first_name = slackemon_get_battle_opponent_first_name( $attachment_args );
+  $opponent_first_name = slackemon_get_battle_opponent_first_name( $battle_data, $user_id );
   $celebration_emoji   = ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :party_parrot:' : '' );  
 
   // For friendly battles, we will end the battle now, as there's nothing else for the user to do or acknowledge.
-  if ( slackemon_is_friendly_battle( $battle_data ) && slackemon_is_battle_over( $attachment_args ) )
+  if ( slackemon_is_friendly_battle( $battle_data ) && slackemon_is_battle_over( $attachment_args ) ) {
     slackemon_set_player_not_in_battle( $user_id );
   }
 
-  $attachments = [];
-  $pretext     = $this_move_notice . "\n\n";
+  $pretext = $this_move_notice . "\n\n";
 
   if ( $user_pokemon->hp ) {
 
@@ -258,15 +257,15 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
 
     }
 
-    $attachments[] = [
+    $attachment = [
       'pretext' => $pretext,
-      'color'   => $user_has_won ? 'good' : '#333333',
+      'color'   => $has_user_won ? 'good' : '#333333',
       'actions' => $battle_actions,
     ];
 
   } else if ( $user_remaining_pokemon ) {
 
-    $attachments[] = slackemon_offer_battle_swap( $battle_data->hash, $user_id );
+    $attachment = slackemon_offer_battle_swap( $battle_data->hash, $user_id );
 
   } else {
 
@@ -278,7 +277,7 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
       $pretext .= 'Click the _Complete_ button to get your XP bonus and see your Pokémon.';
     }
 
-    $attachments[] = [
+    $attachment = [
 
       'pretext' => $pretext,
       'color'   => 'danger',
@@ -321,18 +320,14 @@ function slackemon_get_battle_actions( $attachment_args ) {
       'name'          => 'battles/move',
       'text'          => 'Make a Move',
       'type'          => 'select',
-      'options'       => (
-        slackemon_get_battle_move_options( $battle_data, $battle_stage, $user_id, $user_pokemon )
-      ),
+      'options'       => slackemon_get_battle_move_options( $attachment_args ),
     ];
 
     $actions[] = [
       'name'          => 'battles/item',
       'text'          => 'Use Item',
       'type'          => 'select',
-      'option_groups' => (
-        slackemon_get_battle_item_option_groups( $battle_data, $battle_stage, $user_id, $user_pokemon )
-      ),
+      'option_groups' => slackemon_get_battle_item_option_groups( $attachment_args ),
     ];
 
     // TODO: At the moment, flee is only available for wild battles.
@@ -753,7 +748,7 @@ function slackemon_get_battle_pokemon_attachments( $attachment_args, $player_typ
 
   // Show pretext on top of the attachment if this is the opponent attachment.
   if ( 'opponent' === $player_type ) {
-    $pretext = slackemon_get_battle_opponent_pretext( $battle_data, $opponent_pokemon );
+    $pretext = slackemon_get_battle_opponent_pretext( $battle_data, $battle_stage, $opponent_pokemon );
   }
 
   // Build the status attachment.
@@ -873,8 +868,10 @@ function slackemon_get_battle_visual_hp( $pokemon ) {
 
 } // Function slackemon_get_battle_visual_hp.
 
-function slackemon_get_battle_opponent_pretext( $battle_data, $opponent_pokemon ) {
-    
+function slackemon_get_battle_opponent_pretext( $battle_data, $battle_stage, $opponent_pokemon ) {
+
+  $opponent_pretext = '';
+
   switch ( $battle_stage ) {
 
     case 'start': // Brand new battle is starting.

@@ -438,15 +438,21 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
     'hash'           => $battle_hash,
     'type'           => 'wild',
     'challenge_type' => [ 'standard' ], // Different challenge types are not supported for wild battles.
-    'users' => [
+    'users'          => [
       $inviter_id => [
-        'team'         => [ 'ts' . $inviter_pokemon->ts => $inviter_pokemon ],
-        'status'       => [ 'current' => $inviter_pokemon->ts ],
+        'team'   => [ 'ts' . $inviter_pokemon->ts => $inviter_pokemon ],
+        'status' => [
+          'current'         => $inviter_pokemon->ts,
+          'swaps_remaining' => SLACKEMON_BATTLE_SWAP_LIMIT,
+        ],
         'response_url' => RESPONSE_URL,
       ],
       $invitee_id => [
-        'team'         => [ 'ts' . $invitee_pokemon->ts => $invitee_pokemon ],
-        'status'       => [ 'current' => $invitee_pokemon->ts ],
+        'team'   => [ 'ts' . $invitee_pokemon->ts => $invitee_pokemon ],
+        'status' => [
+          'current' => $invitee_pokemon->ts,
+          'swaps_remaining' => SLACKEMON_BATTLE_SWAP_LIMIT,
+        ],
         'response_url' => false,
       ],
     ],

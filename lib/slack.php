@@ -164,26 +164,26 @@ function slackemon_post2slack( $payload ) {
 function slackemon_prepare_attachments_for_slack( $attachments ) {
 
   // Bow out now if we received no attachments or an otherwise invalid payload.
-  if ( ! is_array( $payload['attachments'] ) || ! count( $payload['attachments'] ) ) {
+  if ( ! is_array( $attachments ) || ! count( $attachments ) ) {
     return $attachments;
   }
 
-  foreach ( $payload['attachments'] as &$_attachment ) {
+  foreach ( $attachments as &$_attachment ) {
 
     if ( is_array( $_attachment ) ) {
       $_attachment['mrkdwn_in'] = SLACKEMON_MRKDWN_IN;
+
+      if ( isset( $_attachment['actions'] ) ) {
+        $_attachment['callback_id'] = SLACKEMON_ACTION_CALLBACK_ID;
+      }
     }
 
     if ( is_object( $_attachment ) ) {
       $_attachment->mrkdwn_in = SLACKEMON_MRKDWN_IN;
-    }
 
-    if ( isset( $_attachment['actions'] ) ) {
-      $_attachment['callback_id'] = SLACKEMON_ACTION_CALLBACK_ID;
-    }
-
-    if ( isset( $_attachment->actions ) ) {
-      $_attachment->callback_id = SLACKEMON_ACTION_CALLBACK_ID;
+      if ( isset( $_attachment->actions ) ) {
+        $_attachment->callback_id = SLACKEMON_ACTION_CALLBACK_ID;
+      }
     }
 
   }

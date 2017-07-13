@@ -237,20 +237,20 @@ function slackemon_start_battle( $battle_hash, $action ) {
     'challenge_type' => $invite_data->challenge_type,
     'users'          => [
       $inviter_id => [
-        'team'            => $inviter_battle_team,
-        'status'          => [
+        'team'   => $inviter_battle_team,
+        'status' => [
           'current'         => false,
           'swaps_remaining' => SLACKEMON_BATTLE_SWAP_LIMIT,
         ],
-        'response_url'    => '', // Not available until the inviter is given an action to perform.
+        'response_url' => '', // Not available until the inviter is given an action to perform.
       ],
       $invitee_id => [
-        'team'            => $invitee_battle_team,
-        'status'          => [
+        'team'   => $invitee_battle_team,
+        'status' => [
           'current'         => false,
           'swaps_remaining' => SLACKEMON_BATTLE_SWAP_LIMIT,
         ],
-        'response_url'    => RESPONSE_URL,
+        'response_url' => RESPONSE_URL,
       ],
     ],
     'last_move_ts' => time(),
@@ -393,7 +393,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
         case 'wild':
 
-          $user_pokemon = $battle_data->users->{ $user_id }->team[0];
+          $user_pokemon = slackemon_get_battle_current_pokemon( $battle_data, $user_id );
           
           $user_pokemon_message = '';
 
@@ -891,7 +891,7 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
   // Is this move a swap?
   if ( $options['is_swap'] ) {
 
-    $old_pokemon    = slackemon_get_battle_current_pokemon( $battle_hash, $user_id );
+    $old_pokemon    = slackemon_get_battle_current_pokemon( $battle_data, $user_id );
     $battle_team    = $battle_data->users->{ $user_id }->team;
 
     foreach ( $battle_team as $_pokemon ) {
@@ -919,14 +919,14 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
     );
 
     // Get the current Pokemon (incl. the new Pokemon for the current user).
-    $user_pokemon     = slackemon_get_battle_current_pokemon( $battle_hash, $user_id );
-    $opponent_pokemon = slackemon_get_battle_current_pokemon( $battle_hash, $opponent_id );
+    $user_pokemon     = slackemon_get_battle_current_pokemon( $battle_data, $user_id );
+    $opponent_pokemon = slackemon_get_battle_current_pokemon( $battle_data, $opponent_id );
 
   // This move is a traditional battle move.
   } else {
 
-    $user_pokemon     = slackemon_get_battle_current_pokemon( $battle_hash, $user_id );
-    $opponent_pokemon = slackemon_get_battle_current_pokemon( $battle_hash, $opponent_id );
+    $user_pokemon     = slackemon_get_battle_current_pokemon( $battle_data, $user_id );
+    $opponent_pokemon = slackemon_get_battle_current_pokemon( $battle_data, $opponent_id );
 
     // Get the move from the Pokemon's known moves.
     foreach ( $user_pokemon->moves as $_move ) {
@@ -1159,7 +1159,7 @@ function slackemon_get_user_remaining_battle_pokemon( $battle_data, $user_id, $s
   $remaining_pokemon = 0;
 
   if ( $skip_current ) {
-    $current_pokemon = slackemon_get_battle_current_pokemon( $battle_data->hash, $user_id );
+    $current_pokemon = slackemon_get_battle_current_pokemon( $battle_data, $user_id );
   }
 
   foreach ( $battle_data->users->{ $user_id }->team as $_pokemon ) {
