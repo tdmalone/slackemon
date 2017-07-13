@@ -390,7 +390,6 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
           slackemon_get_gender_symbol( $spawn['gender'] ) .
           ' has just appeared! [SEEN_CAUGHT]'
         ),
-        'mrkdwn_in' => [ 'pretext', 'text' ],
         'color' => slackemon_get_color_as_hex( $species_data->color->name ),
         'image_url' => slackemon_get_cached_image_url(
           SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $spawn['name'] . '.gif'
@@ -427,11 +426,9 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
             'short' => true, // WARNING: This attachment & field key will be set false below if not on desktop mode
           ],
         ],
-        'mrkdwn_in' => [ 'text', 'fields' ],
       ], [
         'title' => 'What would you like to do?',
         'color' => '#333333',
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
         'actions' => [
           [
             'name'  => 'catch',

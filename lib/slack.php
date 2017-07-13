@@ -19,6 +19,11 @@ function slackemon_send2slack( $payload, $hook_url = '' ) {
   // Unlike Slack, default to mrkdwn being turned on if we haven't explicitly turned it off
   $payload['mrkdwn'] = isset( $payload['mrkdwn'] ) ? $payload['mrkdwn'] : true;
 
+  // Prepare attachments, including ensuring mrkdwn is switched on for each one & parsing in an action callback ID.
+  if ( isset( $payload['attachments'] ) ) {
+    $payload['attachments'] = slackemon_prepare_attachments_for_slack( $payload['attachments'] );
+  }
+
   // Attempt to include a username and icon, if we have one
   // Note that in responses to Slack app response_url's, username and icon replacements are ignored by Slack
   if ( defined( 'COMMAND' ) ) {
@@ -74,8 +79,8 @@ function slackemon_send2slack( $payload, $hook_url = '' ) {
   $result = slackemon_get_url(
     $hook_url,
     [
-      'curl_options' => $curl_options,
-      'skip_error_reporting' => true, // We must skip error reporting, because error sending uses send2slack()!
+      'curl_options'         => $curl_options,
+      'skip_error_reporting' => true, // We must skip error reporting, because error sending uses this function!
     ]
   );
 
@@ -98,6 +103,11 @@ function slackemon_post2slack( $payload ) {
 
   // Add Slack API token
   $payload['token'] = SLACKEMON_SLACK_KEY;
+
+  // Prepare attachments, including ensuring mrkdwn is switched on for each one & parsing in an action callback ID.
+  if ( isset( $payload['attachments'] ) ) {
+    $payload['attachments'] = slackemon_prepare_attachments_for_slack( $payload['attachments'] );
+  }
 
   // Attempt to include a username and icon, if we have one
   // Note that responses to Slack app response_url's, username and icon replacements are ignored
@@ -138,7 +148,71 @@ function slackemon_post2slack( $payload ) {
 
   return $response;
 
-} // Function slackemon_post2slack
+} // Function slackemon_post2slack.
+
+/**
+ * Prepares attachments to be sent to Slack. This is used to set some defaults which we know we will always want,
+ * including ensuring mrkdwn is switched on for every property we might want to use it in, and parsing in our action
+ * callback ID if we have included actions.
+ *
+ * Designed to be called by slackemon_send2slack and slackemon_post2slack.
+ * 
+ * @param arr $attachments The current attachments on the message. Accepts either an array of arrays or an array of
+ *                         objects.
+ * @return arr The modified attachments.
+ */
+function slackemon_prepare_attachments_for_slack( $attachments ) {
+
+  // Bow out now if we received no attachments or an otherwise invalid payload.
+  if ( ! is_array( $payload['attachments'] ) || ! count( $payload['attachments'] ) ) {
+    return $attachments;
+  }
+
+  foreach ( $payload['attachments'] as &$_attachment ) {
+
+    if ( is_array( $_attachment ) ) {
+      $_attachment['mrkdwn_in'] = SLACKEMON_MRKDWN_IN;
+    }
+
+    if ( is_object( $_attachment ) ) {
+      $_attachment->mrkdwn_in = SLACKEMON_MRKDWN_IN;
+    }
+
+    if ( isset( $_attachment['actions'] ) ) {
+      $_attachment['callback_id'] = SLACKEMON_ACTION_CALLBACK_ID;
+    }
+
+    if ( isset( $_attachment->actions ) ) {
+      $_attachment->callback_id = SLACKEMON_ACTION_CALLBACK_ID;
+    }
+
+  }
+
+  return $attachments;
+
+} // Function slackemon_prepare_attachments_for_slack.
+
+function slackemon_do_action_response( $message ) {
+  global $data_folder;
+
+  if ( is_string( $message ) ) {
+    $message = [ 'text' => $message ];
+  }
+
+  // Unless we say otherwise, we always want to replace the original message
+  if ( ! isset( $message['replace_original' ] ) ) {
+    $message['replace_original'] = true;
+  }
+
+  $result = slackemon_send2slack( $message );
+
+  if ( 'development' === APP_ENV ) {
+    file_put_contents( $data_folder . '/last-action-response', $result );
+  }
+
+  return $result;
+
+} // Function slackemon_do_action_response.
 
 /**
  * Assists with long-waiting actions, including while waiting to acquire a file lock, by advising the user and ensuring

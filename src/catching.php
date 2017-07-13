@@ -237,8 +237,6 @@ function slackemon_get_catch_message(
           )
         )
       ),
-      'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-      'mrkdwn_in' => [ 'text' ],
       'actions' => [
         [
           'name' => 'menu',

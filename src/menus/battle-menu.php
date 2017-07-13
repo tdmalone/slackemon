@@ -330,8 +330,6 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID,
     'fields'      => [],
     'thumb_url'   => $player_user_data->profile->image_192,
     'color'       => $player_user_data->color,
-    'mrkdwn_in'   => [ 'pretext', 'text', 'fields', 'footer' ],
-    'callback_id' => SLACKEMON_ACTION_CALLBACK_ID
   ];
 
   if ( $invite_hash ) {
@@ -468,7 +466,6 @@ function slackemon_get_battle_menu_add_attachment( $count_helper = 'a' ) {
   $attachment = [
     'text'      => '*Select ' . $count_helper . ' Pokémon to add to your battle team:*',
     'color'     => '#333333',
-    'mrkdwn_in' => [ 'text' ],
     'actions'   => [
       array_merge(
         [

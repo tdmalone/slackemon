@@ -361,7 +361,6 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
           'attachments' => [
             [
               'fallback' => 'Complete Battle',
-              'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
               'actions' => [
                 [
                   'name' => 'battles/complete',

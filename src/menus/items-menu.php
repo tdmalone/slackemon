@@ -148,7 +148,6 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
         'actions'   => $actions,
         'color'     => '#333333',
         'thumb_url' => $is_desktop ? $categories[ $category_chunk[ array_rand( $category_chunk ) ] ]['first_image'] : '',
-        'mrkdwn_in' => [ 'text' ],
       ];
 
     } // Foreach category_chunk

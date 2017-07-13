@@ -149,7 +149,6 @@ function slackemon_notify_item_spawn( $spawn ) {
         'fallback'  => 'You found a ' . slackemon_readable( $item_data->name ) . '!',
         'text'      => $spawn['description'],
         'color'     => '#333333',
-        'mrkdwn_in' => [ 'pretext', 'text' ],
         'fields'    => [
           [
             'title' => 'Value',
@@ -165,7 +164,6 @@ function slackemon_notify_item_spawn( $spawn ) {
       ], [
         'title' => 'What would you like to do?',
         'color' => '#333333',
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
         'actions' => [
           [
             'name'  => 'items/pick-up',
@@ -989,7 +987,6 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
       $description
     ),
     'fields'    => $fields,
-    'mrkdwn_in' => [ 'text' ],
     'color'     => '#333333',
     'thumb_url' => slackemon_get_cached_image_url( $item_data->sprites->default ),
     'actions'   => $actions,

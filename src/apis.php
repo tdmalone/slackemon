@@ -231,58 +231,6 @@ function slackemon_update_triggering_attachment( $new_attachment, $action, $send
 
 } // Function slackemon_update_attachment
 
-function slackemon_do_action_response( $message ) {
-  global $data_folder;
-
-  if ( is_string( $message ) ) {
-    $message = [ 'text' => $message ];
-  }
-
-  // Unless we say otherwise, we always want to replace the original message
-  if ( ! isset( $message['replace_original' ] ) ) {
-    $message['replace_original'] = true;
-  }
-
-  // Unless we say otherwise, let Slack assume we've included mrkdwn almost everywhere in our attachments
-  // Also, if we've set action buttons, make sure we set the callback ID as well
-  if ( isset( $message['attachments'] ) ) {
-    foreach ( $message['attachments'] as $key => $attachment ) {
-
-      if ( is_array( $attachment ) ) {
-
-        if ( ! isset( $attachment['mrkdwn_in'] ) ) {
-          $message['attachments'][ $key ]['mrkdwn_in'] = [ 'pretext', 'text', 'fields', 'footer' ];
-        }
-
-        if ( isset( $attachment['actions'] ) ) {
-          $message['attachments'][ $key ]['callback_id'] = SLACKEMON_ACTION_CALLBACK_ID;
-        }
-
-      } else {
-
-        if ( ! isset( $attachment->mrkdwn_in ) ) {
-          $message['attachments'][ $key ]->mrkdwn_in = [ 'pretext', 'text', 'fields', 'footer' ];
-        }
-
-        if ( isset( $attachment->actions ) ) {
-          $message['attachments'][ $key ]->callback_id = SLACKEMON_ACTION_CALLBACK_ID;
-        }
-
-      }
-
-    } // Foreach attachment
-  } // If message has attachments
-
-  $result = slackemon_send2slack( $message );
-
-  if ( 'development' === APP_ENV ) {
-    file_put_contents( $data_folder . '/last-action-response', $result );
-  }
-
-  return $result;
-
-} // Function slackemon_do_action_response
-
 function slackemon_get_flavour_text( $object, $clean_up = true ) {
 
   $flavour_text = '';

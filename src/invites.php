@@ -84,7 +84,6 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
               'clicking through to your Pokémon list. If you don\'t, you\'ll be battling with a random selection of ' .
               'your Pokémon instead!_'
             ),
-            'mrkdwn_in' => [ 'pretext' ],
           ]
         ),
         slackemon_back_to_menu_attachment(),

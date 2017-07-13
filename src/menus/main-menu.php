@@ -99,7 +99,6 @@ function slackemon_get_main_menu() {
           ( $is_desktop ? ' (' . $total_caught . ' total)' : '' )
         ),
         'color' => 'good',
-        'mrkdwn_in' => [ 'text' ],
       ], [
         'text' => (
           slackemon_is_player_muted() ?
@@ -137,20 +136,16 @@ function slackemon_get_main_menu() {
           'danger' :
           ( $most_recent_pokemon ? slackemon_get_color_as_hex( $most_recent_species_data->color->name ) : '' )
         ),
-        'mrkdwn_in' => [ 'text' ],
       ], (
         count( $latest_news ) ?
         [
           'color'     => '#333333',
           'text'      => '*Lᴀᴛᴇsᴛ Nᴇᴡs*' . "\n" . join( "\n", $latest_news ), // Latest News.
-          'mrkdwn_in' => [ 'text' ],
         ] :
         []
       ), [
         'text'        => '*Mᴀɪɴ Mᴇɴᴜ*', // Main Menu.
-        'mrkdwn_in'   => [ 'text' ],
         'color'       => '#333333',
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
         'actions'     => [
           [
             'name'  => 'pokemon/list',
@@ -197,7 +192,6 @@ function slackemon_get_main_menu() {
           $version_string . ' - ' .
           $players_online . ' player' . ( 1 === $players_online ? '' : 's' ) . ' online'
         ),
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
         'actions'     => [
           (
             slackemon_is_player_in_battle() ?
@@ -289,7 +283,6 @@ function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
   $attachment = [
     'fallback' => 'Back to Menu',
     'color' => '#333333',
-    'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
     'actions' => $actions,
   ];
 
