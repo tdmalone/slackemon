@@ -60,8 +60,8 @@ function slackemon_save_player_data(
   global $data_folder, $_cached_slackemon_player_data;
 
   // Protect against a wild Pokemon in battle accidentally having its 'player data' saved.
-  if ( 'U' !== substr( $user_id, 0, 1 ) ) {
-    slackemon_error_log( 'WARNING: Attempted player data save for ' . $user_id . ': ' . slackemon_debug_backtrace() );
+  if ( ! slackemon_is_user_human( $user_id ) ) {
+    slackemon_error_log( 'WARNING: Attempted player data save - ' . $user_id . ': ' . slackemon_debug_backtrace( 0 ) );
     return false;
   }
 
@@ -97,8 +97,8 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
   global $data_folder, $_cached_slackemon_player_data;
 
   // Protect against a wild Pokemon in battle accidentally having its 'player data' called.
-  if ( 'U' !== substr( $user_id, 0, 1 ) ) {
-    slackemon_error_log( 'WARNING: Attempted player data get for ' . $user_id . ': ' . slackemon_debug_backtrace() );
+  if ( ! slackemon_is_user_human( $user_id ) ) {
+    slackemon_error_log( 'WARNING: Attempted player data get - ' . $user_id . ': ' . slackemon_debug_backtrace( 0 ) );
     return false;
   }
 
@@ -110,7 +110,7 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
 
   // If we couldn't find the player file, store a trace to discover how we got here.
   if ( ! slackemon_file_exists( $player_filename, 'store' ) ) {
-    slackemon_error_log( 'WARNING: Missing player file for ' . $user_id . ':' . slackemon_debug_backtrace() );
+    slackemon_error_log( 'WARNING: Missing player file - ' . $user_id . ':' . slackemon_debug_backtrace( 0 ) );
     return false;
   }
 
@@ -575,9 +575,9 @@ function slackemon_scaffold_player_file( $spawn_count = 10, $user_id = USER_ID )
 
     }
 
-  } // For spawn_count
+  } // For spawn_count.
 
-  // Increment seen & caught values in the Pokedex
+  // Increment seen & caught values in the Pokedex.
   foreach ( $spawned_ids as $spawned_id ) {
 
     $found_entry = false;
@@ -604,10 +604,22 @@ function slackemon_scaffold_player_file( $spawn_count = 10, $user_id = USER_ID )
 
     }
 
-  } // Foreach spawned_ids
+  } // Foreach spawned_ids.
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_scaffold_player_file
+} // Function slackemon_scaffold_player_file.
+
+/**
+ * Determines if a user ID belongs to a human user or not. Useful to determine during wild battles whether a user ID
+ * perhaps belongs to a wild Pokemon or not.
+ *
+ * @param str $user_id The user ID to check.
+ */
+function slackemon_is_user_human( $user_id ) {
+
+  return 'U' === substr( $user_id, 0, 1 );
+
+}
 
 // The end!

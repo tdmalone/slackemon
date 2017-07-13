@@ -99,7 +99,7 @@ function slackemon_do_battle_updates() {
     if ( 'p2p' !== $_battle->type ) {
 
       if (
-        'U' === substr( $user_id, 0, 1 ) &&
+        slackemon_is_user_human( $user_id ) &&
         $_battle->last_move_ts < max( time() - SLACKEMON_FLEE_TIME_LIMIT, $twenty_five_minutes_ago )
       ) {
 
@@ -884,7 +884,7 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
   // Update the last move time to now.
   $battle_data->last_move_ts = time();
 
-  if ( 'p2p' === $battle_data->type || 'U' === substr( $user_id, 0, 1 ) ) {
+  if ( 'p2p' === $battle_data->type || slackemon_is_user_human( $user_id ) ) {
     $battle_data->users->{ $user_id }->response_url = RESPONSE_URL;
   }
 
@@ -1049,32 +1049,42 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
   }
 
   // Notify the user.
-  $this_move_notice_user = $options['previous_move_notice'] . 'You ' . $move_message;
-  $user_message = [
-    'attachments'      => slackemon_get_battle_attachments( $battle_hash, $user_id, 'during', $this_move_notice_user ),
-    'replace_original' => true,
-  ];
+  if ( slackemon_is_user_human( $user_id ) ) {
+
+    $this_move_notice_user = $options['previous_move_notice'] . 'You ' . $move_message;
+
+    $user_message = [
+      'attachments'      => (
+        slackemon_get_battle_attachments( $battle_hash, $user_id, 'during', $this_move_notice_user )
+      ),
+      'replace_original' => true,
+    ];
+
+  }
 
   // Notify the opponent.
+  if ( slackemon_is_user_human( $opponent_id ) ) {
 
-  $user_first_name = (
-    'wild' === $battle_data->type ?
-    slackemon_readable( $user_pokemon->name ) :
-    slackemon_get_slack_user_first_name( $user_id )
-  );
+    $user_first_name = (
+      'wild' === $battle_data->type ?
+      slackemon_readable( $user_pokemon->name ) :
+      slackemon_get_slack_user_first_name( $user_id )
+    );
 
-  $this_move_notice_opponent = $options['previous_move_notice'] . $user_first_name . ' ' . $move_message;
+    $this_move_notice_opponent = $options['previous_move_notice'] . $user_first_name . ' ' . $move_message;
 
-  $opponent_message = [
-    'attachments' => (
-      slackemon_get_battle_attachments(
-        $battle_hash,
-        $opponent_id,
-        $options['is_first_move'] ? 'first' : 'during',
-        $this_move_notice_opponent
-      )
-    ),
-  ];
+    $opponent_message = [
+      'attachments' => (
+        slackemon_get_battle_attachments(
+          $battle_hash,
+          $opponent_id,
+          $options['is_first_move'] ? 'first' : 'during',
+          $this_move_notice_opponent
+        )
+      ),
+    ];
+
+  }
   
   if ( 'p2p' === $battle_data->type ) {
 
@@ -1095,7 +1105,7 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
     // This is not a p2p battle, so, we need to determine which user is which, send a response to the human user, and
     // then if it was the human user who just moved, we need to make a move for the opponent.
 
-    if ( 'U' === substr( $user_id, 0, 1 ) ) {
+    if ( slackemon_is_user_human( $user_id ) ) {
 
       slackemon_send2slack( $user_message, RESPONSE_URL );
 
@@ -1133,6 +1143,7 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
 
     } else {
 
+      // User is not a human, so just send the message to the opponent.
       slackemon_send2slack( $opponent_message, RESPONSE_URL );
 
     } // If last move was from human user.
