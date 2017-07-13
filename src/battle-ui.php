@@ -282,11 +282,13 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
       'color'   => 'danger',
 
       'actions' => [
-        'name'  => 'battles/complete',
-        'text'  => 'Complete Battle',
-        'type'  => 'button',
-        'value' => $battle_data->hash . '/lost',
-        'style' => 'primary',
+        [
+          'name'  => 'battles/complete',
+          'text'  => 'Complete Battle',
+          'type'  => 'button',
+          'value' => $battle_data->hash . '/lost',
+          'style' => 'primary',
+        ],
       ],
 
     ];
@@ -747,7 +749,7 @@ function slackemon_get_battle_pokemon_attachments( $attachment_args, $player_typ
 
   // Show pretext on top of the attachment if this is the opponent attachment.
   if ( 'opponent' === $player_type ) {
-    $pretext = slackemon_get_battle_opponent_pretext( $battle_data, $battle_stage, $opponent_pokemon );
+    $pretext = slackemon_get_battle_opponent_pretext( $battle_data, $battle_stage, $user_id, $opponent_pokemon );
   }
 
   // Build the status attachment.
@@ -867,9 +869,10 @@ function slackemon_get_battle_visual_hp( $pokemon ) {
 
 } // Function slackemon_get_battle_visual_hp.
 
-function slackemon_get_battle_opponent_pretext( $battle_data, $battle_stage, $opponent_pokemon ) {
+function slackemon_get_battle_opponent_pretext( $battle_data, $battle_stage, $user_id, $opponent_pokemon ) {
 
-  $opponent_pretext = '';
+  $opponent_pretext    = '';
+  $opponent_first_name = slackemon_get_battle_opponent_first_name( $battle_data, $user_id );
 
   switch ( $battle_stage ) {
 
