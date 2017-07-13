@@ -239,7 +239,36 @@ function slackemon_get_nature_emoji( $nature ) {
   
   return '';
 
-} // Function slackemon_get_nature_emoji
+} // Function slackemon_get_nature_emoji.
+
+/**
+ * Returns emoji representing battle challenge types.
+ *
+ * @param str $challenge_type
+ * @return str
+ */
+function slackemon_get_battle_challenge_emoji( $challenge_type ) {
+
+  $emoji = [
+    'normal'         => ':facepunch:',
+    'friendly'       => ':heart:',
+    'fast'           => ':fast_forward:',
+    'double-xp'      => ':part_alternation_mark:',
+    'legendary'      => ':star2:',
+    'type-inverse'   => ':left_right_arrow:',
+    'unlimited-swap' => ':arrows_counterclockwise:',
+    'random-team'    => ':grey_question:', // TODO: This could get confusing in battle due to the unseen Pokemon emoji.
+    'no-pp'          => ':rage:',          // TODO: Is this the most appropriate?
+    'level'          => '',                // TODO: Need to determine.
+  ];
+
+  if ( isset( $emoji[ $challenge_type ] ) ) {
+    return $emoji[ $challenge_type ];
+  }
+  
+  return '';
+
+} // Function slackemon_get_battle_challenge_emoji.
 
 function slackemon_get_color_as_hex( $color_name ) {
   return slackemon_rgb2hex( COLORS_BY_NAME[ $color_name ] );

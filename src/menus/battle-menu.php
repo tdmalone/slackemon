@@ -172,17 +172,25 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
         'text'    => 'Standard Challenges',
         'options' => [
           [
-            'text'  => $legendary_prefix . 'Normal Battle' . ( $is_desktop ? ' :facepunch:' : '' ) . $legendary_suffix,
+            'text'  => (
+              $legendary_prefix . 'Normal Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'normal' ) : '' ) .
+              $legendary_suffix
+            ),
             'value' => 'normal',
           ],
           [
-            'text'  => $available_prefix . 'Friendly Battle' . ( $is_desktop ? ' :heart:' : '' ) . $available_suffix,
+            'text'  => (
+              $available_prefix . 'Friendly Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'friendly' ) : '' ) .
+              $available_suffix
+            ),
             'value' => 'friendly',
           ],
           [
             'text'  => (
               $legendary_prefix . 'Fast Battle' .
-              ( $is_desktop ? ' :fast_forward:' : '' ) .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'fast' ) : '' ) .
               $legendary_suffix
             ),
             'value' => 'fast',
@@ -190,19 +198,23 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
           [
             'text'  => (
               $legendary_prefix . 'Double XP Battle' .
-              ( $is_desktop ? ' :part_alternation_mark:' : '' ) .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'double-xp' ) : '' ) .
               $legendary_suffix
             ),
             'value' => 'double-xp',
           ],
           [
-            'text'  => $available_prefix . 'Legendary Battle' . ( $is_desktop ? ' :star2:' : '' ) . $available_suffix,
+            'text'  => (
+              $available_prefix . 'Legendary Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'legendary' ) : '' ) .
+              $available_suffix
+            ),
             'value' => 'legendary',
           ],
           [
             'text'  => (
               $legendary_prefix . 'Type Inverse Battle' .
-              ( $is_desktop ? ' :left_right_arrow:' : '' ) .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'type-inverse' ) : '' ) .
               $legendary_suffix
             ),
             'value' => 'type-inverse',
@@ -210,7 +222,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
           [
             'text'  => (
               $legendary_prefix . 'Unlimited Swap Battle' .
-              ( $is_desktop ? ' :arrows_counterclockwise:' : '' ) .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'unlimited-swap' ) : '' ) .
               $legendary_suffix
             ),
             'value' => 'unlimited-swap',
@@ -218,13 +230,17 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
           [
             'text'  => (
               $legendary_prefix . 'Random Team Battle' .
-              ( $is_desktop ? ' :grey_question:' : '' ) .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'random-team' ) : '' ) .
               $legendary_suffix
             ),
             'value' => 'random-team',
           ],
           [
-            'text'  => $legendary_prefix . 'No PP Battle' . ( $is_desktop ? ' :rage:' : '' ) . $legendary_suffix,
+            'text'  => (
+              $legendary_prefix . 'No PP Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'no-pp' ) : '' ) .
+              $legendary_suffix
+            ),
             'value' => 'no-pp',
           ],
         ],
