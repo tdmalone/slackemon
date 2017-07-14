@@ -149,7 +149,6 @@ function slackemon_notify_item_spawn( $spawn ) {
         'fallback'  => 'You found a ' . slackemon_readable( $item_data->name ) . '!',
         'text'      => $spawn['description'],
         'color'     => '#333333',
-        'mrkdwn_in' => [ 'pretext', 'text' ],
         'fields'    => [
           [
             'title' => 'Value',
@@ -165,7 +164,6 @@ function slackemon_notify_item_spawn( $spawn ) {
       ], [
         'title' => 'What would you like to do?',
         'color' => '#333333',
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
         'actions' => [
           [
             'name'  => 'items/pick-up',
@@ -851,7 +849,7 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
           }, trim( $_text ) );
           
           $fields[] = [
-            'title' => strtotitle( $_title ),
+            'title' => slackemon_strtotitle( $_title ),
             'value' => $_text,
             'short' => false,
           ];
@@ -873,10 +871,10 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
         'short' => true,
       ];
 
-    } // If all-machines / else
-  } // If expanded / else
+    } // If all-machines / else.
+  } // If expanded / else.
 
-  // Clean the description
+  // Clean the description.
   $description = slackemon_clean_item_description( $description, true );
 
   $attributes = [];
@@ -884,8 +882,8 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
     $attributes[] = $_attribute->name;
   }
 
-  // How this item interacts with Pokemon
-  // Because the API is missing a lot of item data, we need to assume some attributes based on categories
+  // How this item interacts with Pokemon.
+  // Because the API is missing a lot of item data, we need to assume some attributes based on categories.
 
   $is_holdable = (
     in_array( 'holdable', $attributes )         ||
@@ -989,7 +987,6 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
       $description
     ),
     'fields'    => $fields,
-    'mrkdwn_in' => [ 'text' ],
     'color'     => '#333333',
     'thumb_url' => slackemon_get_cached_image_url( $item_data->sprites->default ),
     'actions'   => $actions,
@@ -997,7 +994,7 @@ function slackemon_get_item_attachment( $item, $expanded = false ) {
 
   return $attachment;
 
-} // Function slackemon_get_item_attachment
+} // Function slackemon_get_item_attachment.
 
 function slackemon_get_item_cost( $item_id ) {
 

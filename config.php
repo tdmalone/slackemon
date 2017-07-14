@@ -245,6 +245,19 @@ define( 'SLACKEMON_ITEMS_PER_PAGE',   getenv( 'SLACKEMON_ITEMS_PER_PAGE'   ) ?: 
 define( 'SLACKEMON_POKEMON_PER_PAGE', getenv( 'SLACKEMON_POKEMON_PER_PAGE' ) ?:  5 );
 define( 'SLACKEMON_POKEDEX_PER_PAGE', getenv( 'SLACKEMON_POKEDEX_PER_PAGE' ) ?: 20 );
 
+// The default fields that we generally pass through to Slack message attachments' 'mrkdwn_in' parameter. This
+// generally doesn't need to be changed, but is defined here so it can easily be re-used. A bug exists on Slack's
+// iPhone app that requires 'text' to be in this list even if you want mrkdwn to be used in other fields. Since we
+// never *don't* want mrkdwn to be parsed, we just send through every field we might end up using it in. Note also
+// that mrkdwn will *never* be parsed in the footer field on the iPhone app.
+$default_mrkdwn_in = [
+  'pretext',
+  'text',
+  'fields',
+  'footer',
+];
+define( 'SLACKEMON_MRKDWN_IN', getenv( 'SLACKEMON_MRKDWN_IN' ) ?: $default_mrkdwn_in );
+
 // Changing these values may not be fully supported at this stage.
 define( 'SLACKEMON_MAX_IVS',         getenv( 'SLACKEMON_MAX_IVS'         ) ?: 31 );
 define( 'SLACKEMON_MIN_IVS',         getenv( 'SLACKEMON_MIN_IVS'         ) ?:  0 );

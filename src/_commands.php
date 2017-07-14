@@ -144,13 +144,11 @@ function slackemon_handle_command( $args ) {
             'It looks like you are currently in :no_entry: *Do Not Disturb* mode. Slackémon can only notify ' .
             'you of nearby Pokémon when you are fully online.'
           ),
-          'mrkdwn_in' => [ 'text' ],
         ], [
           'text' => (
             'Please switch off DND mode by typing `/dnd off`, then try typing ' .
             '`' . SLACKEMON_SLASH_COMMAND . '` again. I\'ll be waiting here for you! :innocent:'
           ),
-          'mrkdwn_in' => [ 'text' ],
         ]
       ];
 
@@ -166,13 +164,11 @@ function slackemon_handle_command( $args ) {
             'Using slash commands, you can then manage your Pokémon collection - and even use them in battle ' .
             'against other trainers.'
           ),
-          'mrkdwn_in' => [ 'text' ],
         ], [
           'title' => 'So, what are you waiting for?!',
           'thumb_url' => (
             slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/pikachu-cosplay.gif' )
           ),
-          'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
           'actions' => [
             [
               'name' => 'onboarding',

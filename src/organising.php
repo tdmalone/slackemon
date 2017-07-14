@@ -751,16 +751,16 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
   $pokemon_collection = slackemon_get_player_data( $user_id )->pokemon;
   $battle_team = [];
 
-  // Check whether this user doesn't even have enough Pokemon in their collection to form a team
+  // Check whether this user doesn't even have enough Pokemon in their collection to form a team.
   if ( count( $pokemon_collection ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
     return $battle_team;
   }
 
-  // Get the battle team Pokemon
+  // Get the battle team Pokemon.
   foreach ( $pokemon_collection as $_pokemon ) {
     if ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) {
       if ( $exclude_fainted && 0 == $_pokemon->hp ) { continue; }
-      $battle_team[ $_pokemon->ts ] = $_pokemon;
+      $battle_team[ 'ts' . $_pokemon->ts ] = $_pokemon;
     }
   }
 
@@ -769,11 +769,11 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
   if ( $battle_team_leader ) {
     uksort( $battle_team, function( $key1, $key2 ) use ( $battle_team_leader ) {
 
-      if ( $key1 === $battle_team_leader ) {
+      if ( $key1 === 'ts' . $battle_team_leader ) {
         return -1;
       }
 
-      if ( $key2 === $battle_team_leader ) {
+      if ( $key2 === 'ts' . $battle_team_leader ) {
         return 1;
       }
 
@@ -782,7 +782,7 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     });
   }
 
-  // If our battle team is too big, we need to remove Pokemon from it
+  // If our battle team is too big, we need to remove Pokemon from it.
   while ( count( $battle_team ) > SLACKEMON_BATTLE_TEAM_SIZE ) {
     array_pop( $battle_team );
   }
@@ -791,7 +791,7 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     return $battle_team;
   }
 
-  // If our battle team isn't full, we need to fill it with random additions
+  // If our battle team isn't full, we need to fill it with random additions.
   $infinite_loop_protection = 0;
   while ( count( $battle_team ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
 
@@ -804,13 +804,13 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     $random_key = array_rand( $pokemon_collection );
     $_pokemon = $pokemon_collection[ $random_key ];
 
-    if ( ! isset( $battle_team[ $_pokemon->ts ] ) ) { // Ensure we don't add the same Pokemon twice
+    if ( ! isset( $battle_team[ 'ts' . $_pokemon->ts ] ) ) { // Ensure we don't add the same Pokemon twice.
 
       if ( $exclude_fainted && 0 == $_pokemon->hp ) {
         continue;
       }
 
-      $battle_team[ $_pokemon->ts ] = $_pokemon;
+      $battle_team[ 'ts' . $_pokemon->ts ] = $_pokemon;
 
     }
 
@@ -856,6 +856,44 @@ function slackemon_set_battle_team_leader( $spawn_ts, $user_id = USER_ID ) {
   return slackemon_save_player_data( $player_data, $user_id, true );
 
 } // Function slackemon_get_battle_team_leader
+
+function slackemon_get_battle_team_highest_level( $user_id = USER_ID, $floor_result = false ) {
+
+  $battle_team = slackemon_get_battle_team( $user_id, false, true );
+
+  if ( ! $battle_team ) {
+    return false;
+  }
+
+  $highest_level = 1;
+
+  foreach ( $battle_team as $_pokemon ) {
+    if ( $_pokemon->level > $highest_level ) {
+      $highest_level = $_pokemon->level;
+    }
+  }
+
+  if ( $floor_result ) {
+    return floor( $highest_level );
+  }
+
+  return $highest_level;
+
+} // Function slackemon_get_battle_team_highest_level
+
+function slackemon_is_legendary_in_battle_team( $user_id = USER_ID ) {
+
+  $battle_team = slackemon_get_battle_team( $user_id, false, true );
+
+  foreach ( $battle_team as $_pokemon ) {
+    if ( slackemon_is_legendary( $_pokemon->pokedex ) ) {
+      return true;
+    }
+  }
+
+  return false;
+
+} // Function slackemon_is_legendary_in_battle_team
 
 function slackemon_get_pokemon_transfer_message( $spawn_ts, $action ) {
 

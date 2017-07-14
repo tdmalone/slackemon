@@ -119,7 +119,15 @@ function slackemon_sort_battle_moves( $moves, $types ) {
 
 } // Function slackemon_sort_battle_moves
 
-function slackemon_calculate_move_damage( $move, $attacker, $defender ) {
+function slackemon_calculate_move_damage( $move, $attacker, $defender, $options = [] ) {
+
+  // Parse options.
+
+  $defaults = [
+    'inverse_type_effectiveness' => false,
+  ];
+
+  $options = array_merge( $defaults, $options );
 
   // Get move data
   $move_data = slackemon_get_move_data( $move->name );
@@ -127,47 +135,55 @@ function slackemon_calculate_move_damage( $move, $attacker, $defender ) {
   if ( 'status' !== $move_data->damage_class->name ) {
 
     // Calculate the move's type effectiveness
-    $type_effectiveness = slackemon_get_move_type_effectiveness( $move, $defender );
+    $type_effectiveness = slackemon_get_move_type_effectiveness(
+      $move, $defender, $options['inverse_type_effectiveness']
+    );
+
+    $maybe_inverse_suffix = $options['inverse_type_effectiveness'] ? ' in an inverse battle' : '';
 
     // Generate the type effectiveness message
     if ( $type_effectiveness > 2 ) {
-      $type_message = 'It\'s _super_ effective!';
+      $type_message = 'It\'s _super_ effective' . $maybe_inverse_suffix . '!';
     } else if ( $type_effectiveness > 1 ) {
-      $type_message = 'It\'s very effective!';
+      $type_message = 'It\'s very effective' . $maybe_inverse_suffix . '!';
     } else if ( $type_effectiveness < 1 && $type_effectiveness > 0 ) {
-      $type_message = 'It\'s not very effective.';
+      $type_message = 'It\'s not very effective' . $maybe_inverse_suffix . '.';
     } else if ( $type_effectiveness == 0 ) {
-      $type_message = 'It\'s _completely_ ineffective!';
+      $type_message = 'It\'s _completely_ ineffective' . $maybe_inverse_suffix . '!';
     } else {
       $type_message = '';
     }
 
-    // Does this move get STAB? Note also that the Adaptability ability can raise the 1.5 here to 2
+    // Does this move get STAB? Note also that the Adaptability ability can raise the 1.5 here to 2.
     $stab = slackemon_get_move_stab_multipler( $move, $attacker->types );
 
-    // Calculate the move's damage
-    // HT: http://bulbapedia.bulbagarden.net/wiki/Damage
+    // Calculate the move's damage.
+    // HT: http://bulbapedia.bulbagarden.net/wiki/Damage.
 
     $l = floor( $attacker->level );
     $p = $move_data->power;
-    $a = 'special' === $move_data->damage_class->name ? $attacker->stats->{'special-attack'}  : $attacker->stats->attack;
-    $d = 'special' === $move_data->damage_class->name ? $defender->stats->{'special-defense'} : $defender->stats->defense;
-    $t = 1; // Target: 0.75 if the move has more than one target, 1 otherwise
-    $w = 1; // Weather: 1.5 if water type move during rain or fire during heat, 0.5 for opposite, and 1 otherwise - TODO
-    $B = 1; // Badge: 1.25 if player has badge corresponding to the move type, 1 otherwise
-    $c = 1; // Critical Hit: 1.5-2 for critical hit, 1 otherwise
-    $r = random_int( 85, 100 ) / 100; // Random factor
+    $a = (
+      'special' === $move_data->damage_class->name ? $attacker->stats->{'special-attack'}  : $attacker->stats->attack
+    );
+    $d = (
+      'special' === $move_data->damage_class->name ? $defender->stats->{'special-defense'} : $defender->stats->defense
+    );
+    $t = 1; // Target:  0.75 if the move has more than one target; 1 otherwise (not implemented).
+    $w = 1; // Weather: 1.5  if water type move during rain or fire during heat; 0.5 for opposite; 1 otherwise (TODO).
+    $B = 1; // Badge:   1.25 if player has badge corresponding to the move type; 1 otherwise (not implemented).
+    $c = 1; // Critical Hit: 1.5-2 for critical hit; 1 otherwise (TODO).
+    $r = random_int( 85, 100 ) / 100; // Random factor.
     $s = $stab;
     $T = $type_effectiveness;
-    $b = 1; // Burn: 0.5 if attacker is burned and doesn't have appropriate abilities, 1 otherwise
-    $o = 1; // Other: 1 in most cases, but can take differing values based on interactions between moves/abilities/items
+    $b = 1; // Burn:  0.5 if attacker is burned and doesn't have appropriate abilities; 1 otherwise (TODO).
+    $o = 1; // Other: 1   usually, but can take values based on interactions between moves/abilities/items (TODO).
 
     $damage_raw = (
       ( floor( ( ( floor( 2 * $l / 5 ) + 2 ) * $p * $a / $d ) / 50 ) + 2 ) *
       ( $t * $w * $B * $c * $r * $s * $T * $b * $o )
     );
 
-    // Finally, round it off, and ensure it does at least 1 HP damage
+    // Finally, round it off, and ensure every damage move does at least 1 HP damage.
     $damage_rounded    = max( 1, floor( $damage_raw ) );
     $damage_percentage = floor( $damage_rounded / $defender->stats->hp * 100 );
 
@@ -207,8 +223,9 @@ function slackemon_calculate_move_damage( $move, $attacker, $defender ) {
 
 } // Function slackemon_calculate_move_damage
 
-function slackemon_get_move_type_effectiveness( $move, $defender ) {
+function slackemon_get_move_type_effectiveness( $move, $defender, $inverse_type_effectiveness = false ) {
 
+  // Base type effectiveness. This should always be 1.
   $type_effectiveness = 1;
 
   $move_data = slackemon_get_move_data( $move->name );
@@ -222,23 +239,38 @@ function slackemon_get_move_type_effectiveness( $move, $defender ) {
 
   }
 
-  $relations = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' . $move_data->type->name . '/' ) )->damage_relations;
+  $type_data = slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' . $move_data->type->name . '/' );
+  $relations = json_decode( $type_data )->damage_relations;
+
+  // Adjust the type effectiveness as per the API data.
+  // Note that if this is an inverse battle, type effectiveness is reversed, except for immunities, which don't apply
+  // in inverse (ref: https://bulbapedia.bulbagarden.net/wiki/Inverse_Battle).
 
   foreach ( $relations->half_damage_to as $_relation ) {
     if ( in_array( ucfirst( $_relation->name ), $defender->types ) ) {
-      $type_effectiveness *= .5;
+      if ( $inverse_type_effectiveness ) {
+        $type_effectiveness *= 2;
+      } else {
+        $type_effectiveness *= .5;
+      }
     }
   }
 
   foreach ( $relations->no_damage_to as $_relation ) {
     if ( in_array( ucfirst( $_relation->name ), $defender->types ) ) {
-      $type_effectiveness *= 0;
+      if ( ! $inverse_type_effectiveness ) {
+        $type_effectiveness *= 0;
+      }
     }
   }
 
   foreach ( $relations->double_damage_to as $_relation ) {
     if ( in_array( ucfirst( $_relation->name ), $defender->types ) ) {
-      $type_effectiveness *= 2;
+      if ( $inverse_type_effectiveness ) {
+        $type_effectiveness *= .5;
+      } else {
+        $type_effectiveness *= 2;
+      }
     }
   }
 

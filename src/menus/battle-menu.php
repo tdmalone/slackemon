@@ -16,7 +16,7 @@ function slackemon_get_battle_menu() {
     'attachments' => [],
   ];
 
-  $message['attachments'] = slackemon_get_battle_menu_attachments();
+  $message['attachments']   = slackemon_get_battle_menu_attachments();
   $message['attachments'][] = slackemon_back_to_menu_attachment();
 
   return $message;
@@ -78,7 +78,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
     // TODO: Show stats on current battle, include links to get back to it, stop it, etc.
 
     $attachments[] = [
-      'text' => ':exclamation: _You can\'t send a new battle invite until your current battle has finished._',
+      'text'  => ':exclamation: _You can\'t send a new battle challenge until your current battle has finished._',
       'color' => '#333333',
     ];
 
@@ -89,19 +89,19 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
       $opponent_id = $outstanding_invites[0]->invitee_id;
       $battle_hash = $outstanding_invites[0]->hash;
 
-      $attachment = slackemon_get_player_battle_attachment( $opponent_id );
+      $attachment  = slackemon_get_player_battle_attachment( $opponent_id, $user_id, $battle_hash );
       $_first_name = slackemon_get_slack_user_first_name( $opponent_id );
 
       $attachment['pretext'] = (
         slackemon_get_loading_indicator( $user_id, false ) . ' ' .
-        '*Waiting for ' . $_first_name . '\'s response to your ' . ( $is_desktop ? 'battle ' : '' ) . 'invite...*'
+        '*Waiting for ' . $_first_name . '\'s response to your ' . ( $is_desktop ? 'battle ' : '' ) . 'challenge...*'
       );
 
       $attachment['actions'] = [
         [
-          'name' => 'battles/cancel',
-          'text' => 'Cancel Invitation',
-          'type' => 'button',
+          'name'  => 'battles/cancel',
+          'text'  => 'Cancel Invitation',
+          'type'  => 'button',
           'value' => $battle_hash,
           'style' => 'danger',
         ]
@@ -114,21 +114,21 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
       $opponent_id = $outstanding_invites[0]->inviter_id;
       $battle_hash = $outstanding_invites[0]->hash;
 
-      $attachment = slackemon_get_player_battle_attachment( $opponent_id );
+      $attachment  = slackemon_get_player_battle_attachment( $opponent_id );
       $_first_name = slackemon_get_slack_user_first_name( $opponent_id );
-      $attachment['pretext'] = ':arrow_right: *You have an outstanding battle invite from ' . $_first_name . ':*';
+      $attachment['pretext'] = ':arrow_right: *You have an outstanding battle challenge from ' . $_first_name . ':*';
 
       $attachment['actions'] = [
         [
-          'name' => 'battles/accept',
-          'text' => 'Accept',
-          'type' => 'button',
+          'name'  => 'battles/accept',
+          'text'  => 'Accept',
+          'type'  => 'button',
           'value' => $battle_hash,
           'style' => 'primary',
         ], [
-          'name' => 'battles/decline',
-          'text' => 'Decline',
-          'type' => 'button',
+          'name'  => 'battles/decline',
+          'text'  => 'Decline',
+          'type'  => 'button',
           'value' => $battle_hash,
           'style' => 'danger',
         ]
@@ -147,20 +147,162 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
     $attachments[] = [
       'pretext' => ':arrow_right: *Please choose your opponent:*',
-      'color' => '#333333',
+      'color'   => '#333333',
     ];
+
+    $is_legendary_in_team   = slackemon_is_legendary_in_battle_team( $user_id );
+
+    // Challenge type statuses. Desktop status is generally an emoji and is prefixed later; mobile status is suffixed.
+    $status_available   = $is_desktop ? ':heavy_check_mark:' : '';
+    $status_unavailable = $is_desktop ? ':x:'                : '(unavailable)';
+
+    // Legendary statuses. If a user has a legendary in their battle team, some challenges are unavailable to them.
+    $legendary_status = ( $is_legendary_in_team ? $status_unavailable : $status_available );
+    $legendary_prefix = $is_desktop ? $legendary_status . ' ' : '';
+    $legendary_suffix = $is_desktop ? '' : ' ' . $legendary_status;
+
+    // Generic available/unavailable statuses.
+    $available_prefix   = $is_desktop ? $status_available . ' ' : '';
+    $available_suffix   = $is_desktop ? '' : ' ' . $status_available;
+    $unavailable_prefix = $is_desktop ? $status_unavailable . ' ' : '';
+    $unavailable_suffix = $is_desktop ? '' : ' ' . $status_unavailable;
+
+    $challenge_option_groups = [
+      'standard'  => [
+        'text'    => 'Standard Challenges',
+        'options' => [
+          [
+            'text'  => (
+              $legendary_prefix . 'Normal Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'normal' ) : '' ) .
+              $legendary_suffix
+            ),
+            'value' => 'normal',
+          ],
+          [
+            'text'  => (
+              $available_prefix . 'Friendly Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'friendly' ) : '' ) .
+              $available_suffix
+            ),
+            'value' => 'friendly',
+          ],
+          /*
+          [
+            'text'  => (
+              $legendary_prefix . 'Fast Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'fast' ) : '' ) .
+              $legendary_suffix
+            ),
+            'value' => 'fast',
+          ],
+          [
+            'text'  => (
+              $legendary_prefix . 'Double XP Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'double-xp' ) : '' ) .
+              $legendary_suffix
+            ),
+            'value' => 'double-xp',
+          ],
+          [
+            'text'  => (
+              $available_prefix . 'Legendary Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'legendary' ) : '' ) .
+              $available_suffix
+            ),
+            'value' => 'legendary',
+          ],
+          [
+            'text'  => (
+              $legendary_prefix . 'Type Inverse Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'type-inverse' ) : '' ) .
+              $legendary_suffix
+            ),
+            'value' => 'type-inverse',
+          ],
+          [
+            'text'  => (
+              $legendary_prefix . 'Unlimited Swap Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'unlimited-swap' ) : '' ) .
+              $legendary_suffix
+            ),
+            'value' => 'unlimited-swap',
+          ],
+          [
+            'text'  => (
+              $legendary_prefix . 'Random Team Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'random-team' ) : '' ) .
+              $legendary_suffix
+            ),
+            'value' => 'random-team',
+          ],
+          [
+            'text'  => (
+              $legendary_prefix . 'No PP Battle' .
+              ( $is_desktop ? ' ' . slackemon_get_battle_challenge_emoji( 'no-pp' ) : '' ) .
+              $legendary_suffix
+            ),
+            'value' => 'no-pp',
+          ],
+          */
+        ],
+      ],
+      /*
+      'level_limited' => [
+        'text'    => 'Level Limited',
+        'options' => [],
+      ],
+      */
+    ];
+
+    $user_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $user_id )->level;
+    $user_top_battle_team_level = slackemon_get_battle_team_highest_level( $user_id, true );
 
     foreach ( $online_players as $player_id ) {
 
-      $attachment = slackemon_get_player_battle_attachment( $player_id );
+      $attachment         = slackemon_get_player_battle_attachment( $player_id );
+      $this_option_groups = $challenge_option_groups;
+
+      $opponent_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $player_id )->level;
+      $lowest_top_level   = min( $user_top_level, $opponent_top_level, 80 );
+
+      // Generate level options, up to the lowest top level that the user or opponent has in their collection.
+      // To save space we only generate an option for every 5 levels, increasing the gap as we go.
+      for ( $i = 1; $i <= $lowest_top_level; $i += 5 ) {
+
+        // If level 6, go back to level 5 to continue the 'every 5'.
+        if ( 6 === $i ) {
+          $i--;
+        }
+
+        // Is this level challenge available to the user, given the levels of Pokemon on their battle team?
+        $level_status = ( $user_top_battle_team_level > $i ? $status_unavailable : $status_available );
+        $level_prefix = $is_desktop ? $level_status . ' ' : '';
+        $level_suffix = $is_desktop ? '' : ' ' . $level_status;
+
+        $this_option_groups['level_limited']['options'][] = [
+          'text'  => $level_prefix . 'Level ' . $i . $level_suffix,
+          'value' => 'level/' . $i,
+        ];
+
+        // From level 20 onwards, add another 5 to go every 10.
+        if ( $i >= 20 ) {
+          $i += 5;
+        }
+
+        // For level 40 onwards, add another 10 to go every 20.
+        if ( $i >= 40 ) {
+          $i += 10;
+        }
+
+      }
 
       $attachment['actions'] = [
         [
-          'name' => 'battles/invite',
-          'text' => 'Challenge ' . slackemon_get_slack_user_first_name( $player_id ) . '!',
-          'type' => 'button',
-          'value' => $player_id,
-          'style' => 'primary',
+          'name'          => 'battles/invite/' . $player_id,
+          'text'          => 'Challenge ' . slackemon_get_slack_user_first_name( $player_id ),
+          'type'          => 'select',
+          'option_groups' => $this_option_groups,
         ],
       ];
 
@@ -190,7 +332,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
 } // Function slackemon_get_battle_menu_attachments
 
-function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID ) {
+function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID, $invite_hash = null ) {
 
   $player_data = slackemon_get_player_data( $player_id );
   $player_user_data = slackemon_get_slack_user( $player_id );
@@ -200,32 +342,36 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID 
   $battles_lost = $player_data->battles->participated - $player_data->battles->won;
 
   $attachment = [
-    'text' => '*' . slackemon_get_slack_user_full_name( $player_id ) . ' - ' . number_format( $player_data->xp ) . ' XP*',
-    'fields' => [
-      [
-        'title' => 'Battles Won',
-        'value' => 0 == $battles_won ? '(none)' : $battles_won,
-        'short' => true,
-      ], [
-        'title' => 'Battles Lost',
-        'value' => 0 == $battles_lost ? '(none)' : $battles_lost,
-        'short' => true,
-      ], [
-        'title' => 'Top Pokémon',
-        'value' => join( $is_desktop ? '   ' : "\n", slackemon_get_top_pokemon_list( $player_id ) ),
-        'short' => false,
-      ],
-    ],
-    'footer' => (
-      'These are ' . slackemon_get_slack_user_first_name( $player_id ) . '\'s top Pokémon by CP, but not necessarily ' .
-      'their battle team!' . ( $is_desktop ? "\n" : ' ' ) .
-      'That remains a secret until your battle starts.'
+    'text' => (
+      '*' . slackemon_get_slack_user_full_name( $player_id ) . '*' . "\n" .
+      number_format( $player_data->xp ) . ' XP • ' .
+      floor( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate'
     ),
-    'thumb_url' => $player_user_data->profile->image_192,
-    'color' => $player_user_data->color,
-    'mrkdwn_in' => [ 'pretext', 'text', 'fields', 'footer' ],
-    'callback_id' => SLACKEMON_ACTION_CALLBACK_ID
+    'fields'      => [],
+    'thumb_url'   => $player_user_data->profile->image_192,
+    'color'       => $player_user_data->color,
   ];
+
+  if ( $invite_hash ) {
+
+    $invite_data = slackemon_get_invite_data( $invite_hash );
+
+    $attachment['text'] .= (
+      "\n" .
+      '_You sent a ' . slackemon_readable_challenge_type( $invite_data->challenge_type ) . ' ' .
+      slackemon_get_battle_challenge_emoji( $invite_data->challenge_type ) . ' ' .
+      'challenge ' . slackemon_get_relative_time( $invite_data->ts ) . '_'
+    );
+    
+  } else {
+
+    $attachment['fields'][] = [
+      'title' => 'Top Pokémon',
+      'value' => join( $is_desktop ? '   ' : "\n", slackemon_get_top_pokemon_list( $player_id ) ),
+      'short' => false,
+    ];
+
+  }
 
   return $attachment;
 
@@ -255,7 +401,7 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon, $user_id = USER
       slackemon_readable_moveset( $pokemon->moves, $pokemon->types, true, true )
     ),
     'footer' => (
-      'Attack ' . $pokemon->stats->attack . ' • ' .
+      'Attack '  . $pokemon->stats->attack  . ' • ' .
       'Defense ' . $pokemon->stats->defense . ' • ' .
       'HP ' . floor( $pokemon->hp ) . '/' . $pokemon->stats->hp .
       (
@@ -294,7 +440,9 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon, $user_id = USER
         ]
       ),
     ],
-    'color' => $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : '',
+    'color' => (
+      $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : ''
+    ),
     'thumb_url' => (
       $is_desktop ?
       slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' ) :
@@ -315,7 +463,7 @@ function slackemon_get_battle_menu_add_attachment( $count_helper = 'a' ) {
   // prevent Slack from cutting the additional Pokemon off.
   if ( count( $player_data->pokemon ) > 100 ) {
     $message_menu_options = [
-      'data_source' => 'external',
+      'data_source'      => 'external',
       'min_query_length' => 1,
     ];
   } else {
@@ -339,7 +487,6 @@ function slackemon_get_battle_menu_add_attachment( $count_helper = 'a' ) {
   $attachment = [
     'text'      => '*Select ' . $count_helper . ' Pokémon to add to your battle team:*',
     'color'     => '#333333',
-    'mrkdwn_in' => [ 'text' ],
     'actions'   => [
       array_merge(
         [
@@ -371,7 +518,8 @@ function slackemon_get_battle_menu_add_option( $_pokemon ) {
       ' (L' . floor( $_pokemon->level ) .
       ')' .
       ( $is_desktop   && $_pokemon->is_favourite ? ' :sparkling_heart:' : '' ) .
-      ( ! $is_desktop && $_pokemon->is_favourite ? ' *'                 : '' )
+      ( ! $is_desktop && $_pokemon->is_favourite ? ' *'                 : '' ) .
+      ( $is_desktop   && slackemon_is_legendary( $_pokemon->pokedex ) ? ' :star2:' : '' )
     ),
     'value' => $_pokemon->ts,
   ];

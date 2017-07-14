@@ -8,14 +8,14 @@
 function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
 
   $player_data = slackemon_get_player_data();
-  $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
+  $is_desktop  = slackemon_is_desktop();
 
   // This cannot exceed 5 for desktop, otherwise Slack will not show the additional action buttons
   $categories_per_pocket = $is_desktop ? 4 : 100;
 
-  $items = [];
-  $pockets = [];
-  $categories = [];
+  $items       = [];
+  $pockets     = [];
+  $categories  = [];
   $attachments = [];
 
   // Loop through each item, and get the count of each plus category unique counts
@@ -148,7 +148,6 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
         'actions'   => $actions,
         'color'     => '#333333',
         'thumb_url' => $is_desktop ? $categories[ $category_chunk[ array_rand( $category_chunk ) ] ]['first_image'] : '',
-        'mrkdwn_in' => [ 'text' ],
       ];
 
     } // Foreach category_chunk

@@ -99,7 +99,6 @@ function slackemon_get_main_menu() {
           ( $is_desktop ? ' (' . $total_caught . ' total)' : '' )
         ),
         'color' => 'good',
-        'mrkdwn_in' => [ 'text' ],
       ], [
         'text' => (
           slackemon_is_player_muted() ?
@@ -137,20 +136,16 @@ function slackemon_get_main_menu() {
           'danger' :
           ( $most_recent_pokemon ? slackemon_get_color_as_hex( $most_recent_species_data->color->name ) : '' )
         ),
-        'mrkdwn_in' => [ 'text' ],
       ], (
         count( $latest_news ) ?
         [
           'color'     => '#333333',
           'text'      => '*Lᴀᴛᴇsᴛ Nᴇᴡs*' . "\n" . join( "\n", $latest_news ), // Latest News.
-          'mrkdwn_in' => [ 'text' ],
         ] :
         []
       ), [
         'text'        => '*Mᴀɪɴ Mᴇɴᴜ*', // Main Menu.
-        'mrkdwn_in'   => [ 'text' ],
         'color'       => '#333333',
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
         'actions'     => [
           [
             'name'  => 'pokemon/list',
@@ -197,7 +192,6 @@ function slackemon_get_main_menu() {
           $version_string . ' - ' .
           $players_online . ' player' . ( 1 === $players_online ? '' : 's' ) . ' online'
         ),
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
         'actions'     => [
           (
             slackemon_is_player_in_battle() ?
@@ -230,9 +224,17 @@ function slackemon_get_main_menu() {
 
 } // Function slackemon_get_main_menu.
 
-function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
-
-  // Supports main, pokemon, items, battles, travel, achievements, and tools.
+/**
+ * Returns an attachment (or optionally, actions) that can generally be dropped in anywhere to allow the user to
+ * return to the main menu (or optionally, additional top-level menus).
+ *
+ * @param arr $menus                 An array of strings of menu names that buttons will be output for. Accepts any of
+ *                                   main, pokemon, items, battles, travel, achievements, and tools. Defaults to main.
+ * @param str $attachment_or_actions Whether or not a full attachment will be returned or just an array of actions.
+ *                                   Accepts 'actions' or 'attachment'; defaults to 'attachment'.
+ * @return arr An array representing either a single attachment, OR an array of action button arrays.
+ */
+function slackemon_back_to_menu_attachment( $menus = [ 'main' ], $attachment_or_actions = 'attachment' ) {
 
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
   $actions    = [];
@@ -278,24 +280,27 @@ function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
     }
 
     $actions[] = [
-      'name' => $action_name,
-      'text' => $menu_emoji . ' ' . ucfirst( $menu ) .' Menu',
-      'type' => 'button',
+      'name'  => $action_name,
+      'text'  => $menu_emoji . ' ' . ucfirst( $menu ) .' Menu',
+      'type'  => 'button',
       'value' => 'main',
     ];
 
+  } // Foreach menus.
+
+  if ( 'actions' === $attachment_or_actions ) {
+    return $actions;
   }
 
   $attachment = [
     'fallback' => 'Back to Menu',
-    'color' => '#333333',
-    'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-    'actions' => $actions,
+    'color'    => '#333333',
+    'actions'  => $actions,
   ];
 
   return $attachment;
 
-} // Function slackemon_back_to_menu_attachment
+} // Function slackemon_back_to_menu_attachment.
 
 /**
  * Returns latest news to be displayed on the main menu.
