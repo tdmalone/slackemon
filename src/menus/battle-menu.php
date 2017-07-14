@@ -187,6 +187,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
             ),
             'value' => 'friendly',
           ],
+          /*
           [
             'text'  => (
               $legendary_prefix . 'Fast Battle' .
@@ -243,12 +244,15 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
             ),
             'value' => 'no-pp',
           ],
+          */
         ],
       ],
+      /*
       'level_limited' => [
         'text'    => 'Level Limited',
         'options' => [],
       ],
+      */
     ];
 
     $user_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $user_id )->level;
