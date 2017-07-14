@@ -286,6 +286,10 @@ function slackemon_back_to_menu_attachment( $menus = [ 'main' ], $attachment_or_
       'value' => 'main',
     ];
 
+  } // Foreach menus.
+
+  if ( 'actions' === $attachment_or_actions ) {
+    return $actions;
   }
 
   $attachment = [

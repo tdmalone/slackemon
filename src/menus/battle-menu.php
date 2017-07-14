@@ -355,6 +355,7 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID,
     $attachment['text'] .= (
       "\n" .
       '_You sent a ' . slackemon_readable_challenge_type( $invite_data->challenge_type ) . ' ' .
+      slackemon_get_battle_challenge_emoji( $invite_data->challenge_type ) . ' ' .
       'challenge ' . slackemon_get_relative_time( $invite_data->ts ) . '_'
     );
     

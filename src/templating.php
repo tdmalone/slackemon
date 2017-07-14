@@ -244,10 +244,17 @@ function slackemon_get_nature_emoji( $nature ) {
 /**
  * Returns emoji representing battle challenge types.
  *
- * @param str $challenge_type
- * @return str
+ * @param str|arr $challenge_type A string identifying the system name of the challenge type, eg. 'friendly' or
+ *                                'level'. Since challenge types can come with parameters, if you specify it as an
+ *                                array the first key (0) will be used.
+ * @return str An emoji, or an empty string if no emoji is available.
  */
 function slackemon_get_battle_challenge_emoji( $challenge_type ) {
+
+  // If a challenge_type array has been provided, the first key will contain the string we need.
+  if ( is_array( $challenge_type ) ) {
+    $challenge_type = $challenge_type[0];
+  }
 
   $emoji = [
     'normal'         => ':facepunch:',

@@ -1363,18 +1363,27 @@ function slackemon_save_battle_data(
 
 } // Function slackemon_save_battle_data.
 
+/**
+ * Records a Pokemon as 'seen' in a user's Pokedex if they see it in battle for the very first time.
+ * Will not increment the seen counter if it already exists. This matches Pokemon Go behaviour.
+ *
+ * @param str     $player_id  The player's user ID (eg. U12345678).
+ * @param int|str $pokedex_id The national Pokedex ID of the Pokemon seen in battle. Ideally this should be an integer,
+ *                            but we can't rely on that being the case, therefore strict comparison should not be used
+ *                            on this value.
+ */
 function slackemon_maybe_record_battle_seen_pokemon( $player_id, $pokedex_id ) {
 
   $player_data = slackemon_get_player_data( $player_id );
 
-  // Bow out if the user already has a Pokedex entry for this Pokemon
+  // Bow out if the user already has a Pokedex entry for this Pokemon.
   foreach ( $player_data->pokedex as $pokedex_entry ) {
     if ( $pokedex_id == $pokedex_entry->id ) {
       return;
     }
   }
 
-  // Get player data again, for writing this time
+  // Get player data again, for writing this time.
   $player_data = slackemon_get_player_data( $player_id, true );
 
   // First seen - time to create a new entry!
@@ -1386,7 +1395,7 @@ function slackemon_maybe_record_battle_seen_pokemon( $player_id, $pokedex_id ) {
 
   return slackemon_save_player_data( $player_data, $player_id, true );
 
-} // Function slackemon_maybe_record_battle_seen_pokemon
+} // Function slackemon_maybe_record_battle_seen_pokemon.
 
 function slackemon_get_all_active_battles() {
   global $data_folder;

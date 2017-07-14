@@ -211,10 +211,11 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
   // For friendly battles, we will end the battle now if it's over, as there's nothing else for the user to do.
   if ( slackemon_is_friendly_battle( $battle_data ) && slackemon_is_battle_over( $attachment_args ) ) {
     slackemon_set_player_not_in_battle( $user_id );
-    slackemon_move_completed_battle_file( $battle_hash );
+    slackemon_move_completed_battle_file( $battle_data->hash );
   }
 
   $pretext = $this_move_notice . "\n\n";
+  $footer  = '';
 
   if ( $user_pokemon->hp ) {
 
@@ -224,7 +225,9 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
     if ( $has_user_won ) {
 
       if ( 'wild' === $battle_data->type ) {
+
         $pretext .= ':tada: *You won the battle!*' . $celebration_emoji;
+
       } else {
 
         // We celebrate a bit more if it was a trainer battle :).
@@ -235,12 +238,18 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
         );
 
         if ( slackemon_is_friendly_battle( $battle_data ) ) {
-          $pretext .= 'TODO';
+
+          $pretext .= (
+            'This one was just a friendly battle. Maybe it\'s time to try your luck at the real thing? :smile:'
+          );
+
         } else {
+
           $pretext .= 'Click the _Complete_ button to get your XP bonus and power up your Pokémon! :100:';
+
         }
 
-      }
+      } // If wild battle / else.
 
     } else if ( $is_opponent_turn ) {
 
@@ -255,11 +264,22 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
 
       $pretext .= '*';
 
+    } else {
+
+      // It's the current user's turn.
+
+      // Add a footer above the user's battle actions listing the battle challenge type.
+      $footer = (
+        slackemon_readable_challenge_type( $battle_data->challenge_type ) . ' Battle ' .
+        ( $is_desktop ? slackemon_get_battle_challenge_emoji( $battle_data->challenge_type ) : '' )
+      );
+
     }
 
     $attachment = [
       'pretext' => $pretext,
       'color'   => $has_user_won ? 'good' : '#333333',
+      'footer'  => $footer,
       'actions' => $battle_actions,
     ];
 
@@ -272,16 +292,17 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
     $pretext .= ':expressionless: *Nooo... you lost the battle!*' . "\n";
 
     if ( slackemon_is_friendly_battle( $battle_data ) ) {
-      $pretext .= 'TODO';
-    } else {
-      $pretext .= 'Click the _Complete_ button to get your XP bonus and see your Pokémon.';
-    }
 
-    if ( slackemon_is_friendly_battle( $battle_data ) ) {
+      $pretext .= (
+        'No hard feelings, this was a friendly battle after all! ' . slackemon_get_battle_challenge_emoji( 'friendly' )
+      );
 
       $attachment = slackemon_back_to_menu_attachment();
+      $attachment['pretext'] = $pretext;
 
     } else {
+
+      $pretext .= 'Click the _Complete_ button to get your XP bonus and see your Pokémon.';
 
       $attachment = [
 
