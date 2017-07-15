@@ -416,6 +416,7 @@ function slackemon_readable( $string, $display_gender = true, $abbrev = false ) 
   ], [
     'HP',
     'PP',
+    'XP',
     'TM$1',
     'HM$1',
   ], $string );
