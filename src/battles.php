@@ -453,12 +453,11 @@ function slackemon_complete_battle(
 
     $back_to_menu_attachment = slackemon_back_to_menu_attachment();
 
-    // Show a button to view the Pokemon the user just fought with, if this was a wild battle (i.e. only 1 Pokemon).
-    if (
-      is_array( $battle_data->users->{ $user_id }->team ) &&
-      1 === count( $battle_data->users->{ $user_id }->team )
-    ) {
-      $battle_pokemon = $battle_data->users->{ $user_id }->team[0];
+    // Show a button to view the Pokemon the user fought with, if only 1 Pokemon was on the team (i.e. a wild battle).
+    $team_as_array = get_object_vars( $battle_data->users->{ $user_id }->team );
+    if ( 1 === count( $team_as_array ) ) {
+
+      $battle_pokemon = array_pop( $team_as_array );
 
       array_unshift(
         $back_to_menu_attachment['actions'],
