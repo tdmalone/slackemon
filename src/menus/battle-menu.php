@@ -21,7 +21,7 @@ function slackemon_get_battle_menu() {
 
   return $message;
 
-} // Function slackemon_get_battle_menu
+} // Function slackemon_get_battle_menu.
 
 function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
@@ -39,9 +39,9 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
       $faint_count++;
     }
 
-  } // Foreach battle_team pokemon
+  } // Foreach battle_team pokemon.
 
-  // Add attachments to add new Pokemon to the team
+  // Add attachments to add new Pokemon to the team.
   if ( count( $battle_team ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
     for ( $i = count( $battle_team ); $i < SLACKEMON_BATTLE_TEAM_SIZE; $i++ ) {
 
@@ -58,7 +58,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
     }
   }
 
-  // Add the battle team status attachment at the start
+  // Add the battle team status attachment at the start.
   array_unshift( $attachments, slackemon_get_battle_team_status_attachment() );
 
   $online_players      = slackemon_get_player_ids([ 'active_only' => true, 'skip_current_user' => true ]);
@@ -68,7 +68,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
     return $attachments;
   }
 
-  // Don't allow the player to proceed with sending an invite if their battle team isn't full
+  // Don't allow the player to proceed with sending an invite if their battle team isn't full.
   if ( ! slackemon_is_battle_team_full( $user_id, false, true ) && ! count( $outstanding_invites ) ) {
     return $attachments;
   }
@@ -150,7 +150,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
       'color'   => '#333333',
     ];
 
-    $is_legendary_in_team   = slackemon_is_legendary_in_battle_team( $user_id );
+    $is_legendary_in_team = slackemon_is_legendary_in_battle_team( $user_id );
 
     // Challenge type statuses. Desktop status is generally an emoji and is prefixed later; mobile status is suffixed.
     $status_available   = $is_desktop ? ':heavy_check_mark:' : '';
@@ -331,17 +331,17 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
       ),
     ];
 
-  } // If online_players / else
+  } // If online_players / else.
 
   return $attachments;
 
-} // Function slackemon_get_battle_menu_attachments
+} // Function slackemon_get_battle_menu_attachments.
 
 function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID, $invite_hash = null ) {
 
-  $player_data = slackemon_get_player_data( $player_id );
+  $player_data      = slackemon_get_player_data( $player_id );
   $player_user_data = slackemon_get_slack_user( $player_id );
-  $is_desktop = 'desktop' === slackemon_get_player_menu_mode( $user_id );
+  $is_desktop       = 'desktop' === slackemon_get_player_menu_mode( $user_id );
 
   $battles_won  = $player_data->battles->won;
   $battles_lost = $player_data->battles->participated - $player_data->battles->won;
@@ -363,9 +363,9 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID,
 
     $attachment['text'] .= (
       "\n" .
-      '_You sent a ' . slackemon_readable_challenge_type( $invite_data->challenge_type ) . ' ' .
+      '_You sent a ' . slackemon_readable_challenge_type( $invite_data->challenge_type ) . ' Challenge ' .
       slackemon_get_battle_challenge_emoji( $invite_data->challenge_type ) . ' ' .
-      'challenge ' . slackemon_get_relative_time( $invite_data->ts ) . '_'
+      '' . slackemon_get_relative_time( $invite_data->ts ) . '_'
     );
     
   } else {

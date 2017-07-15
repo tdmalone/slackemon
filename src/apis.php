@@ -203,9 +203,10 @@ function slackemon_update_triggering_attachment( $new_attachment, $action, $send
     $new_attachment = [ 'text' => $new_attachment ];
   }
 
-  $message = [];
-  $message['text'] = $action->original_message->text;
-  $message['attachments'] = $action->original_message->attachments;
+  $message = [
+    'text'        => $action->original_message->text,
+    'attachments' => $action->original_message->attachments,
+  ];
 
   $original_attachment = $message['attachments'][ $action->attachment_id - 1 ];
 

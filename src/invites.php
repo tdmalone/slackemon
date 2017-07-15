@@ -119,8 +119,14 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
     slackemon_save_battle_data( $invite_data, $battle_hash, 'invite', false, false );
 
     if ( slackemon_post2slack( $invitee_message ) ) {
-      $invitee_name     = $is_desktop ? slackemon_get_slack_user_full_name( $invitee_id ) : slackemon_get_slack_user_first_name( $invitee_id );
-      $inviter_message  = slackemon_update_triggering_attachment(
+
+      $invitee_name = (
+        $is_desktop ?
+        slackemon_get_slack_user_full_name( $invitee_id ) :
+        slackemon_get_slack_user_first_name( $invitee_id )
+      );
+
+      $inviter_message = slackemon_update_triggering_attachment(
         ':white_check_mark: A *' . slackemon_readable_challenge_type( $challenge_type ) . ' Battle* ' .
         slackemon_get_battle_challenge_emoji( $challenge_type ) . ' ' .
         'challenge has been sent to *' . $invitee_name . '*.' . "\n" .
@@ -128,11 +134,14 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
         $action,
         false
       );
+
     } else {
+
       $inviter_message = [
         'text' => ':no_entry: *Oops!* A problem occurred. Please try your last action again.',
         'replace_original' => false,
       ];
+
     }
 
   } // If outstanding invites / else.
