@@ -142,14 +142,9 @@ function slackemon_handle_action( $action ) {
       $message = slackemon_get_battle_menu();
     break;
 
-    case 'battles/invite':
-      $invitee_id = $action_value;
-      $message = slackemon_send_battle_invite( $invitee_id, $action );
-    break;
-
     case 'battles/cancel':
       $battle_hash = $action_value;
-      $message = slackemon_cancel_battle_invite( $battle_hash, $action, 'inviter' );
+      $message     = slackemon_cancel_battle_invite( $battle_hash, $action, 'inviter' );
     break;
 
     case 'battles/accept':
@@ -159,7 +154,7 @@ function slackemon_handle_action( $action ) {
 
     case 'battles/decline':
       $battle_hash = $action_value;
-      $message = slackemon_cancel_battle_invite( $battle_hash, $action, 'invitee' );
+      $message     = slackemon_cancel_battle_invite( $battle_hash, $action, 'invitee' );
     break;
 
     case 'battles/item':
@@ -170,7 +165,7 @@ function slackemon_handle_action( $action ) {
       switch ( $item_type ) {
         case 'pokeball':
           $spawn_ts = $action_value[1];
-          $message = slackemon_get_catch_message( $spawn_ts, $action, true );
+          $message  = slackemon_get_catch_message( $spawn_ts, $action, true );
         break;
       }
 
@@ -183,20 +178,47 @@ function slackemon_handle_action( $action ) {
       $move_name    = $action_value[1];
       $move_type    = $action_value[2];
 
+      // If the user has requested a swap, we need to provide the swap menu.
       if ( 'swap' === $move_type ) {
-        $return_full_battle_message = true;
-        $message = slackemon_offer_battle_swap( $battle_hash, USER_ID, $return_full_battle_message, $action );
+
+        $user_initiated = true;
+        $message        = slackemon_offer_battle_swap( $battle_hash, USER_ID, $user_initiated, $action );
+
       } else {
-        slackemon_do_battle_move( $move_name, $battle_hash, $action, 'first' === $move_type );
+
+        $options = [
+          'is_first_move' => 'first' === $move_type,
+        ];
+
+        slackemon_do_battle_move( $move_name, $battle_hash, $action, USER_ID, $options );
+
       }
 
     break; // Case battles/move.
 
     case 'battles/swap/do':
-      $action_value = explode( '/', $action_value );
-      $battle_hash = $action_value[0];
+    case 'battles/swap/do/user_initiated':
+
+      $action_value   = explode( '/', $action_value );
+      $battle_hash    = $action_value[0];
       $new_pokemon_ts = $action_value[1];
-      slackemon_do_battle_move( $new_pokemon_ts, $battle_hash, $action );
+
+      $options = [
+        'is_swap'                => true,
+        'is_user_initiated_swap' => 'battles/swap/do/user_initiated' === $action_name,
+      ];
+
+      slackemon_do_battle_move( $new_pokemon_ts, $battle_hash, $action, USER_ID, $options );
+
+    break;
+
+    case 'battles/swap/cancel':
+
+      $battle_hash = $action_value;
+      $message     = [
+        'attachments' => slackemon_get_battle_attachments( $battle_hash, USER_ID, 'during' ),
+      ];
+
     break;
 
     case 'battles/surrender':
@@ -205,10 +227,13 @@ function slackemon_handle_action( $action ) {
     break;
 
     case 'battles/complete': // Tally up battle stats etc. for the user.
-      $action_value = explode( '/', $action_value );
-      $battle_hash = $action_value[0];
+
+      $action_value  = explode( '/', $action_value );
+      $battle_hash   = $action_value[0];
       $battle_result = $action_value[1];
+
       slackemon_complete_battle( $battle_result, $battle_hash );
+
     break;
 
     case 'achievements':
@@ -240,7 +265,7 @@ function slackemon_handle_action( $action ) {
 
     case 'catch':
       $spawn_ts = $action_value;
-      $message = slackemon_get_catch_message( $spawn_ts, $action );
+      $message  = slackemon_get_catch_message( $spawn_ts, $action );
     break;
 
     case 'catch/start-battle':
@@ -250,12 +275,12 @@ function slackemon_handle_action( $action ) {
 
     case 'catch/end-battle':
       $spawn_ts = $action_value;
-      $message = slackemon_get_catch_message( $spawn_ts, $action, true, 'catch' );
+      $message  = slackemon_get_catch_message( $spawn_ts, $action, true, 'catch' );
     break;
 
     case 'transfer':
       $spawn_ts = $action_value;
-      $message = slackemon_get_pokemon_transfer_message( $spawn_ts, $action );
+      $message  = slackemon_get_pokemon_transfer_message( $spawn_ts, $action );
       slackemon_remove_pokemon( $spawn_ts );
     break;
 
@@ -285,14 +310,23 @@ function slackemon_handle_action( $action ) {
       $message = slackemon_get_battle_team_remove_message( $action, $action_name );
     break;
 
+    case 'battle-team/set-leader':
+      $spawn_ts = $action_value;
+      slackemon_set_battle_team_leader( $spawn_ts );
+      $message = slackemon_get_battle_menu();
+    break;
+
     case 'evolve':
+
       $spawn_ts = $action_value;
       slackemon_start_evolution_message( $spawn_ts, $action );
+
       if ( slackemon_evolve_user_pokemon( $spawn_ts ) ) {
         slackemon_end_evolution_message( $spawn_ts, $action );
       } else {
         $message = slackemon_get_evolution_error_message( $spawn_ts, $action );
       }
+
     break;
 
     case 'tools':
@@ -315,7 +349,7 @@ function slackemon_handle_action( $action ) {
 
     case 'tools/move-deleter':
       $spawn_ts = $action_value;
-      $message = slackemon_move_deleter_tool( $spawn_ts );
+      $message  = slackemon_move_deleter_tool( $spawn_ts );
     break;
 
     case 'tools/move-deleter/do':
@@ -363,6 +397,24 @@ function slackemon_handle_action( $action ) {
         }
 
       break; // Case 'items'.
+
+      // Battle invite requests, coming through after an options request.
+      case 'battles':
+
+        switch( $action_name[1] ) {
+
+          case 'invite':
+
+            $invitee_id     = $action_name[2];
+            $challenge_type = explode( '/', $action_value );
+
+            $message        = slackemon_send_battle_invite( $invitee_id, $action, $challenge_type );
+
+          break;
+
+        }
+
+      break; // Case 'battles'.
 
     } // Switch action_name 0.
   } // If no_match

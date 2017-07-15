@@ -332,8 +332,16 @@ function slackemon_save_spawn_data( $spawn_data ) {
   $spawn_id = $spawn_data['ts'] . '-' . $spawn_data['region'];
   $spawn_filename = $data_folder . '/spawns/' . $spawn_id;
 
+  // Update the in-memory cache.
   $_cached_slackemon_spawn_data[ $spawn_id ] = $spawn_data;
-  return slackemon_file_put_contents( $spawn_filename, json_encode( $spawn_data ), 'store', false );
+
+  $json_options = 'development' === APP_ENV ? JSON_PRETTY_PRINT : 0;
+
+  $return = slackemon_file_put_contents(
+    $spawn_filename, json_encode( $spawn_data, $json_options ), 'store', false
+  );
+
+  return $return;
 
 } // Function slackemon_save_spawn_data
 
@@ -382,7 +390,6 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
           slackemon_get_gender_symbol( $spawn['gender'] ) .
           ' has just appeared! [SEEN_CAUGHT]'
         ),
-        'mrkdwn_in' => [ 'pretext', 'text' ],
         'color' => slackemon_get_color_as_hex( $species_data->color->name ),
         'image_url' => slackemon_get_cached_image_url(
           SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $spawn['name'] . '.gif'
@@ -419,11 +426,9 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
             'short' => true, // WARNING: This attachment & field key will be set false below if not on desktop mode
           ],
         ],
-        'mrkdwn_in' => [ 'text', 'fields' ],
       ], [
         'title' => 'What would you like to do?',
         'color' => '#333333',
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
         'actions' => [
           [
             'name'  => 'catch',
@@ -521,103 +526,84 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
     }
 
     // If the user has higher level Pokemon in their battle team, potentially adjust this Pokemon's level
-    // (unless we have asked for a specific level already).
+    // (unless of course we have asked for a specific level already).
     if ( ! $specific_level ) {
 
-      $user_battle_team = slackemon_get_battle_team( $player_id, true );
+      $highest_level = slackemon_get_battle_team_highest_level( $player_id, true );
+      $highest_level_original = $highest_level;
 
-      if ( $user_battle_team ) {
+      if ( $highest_level && $highest_level > 1 ) {
 
-        $highest_level = 1;
+        // Protect some of the gameplay by ensuring we don't spawn a level that's too close to evolving.
+        // If the user doesn't have the evolved form yet, we'll make sure we're even further from making it too easy.
+        if ( $evolves_at_level ) {
+          if ( slackemon_has_user_caught_pokemon( $player_id, $pokemon_evolves_into ) ) {
 
-        foreach ( $user_battle_team as $_pokemon ) {
-          if ( $_pokemon->level > $highest_level ) {
-            $highest_level = $_pokemon->level;
-            $highest_battle_team_level = $highest_level;
-          }
-        }
+            // User already has evolved form.
 
-        if ( $highest_level > 1 ) {
-
-          // Protect some of the gameplay by ensuring we don't spawn a level that's too close to evolving.
-          // If the user doesn't have the evolved form yet, we'll make sure we're even further from making it too easy.
-          if ( $evolves_at_level ) {
-            if ( slackemon_has_user_caught_pokemon( $player_id, $pokemon_evolves_into ) ) {
-
-              // User already has evolved form.
-
-              $highest_level = min( $highest_level, $evolves_at_level * .75 );
-
-              slackemon_spawn_debug(
-                'This spawn will be up to level ' . $highest_level . ' for ' . $player_id . ' - ' .
-                'their battle team highest is ' . $highest_battle_team_level . ' but we need to ensure ' .
-                'the Pokemon isn\'t ready to evolve into #' . $pokemon_evolves_into . ' right-away.'
-              );
-
-            } else {
-
-              // User DOESN'T have evolved form yet.
-
-              $highest_level = min( $highest_level, $evolves_at_level * .5 );
-
-              slackemon_spawn_debug(
-                'This spawn will be up to level ' . $highest_level . ' for ' . $player_id . ' - ' .
-                'their battle team highest is ' . $highest_battle_team_level . ' but they don\'t ' .
-                'have evolution Pokemon #' . $pokemon_evolves_into . ' yet.'
-              );
-
-            }
-
-          } else {
+            $highest_level = min( $highest_level, $evolves_at_level * .75 );
 
             slackemon_spawn_debug(
               'This spawn will be up to level ' . $highest_level . ' for ' . $player_id . ' - ' .
-              'the highest level in their battle team.'
+              'their battle team highest is ' . $highest_level_original . ' but we need to ensure ' .
+              'the Pokemon isn\'t ready to evolve into #' . $pokemon_evolves_into . ' right-away.'
+            );
+
+          } else {
+
+            // User DOESN'T have evolved form yet.
+
+            $highest_level = min( $highest_level, $evolves_at_level * .5 );
+
+            slackemon_spawn_debug(
+              'This spawn will be up to level ' . $highest_level . ' for ' . $player_id . ' - ' .
+              'their battle team highest is ' . $highest_level_original . ' but they don\'t ' .
+              'have evolution Pokemon #' . $pokemon_evolves_into . ' yet.'
             );
 
           }
-
-          $random_level = random_int( 1, floor( $highest_level ) );
-
-          foreach ( $this_spawn['stats'] as $key => $value ) {
-
-            $this_spawn['stats'][ $key ] = slackemon_calculate_stats(
-              $key,
-              $this_spawn['pokedex'],
-              $random_level,
-              $this_spawn['ivs'],
-              $this_spawn['evs'],
-              $this_spawn['nature']
-            );
-
-          }
-
-          $this_spawn['level'] = $random_level;
-          $this_spawn['cp']    = slackemon_calculate_cp( $this_spawn['stats'] );
-          $this_spawn['xp']    = slackemon_get_xp_for_level( $this_spawn['pokedex'], $this_spawn['level'] );
-
-          $this_message['attachments'][1]['fields'][1]['value'] = (
-            $this_spawn['cp'] . ' (Level ' . $this_spawn['level'] . ')'
-          );
 
         } else {
 
           slackemon_spawn_debug(
-            'User ' . $player_id . ' does not have any Pokemon over level 1 in their battle team, ' .
-            'so this spawn will be at level 1 for them.'
+            'This spawn will be up to level ' . $highest_level . ' for ' . $player_id . ' - ' .
+            'the highest level in their battle team.'
           );
 
-        } // If highest_level > 1 / else
+        }
+
+        $random_level = random_int( 1, floor( $highest_level ) );
+
+        foreach ( $this_spawn['stats'] as $key => $value ) {
+
+          $this_spawn['stats'][ $key ] = slackemon_calculate_stats(
+            $key,
+            $this_spawn['pokedex'],
+            $random_level,
+            $this_spawn['ivs'],
+            $this_spawn['evs'],
+            $this_spawn['nature']
+          );
+
+        }
+
+        $this_spawn['level'] = $random_level;
+        $this_spawn['cp']    = slackemon_calculate_cp( $this_spawn['stats'] );
+        $this_spawn['xp']    = slackemon_get_xp_for_level( $this_spawn['pokedex'], $this_spawn['level'] );
+
+        $this_message['attachments'][1]['fields'][1]['value'] = (
+          $this_spawn['cp'] . ' (Level ' . $this_spawn['level'] . ')'
+        );
 
       } else {
 
         slackemon_spawn_debug(
-          'User ' . $player_id . ' does not have enough Pokemon to battle, ' .
-          'so this spawn will be at level 1 for them.'
+          'User ' . $player_id . ' does not have any Pokemon over level 1 in their battle team, OR ' .
+          'does not have enough Pokemon to battle. So, this spawn will be at level 1 for them.'
         );
 
-      } // If battle team / else
-    } // If not specific_level
+      } // If highest_level > 1 / else.
+    } // If not specific_level.
 
     // If the CP is higher than any this player has seen before, hide it to increase the mystique. :)
     $player_top_pokemon = slackemon_get_top_player_pokemon( 'cp', 1, null, $player_id );
@@ -641,6 +627,7 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
 
       $response = slackemon_post2slack( $this_message );
 
+      // If in development mode, store the spawn notification for debugging purposes.
       if ( 'development' === APP_ENV ) {
         file_put_contents( $data_folder . '/last-spawn-notification', $response );
       }
