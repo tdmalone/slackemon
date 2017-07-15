@@ -462,10 +462,10 @@ function slackemon_get_item_return_message( $spawn_ts, $action, $user_id = USER_
   }
 
   $item_id = $pokemon->held_item;
-  slackemon_add_item( $item_id, $user_id );
   unset( $pokemon->held_item );
 
   slackemon_save_player_data( $player_data, $user_id, true );
+  slackemon_add_item( $item_id, $user_id ); // Must be called after save_player_data above, because it gets a new lock.
 
   $message = [];
   $message['text'] = $action->original_message->text;
