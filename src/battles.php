@@ -1105,14 +1105,7 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
         sleep( 2 ); // Wait before the computer moves...
 
         // Before we move, should we flee?
-        // This doubles the chance of staying compared to a standard catch, plus increases more depending on.
-        // how much HP the wild Pokemon has left.
-        $hp_percentage_integer = $opponent_pokemon->hp / $opponent_pokemon->stats->hp;
-        $is_staying = (
-          random_int( 1, SLACKEMON_BASE_FLEE_CHANCE * SLACKEMON_BATTLE_FLEE_MULTIPLIER / $hp_percentage_integer ) > 1
-        );
-
-        if ( ! $is_staying ) {
+        if ( slackemon_should_wild_battle_pokemon_flee( $opponent_pokemon ) ) {
           slackemon_do_action_response( slackemon_get_catch_message( $opponent_pokemon->ts, $action, true, 'flee' ) );
           return false;
         }
@@ -1280,6 +1273,29 @@ function slackemon_is_battle_over( $battle_data_or_attachment_args, $user_id = n
   return false;
 
 } // Function slackemon_is_battle_over.
+
+/**
+ * Determines whether a wild Pokemon should flee from battle. Called before every move and at an attempted catch
+ * if the Pokemon has not fainted.
+ *
+ * Compared to a direct catch, the chance of fleeing is generally cut by two thirds (but this depends on the
+ * exact value of SLACKEMON_BATTLE_FLEE_MULTIPLIER), *plus* a further reduced chance based on the Pokemon's
+ * HP - the lower the HP, the less chance of fleeing.
+ *
+ * @param obj $pokemon The object representing the wild Pokemon.
+ * @return bool Whether or not the wild Pokemon should flee.
+ */
+function slackemon_should_wild_battle_pokemon_flee( $pokemon ) {
+
+  $hp_percentage  = $pokemon->hp / $pokemon->stats->hp;
+  $hp_percentage  = max( $hp_percentage, 0.001 ); // Prevent us from ending up with 0, which would error next.
+  $random_int_max = round( SLACKEMON_BASE_FLEE_CHANCE * SLACKEMON_BATTLE_FLEE_MULTIPLIER / $hp_percentage );
+
+  $should_flee    = random_int( 1, $random_int_max ) === 1;
+
+  return $should_flee;
+
+} // Function slackemon_should_wild_battle_pokemon_flee.
 
 /**
  * Generates a hash to identify a battle, based on the start time and the two users in the battle. The order of the

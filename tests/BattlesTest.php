@@ -11,7 +11,7 @@ final class BattlesTest extends TestCase {
   }
 
   public function testFriendlyCheckFailsOnStandardBattle() {
-    $this->assertFalse( slackemon_is_friendly_battle( (object) [ 'challenge_type' => [ 'standard' ] ] ) );
+    $this->assertFalse( slackemon_is_friendly_battle( (object) [ 'challenge_type' => [ 'normal' ] ] ) );
   }
 
   public function testUserRemainingPokemonRetrievedFromBattleData() {
@@ -127,6 +127,51 @@ final class BattlesTest extends TestCase {
     $hash2 = slackemon_generate_battle_hash( $ts2, $user_id1, $user_id2 );
 
     $this->assertNotEquals( $hash1, $hash2 );
+
+  }
+
+  public function testWildPokemonFleeChanceWithFullHp() {
+
+    $pokemon = json_decode(
+      json_encode([
+        'hp' => 100,
+        'stats' => [
+          'hp' => 100,
+        ],
+      ])
+    );
+
+    $this->assertInternalType( 'boolean', slackemon_should_wild_battle_pokemon_flee( $pokemon ) );
+
+  }
+
+  public function testWildPokemonFleeChanceWithNoHp() {
+
+    $pokemon = json_decode(
+      json_encode([
+        'hp' => 0,
+        'stats' => [
+          'hp' => 100,
+        ],
+      ])
+    );
+
+    $this->assertInternalType( 'boolean', slackemon_should_wild_battle_pokemon_flee( $pokemon ) );
+
+  }
+
+  public function testWildPokemonFleeChanceWithHalfHp() {
+
+    $pokemon = json_decode(
+      json_encode([
+        'hp' => 50,
+        'stats' => [
+          'hp' => 100,
+        ],
+      ])
+    );
+
+    $this->assertInternalType( 'boolean', slackemon_should_wild_battle_pokemon_flee( $pokemon ) );
 
   }
 

@@ -284,15 +284,10 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
     } else if ( 'catch' === $force_battle_result ) {
       $is_caught = true;
     } else if ( $battle_hash ) {
-
-      $hp_percentage_integer = $opponent_pokemon->hp / $opponent_pokemon->stats->hp;
-      $is_caught = (
-        random_int( 1, SLACKEMON_BASE_FLEE_CHANCE * SLACKEMON_BATTLE_FLEE_MULTIPLIER / $hp_percentage_integer ) > 1
-      );
-
+      $is_caught = ! slackemon_should_wild_battle_pokemon_flee( $opponent_pokemon );
     } else {
 
-      // Eg. `random_int( 1, 4 )` for a 1 in 4 chance of NOT catching
+      // Eg. `random_int( 1, 4 )` for a 1 in 4 chance of fleeing.
       $is_caught = random_int( 1, SLACKEMON_BASE_FLEE_CHANCE ) > 1;
 
     }
@@ -437,7 +432,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
     'ts'             => $battle_ts,
     'hash'           => $battle_hash,
     'type'           => 'wild',
-    'challenge_type' => [ 'standard' ], // Different challenge types are not supported for wild battles.
+    'challenge_type' => [ 'normal' ], // Different challenge types are not supported for wild battles.
     'users'          => [
       $inviter_id => [
         'team'   => [ 'ts' . $inviter_pokemon->ts => $inviter_pokemon ],

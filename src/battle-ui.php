@@ -268,11 +268,15 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
 
       // It's the current user's turn.
 
-      // Add a footer above the user's battle actions listing the battle challenge type.
-      $footer = (
-        slackemon_readable_challenge_type( $battle_data->challenge_type ) . ' Battle ' .
-        ( $is_desktop ? slackemon_get_battle_challenge_emoji( $battle_data->challenge_type ) : '' )
-      );
+      if ( 'wild' !== $battle_data->type ) {
+
+        // Add a footer above the user's battle actions listing the battle challenge type.
+        $footer = (
+          slackemon_readable_challenge_type( $battle_data->challenge_type ) . ' Battle ' .
+          ( $is_desktop ? slackemon_get_battle_challenge_emoji( $battle_data->challenge_type ) : '' )
+        );
+
+      }
 
     }
 
