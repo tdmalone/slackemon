@@ -7,9 +7,28 @@
 
 function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $inviter_id = USER_ID ) {
 
+  $is_desktop = slackemon_is_desktop( $inviter_id );
+
+  // Bow out early if the challenge type the user selected is unavailable at the moment (the menu will send through
+  // 'unavailable' if this is so).
+  if ( 'unavailable' === $challenge_type[0] ) {
+
+    $invite_attachment = $action->original_message->attachments[ $action->attachment_id - 1 ];
+
+    $invite_attachment->footer = (
+      ( $is_desktop ? ':no_entry_sign: ' : '' ) .
+      'Sorry, that challenge type is not available for your current battle team. Please adjust your team to ensure ' .
+      'it meets the rules for the challenge, or try another challenge type.'
+    );
+
+    $message = slackemon_update_triggering_attachment( $invite_attachment, $action, false );
+
+    return $message;
+
+  }
+
   $inviter_player_data = slackemon_get_player_data( $inviter_id );
   $inviter_user_data   = slackemon_get_slack_user( $inviter_id );
-  $is_desktop          = slackemon_is_desktop( $inviter_id );
 
   $invite_ts   = time();
   $battle_hash = slackemon_generate_battle_hash( $invite_ts, $inviter_id, $invitee_id );
