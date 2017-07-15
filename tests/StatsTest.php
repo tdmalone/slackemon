@@ -90,6 +90,91 @@ final class StatsTest extends TestCase {
     $this->assertLessThanOrEqual( $this->max_happiness, $happiness_value );
   }
 
+  public function testNewLevelIncrementsHappinessOneStage() {
+
+    $old_level          = 1;
+    $new_level          = $old_level + 1;
+    $current_happiness  = 70;
+    $expected_happiness = $current_happiness + ( ( $new_level - $old_level ) * 5 );
+
+    $new_happiness = slackemon_calculate_level_up_happiness( $old_level, $new_level, $current_happiness );
+
+    $this->assertSame( $expected_happiness, $new_happiness );
+
+  }
+
+  public function testFiveNewLevelsIncrementsHappinessFiveStages() {
+
+    $old_level          = 1;
+    $new_level          = $old_level + 5;
+    $current_happiness  = 70;
+    $expected_happiness = $current_happiness + ( ( $new_level - $old_level ) * 5 );
+
+    $new_happiness = slackemon_calculate_level_up_happiness( $old_level, $new_level, $current_happiness );
+
+    $this->assertSame( $expected_happiness, $new_happiness );
+
+  }
+
+  public function testHappinessCalculatorAcceptsObject() {
+
+    $old_level          = 1;
+    $new_level          = $old_level + 1;
+    $current_happiness  = 3;
+    $expected_happiness = $current_happiness + ( ( $new_level - $old_level ) * 5 );
+
+    $pokemon = json_decode(
+      json_encode([
+        'level'     => $new_level,
+        'happiness' => $current_happiness,
+      ])
+    );
+
+    $new_happiness = slackemon_calculate_level_up_happiness( $old_level, $pokemon );
+
+    $this->assertSame( $expected_happiness, $new_happiness );
+
+  }
+
+  public function testHappinessDoesNotExceedCap() {
+
+    $old_level          = 1;
+    $new_level          = $old_level + 15;
+    $current_happiness  = 250;
+    $expected_happiness = 255;
+
+    $new_happiness = slackemon_calculate_level_up_happiness( $old_level, $new_level, $current_happiness );
+
+    $this->assertSame( $expected_happiness, $new_happiness );
+
+  }
+
+  public function testHappinessBetween100And200IncreasesByThree() {
+
+    $old_level          = 1;
+    $new_level          = $old_level + 5;
+    $current_happiness  = 120;
+    $expected_happiness = $current_happiness + ( ( $new_level - $old_level ) * 3 );
+
+    $new_happiness = slackemon_calculate_level_up_happiness( $old_level, $new_level, $current_happiness );
+
+    $this->assertSame( $expected_happiness, $new_happiness );
+
+  }
+
+  public function testHappinessAbove200IncreasesByTwo() {
+
+    $old_level          = 1;
+    $new_level          = $old_level + 5;
+    $current_happiness  = 210;
+    $expected_happiness = $current_happiness + ( ( $new_level - $old_level ) * 2 );
+
+    $new_happiness = slackemon_calculate_level_up_happiness( $old_level, $new_level, $current_happiness );
+
+    $this->assertSame( $expected_happiness, $new_happiness );
+
+  }
+
 }
 
 // The end!
