@@ -997,7 +997,14 @@ function slackemon_battle_has_ended_message( $user_id = USER_ID ) {
 } // Function slackemon_battle_has_ended_message
 
 function slackemon_readable_challenge_type( $challenge_type ) {
+
+  // Challenge type values are usually arrays, but in case we get a string...
+  if ( is_string( $challenge_type ) ) {
+    $challenge_type = [ $challenge_type ];
+  }
+
   return slackemon_readable( join( ' ', $challenge_type ) );
+
 }
 
 // The end!

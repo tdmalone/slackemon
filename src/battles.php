@@ -952,12 +952,12 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
 
     if ( $move_data->meta->drain ) {
 
-      // Drain is expressed as a percentage of the damage done, and can be negative if the attack caused recoil
+      // Drain is expressed as a percentage of the damage done, and can be negative if the attack caused recoil.
       $drain_amount     = ( $move_data->meta->drain / 100 ) * $damage->damage;
       $drain_percentage = floor( $drain_amount / $user_pokemon->stats->hp * 100 );
 
       $user_pokemon->hp += $drain_amount;
-      $user_pokemon->hp = max( 0, $user_pokemon->hp ); // Ensure the HP doesn't go below 0
+      $user_pokemon->hp = max( 0, $user_pokemon->hp ); // Ensure the HP doesn't go below 0.
       $user_pokemon->hp = min( $user_pokemon->stats->hp, $user_pokemon->hp ); // Ensure the HP doesn't go above the max
 
       if ( $move_data->meta->drain > 0 ) {
@@ -972,16 +972,16 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
         );
       }
 
-    } // If drain
+    } // If drain.
 
     if ( $move_data->meta->healing ) {
 
-      // Healing is expressed as a percentage of the user's maximum HP, and can be negative if they hurt themselves
+      // Healing is expressed as a percentage of the user's maximum HP, and can be negative if they hurt themselves.
       $healing_amount     = $move_data->meta->healing / 100 * $user_pokemon->stats->hp;
       $healing_percentage = floor( $healing_amount / $user_pokemon->stats->hp * 100 );
 
       $user_pokemon->hp += $healing_amount;
-      $user_pokemon->hp = max( 0, $user_pokemon->hp ); // Ensure the HP doesn't go below 0
+      $user_pokemon->hp = max( 0, $user_pokemon->hp ); // Ensure the HP doesn't go below 0.
       $user_pokemon->hp = min( $user_pokemon->stats->hp, $user_pokemon->hp ); // Ensure the HP doesn't go above the max
 
       if ( $move_data->meta->healing > 0 ) {
@@ -1137,6 +1137,25 @@ function slackemon_is_friendly_battle( $battle_data ) {
   return 'friendly' === $battle_data->challenge_type[0];
 
 } // Function slackemon_is_friendly_battle.
+
+function slackemon_is_player_eligible_for_challenge( $challenge_type, $user_id ) {
+
+  $challenge_type_data = slackemon_get_battle_challenge_types()->{ $challenge_type[0] };
+
+  if (
+    ( ! $challenge_type_data->enabled ) ||
+    ( ! $challenge_type_data->allow_legendaries && slackemon_is_legendary_in_battle_team( $user_id ) ) ||
+    (
+      $challenge_type_data->level_limited &&
+      slackemon_get_battle_team_highest_level( $user_id, true ) > $challenge_type[1]
+    )
+  ) {
+    return false;
+  }
+
+  return true;
+
+} // Function slackemon_is_player_eligible_for_challenge.
 
 /**
  * Gets the number of Pokemon a user has remaining (i.e. not fainted) in battle. This be used to eg. determine

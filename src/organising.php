@@ -818,7 +818,7 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
 
   return $battle_team;
 
-} // Function slackemon_get_battle_team
+} // Function slackemon_get_battle_team.
 
 /**
  * Returns the ts (spawn timestamp) of the Pokemon that the user has set as their battle team leader.
@@ -839,7 +839,7 @@ function slackemon_get_battle_team_leader( $user_id = USER_ID ) {
 
   return $player_data->battle_team_leader;
 
-} // Function slackemon_get_battle_team_leader
+} // Function slackemon_get_battle_team_leader.
 
 /**
  * Sets the ts (spawn timestamp) of the Pokemon that the user wants as their battle team leader.
@@ -855,7 +855,7 @@ function slackemon_set_battle_team_leader( $spawn_ts, $user_id = USER_ID ) {
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_get_battle_team_leader
+} // Function slackemon_get_battle_team_leader.
 
 function slackemon_get_battle_team_highest_level( $user_id = USER_ID, $floor_result = false ) {
 
@@ -879,7 +879,31 @@ function slackemon_get_battle_team_highest_level( $user_id = USER_ID, $floor_res
 
   return $highest_level;
 
-} // Function slackemon_get_battle_team_highest_level
+} // Function slackemon_get_battle_team_highest_level.
+
+function slackemon_get_battle_team_lowest_level( $user_id = USER_ID, $floor_result = false ) {
+
+  $battle_team = slackemon_get_battle_team( $user_id, false, true );
+
+  if ( ! $battle_team ) {
+    return false;
+  }
+
+  $lowest_level = 1;
+
+  foreach ( $battle_team as $_pokemon ) {
+    if ( $_pokemon->level < $lowest_level ) {
+      $lowest_level = $_pokemon->level;
+    }
+  }
+
+  if ( $floor_result ) {
+    return floor( $lowest_level );
+  }
+
+  return $lowest_level;
+
+} // Function slackemon_get_battle_team_lowest_level.
 
 function slackemon_is_legendary_in_battle_team( $user_id = USER_ID ) {
 
@@ -893,7 +917,7 @@ function slackemon_is_legendary_in_battle_team( $user_id = USER_ID ) {
 
   return false;
 
-} // Function slackemon_is_legendary_in_battle_team
+} // Function slackemon_is_legendary_in_battle_team.
 
 function slackemon_get_pokemon_transfer_message( $spawn_ts, $action ) {
 
