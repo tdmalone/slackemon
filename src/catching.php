@@ -285,10 +285,9 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
       $is_caught = true;
     } else if ( $battle_hash ) {
 
-      $hp_percentage_integer = $opponent_pokemon->hp / $opponent_pokemon->stats->hp;
-      $is_caught = (
-        random_int( 1, SLACKEMON_BASE_FLEE_CHANCE * SLACKEMON_BATTLE_FLEE_MULTIPLIER / $hp_percentage_integer ) > 1
-      );
+      $hp_percentage  = max( $opponent_pokemon->hp / $opponent_pokemon->stats->hp, 0.0001 ); // Prevent from being 0.
+      $random_int_max = round( SLACKEMON_BASE_FLEE_CHANCE * SLACKEMON_BATTLE_FLEE_MULTIPLIER / $hp_percentage );
+      $is_caught      = random_int( 1, $random_int_max ) > 1;
 
     } else {
 
