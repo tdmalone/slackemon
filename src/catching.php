@@ -284,14 +284,10 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
     } else if ( 'catch' === $force_battle_result ) {
       $is_caught = true;
     } else if ( $battle_hash ) {
-
-      $hp_percentage  = max( $opponent_pokemon->hp / $opponent_pokemon->stats->hp, 0.0001 ); // Prevent from being 0.
-      $random_int_max = round( SLACKEMON_BASE_FLEE_CHANCE * SLACKEMON_BATTLE_FLEE_MULTIPLIER / $hp_percentage );
-      $is_caught      = random_int( 1, $random_int_max ) > 1;
-
+      $is_caught = ! slackemon_should_wild_battle_pokemon_flee( $opponent_pokemon );
     } else {
 
-      // Eg. `random_int( 1, 4 )` for a 1 in 4 chance of NOT catching
+      // Eg. `random_int( 1, 4 )` for a 1 in 4 chance of fleeing.
       $is_caught = random_int( 1, SLACKEMON_BASE_FLEE_CHANCE ) > 1;
 
     }

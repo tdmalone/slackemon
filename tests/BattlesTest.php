@@ -130,6 +130,51 @@ final class BattlesTest extends TestCase {
 
   }
 
+  public function testWildPokemonFleeChanceWithFullHp() {
+
+    $pokemon = json_decode(
+      json_encode([
+        'hp' => 100,
+        'stats' => [
+          'hp' => 100,
+        ],
+      ])
+    );
+
+    $this->assertInternalType( 'boolean', slackemon_should_wild_battle_pokemon_flee( $pokemon ) );
+
+  }
+
+  public function testWildPokemonFleeChanceWithNoHp() {
+
+    $pokemon = json_decode(
+      json_encode([
+        'hp' => 0,
+        'stats' => [
+          'hp' => 100,
+        ],
+      ])
+    );
+
+    $this->assertInternalType( 'boolean', slackemon_should_wild_battle_pokemon_flee( $pokemon ) );
+
+  }
+
+  public function testWildPokemonFleeChanceWithHalfHp() {
+
+    $pokemon = json_decode(
+      json_encode([
+        'hp' => 50,
+        'stats' => [
+          'hp' => 100,
+        ],
+      ])
+    );
+
+    $this->assertInternalType( 'boolean', slackemon_should_wild_battle_pokemon_flee( $pokemon ) );
+
+  }
+
 }
 
 // The end!
