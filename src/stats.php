@@ -420,7 +420,7 @@ function slackemon_calculate_level_up_happiness( $old_level, $new_level_or_pokem
   // Reference: http://bulbapedia.bulbagarden.net/wiki/Friendship#In_Generation_I.
   for ( $i = floor( $old_level ); $i < floor( $new_level ); $i++ ) {
     if ( $happiness < 100 ) {
-      $new_happiness += 5;
+      $happiness += 5;
     } else if ( $happiness < 200 ) {
       $happiness += 3;
     } else {
