@@ -138,18 +138,19 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
   $_cached_slackemon_player_data[ $user_id ] = $player_data;
 
   // Ensure player is not caught in a cancelled region if the available regions change.
+  // TODO: Abstract this into a separate function.
   $regions = slackemon_get_regions();
   if ( ! array_key_exists( $player_data->region, $regions ) ) {
 
-    // Re-open the player file, for writing this time
-    $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', true ) );
-
+    // Re-open the player file (for writing if it wasn't already open for writing).
+    $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', ! $for_writing ) );
     $player_data->region = SLACKEMON_DEFAULT_REGION;
-    slackemon_save_player_data( $player_data, $user_id, true );
+    slackemon_save_player_data( $player_data, $user_id, ! $for_writing );
 
   }
 
   // Version migrations for player data.
+  // TODO: Abstract this into a separate function.
 
   // v0.0.36:
   // - Now that spawned Pokemon are correctly saved with their species name rather than variety name, fix any
