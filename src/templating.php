@@ -256,24 +256,9 @@ function slackemon_get_battle_challenge_emoji( $challenge_type ) {
     $challenge_type = $challenge_type[0];
   }
 
-  $emoji = [
-    'normal'         => ':facepunch:',
-    'friendly'       => ':heart:',
-    'fast'           => ':fast_forward:',
-    'double-xp'      => ':part_alternation_mark:',
-    'legendary'      => ':star2:',
-    'type-inverse'   => ':left_right_arrow:',
-    'unlimited-swap' => ':arrows_counterclockwise:',
-    'random-team'    => ':grey_question:', // TODO: This could get confusing in battle due to the unseen Pokemon emoji.
-    'no-pp'          => ':rage:',          // TODO: Is this the most appropriate?
-    'level'          => '',                // TODO: Need to determine.
-  ];
+  $challenge_types = slackemon_get_battle_challenge_types();
 
-  if ( isset( $emoji[ $challenge_type ] ) ) {
-    return $emoji[ $challenge_type ];
-  }
-  
-  return '';
+  return $challenge_types->{ $challenge_type }->emoji;
 
 } // Function slackemon_get_battle_challenge_emoji.
 

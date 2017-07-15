@@ -1297,6 +1297,20 @@ function slackemon_should_wild_battle_pokemon_flee( $pokemon ) {
 } // Function slackemon_should_wild_battle_pokemon_flee.
 
 /**
+ * Returns the battle challenge types that Slackemon supports, along with the attributes of each one.
+ *
+ * @return obj
+ */
+function slackemon_get_battle_challenge_types() {
+
+  // Get local challenge types config.
+  $challenge_types = json_decode( file_get_contents( __DIR__ . '/../etc/challenge-types.json' ) );
+
+  return $challenge_types;
+
+} // Function slackemon_get_battle_challenge_types.
+
+/**
  * Generates a hash to identify a battle, based on the start time and the two users in the battle. The order of the
  * users does not matter. Usually only used as the unique filename of an in-progress or recently completed battle
  * (as well as the invite/challenge filename before acceptance, if applicable).
