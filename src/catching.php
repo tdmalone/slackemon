@@ -436,7 +436,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
     'ts'             => $battle_ts,
     'hash'           => $battle_hash,
     'type'           => 'wild',
-    'challenge_type' => [ 'standard' ], // Different challenge types are not supported for wild battles.
+    'challenge_type' => [ 'normal' ], // Different challenge types are not supported for wild battles.
     'users'          => [
       $inviter_id => [
         'team'   => [ 'ts' . $inviter_pokemon->ts => $inviter_pokemon ],

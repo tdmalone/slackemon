@@ -11,7 +11,7 @@ final class BattlesTest extends TestCase {
   }
 
   public function testFriendlyCheckFailsOnStandardBattle() {
-    $this->assertFalse( slackemon_is_friendly_battle( (object) [ 'challenge_type' => [ 'standard' ] ] ) );
+    $this->assertFalse( slackemon_is_friendly_battle( (object) [ 'challenge_type' => [ 'normal' ] ] ) );
   }
 
   public function testUserRemainingPokemonRetrievedFromBattleData() {
