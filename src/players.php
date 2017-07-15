@@ -82,7 +82,7 @@ function slackemon_save_player_data(
 
   return $return;
 
-} // Function slackemon_save_player_data
+} // Function slackemon_save_player_data.
 
 /**
  * Gets a player's data file.
@@ -146,17 +146,18 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
 
     $player_data->region = SLACKEMON_DEFAULT_REGION;
     slackemon_save_player_data( $player_data, $user_id, true );
+
   }
 
-  // Version migrations for player data
+  // Version migrations for player data.
 
-  // v0.0.36
+  // v0.0.36:
   // - Now that spawned Pokemon are correctly saved with their species name rather than variety name, fix any
   //   previously caught Deoxys.
   if ( version_compare( $player_data->version, '0.0.36', '<' ) ) {
 
-    // Re-open the player file, for writing this time.
-    $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', true ) );
+    // Re-open the player file (for writing if it wasn't already open for writing).
+    $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', ! $for_writing ) );
 
     // Update the player file version number so this update doesn't run again.
     $player_data->version = '0.0.36';
@@ -170,13 +171,33 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
 
     }
 
-    slackemon_save_player_data( $player_data, $user_id, true );
+    // Save the player file (relinquishing lock if we didn't already open for writing when this function was called).
+    slackemon_save_player_data( $player_data, $user_id, ! $for_writing );
 
-  } // If not version
+  } // If less than v0.0.36.
+
+  // v0.0.47:
+  // - Add missing user_id to legacy player files, now that it is being used by
+  //   slackemon_apply_battle_winners_to_collection() and could be used more in the future.
+  if ( version_compare( $player_data->version, '0.0.47', '<' ) ) {
+
+    // Re-open the player file (for writing if it wasn't already open for writing).
+    $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', ! $for_writing ) );
+
+    // Update the player file version number so this update doesn't run again.
+    $player_data->version = '0.0.47';
+
+    // Add the user ID, whether it was already there or not.
+    $player_data->user_id = $user_id;
+
+    // Save the player file (relinquishing lock if we didn't already open for writing when this function was called).
+    slackemon_save_player_data( $player_data, $user_id, ! $for_writing );
+
+  } // If less than v0.0.47.
 
   return $player_data;
 
-} // Function slackemon_get_player_data
+} // Function slackemon_get_player_data.
 
 function slackemon_search_player_pokemon( $search_string, $user_id = USER_ID ) {
 
