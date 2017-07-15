@@ -5,7 +5,7 @@
  * @package Slackemon
  */
 
-// Cronned function (through /slackemon battle-updates) which should run every minute
+/** Cronned function (through /slackemon battle-updates) which should run every minute. */
 function slackemon_do_battle_updates() {
 
   $active_players = slackemon_get_player_ids( [ 'active_only' => true ] );
