@@ -985,7 +985,7 @@ function slackemon_battle_has_ended_message( $user_id = USER_ID ) {
     ),
 
     'attachments' => [
-      slackemon_back_to_menu_attachment()
+      slackemon_back_to_menu_attachment(),
     ],
 
     'channel' => $user_id,

@@ -332,7 +332,7 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID,
 
   return $attachment;
 
-} // Function slackemon_get_player_battle_attachment
+} // Function slackemon_get_player_battle_attachment.
 
 function slackemon_get_battle_menu_pokemon_attachment( $pokemon, $user_id = USER_ID ) {
 

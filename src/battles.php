@@ -1506,7 +1506,7 @@ function slackemon_move_completed_battle_file( $battle_hash ) {
   if ( slackemon_file_exists( $data_folder . '/battles_active/' . $battle_hash, 'store' ) ) {
 
     return slackemon_rename(
-      $data_folder . '/battles_active/' . $battle_hash,
+      $data_folder . '/battles_active/'   . $battle_hash,
       $data_folder . '/battles_complete/' . $battle_hash,
       'store'
     );

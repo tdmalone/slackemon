@@ -53,7 +53,7 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
       ':open_mouth: *Oops! You already have an outstanding battle challenge.*' . "\n" .
       'Please ' . $cancel_verb . ' your current challenge before sending a new one. :smile:',
       $action,
-      false // Don't send now, we'll return below to be sent with our default action response
+      false // Don't send now, we'll return below to be sent with our default action response.
     );
 
   } else if ( count( $invitee_invites ) ) {
@@ -62,7 +62,7 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
       ':open_mouth: *Oops! That user already has an outstanding battle challenge.*' . "\n" .
       'Please try challenging this user later. :smile:',
       $action,
-      false // Don't send now, we'll return below to be sent with our default action response
+      false // Don't send now, we'll return below to be sent with our default action response.
     );
 
   } else {
@@ -115,7 +115,7 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
       slackemon_get_battle_team_status_attachment( $invitee_id, 'invitee' )
     );
 
-    // Save invite data without warning about it not being locked, since it is a new file
+    // Save invite data without warning about it not being locked, since it is a new file.
     slackemon_save_battle_data( $invite_data, $battle_hash, 'invite', false, false );
 
     if ( slackemon_post2slack( $invitee_message ) ) {
@@ -160,7 +160,7 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
 
       case 'inviter':
 
-        // Respond to the invitee first
+        // Respond to the invitee first.
         slackemon_post2slack([
           'text' => (
             ':disappointed: *Oh! Sorry, ' . slackemon_get_slack_user_first_name( $invite_data->inviter_id ) . ' ' .
@@ -182,7 +182,7 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
 
       case 'invitee':
 
-        // Respond to the inviter first
+        // Respond to the inviter first.
         slackemon_post2slack([
           'text' => (
             ':disappointed: *Sorry, ' . slackemon_get_slack_user_first_name( $invite_data->invitee_id ) . ' ' .
@@ -193,7 +193,7 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
           'channel' => $invite_data->inviter_id,
         ]);
 
-        // Invitee response
+        // Invitee response.
         $message = slackemon_update_triggering_attachment(
           ':x: *You have declined ' . slackemon_get_slack_user_first_name( $invite_data->inviter_id ) . '\'s ' .
           'challenge.*' . "\n" .
@@ -204,7 +204,7 @@ function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter
 
       break;
 
-    } // Switch mode
+    } // Switch mode.
 
   } else {
 
@@ -243,7 +243,7 @@ function slackemon_get_invite_data( $battle_hash, $remove_invite = false ) {
 function slackemon_get_user_outstanding_invites( $user_id = USER_ID ) {
   global $data_folder;
 
-  $invites = slackemon_get_files_by_prefix( $data_folder . '/battles_invites/', 'store' );
+  $invites      = slackemon_get_files_by_prefix( $data_folder . '/battles_invites/', 'store' );
   $user_invites = [];
 
   foreach ( $invites as $invite_filename ) {

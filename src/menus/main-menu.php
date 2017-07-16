@@ -40,8 +40,9 @@ function slackemon_get_main_menu() {
 
   if ( $weather_condition ) {
     switch ( $weather_condition ) {
-      case 'Sunny':       $weather_emoji = ':sunny:';      break; // Day version of 'Clear'
-      case 'Clear':       $weather_emoji = ':sparkles:';   break; // Night version of 'Clear'
+
+      case 'Sunny':       $weather_emoji = ':sunny:';      break; // Day version of 'Clear'.
+      case 'Clear':       $weather_emoji = ':sparkles:';   break; // Night version of 'Clear'.
       case 'Cloudy':      $weather_emoji = ':cloud:';      break;
       case 'Windy';       $weather_emoji = ':dash:';       break;
       case 'Raining':     $weather_emoji = ':rain_cloud:'; break;
@@ -50,6 +51,7 @@ function slackemon_get_main_menu() {
       case 'Hailing';     $weather_emoji = ':snowflake:';  break;
       case 'Cold';        $weather_emoji = ':droplet:';    break;
       case 'Hot';         $weather_emoji = ':fire:';       break;
+
       default:
         if (
           false !== strpos( $weather_condition, 'Fog' ) ||
