@@ -786,14 +786,16 @@ function slackemon_is_battle_team_full( $user_id = USER_ID ) {
 
 } // Function slackemon_is_battle_team_full.
 
-function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false, $exclude_random_fillers = false ) {
+function slackemon_get_battle_team(
+  $user_id = USER_ID, $exclude_fainted = false, $exclude_random_fillers = false, $challenge_type = ['normal']
+) {
 
   $pokemon_collection = slackemon_get_player_data( $user_id )->pokemon;
   $battle_team = [];
 
   // Check whether this user doesn't even have enough Pokemon in their collection to form a team.
   if ( count( $pokemon_collection ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
-    return $battle_team;
+    return [];
   }
 
   // Get the battle team Pokemon.
@@ -832,6 +834,7 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
   }
 
   // If our battle team isn't full, we need to fill it with random additions.
+  // TODO: Need to make sure these random additions meet the challenge_type rules.
   $infinite_loop_protection = 0;
   while ( count( $battle_team ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
 
@@ -854,6 +857,11 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
 
     }
 
+  }
+
+  // Don't allow a short team to be returned.
+  if ( count( $battle_team ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
+    return [];
   }
 
   return $battle_team;
