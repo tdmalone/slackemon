@@ -231,7 +231,9 @@ function slackemon_get_user_outstanding_invites( $user_id = USER_ID ) {
   $user_invites = [];
 
   foreach ( $invites as $invite_filename ) {
+
     $invite_data = json_decode( slackemon_file_get_contents( $invite_filename, 'store' ) );
+    
     if ( $user_id === $invite_data->inviter_id || $user_id === $invite_data->invitee_id ) {
       $user_invites[] = $invite_data;
     }

@@ -221,18 +221,23 @@ function slackemon_start_battle( $battle_hash, $action ) {
   // For consistency, turn the whole thing into an object rather than an array.
   $battle_data = json_decode( json_encode( $battle_data ) );
 
-  // Save battle data without warning about it not being locked, since it is a new file
+  // Save battle data without warning about it not being locked, since it is a new file.
   slackemon_save_battle_data( $battle_data, $battle_hash, 'battle', false, false );
 
-  // Respond to the invitee
-  $inviter_first_name = slackemon_get_slack_user_first_name( $inviter_id );
-  if ( slackemon_send2slack([
-    'text'             => ':grin: *You have accepted ' . $inviter_first_name . '\'s challenge!*',
+  // Respond to the invitee.
+  $invitee_message = [
+    'text'             => (
+      ':grin: *You have accepted ' . slackemon_get_slack_user_first_name( $inviter_id ) . '\'s challenge!*'
+    ),
     'attachments'      => slackemon_get_battle_attachments( $battle_hash, $invitee_id, 'start' ),
     'replace_original' => true,
-  ]) ) {
+  ];
+  $invitee_message_result = slackemon_send2slack( $invitee_message );
 
-    // Alert the inviter
+  // If the message sent ok, alert the inviter.
+  // TODO: Send the battle attachments here too, so they don't have to wait for the first move.
+  if ( $invitee_message_result ) {
+
     slackemon_post2slack([
       'text' => (
         ':laughing: *' . slackemon_get_slack_user_first_name( $invitee_id ) . ' has accepted ' .
@@ -368,7 +373,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
     case 'timeout':
 
-      // This option is only supported for p2p battles
+      // This option is only supported for p2p battles.
 
       if ( 'p2p' === $battle_data->type ) {
 
@@ -411,9 +416,9 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
           'channel' => $winner_id,
         ]);
 
-      } // If p2p battle
+      } // If p2p battle.
 
-    break; // Case timeout
+    break; // Case timeout.
 
     case 'surrender':
 
@@ -422,7 +427,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
         case 'p2p':
 
           slackemon_send2slack([
-            'text' => 'You have surrended the battle!', // TODO: Expand on this, lol, when surrenders become possible
+            'text' => 'You have surrended the battle!', // TODO: Expand on this, lol, when surrenders become possible.
           ]);
 
         break; // Case p2p.
