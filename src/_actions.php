@@ -319,6 +319,10 @@ function slackemon_handle_action( $action ) {
     case 'evolve':
 
       $spawn_ts = $action_value;
+
+      // TODO: Prevent this from happening if the user is in battle (slackemon_is_player_in_battle()), in case they
+      //       evolve a Pokemon that they're using to battle... which will be overridden when the battle completes!
+
       slackemon_start_evolution_message( $spawn_ts, $action );
 
       if ( slackemon_evolve_user_pokemon( $spawn_ts ) ) {

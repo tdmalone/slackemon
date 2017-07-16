@@ -358,7 +358,16 @@ function slackemon_get_item_action_message( $method, $item_id, $action, $user_id
 
   $cancellation_message = '';
 
-  // Set the neccessary language
+  if ( slackemon_is_player_in_battle( $user_id ) ) {
+
+    $cancellation_message = (
+      ( slackemon_is_desktop( $user_id ) ? ':exclamation:' : '' ) .
+      'Oops! You can\'t do this during a battle.'
+    );
+
+  }
+
+  // Set the neccessary language.
   switch ( $method ) {
     case 'give':  $question = 'hold this item';     $finish_this_sentence = 'Give to...';  break;
     case 'use':   $question = 'use this item on';   $finish_this_sentence = 'Use on...';   break;
@@ -367,7 +376,7 @@ function slackemon_get_item_action_message( $method, $item_id, $action, $user_id
 
   // Because building the list of Pokemon that can be taught a move can be time-consuming, we'll do this now and 
   // cache it for the options request to pick up.
-  if ( 'teach' === $method ) {
+  if ( 'teach' === $method && ! $cancellation_message ) {
 
     $message['attachments'][ $action->attachment_id - 1 ]->footer = (
       'Checking who can learn this move... ' . slackemon_get_loading_indicator( $user_id, false )
@@ -424,7 +433,12 @@ function slackemon_get_item_action_message( $method, $item_id, $action, $user_id
 
 function slackemon_get_item_give_do_message( $item_id, $spawn_ts, $action, $user_id = USER_ID ) {
 
-  // Add the item to the Pokemon, and remove it from the item collection
+  // Add the item to the Pokemon, and remove it from the item collection.
+
+  if ( slackemon_is_player_in_battle( $user_id ) ) {
+    return slackemon_get_battle_action_denied_message( $action, $user_id );
+  }
+
   slackemon_change_pokemon_held_item( $item_id, $spawn_ts, $user_id );
   slackemon_remove_item( $item_id, $user_id );
 
@@ -456,7 +470,11 @@ function slackemon_get_item_give_do_message( $item_id, $spawn_ts, $action, $user
 
 function slackemon_get_item_return_message( $spawn_ts, $action, $user_id = USER_ID ) {
 
-  // Remove the item from the Pokemon, and return it to the collection
+  // Remove the item from the Pokemon, and return it to the collection.
+
+  if ( slackemon_is_player_in_battle( $user_id ) ) {
+    return slackemon_get_battle_action_denied_message( $action, $user_id );
+  }
 
   $player_data = slackemon_get_player_data( $user_id, true );
 
@@ -496,6 +514,10 @@ function slackemon_get_item_return_message( $spawn_ts, $action, $user_id = USER_
 } // Function slackemon_get_item_return_message.
 
 function slackemon_get_item_use_do_message( $item_id, $spawn_ts, $action, $user_id = USER_ID ) {
+
+  if ( slackemon_is_player_in_battle( $user_id ) ) {
+    return slackemon_get_battle_action_denied_message( $action, $user_id );
+  }
 
   $player_data = slackemon_get_player_data( $user_id );
   $item_data   = slackemon_get_item_data( $item_id );
@@ -550,7 +572,11 @@ function slackemon_get_item_use_do_message( $item_id, $spawn_ts, $action, $user_
 } // Function slackemon_get_item_use_do_message.
 
 function slackemon_get_item_teach_do_message( $item_id, $spawn_ts, $action, $user_id = USER_ID ) {
-  
+
+  if ( slackemon_is_player_in_battle( $user_id ) ) {
+    return slackemon_get_battle_action_denied_message( $action, $user_id );
+  }
+
   $player_data = slackemon_get_player_data( $user_id );
   $pokemon     = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
   $item_data   = slackemon_get_item_data( $item_id );

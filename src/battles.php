@@ -807,6 +807,9 @@ function slackemon_apply_battle_winners_to_collection( &$player_data, $results )
     } // If Pokemon has XP difference.
 
     // Apply the changes from the team to the user's collection.
+    // NOTE: Any other action that affects the items listed here should be prevented from being taken during a battle,
+    // because it will be overriden now as the battle completes. That includes teaching moves, evolving, and in future
+    // also giving and using items.
     $_pokemon->hp        = $results['team']->{ 'ts' . $_pokemon->ts }->hp;
     $_pokemon->xp        = $results['team']->{ 'ts' . $_pokemon->ts }->xp;
     $_pokemon->cp        = $results['team']->{ 'ts' . $_pokemon->ts }->cp;
@@ -1517,6 +1520,19 @@ function slackemon_move_completed_battle_file( $battle_hash ) {
   return false;
 
 } // Function slackemon_move_completed_battle_file.
+
+function slackemon_get_battle_action_denied_message( $action, $user_id ) {
+
+  $message = $action->original_message->attachments[ $action->attachment_id - 1 ];
+
+  $message->footer = (
+    ( slackemon_is_desktop( $user_id ) ? ':exclamation:' : '' ) .
+    'Oops! You can\'t do this during a battle.'
+  );
+
+  return slackemon_update_triggering_attachment( $message, $action, false );
+
+} // Function slackemon_get_battle_action_denied_message.
 
 function slackemon_battle_debug( $message ) {
 
