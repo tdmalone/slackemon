@@ -577,15 +577,20 @@ function slackemon_get_unfavourite_message( $action ) {
 
   return $message;
 
-} // Function slackemon_get_unfavourite_message
+} // Function slackemon_get_unfavourite_message.
 
-function slackemon_get_battle_team_add_message( $action, $action_name = '' ) {
+function slackemon_get_battle_team_add_message( $action, $action_name, $is_successful ) {
 
-  $message = [];
-  $message['text'] = $action->original_message->text;
-  $message['attachments'] = $action->original_message->attachments;
+  if ( ! $is_successful ) {
+    return slackemon_battle_team_add_remove_denied_message( $action );
+  }
 
-  // When adding at the Battle menu, we just need to reload the battle menu
+  $message = [
+    'text'        => $action->original_message->text,
+    'attachments' => $action->original_message->attachments,
+  ];
+
+  // When adding at the Battle menu, we just need to reload the battle menu.
   if ( 'battle-team/add/from-battle-menu' === $action_name ) {
     return slackemon_get_battle_menu();
   }
@@ -630,11 +635,16 @@ function slackemon_get_battle_team_add_message( $action, $action_name = '' ) {
 
 } // Function slackemon_get_battle_team_add_message.
 
-function slackemon_get_battle_team_remove_message( $action, $action_name = '' ) {
+function slackemon_get_battle_team_remove_message( $action, $action_name, $is_successful ) {
 
-  $message = [];
-  $message['text'] = $action->original_message->text;
-  $message['attachments'] = $action->original_message->attachments;
+  if ( ! $is_successful ) {
+    return slackemon_battle_team_add_remove_denied_message( $action );
+  }
+
+  $message = [
+    'text'        => $action->original_message->text,
+    'attachments' => $action->original_message->attachments,
+  ];
 
   // When removing at the Battle menu, we just need to reload the battle menu.
   if ( 'battle-team/remove/from-battle-menu' === $action_name ) {
@@ -692,5 +702,30 @@ function slackemon_get_battle_team_remove_message( $action, $action_name = '' ) 
   return $message;
 
 } // Function slackemon_get_battle_team_remove_message.
+
+
+/** Returns the failure message when a battle team add/remove action could not be completed. */
+function slackemon_battle_team_add_remove_denied_message( $action ) {
+
+  $message = [
+    'text'        => $action->original_message->text,
+    'attachments' => $action->original_message->attachments,
+  ];
+
+  $failure_message = 'Oops! That didn\'t work. Please try again!';
+
+  if ( slackemon_is_player_in_battle() ) {
+    $failure_message = 'Oops! You can\'t change up your team during a battle!';
+  } else if ( slackemon_does_user_have_outstanding_invite( USER_ID, 'inviter' ) ) {
+    $failure_message = 'Oops! You can\'t change up your team after sending an invite.';
+  }
+
+  $message['attachments'][ $action->attachment_id - 1 ]->footer = (
+    ( slackemon_is_desktop() ? ':exclamation:' : '' ) . $failure_message
+  );
+
+  return $message;
+
+} // Function slackemon_battle_team_add_remove_denied_message.
 
 // The end!

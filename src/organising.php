@@ -715,6 +715,19 @@ function slackemon_unfavourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
 
 function slackemon_add_to_battle_team( $spawn_ts, $user_id = USER_ID ) {
 
+  // Bow out if the user has an outstanding invite, as the inviter. They can't change their team after an invite
+  // has been sent.
+  if ( slackemon_does_user_have_outstanding_invite( $user_id, 'inviter' ) ) {
+    return false;
+  }
+
+  // Bow out if the user is currently in a battle. Technically changing the battle team during a battle shouldn't
+  // cause many issues because the current battle team is stored in the battle file, but probably better to be safe
+  // than sorry.
+  if ( slackemon_is_player_in_battle( $user_id ) ) {
+    return false;
+  }
+
   $player_data = slackemon_get_player_data( $user_id, true );
 
   foreach ( $player_data->pokemon as $_pokemon ) {
@@ -728,6 +741,19 @@ function slackemon_add_to_battle_team( $spawn_ts, $user_id = USER_ID ) {
 } // Function slackemon_add_to_battle_team.
 
 function slackemon_remove_from_battle_team( $spawn_ts, $user_id = USER_ID ) {
+
+  // Bow out if the user has an outstanding invite, as the inviter. They can't change their team after an invite
+  // has been sent.
+  if ( slackemon_does_user_have_outstanding_invite( $user_id, 'inviter' ) ) {
+    return false;
+  }
+
+  // Bow out if the user is currently in a battle. Technically changing the battle team during a battle shouldn't
+  // cause many issues because the current battle team is stored in the battle file, but probably better to be safe
+  // than sorry.
+  if ( slackemon_is_player_in_battle( $user_id ) ) {
+    return false;
+  }
 
   $player_data = slackemon_get_player_data( $user_id, true );
 

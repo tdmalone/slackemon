@@ -257,4 +257,40 @@ function slackemon_get_user_outstanding_invites( $user_id = USER_ID ) {
 
 } // Function slackemon_get_user_outstanding_invites.
 
+/**
+ * Returns whether or not the user has an outstanding invite - either as an invitee or inviter, or both.
+ *
+ * @param str $user_id The user ID, of course.
+ * @param str $mode    Whether to look for invites sent by 'inviter', received by 'invitee', or 'either'. Defaults
+ *                     to 'either'.
+ * @return bool
+ */
+function slackemon_does_user_have_outstanding_invite( $user_id, $mode = 'either' ) {
+
+  $outstanding_invites = slackemon_get_user_outstanding_invites( $user_id );
+
+  if ( ! count( $outstanding_invites ) ) {
+    return false;
+  }
+
+  if ( 'either' === $mode ) {
+    return true;
+  }
+
+  foreach ( $outstanding_invites as $invite ) {
+
+    if ( 'inviter' === $mode && $user_id === $invite->inviter_id ) {
+      return true;
+    }
+
+    if ( 'invitee' === $mode && $user_id === $invite->invitee_id ) {
+      return true;
+    }
+
+  }
+
+  return false;
+
+} // Function slackemon_does_user_have_outstanding_invite.
+
 // The end!

@@ -298,16 +298,16 @@ function slackemon_handle_action( $action ) {
 
     case 'battle-team/add':
     case 'battle-team/add/from-battle-menu':
-      $spawn_ts = $action_value;
-      slackemon_add_to_battle_team( $spawn_ts );
-      $message = slackemon_get_battle_team_add_message( $action, $action_name );
+      $spawn_ts      = $action_value;
+      $is_successful = slackemon_add_to_battle_team( $spawn_ts );
+      $message       = slackemon_get_battle_team_add_message( $action, $action_name, $is_successful );
     break;
 
     case 'battle-team/remove':
     case 'battle-team/remove/from-battle-menu':
-      $spawn_ts = $action_value;
-      slackemon_remove_from_battle_team( $spawn_ts );
-      $message = slackemon_get_battle_team_remove_message( $action, $action_name );
+      $spawn_ts      = $action_value;
+      $is_successful = slackemon_remove_from_battle_team( $spawn_ts );
+      $message       = slackemon_get_battle_team_remove_message( $action, $action_name, $is_successful );
     break;
 
     case 'battle-team/set-leader':

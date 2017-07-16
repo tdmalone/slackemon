@@ -381,12 +381,16 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon, $user_id = USER
         'text'  => ':eye: View Info',
         'type'  => 'button',
         'value' => $pokemon->ts,
-      ], [
-        'name'  => 'battle-team/remove/from-battle-menu',
-        'text'  => ':x: Remove',
-        'type'  => 'button',
-        'value' => $pokemon->ts,
       ], (
+        slackemon_is_player_in_battle() || slackemon_does_user_have_outstanding_invite( $user_id, 'inviter' ) ?
+        [] :
+        [
+          'name'  => 'battle-team/remove/from-battle-menu',
+          'text'  => ':x: Remove',
+          'type'  => 'button',
+          'value' => $pokemon->ts,
+        ]
+      ), (
         slackemon_get_battle_team_leader() === $pokemon->ts ?
         [] :
         [
