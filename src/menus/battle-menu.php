@@ -62,7 +62,7 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
   array_unshift( $attachments, slackemon_get_battle_team_status_attachment() );
 
   $online_players      = slackemon_get_player_ids([ 'active_only' => true, 'skip_current_user' => true ]);
-  $outstanding_invites = slackemon_get_user_outstanding_invites();
+  $outstanding_invites = slackemon_get_user_outstanding_invites( $user_id );
 
   if ( $faint_count === SLACKEMON_BATTLE_TEAM_SIZE && ! count( $outstanding_invites ) ) {
     return $attachments;
@@ -301,7 +301,8 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID,
   $attachment = [
     'text' => (
       '*' . slackemon_get_slack_user_full_name( $player_id ) . '*' . "\n" .
-      number_format( $player_data->xp ) . ' XP • ' .
+      number_format( $player_data->xp ) . ' XP' .
+      ( $is_desktop ? ' • ' : "\n" ) .
       floor( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate'
     ),
     'fields'      => [],
@@ -316,8 +317,8 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID,
     $attachment['text'] .= (
       "\n" .
       '_You sent a ' . slackemon_readable_challenge_type( $invite_data->challenge_type ) . ' Challenge ' .
-      slackemon_get_battle_challenge_emoji( $invite_data->challenge_type ) . ' ' .
-      '' . slackemon_get_relative_time( $invite_data->ts ) . '_'
+      slackemon_get_battle_challenge_emoji( $invite_data->challenge_type ) .
+      ( time() - $invite_data->ts > 60 ? ' ' . slackemon_get_relative_time( $invite_data->ts ) : '' ) . '_'
     );
     
   } else {
