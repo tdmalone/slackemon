@@ -111,30 +111,10 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
     } else {
 
-      $opponent_id = $outstanding_invites[0]->inviter_id;
-      $battle_hash = $outstanding_invites[0]->hash;
-
-      $attachment  = slackemon_get_player_battle_attachment( $opponent_id );
-      $_first_name = slackemon_get_slack_user_first_name( $opponent_id );
-      $attachment['pretext'] = ':arrow_right: *You have an outstanding battle challenge from ' . $_first_name . ':*';
-
-      $attachment['actions'] = [
-        [
-          'name'  => 'battles/accept',
-          'text'  => 'Accept',
-          'type'  => 'button',
-          'value' => $battle_hash,
-          'style' => 'primary',
-        ], [
-          'name'  => 'battles/decline',
-          'text'  => 'Decline',
-          'type'  => 'button',
-          'value' => $battle_hash,
-          'style' => 'danger',
-        ]
-      ];
-
-      $attachments[] = $attachment;
+      // User has one or more outstanding invites to accept.
+      
+      $invite_attachments = slackemon_get_battle_invite_attachments( $outstanding_invites[0], 'battle-menu' );
+      $attachments = array_merge( $attachments, $invite_attachments );
 
     }
 

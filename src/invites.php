@@ -56,6 +56,8 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
       false // Don't send now, we'll return below to be sent with our default action response.
     );
 
+    return $inviter_message;
+
   } else if ( count( $invitee_invites ) ) {
 
     $inviter_message = slackemon_update_triggering_attachment(
@@ -65,78 +67,179 @@ function slackemon_send_battle_invite( $invitee_id, $action, $challenge_type, $i
       false // Don't send now, we'll return below to be sent with our default action response.
     );
 
+    return $inviter_message;
+
+  }
+
+  $invitee_message = [
+    'text' => (
+      ':stuck_out_tongue_closed_eyes: *You have been challenged ' .
+      'to a ' . slackemon_readable_challenge_type( $challenge_type ) . ' Slackémon Battle ' .
+      slackemon_get_battle_challenge_emoji( $challenge_type ) . ' ' .
+      'by ' . slackemon_get_slack_user_first_name( $inviter_id ) . '!*'
+    ),
+    'attachments' => slackemon_get_battle_invite_attachments( $invite_data ),
+    'channel'     => $invitee_id,
+  ];
+
+  // Save invite data without warning about it not being locked, since it is a new file.
+  slackemon_save_battle_data( $invite_data, $battle_hash, 'invite', false, false );
+
+  if ( slackemon_post2slack( $invitee_message ) ) {
+
+    $inviter_message = slackemon_get_battle_menu();
+
   } else {
 
-    $attachment = slackemon_get_player_battle_attachment( $inviter_id, $invitee_id );
-
-    $attachment['actions'] = [
-      [
-        'name' => 'battles/accept',
-        'text' => 'Accept',
-        'type' => 'button',
-        'value' => $battle_hash,
-        'style' => 'primary',
-      ], [
-        'name' => 'battles/decline',
-        'text' => 'Decline',
-        'type' => 'button',
-        'value' => $battle_hash,
-        'style' => 'danger',
-      ]
+    $inviter_message = [
+      'text'             => ':no_entry: *Oops!* A problem occurred. Please try your last action again.',
+      'replace_original' => false,
     ];
 
-    $invitee_message = [
-      'text' => (
-        ':stuck_out_tongue_closed_eyes: *You have been challenged ' .
-        'to a ' . slackemon_readable_challenge_type( $challenge_type ) . ' Slackémon Battle ' .
-        slackemon_get_battle_challenge_emoji( $challenge_type ) . ' ' .
-        'by ' . slackemon_get_slack_user_first_name( $inviter_id ) . '!*'
-      ),
-      'attachments' => [
-        $attachment,
-        (
-          slackemon_is_battle_team_full( $invitee_id ) ?
-          [] :
-          [
-            'pretext' => (
-              '_You have not yet selected your full battle team of ' . SLACKEMON_BATTLE_TEAM_SIZE . ' Pokémon. You '  .
-              'can do so now, before accepting this invitation, by running `' . SLACKEMON_SLASH_COMMAND . '` and '    .
-              'clicking through to your Pokémon list. If you don\'t, you\'ll be battling with a random selection of ' .
-              'your Pokémon instead!_'
-            ),
-          ]
-        ),
-        slackemon_back_to_menu_attachment(),
-      ],
-      'channel' => $invitee_id,
-    ];
-
-    array_unshift(
-      $invitee_message['attachments'],
-      slackemon_get_battle_team_status_attachment( $invitee_id, 'invitee' )
-    );
-
-    // Save invite data without warning about it not being locked, since it is a new file.
-    slackemon_save_battle_data( $invite_data, $battle_hash, 'invite', false, false );
-
-    if ( slackemon_post2slack( $invitee_message ) ) {
-
-      $inviter_message = slackemon_get_battle_menu();
-
-    } else {
-
-      $inviter_message = [
-        'text' => ':no_entry: *Oops!* A problem occurred. Please try your last action again.',
-        'replace_original' => false,
-      ];
-
-    }
-
-  } // If outstanding invites / else.
+  }
 
   return $inviter_message;
 
 } // Function slackemon_send_battle_invite.
+
+function slackemon_get_battle_invite_attachments( $invite_data, $context = 'invite' ) {
+
+  $invite_attachment = slackemon_get_battle_invite_attachment( $invite_data, $context );
+  $status_attachment = slackemon_get_invite_status_attachment( $invite_data );
+  $menu_attachment   = slackemon_back_to_menu_attachment();
+
+  // Add pretext if coming from the battle menu.
+  if ( 'battle-menu' === $context ) {
+
+    $challenge_type = $invite_data->challenge_type;
+
+    $invite_attachment['pretext'] = (
+      ':arrow_right: *You have a ' . slackemon_readable_challenge_type( $challenge_type ) . ' Battle Challenge ' .
+      slackemon_get_battle_challenge_emoji( $challenge_type ) . ' ' .
+      'from ' . slackemon_get_slack_user_first_name( $invite_data->inviter_id ) . ':*'
+    );
+
+  }
+
+  // Adjust the options if we have a non-blocking status attachment, so it's clearer to the user what they should do.
+  if ( $status_attachment && 'warning' === $status_attachment['color'] ) {
+
+    $invite_attachment['actions'][0]['style']   = 'default';
+
+    $invite_attachment['actions'][0]['confirm'] =  [
+      'title' => 'Are you sure?',
+      'text'  => 'Are you sure you\'re ready to start this battle? Your team is not fully ready yet!',
+    ];
+
+    // Add additional menu option for the battle menu.
+    $menu_attachment = slackemon_back_to_menu_attachment([ 'battles', 'main' ]);
+    $menu_attachment['actions'][0]['style'] = 'primary';
+
+  }
+
+  return [
+    $invite_attachment,
+    $status_attachment,
+    'invite' === $context ? $menu_attachment : [],
+  ];
+
+} // Function slackemon_get_battle_invite_attachments.
+
+function slackemon_get_battle_invite_attachment( $invite_data, $context = 'invite' ) {
+
+  // Accept either an array or object.
+  if ( is_array( $invite_data ) ) {
+    $invite_data = json_decode( json_encode( $invite_data ) );
+  }
+
+  $inviter_id = $invite_data->inviter_id;
+  $invitee_id = $invite_data->invitee_id;
+
+  $invite_attachment  = slackemon_get_player_battle_attachment( $inviter_id, $invitee_id );
+  $is_player_eligible = slackemon_is_player_eligible_for_challenge( $invite_data->challenge_type, $invitee_id );
+
+  // The accept action will be a link to the Battles menu instead if the player isn't eligible yet.
+  if ( $is_player_eligible ) {
+
+    $accept_action = [
+      'name'  => 'battles/accept',
+      'text'  => 'Accept',
+      'type'  => 'button',
+      'value' => $invite_data->hash,
+      'style' => 'primary',
+    ];
+
+  } else if ( 'battle-menu' !== $context ) {
+
+    $accept_action = slackemon_back_to_menu_attachment( ['battles'], 'actions' )[0];
+    $accept_action['text']  = ':facepunch: Change Team';
+    $accept_action['style'] = 'primary';
+
+  }
+
+  $invite_attachment['actions'] = [
+    isset( $accept_action ) ? $accept_action : [],
+    [
+      'name'  => 'battles/decline',
+      'text'  => 'Decline',
+      'type'  => 'button',
+      'value' => $invite_data->hash,
+      'style' => 'danger',
+    ]
+  ];
+
+  return $invite_attachment;
+
+} // Function slackemon_get_battle_invite_attachment.
+
+function slackemon_get_invite_status_attachment( $invite_data ) {
+
+  // Accept either an array or object.
+  if ( is_array( $invite_data ) ) {
+    $invite_data = json_decode( json_encode( $invite_data ) );
+  }
+
+  $inviter_id = $invite_data->inviter_id;
+  $invitee_id = $invite_data->invitee_id;
+
+  $is_player_eligible = slackemon_is_player_eligible_for_challenge( $invite_data->challenge_type, $invitee_id );
+
+  // If the player is already eligible, get a generic battle team status message, to advise if they should make
+  // changes to eg. fainted Pokemon before accepting.
+  if ( $is_player_eligible ) {
+
+    $status_options = [
+      'perspective'      => 'invitee',
+      'challenge_type'   => $invite_data->challenge_type,
+      'quiet_on_success' => true,
+    ];
+
+    $status_attachment = slackemon_get_battle_team_status_attachment( $invitee_id, $status_options );
+
+    // Move the pretext to the main text. Because we've said 'quiet_on_success' above, if there is a message, we know
+    // it's not a success one.
+    if ( $status_attachment ) {
+      $status_attachment['color']   = 'warning';
+      $status_attachment['text']    = $status_attachment['pretext'];
+      $status_attachment['pretext'] = '';
+    }
+
+  } else {
+
+    // Set up our own status attachment if the player is not eligible. Accept button will have already been removed.
+    $status_attachment = [
+      'color' => 'danger',
+      'text'  => (
+        ':exclamation: *Your current battle team isn\'t eligible for this challenge.*' . "\n" .
+        'You\'ll need to swap your team before you can accept.'
+      ),
+    ];
+
+  }
+
+  return $status_attachment;
+
+} // Function slackemon_get_invite_status_attachment.
 
 function slackemon_cancel_battle_invite( $battle_hash, $action, $mode = 'inviter' ) {
 
@@ -312,14 +415,14 @@ function slackemon_get_invite_cancellation_responses( $inviter_name, $invitee_na
           'Your battle team is no longer eligible for the challenge you invited ' . $invitee_name . ' to!' . "\n" .
           'Please check your team, then try sending your challenge again.'
         ),
-        'other' => $inviter_name . '\'s battle team is no longer eligible for this challenge!',
+        'other' => $inviter_name . '\'s current battle team is no longer eligible for this challenge!',
       ],
       'invitee' => [
         'self' => (
           'Your current battle team is not eligible to participate in this challenge.' . "\n" .
           'Please check your team, then try sending a challenge back to ' . $inviter_name . '.'
         ),
-        'other' => $invitee_name . '\'s battle team is not eligible for your challenge.',
+        'other' => $invitee_name . '\'s current battle team is not eligible for your challenge.',
       ],
     ],
 
