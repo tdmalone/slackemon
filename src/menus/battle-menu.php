@@ -7,7 +7,7 @@
 
 function slackemon_get_battle_menu() {
 
-  $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
+  $is_desktop = slackemon_is_desktop();
 
   $message = [
     'text' => (

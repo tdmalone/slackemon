@@ -345,10 +345,10 @@ function slackemon_validate_battle_readiness( $invite_data, $action ) {
 } // Function slackemon_validate_battle_readiness.
 
 // Usually means user has surrendered ($reason = 'surrender') but can also be used for timeouts etc.
-// Running through this function will result in *only the opponent getting battle experience*
+// Running through this function will result in *only the opponent getting battle experience*.
 function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
-  $loser_id = $user_id;
+  $loser_id  = $user_id;
   $winner_id = slackemon_get_battle_opponent_id( $battle_hash, $user_id );
 
   $battle_data = slackemon_get_battle_data( $battle_hash );
@@ -371,7 +371,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
         );
 
         slackemon_send2slack([
-          'text' => $loser_message,
+          'text'    => $loser_message,
           'channel' => $loser_id,
         ]);
 
@@ -386,11 +386,11 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
           'attachments' => [
             [
               'fallback' => 'Complete Battle',
-              'actions' => [
+              'actions'  => [
                 [
-                  'name' => 'battles/complete',
-                  'text' => 'Complete Battle',
-                  'type' => 'button',
+                  'name'  => 'battles/complete',
+                  'text'  => 'Complete Battle',
+                  'type'  => 'button',
                   'value' => $battle_hash . '/won',
                   'style' => 'primary',
                 ],
