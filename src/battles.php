@@ -462,7 +462,8 @@ function slackemon_complete_battle(
   // Get the battle data, including from a 'complete' battle in case a user has already run this function.
   $battle_data = slackemon_get_battle_data( $battle_hash, true );
 
-  if ( ! $battle_data ) {
+  // Bow out early if the battle data is not available OR if this was a friendly battle.
+  if ( ! $battle_data || slackemon_is_friendly_battle( $battle_data ) ) {
     return slackemon_battle_has_ended_message();
   }
 
