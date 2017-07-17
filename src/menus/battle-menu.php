@@ -282,8 +282,12 @@ function slackemon_get_player_battle_attachment( $player_id, $user_id = USER_ID,
     'text' => (
       '*' . slackemon_get_slack_user_full_name( $player_id ) . '*' . "\n" .
       number_format( $player_data->xp ) . ' XP' .
-      ( $is_desktop ? ' • ' : "\n" ) .
-      floor( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate'
+      (
+        $player_data->battles->participated ?
+        ( $is_desktop ? ' • ' : "\n" ) .
+        floor( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate' :
+        ''
+      )
     ),
     'fields'      => [],
     'thumb_url'   => $player_user_data->profile->image_192,
