@@ -363,27 +363,32 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
         $winner_name = slackemon_get_slack_user_first_name( $winner_id );
 
-        $loser_message = (
-          ':exclamation: *Unfortunately, your battle with ' . $winner_name . ' has expired.*' . "\n" .
-          'This is because you did not make a move within 25 minutes. ' . $winner_name . ' will receive full ' .
-          'experience points for this battle. Perhaps try again later when you have some more time up your ' .
-          'sleeve. :slightly_smiling_face:'
-        );
+        if ( slackemon_is_friendly_battle( $battle_data ) ) {
 
-        slackemon_send2slack([
-          'text'    => $loser_message,
-          'channel' => $loser_id,
-        ]);
+          $winner_message = (
+            ':face_with_rolling_eyes: *Unfortunately, your battle with ' .
+            slackemon_get_slack_user_first_name( $loser_id ) . ' has expired.*' . "\n" .
+            slackemon_get_slack_user_first_name( $loser_id ) . ' did not make a move within 25 minutes. Perhaps ' .
+            'try to battle them again later!'
+          );
 
-        slackemon_post2slack([
-          'text' => (
+          $loser_message = (
+            ':exclamation: *Unfortunately, your battle with ' . $winner_name . ' has expired.*' . "\n" .
+            'This is because you did not make a move within 25 minutes. Perhaps try again later when you have ' .
+            'some more time up your sleeve. :slightly_smiling_face:'
+          );
+
+        } else {
+
+          $winner_message = (
             ':face_with_rolling_eyes: *Unfortunately, your battle with ' .
             slackemon_get_slack_user_first_name( $loser_id ) . ' has expired.*' . "\n" .
             slackemon_get_slack_user_first_name( $loser_id ) . ' did not make a move within 25 minutes. You ' .
             'still get full experience points for your part in the battle though - click the _Complete_ button ' .
             'below to receive them!'
-          ),
-          'attachments' => [
+          );
+
+          $winner_attachments = [
             [
               'fallback' => 'Complete Battle',
               'actions'  => [
@@ -396,8 +401,26 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
                 ],
               ],
             ],
-          ],
-          'channel' => $winner_id,
+          ];
+
+          $loser_message = (
+            ':exclamation: *Unfortunately, your battle with ' . $winner_name . ' has expired.*' . "\n" .
+            'This is because you did not make a move within 25 minutes. ' . $winner_name . ' will receive full ' .
+            'experience points for this battle. Perhaps try again later when you have some more time up your ' .
+            'sleeve. :slightly_smiling_face:'
+          );
+
+        } // If friendly_battle / else
+
+        slackemon_send2slack([
+          'text'    => $loser_message,
+          'channel' => $loser_id,
+        ]);
+
+        slackemon_post2slack([
+          'text'        => $winner_message,
+          'attachments' => isset( $winner_attachments ) ? $winner_attachments : [],
+          'channel'     => $winner_id,
         ]);
 
       } // If p2p battle.
@@ -424,6 +447,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
           $user_pokemon_message .= SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $user_pokemon->name . ': ' : '';
           $user_pokemon_message .= slackemon_readable( $user_pokemon->name ) . ' ';
+
           $user_pokemon_message .= (
             $user_pokemon->battles->last_participated == $battle_data->ts ?
             'has ' . floor( $user_pokemon->hp / $user_pokemon->stats->hp * 100 ) . '% HP remaining' :
@@ -448,9 +472,20 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
   } // Switch reason.
 
-  // Complete the battle for the loser now.
-  // The winner's completion will happen when they follow their battle complete action.
-  slackemon_complete_battle( 'lost', $battle_hash, $loser_id, false, false );
+  if ( slackemon_is_friendly_battle( $battle_data ) ) {
+
+    // For friendly battles, wrap up now.
+    slackemon_set_player_not_in_battle( $winner_id );
+    slackemon_set_player_not_in_battle( $loser_id );
+    slackemon_move_completed_battle_file( $battle_data->hash );
+
+  } else {
+
+    // For non-friendly battles, complete the battle for the loser now.
+    // The winner's completion will happen when they follow their battle complete action.
+    slackemon_complete_battle( 'lost', $battle_hash, $loser_id, false, false );
+
+  }
 
 } // Function slackemon_end_battle.
 
