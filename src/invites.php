@@ -279,4 +279,78 @@ function slackemon_does_user_have_outstanding_invite( $user_id, $mode = 'either'
 
 } // Function slackemon_does_user_have_outstanding_invite.
 
+/** Returns responses to be sent to users due to invite cancellation. */
+function slackemon_get_invite_cancellation_responses( $inviter_name, $invitee_name ) {
+
+  $responses = [
+
+    'team_size' => [
+      'inviter' => [
+        'self' => (
+          'You don\'t have enough revived Pokémon to participate in the battle you ' .
+          'challenged ' . $invitee_name . ' to!' . "\n" .
+          ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait ' .
+          'for them to regain their strength, or catch some more Pokémon.' .
+          ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :pokeball:' : '' )
+        ),
+        'other' => $inviter_name . ' doesn\'t have enough revived Pokémon to participate in this battle!',
+      ],
+      'invitee' => [
+        'self' => (
+          'You don\'t have enough revived Pokémon to accept this challenge!' . "\n" .
+          ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait ' .
+          'for them to regain their strength, or catch some more Pokémon.' .
+          ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :pokeball:' : '' )
+        ),
+        'other' => $invitee_name . ' doesn\'t have enough revived Pokémon to accept your battle challenge right now.',
+      ],
+    ],
+
+    'eligibility' => [
+      'inviter' => [
+        'self' => (
+          'Your battle team is no longer eligible for the challenge you invited ' . $invitee_name . ' to!' . "\n" .
+          'Please check your team, then try sending your challenge again.'
+        ),
+        'other' => $inviter_name . '\'s battle team is no longer eligible for this challenge!',
+      ],
+      'invitee' => [
+        'self' => (
+          'Your current battle team is not eligible to participate in this challenge.' . "\n" .
+          'Please check your team, then try sending a challenge back to ' . $inviter_name . '.'
+        ),
+        'other' => $invitee_name . '\'s battle team is not eligible for your challenge.',
+      ],
+    ],
+
+  ];
+
+  // Massage messages to add common prefixes/suffixes as needed, so they only need to be repeated once.
+  foreach ( $responses as $error_type => &$outer ) {
+    foreach ( $outer as $msg_from => &$inner ) {
+      foreach( $inner as $msg_to => &$message ) {
+
+        if ( 'self' === $msg_to ) {
+          $message = ':open_mouth: *Oops!* ' . $message;
+        }
+
+        if ( 'other' === $msg_to ) {
+
+          $message = (
+            ':slightly_frowning_face: *Oh no!* ' . $message . "\n" .
+            'I\'ve sent them a message too. Perhaps ' .
+            ( 'invitee' === $msg_from ? 'try challenging them again later' : 'they\'ll challenge you again soon' ) .
+            '! :slightly_smiling_face:'
+          );
+
+        }
+
+      }
+    }
+  }
+
+  return $responses;
+
+} // Function slackemon_get_invite_cancellation_responses.
+
 // The end!

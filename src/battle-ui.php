@@ -206,7 +206,7 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
 
   $battle_actions      = slackemon_get_battle_actions( $attachment_args );
   $opponent_first_name = slackemon_get_battle_opponent_first_name( $battle_data, $user_id );
-  $celebration_emoji   = ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :party_parrot:' : '' );  
+  $celebration_emoji   = ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :party_parrot:' : '' );
 
   // For friendly battles, we will end the battle now if it's over, as there's nothing else for the user to do.
   if ( slackemon_is_friendly_battle( $battle_data ) && slackemon_is_battle_over( $attachment_args ) ) {
