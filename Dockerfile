@@ -18,7 +18,7 @@ RUN apk --no-cache add git zlib-dev nano vim postgresql-dev && \
     docker-php-ext-install zip pdo pdo_pgsql pgsql
 
 # Install Composer package manager
-RUN curl -s http://getcomposer.org/installer | php
+RUN curl -s https://getcomposer.org/installer | php
 
 USER slackemon
 
