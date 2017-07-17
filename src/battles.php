@@ -5,7 +5,7 @@
  * @package Slackemon
  */
 
-// Cronned function (through /slackemon battle-updates) which should run every minute
+/** Cronned function (through /slackemon battle-updates) which should run every minute. */
 function slackemon_do_battle_updates() {
 
   $active_players = slackemon_get_player_ids( [ 'active_only' => true ] );
@@ -147,91 +147,24 @@ function slackemon_do_battle_updates() {
   } // Foreach active_battles.
 } // Function slackemon_do_battle_updates.
 
+/** Starts a P2P battle. See slackemon_start_catch_battle() in catching.php for battles with wild Pokemon. */
 function slackemon_start_battle( $battle_hash, $action ) {
 
+  // Get the invite data and remove the invite.
   $invite_data = slackemon_get_invite_data( $battle_hash, true );
 
-  if ( ! $invite_data ) {
-
-    $message = slackemon_update_triggering_attachment(
-      ':no_entry: *Oops!* That battle challenge doesn\'t seem to exist anymore.' . "\n" .
-      'It may have already been accepted, declined, or cancelled.',
-      $action
-    );
-
-    return;
-
+  if ( ! slackemon_validate_battle_readiness( $invite_data, $action ) ) {
+    return false;
   }
 
-  $battle_ts  = $invite_data->ts;
   $inviter_id = $invite_data->inviter_id;
   $invitee_id = $invite_data->invitee_id;
 
   $inviter_battle_team = slackemon_get_battle_team( $inviter_id, true );
   $invitee_battle_team = slackemon_get_battle_team( $invitee_id, true );
 
-  if ( false === $inviter_battle_team || false === $invitee_battle_team ) {
-
-    // Cancel battle - we don't have enough non-fainted Pokemon on at least one of the teams!
-
-    $invitee_fail_to_self = (
-      ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to accept this challenge!' . "\n" .
-      ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait ' .
-      'for them to regain their strength, or catch some more Pokémon.' .
-      ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :pokeball:' : '' )
-    );
-
-    $invitee_fail_to_other = (
-      ':slightly_frowning_face: *Oh no!* ' . slackemon_get_slack_user_first_name( $invitee_id ) . ' doesn\'t ' .
-      'have enough revived Pokémon to accept your battle challenge at the moment.' . "\n" .
-      'I\'ve sent them a message too. Perhaps try inviting them again later! :slightly_smiling_face:'
-    );
-
-    $inviter_fail_to_self = (
-      ':open_mouth: *Oops!* You don\'t seem to have enough revived Pokémon to participate in the battle you ' .
-      'challenged ' . slackemon_get_slack_user_first_name( $invitee_id ) . ' to!' . "\n" .
-      ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait ' .
-      'for them to regain their strength, or catch some more Pokémon.' .
-      ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :pokeball:' : '' )
-    );
-
-    $inviter_fail_to_other = (
-      ':slightly_frowning_face: *Oh no!* ' . slackemon_get_slack_user_first_name( $inviter_id ) . ' doesn\'t ' .
-      'seem to have enough revived Pokémon to participate in this battle!' . "\n" .
-      'I\'ve sent them a message too. Perhaps they\'ll challenge you again soon! :slightly_smiling_face:'
-    );
-
-    if ( false === $inviter_battle_team && false === $invitee_battle_team ) {
-      $inviter_message = $inviter_fail_to_self;
-      $invitee_message = $invitee_fail_to_self;
-    } elseif ( false === $inviter_battle_team ) {
-      $inviter_message = $inviter_fail_to_self;
-      $invitee_message = $inviter_fail_to_other;
-    } elseif ( false === $invitee_battle_team ) {
-      $inviter_message = $invitee_fail_to_other;
-      $invitee_message = $invitee_fail_to_self;
-    }
-
-    // Use the built-in action response URL detector to send directly to the invitee (who invoked this action)
-    slackemon_send2slack([
-      'text'             => $invitee_message,
-      'attachments'      => [ slackemon_back_to_menu_attachment() ],
-      'replace_original' => true,
-    ]);
-
-    // Create a new Slackemon message for the inviter.
-    slackemon_post2slack([
-      'text'        => $inviter_message,
-      'attachments' => [ slackemon_back_to_menu_attachment() ],
-      'channel'     => $inviter_id,
-    ]);
-
-    return false;
-
-  } // If not enough revived Pokemon for either team.
-
   $battle_data = [
-    'ts'             => $battle_ts,
+    'ts'             => $invite_data->ts,
     'hash'           => $battle_hash,
     'type'           => 'p2p',
     'challenge_type' => $invite_data->challenge_type,
@@ -288,18 +221,23 @@ function slackemon_start_battle( $battle_hash, $action ) {
   // For consistency, turn the whole thing into an object rather than an array.
   $battle_data = json_decode( json_encode( $battle_data ) );
 
-  // Save battle data without warning about it not being locked, since it is a new file
+  // Save battle data without warning about it not being locked, since it is a new file.
   slackemon_save_battle_data( $battle_data, $battle_hash, 'battle', false, false );
 
-  // Respond to the invitee
-  $inviter_first_name = slackemon_get_slack_user_first_name( $inviter_id );
-  if ( slackemon_send2slack([
-    'text'             => ':grin: *You have accepted ' . $inviter_first_name . '\'s challenge!*',
+  // Respond to the invitee.
+  $invitee_message = [
+    'text'             => (
+      ':grin: *You have accepted ' . slackemon_get_slack_user_first_name( $inviter_id ) . '\'s challenge!*'
+    ),
     'attachments'      => slackemon_get_battle_attachments( $battle_hash, $invitee_id, 'start' ),
     'replace_original' => true,
-  ]) ) {
+  ];
+  $invitee_message_result = slackemon_send2slack( $invitee_message );
 
-    // Alert the inviter
+  // If the message sent ok, alert the inviter.
+  // TODO: Send the battle attachments here too, so they don't have to wait for the first move.
+  if ( $invitee_message_result ) {
+
     slackemon_post2slack([
       'text' => (
         ':laughing: *' . slackemon_get_slack_user_first_name( $invitee_id ) . ' has accepted ' .
@@ -311,13 +249,100 @@ function slackemon_start_battle( $battle_hash, $action ) {
 
     return true;
 
-  } else {
+  }
+
+  // If we get here, return false. This means an issue occured with sending the battle start message.
+  return false;
+
+} // Function slackemon_start_battle.
+
+/**
+ * Checks that a P2P battle can start, including verifying that both trainers have a battle team and that their
+ * team passes the rules for the selected challenge type. This function also takes care of responding to both users
+ * about the status.
+ *
+ * @param obj $invite_data An invite data object.
+ * @param obj $action      The action object passed by Slack from the invite acceptance button invocation.
+ * @return bool Whether or not the battle can go ahead.
+ */
+function slackemon_validate_battle_readiness( $invite_data, $action ) {
+
+  if ( ! $invite_data ) {
+
+    slackemon_update_triggering_attachment(
+      ':no_entry: *Oops!* That battle challenge doesn\'t seem to exist anymore.' . "\n" .
+      'It may have already been accepted, declined, or cancelled.',
+      $action
+    );
 
     return false;
 
   }
 
-} // Function slackemon_start_battle
+  $inviter_id = $invite_data->inviter_id;
+  $invitee_id = $invite_data->invitee_id;
+
+  // Get teams, automatically replacing fainted Pokemon with fillers.
+  $inviter_battle_team = slackemon_get_battle_team( $inviter_id, true, false, $invite_data->challenge_type );
+  $invitee_battle_team = slackemon_get_battle_team( $invitee_id, true, false, $invite_data->challenge_type );
+
+  // Check challenge eligibility.
+  if ( $inviter_battle_team && $invitee_battle_team ) {
+    $inviter_eligibility = slackemon_is_player_eligible_for_challenge( $invite_data->challenge_type, $inviter_id );
+    $invitee_eligibility = slackemon_is_player_eligible_for_challenge( $invite_data->challenge_type, $invitee_id );
+  }
+
+  // If all checks have passed, we're good to go now!
+  if ( $inviter_battle_team && $invitee_battle_team && $inviter_eligibility && $invitee_eligibility ) {
+    return true;
+  }
+
+  // Otherwise we need to cancel the battle - we either don't have *enough* non-fainted eligible-for-this-challenge
+  // Pokemon on at least one of the teams, OR at least one of the teams is not eligible.
+
+  // Define the responses to the players for each possible situation.
+  $inviter_name = slackemon_get_slack_user_first_name( $inviter_id );
+  $invitee_name = slackemon_get_slack_user_first_name( $invitee_id );
+  $responses    = slackemon_get_invite_cancellation_responses( $inviter_name, $invitee_name );
+
+  // Determine which message to send to each user.
+  if ( ! $inviter_battle_team && ! $invitee_battle_team ) {
+    $inviter_message = $responses['team_size']['inviter']['self'];
+    $invitee_message = $responses['team_size']['invitee']['self'];
+  } elseif ( ! $inviter_battle_team ) {
+    $inviter_message = $responses['team_size']['inviter']['self'];
+    $invitee_message = $responses['team_size']['inviter']['other'];
+  } elseif ( ! $invitee_battle_team ) {
+    $inviter_message = $responses['team_size']['invitee']['other'];
+    $invitee_message = $responses['team_size']['invitee']['self'];
+  } elseif ( ! $inviter_eligibility && ! $invitee_eligibility ) {
+    $inviter_message = $responses['eligibility']['inviter']['self'];
+    $invitee_message = $responses['eligibility']['invitee']['self'];
+  } elseif ( ! $inviter_eligibility ) {
+    $inviter_message = $responses['eligibility']['inviter']['self'];
+    $invitee_message = $responses['eligibility']['inviter']['other'];
+  } elseif ( ! $invitee_eligibility ) {
+    $inviter_message = $responses['eligibility']['invitee']['other'];
+    $invitee_message = $responses['eligibility']['invitee']['self'];
+  }
+
+  // Use the built-in action response URL detector to send directly to the invitee (who invoked this action)
+  slackemon_send2slack([
+    'text'             => $invitee_message,
+    'attachments'      => [ slackemon_back_to_menu_attachment() ],
+    'replace_original' => true,
+  ]);
+
+  // Create a new Slackemon message for the inviter.
+  slackemon_post2slack([
+    'text'        => $inviter_message,
+    'attachments' => [ slackemon_back_to_menu_attachment() ],
+    'channel'     => $inviter_id,
+  ]);
+
+  return false;
+
+} // Function slackemon_validate_battle_readiness.
 
 // Usually means user has surrendered ($reason = 'surrender') but can also be used for timeouts etc.
 // Running through this function will result in *only the opponent getting battle experience*
@@ -332,7 +357,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
 
     case 'timeout':
 
-      // This option is only supported for p2p battles
+      // This option is only supported for p2p battles.
 
       if ( 'p2p' === $battle_data->type ) {
 
@@ -375,9 +400,9 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
           'channel' => $winner_id,
         ]);
 
-      } // If p2p battle
+      } // If p2p battle.
 
-    break; // Case timeout
+    break; // Case timeout.
 
     case 'surrender':
 
@@ -386,7 +411,7 @@ function slackemon_end_battle( $battle_hash, $reason, $user_id = USER_ID ) {
         case 'p2p':
 
           slackemon_send2slack([
-            'text' => 'You have surrended the battle!', // TODO: Expand on this, lol, when surrenders become possible
+            'text' => 'You have surrended the battle!', // TODO: Expand on this, lol, when surrenders become possible.
           ]);
 
         break; // Case p2p.
@@ -437,7 +462,8 @@ function slackemon_complete_battle(
   // Get the battle data, including from a 'complete' battle in case a user has already run this function.
   $battle_data = slackemon_get_battle_data( $battle_hash, true );
 
-  if ( ! $battle_data ) {
+  // Bow out early if the battle data is not available OR if this was a friendly battle.
+  if ( ! $battle_data || slackemon_is_friendly_battle( $battle_data ) ) {
     return slackemon_battle_has_ended_message();
   }
 
@@ -807,6 +833,9 @@ function slackemon_apply_battle_winners_to_collection( &$player_data, $results )
     } // If Pokemon has XP difference.
 
     // Apply the changes from the team to the user's collection.
+    // NOTE: Any other action that affects the items listed here should be prevented from being taken during a battle,
+    // because it will be overriden now as the battle completes. That includes teaching moves, evolving, and in future
+    // also giving and using items.
     $_pokemon->hp        = $results['team']->{ 'ts' . $_pokemon->ts }->hp;
     $_pokemon->xp        = $results['team']->{ 'ts' . $_pokemon->ts }->xp;
     $_pokemon->cp        = $results['team']->{ 'ts' . $_pokemon->ts }->cp;
@@ -952,12 +981,12 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
 
     if ( $move_data->meta->drain ) {
 
-      // Drain is expressed as a percentage of the damage done, and can be negative if the attack caused recoil
+      // Drain is expressed as a percentage of the damage done, and can be negative if the attack caused recoil.
       $drain_amount     = ( $move_data->meta->drain / 100 ) * $damage->damage;
       $drain_percentage = floor( $drain_amount / $user_pokemon->stats->hp * 100 );
 
       $user_pokemon->hp += $drain_amount;
-      $user_pokemon->hp = max( 0, $user_pokemon->hp ); // Ensure the HP doesn't go below 0
+      $user_pokemon->hp = max( 0, $user_pokemon->hp ); // Ensure the HP doesn't go below 0.
       $user_pokemon->hp = min( $user_pokemon->stats->hp, $user_pokemon->hp ); // Ensure the HP doesn't go above the max
 
       if ( $move_data->meta->drain > 0 ) {
@@ -972,16 +1001,16 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
         );
       }
 
-    } // If drain
+    } // If drain.
 
     if ( $move_data->meta->healing ) {
 
-      // Healing is expressed as a percentage of the user's maximum HP, and can be negative if they hurt themselves
+      // Healing is expressed as a percentage of the user's maximum HP, and can be negative if they hurt themselves.
       $healing_amount     = $move_data->meta->healing / 100 * $user_pokemon->stats->hp;
       $healing_percentage = floor( $healing_amount / $user_pokemon->stats->hp * 100 );
 
       $user_pokemon->hp += $healing_amount;
-      $user_pokemon->hp = max( 0, $user_pokemon->hp ); // Ensure the HP doesn't go below 0
+      $user_pokemon->hp = max( 0, $user_pokemon->hp ); // Ensure the HP doesn't go below 0.
       $user_pokemon->hp = min( $user_pokemon->stats->hp, $user_pokemon->hp ); // Ensure the HP doesn't go above the max
 
       if ( $move_data->meta->healing > 0 ) {
@@ -1132,11 +1161,30 @@ function slackemon_do_battle_move( $move_name_or_swap_ts, $battle_hash, $action,
   } // If p2p battle / else.
 } // Function slackemon_do_battle_move.
 
-function slackemon_is_friendly_battle( $battle_data ) {
+function slackemon_is_player_eligible_for_challenge( $challenge_type, $user_id ) {
 
-  return 'friendly' === $battle_data->challenge_type[0];
+  $challenge_type_data = slackemon_get_battle_challenge_data( $challenge_type );
 
-} // Function slackemon_is_friendly_battle.
+  if ( ! $challenge_type_data->enabled ) {
+    return false;
+  }
+
+  // Check there are no legendaries if the challenge type disallows them.
+  if ( ! $challenge_type_data->allow_legendaries && slackemon_is_legendary_in_battle_team( $user_id ) ) {
+    return false;
+  }
+
+  // Check the lowest level Pokemon is not higher than the allowed level if a level limited challenge.
+  if (
+    $challenge_type_data->level_limited &&
+    slackemon_get_battle_team_lowest_level( $user_id, true ) > $challenge_type[1]
+  ) {
+    return false;
+  }
+
+  return true;
+
+} // Function slackemon_is_player_eligible_for_challenge.
 
 /**
  * Gets the number of Pokemon a user has remaining (i.e. not fainted) in battle. This be used to eg. determine
@@ -1295,6 +1343,39 @@ function slackemon_should_wild_battle_pokemon_flee( $pokemon ) {
   return $should_flee;
 
 } // Function slackemon_should_wild_battle_pokemon_flee.
+
+/**
+ * Returns the battle challenge types that Slackemon supports, along with the attributes of each one.
+ *
+ * @return obj
+ */
+function slackemon_get_battle_challenge_types() {
+
+  // Get local challenge types config.
+  $challenge_types = json_decode( file_get_contents( __DIR__ . '/../etc/challenge-types.json' ) );
+
+  return $challenge_types;
+
+} // Function slackemon_get_battle_challenge_types.
+
+/** Returns data on the provided battle challenge type. */
+function slackemon_get_battle_challenge_data( $challenge_type ) {
+
+  if ( is_string( $challenge_type ) ) {
+    $challenge_type = [ $challenge_type ];
+  }
+
+  return slackemon_get_battle_challenge_types()->{ $challenge_type[0] };
+
+} // Function slackemon_get_battle_challenge_data.
+
+function slackemon_is_friendly_battle( $battle_data ) {
+
+  $xp_modifier = (int) slackemon_get_battle_challenge_data( $battle_data->challenge_type[0] )->xp_modifier;
+
+  return 0 === $xp_modifier;
+
+} // Function slackemon_is_friendly_battle.
 
 /**
  * Generates a hash to identify a battle, based on the start time and the two users in the battle. The order of the
@@ -1473,7 +1554,7 @@ function slackemon_move_completed_battle_file( $battle_hash ) {
   if ( slackemon_file_exists( $data_folder . '/battles_active/' . $battle_hash, 'store' ) ) {
 
     return slackemon_rename(
-      $data_folder . '/battles_active/' . $battle_hash,
+      $data_folder . '/battles_active/'   . $battle_hash,
       $data_folder . '/battles_complete/' . $battle_hash,
       'store'
     );
@@ -1484,6 +1565,19 @@ function slackemon_move_completed_battle_file( $battle_hash ) {
   return false;
 
 } // Function slackemon_move_completed_battle_file.
+
+function slackemon_get_battle_action_denied_message( $action, $user_id ) {
+
+  $message = $action->original_message->attachments[ $action->attachment_id - 1 ];
+
+  $message->footer = (
+    ( slackemon_is_desktop( $user_id ) ? ':exclamation:' : '' ) .
+    'Oops! You can\'t do this during a battle.'
+  );
+
+  return slackemon_update_triggering_attachment( $message, $action, false );
+
+} // Function slackemon_get_battle_action_denied_message.
 
 function slackemon_battle_debug( $message ) {
 

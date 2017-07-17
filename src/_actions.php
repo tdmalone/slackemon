@@ -298,16 +298,16 @@ function slackemon_handle_action( $action ) {
 
     case 'battle-team/add':
     case 'battle-team/add/from-battle-menu':
-      $spawn_ts = $action_value;
-      slackemon_add_to_battle_team( $spawn_ts );
-      $message = slackemon_get_battle_team_add_message( $action, $action_name );
+      $spawn_ts      = $action_value;
+      $is_successful = slackemon_add_to_battle_team( $spawn_ts );
+      $message       = slackemon_get_battle_team_add_message( $action, $action_name, $is_successful );
     break;
 
     case 'battle-team/remove':
     case 'battle-team/remove/from-battle-menu':
-      $spawn_ts = $action_value;
-      slackemon_remove_from_battle_team( $spawn_ts );
-      $message = slackemon_get_battle_team_remove_message( $action, $action_name );
+      $spawn_ts      = $action_value;
+      $is_successful = slackemon_remove_from_battle_team( $spawn_ts );
+      $message       = slackemon_get_battle_team_remove_message( $action, $action_name, $is_successful );
     break;
 
     case 'battle-team/set-leader':
@@ -319,6 +319,10 @@ function slackemon_handle_action( $action ) {
     case 'evolve':
 
       $spawn_ts = $action_value;
+
+      // TODO: Prevent this from happening if the user is in battle (slackemon_is_player_in_battle()), in case they
+      //       evolve a Pokemon that they're using to battle... which will be overridden when the battle completes!
+
       slackemon_start_evolution_message( $spawn_ts, $action );
 
       if ( slackemon_evolve_user_pokemon( $spawn_ts ) ) {

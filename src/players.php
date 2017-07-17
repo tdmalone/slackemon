@@ -290,11 +290,14 @@ function slackemon_get_player_ids( $options = [] ) {
     return [];
   }
 
-  // Set default options
-  if ( ! isset( $options['active_only']           ) ) { $options['active_only']           = false; }
-  if ( ! isset( $options['active_or_battle_only'] ) ) { $options['active_or_battle_only'] = false; }
-  if ( ! isset( $options['skip_current_user']     ) ) { $options['skip_current_user']     = false; }
-  if ( ! isset( $options['region']                ) ) { $options['region']                = false; }
+  // Set default options.
+  $defaults = [
+    'active_only'           => false,
+    'active_or_battle_only' => false,
+    'skip_current_user'     => false,
+    'region'                => false,
+  ];
+  $options = array_merge( $defaults, $options );
 
   // Turn into player IDs
   $players = array_map( function( $path ) {
@@ -409,7 +412,7 @@ function slackemon_set_player_in_battle( $user_id = USER_ID ) {
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_set_player_in_battle
+} // Function slackemon_set_player_in_battle.
 
 function slackemon_set_player_not_in_battle( $user_id = USER_ID ) {
 
@@ -424,7 +427,7 @@ function slackemon_set_player_not_in_battle( $user_id = USER_ID ) {
   slackemon_save_player_data( $player_data, $user_id, true );
   return false;
 
-} // Function slackemon_set_player_not_in_battle
+} // Function slackemon_set_player_not_in_battle.
 
 function slackemon_is_player_in_battle( $user_id = USER_ID ) {
 
@@ -436,7 +439,7 @@ function slackemon_is_player_in_battle( $user_id = USER_ID ) {
 
   return false;
 
-} // Function slackemon_is_player_in_battle
+} // Function slackemon_is_player_in_battle.
 
 function slackemon_is_player_active( $user_id = USER_ID ) {
 
@@ -450,7 +453,7 @@ function slackemon_is_player_active( $user_id = USER_ID ) {
 
   return true;
 
-} // Function slackemon_is_player_active
+} // Function slackemon_is_player_active.
 
 function slackemon_is_player_dnd( $user_id = USER_ID, $skip_cache = false ) {
   global $_cached_slackemon_dnd;
@@ -465,8 +468,9 @@ function slackemon_is_player_dnd( $user_id = USER_ID, $skip_cache = false ) {
       'user' => $user_id,
     ];
 
+    // Set the cache options - use at least 1 second for expiry_age if skipping the cache, so that it still saves.
     $cache_options = [
-      'expiry_age' => ( $skip_cache ? 1 : MINUTE_IN_SECONDS * 5 ), // 1 second if skipping cache, so that it still saves
+      'expiry_age' => ( $skip_cache ? 1 : MINUTE_IN_SECONDS * 5 ), 
     ];
 
     $url = $endpoint . '?' . http_build_query( $payload );
@@ -487,7 +491,7 @@ function slackemon_is_player_dnd( $user_id = USER_ID, $skip_cache = false ) {
 
   return $_cached_slackemon_dnd[ $user_id ];
 
-} // Function slackemon_is_player_dnd
+} // Function slackemon_is_player_dnd.
 
 function slackemon_get_player_menu_mode( $user_id = USER_ID ) {
 
@@ -533,7 +537,7 @@ function slackemon_set_player_menu_mode( $menu_mode, $user_id = USER_ID ) {
 function slackemon_scaffold_player_file( $spawn_count = 10, $user_id = USER_ID ) {
 
   $max_level_no   = 100;
-  $max_pokemon_no = 721; // Max available in PokeAPI
+  $max_pokemon_no = 721; // Max available in PokeAPI.
   $spawned_ids    = [];
 
   slackemon_clean_up( 0 );

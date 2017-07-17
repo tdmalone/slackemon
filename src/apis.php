@@ -12,7 +12,7 @@ function slackemon_get_pokemon_data( $pokedex_number ) {
     return $_cached_slackemon_pokemon_data[ $pokedex_number ];
   }
 
-  $api_base = 'http://pokeapi.co/api/v2'; // WARNING: All endpoints on this API must end in a forward slash
+  $api_base = 'http://pokeapi.co/api/v2'; // WARNING: All endpoints on this API must end in a forward slash.
   $pokemon_url = $api_base . '/pokemon/' . $pokedex_number . '/';
   $pokemon_data = json_decode( slackemon_get_cached_url( $pokemon_url ) );
 
@@ -24,7 +24,7 @@ function slackemon_get_pokemon_data( $pokedex_number ) {
 
   return $pokemon_data;
 
-} // Function slackemon_get_pokemon_data
+} // Function slackemon_get_pokemon_data.
 
 function slackemon_get_pokemon_species_data( $pokedex_number ) {
   global $data_folder, $_cached_slackemon_species_data;
@@ -33,7 +33,7 @@ function slackemon_get_pokemon_species_data( $pokedex_number ) {
     return $_cached_slackemon_species_data[ $pokedex_number ];
   }
 
-  $api_base = 'http://pokeapi.co/api/v2'; // WARNING: All endpoints on this API must end in a forward slash
+  $api_base = 'http://pokeapi.co/api/v2'; // WARNING: All endpoints on this API must end in a forward slash.
   $species_url = $api_base . '/pokemon-species/' . $pokedex_number . '/';
   $species_data = json_decode( slackemon_get_cached_url( $species_url ) );
 
@@ -45,7 +45,7 @@ function slackemon_get_pokemon_species_data( $pokedex_number ) {
 
   return $species_data;
 
-} // Function slackemon_get_pokemon_species_data
+} // Function slackemon_get_pokemon_species_data.
 
 function slackemon_get_pokemon_evolution_data( $pokedex_number ) {
   global $data_folder, $_cached_slackemon_evolution_data;
@@ -65,7 +65,7 @@ function slackemon_get_pokemon_evolution_data( $pokedex_number ) {
 
   return $evolution_data;
 
-} // Function slackemon_get_pokemon_species_data
+} // Function slackemon_get_pokemon_species_data.
 
 function slackemon_get_pokemon_growth_rate_data( $pokedex_number ) {
   global $data_folder, $_cached_slackemon_growth_rate_data;
@@ -85,7 +85,7 @@ function slackemon_get_pokemon_growth_rate_data( $pokedex_number ) {
 
   return $growth_rate_data;
 
-} // Function slackemon_get_pokemon_growth_rate_data
+} // Function slackemon_get_pokemon_growth_rate_data.
 
 function slackemon_get_move_data( $move_name_or_id ) {
   global $_cached_slackemon_move_data;
@@ -125,7 +125,7 @@ function slackemon_get_move_data( $move_name_or_id ) {
 
   return $move_data;
 
-} // Function slackemon_get_move_data
+} // Function slackemon_get_move_data.
 
 function slackemon_get_supplementary_move_data() {
   global $_cached_slackemon_supplementary_move_data;
@@ -141,7 +141,7 @@ function slackemon_get_supplementary_move_data() {
 
   return $supplementary_move_data;
 
-} // Function slackemon_get_supplementary_move_data 
+} // Function slackemon_get_supplementary_move_data.
 
 function slackemon_get_item_data( $item_name_or_id ) {
   global $_cached_slackemon_item_data;
@@ -179,7 +179,7 @@ function slackemon_get_item_data( $item_name_or_id ) {
 
   return $item_data;
 
-} // Function slackemon_get_item_data
+} // Function slackemon_get_item_data.
 
 function slackemon_get_supplementary_item_data() {
   global $_cached_slackemon_supplementary_item_data;
@@ -195,7 +195,7 @@ function slackemon_get_supplementary_item_data() {
 
   return $supplementary_item_data;
 
-} // Function slackemon_get_supplementary_item_data 
+} // Function slackemon_get_supplementary_item_data.
 
 function slackemon_update_triggering_attachment( $new_attachment, $action, $send = true ) {
 
@@ -210,8 +210,8 @@ function slackemon_update_triggering_attachment( $new_attachment, $action, $send
 
   $original_attachment = $message['attachments'][ $action->attachment_id - 1 ];
 
-  // Pass thru the color from the old attachment, if applicable and if none is set
-  // There is probably not a lot more we'd want to automatically pass through
+  // Pass thru the color from the old attachment, if applicable and if none is set.
+  // There is probably not a lot more we'd want to automatically pass through.
   if ( is_array( $new_attachment ) ) {
     if ( isset( $original_attachment->color ) && ! isset( $new_attachment['color'] ) ) {
       $new_attachment['color'] = $original_attachment->color;
@@ -230,7 +230,7 @@ function slackemon_update_triggering_attachment( $new_attachment, $action, $send
     return $message;
   }
 
-} // Function slackemon_update_attachment
+} // Function slackemon_update_attachment.
 
 function slackemon_get_flavour_text( $object, $clean_up = true ) {
 
@@ -253,7 +253,7 @@ function slackemon_get_flavour_text( $object, $clean_up = true ) {
 
   return $flavour_text;
 
-} // Function slackemon_get_flavour_text
+} // Function slackemon_get_flavour_text.
 
 function slackemon_get_effect_text( $object, $clean_up = true ) {
 
@@ -276,6 +276,6 @@ function slackemon_get_effect_text( $object, $clean_up = true ) {
 
   return $effect_text;
 
-} // Function slackemon_get_effect_text
+} // Function slackemon_get_effect_text.
 
 // The end!
