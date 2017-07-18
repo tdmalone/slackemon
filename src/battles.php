@@ -160,8 +160,8 @@ function slackemon_start_battle( $battle_hash, $action ) {
   $inviter_id = $invite_data->inviter_id;
   $invitee_id = $invite_data->invitee_id;
 
-  $inviter_battle_team = slackemon_get_battle_team( $inviter_id, true );
-  $invitee_battle_team = slackemon_get_battle_team( $invitee_id, true );
+  $inviter_battle_team = slackemon_get_battle_team( $inviter_id, true, false, $invite_data->challenge_type );
+  $invitee_battle_team = slackemon_get_battle_team( $invitee_id, true, false, $invite_data->challenge_type );
 
   $battle_data = [
     'ts'             => $invite_data->ts,
@@ -1212,7 +1212,7 @@ function slackemon_is_player_eligible_for_challenge( $challenge_type, $user_id )
   // Check the lowest level Pokemon is not higher than the allowed level if a level limited challenge.
   if (
     $challenge_type_data->level_limited &&
-    slackemon_get_battle_team_lowest_level( $user_id, true ) > $challenge_type[1]
+    slackemon_get_battle_team_highest_level( $user_id, true ) > $challenge_type[1]
   ) {
     return false;
   }

@@ -183,18 +183,31 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
     }
 
     if ( isset( $challenge_types->level ) && $challenge_types->level->enabled ) {
-      $user_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $user_id )->level;
+
+      $_search_options = [
+        'sort_by' => 'level',
+        'user_id' => $user_id,
+      ];
+
+      $user_top_level             = slackemon_get_top_player_pokemon( $_search_options )->level;
       $user_top_battle_team_level = slackemon_get_battle_team_highest_level( $user_id, true );
+      $is_legendary_in_team       = slackemon_is_legendary_in_battle_team( $user_id );
+
     }
 
     foreach ( $online_players as $player_id ) {
 
-      $attachment         = slackemon_get_player_battle_attachment( $player_id );
-      $this_option_groups = $challenge_option_groups;
+      $attachment           = slackemon_get_player_battle_attachment( $player_id );
+      $this_option_groups   = $challenge_option_groups;
 
       if ( isset( $challenge_types->level ) && $challenge_types->level->enabled ) {
 
-        $opponent_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $player_id )->level;
+        $_search_options = [
+          'sort_by' => 'level',
+          'user_id' => $player_id,
+        ];
+
+        $opponent_top_level = slackemon_get_top_player_pokemon( $_search_options )->level;
         $lowest_top_level   = min( $user_top_level, $opponent_top_level, 80 );
 
         // Generate level options, up to the lowest top level that the user or opponent has in their collection.
@@ -210,7 +223,8 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
           $level_status = (
             $is_legendary_in_team || $user_top_battle_team_level > $i ?
-            $status_unavailable : $status_available
+            $status_unavailable :
+            $status_available
           );
 
           $level_prefix = $is_desktop ? $level_status . ' ' : '';

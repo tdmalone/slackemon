@@ -606,7 +606,9 @@ function slackemon_notify_spawn( $spawn, $specific_level = false ) {
     } // If not specific_level.
 
     // If the CP is higher than any this player has seen before, hide it to increase the mystique. :)
-    $player_top_pokemon = slackemon_get_top_player_pokemon( 'cp', 1, null, $player_id );
+
+    $player_top_pokemon = slackemon_get_top_player_pokemon([ 'user_id' => $player_id ]);
+
     if ( $player_top_pokemon->cp < $this_spawn['cp'] ) {
 
       $this_spawn['flags'][] = 'hide_stats';

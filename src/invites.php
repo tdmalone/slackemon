@@ -390,22 +390,23 @@ function slackemon_get_invite_cancellation_responses( $inviter_name, $invitee_na
     'team_size' => [
       'inviter' => [
         'self' => (
-          'You don\'t have enough revived Pokémon to participate in the battle you ' .
+          'You don\'t have enough Pokémon eligible to participate in the battle you ' .
           'challenged ' . $invitee_name . ' to!' . "\n" .
-          ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait ' .
-          'for them to regain their strength, or catch some more Pokémon.' .
+          'You can see your Pokémon on your Pokémon page from the Main Menu. You may have to wait for fainted ' .
+          'Pokémon to regain their strength, catch some more Pokémon, or try a different challenge type!' .
           ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :pokeball:' : '' )
         ),
-        'other' => $inviter_name . ' doesn\'t have enough revived Pokémon to participate in this battle!',
+        'other' => $inviter_name . ' doesn\'t have enough Pokémon eligible to participate in this battle!',
       ],
       'invitee' => [
         'self' => (
-          'You don\'t have enough revived Pokémon to accept this challenge!' . "\n" .
-          ':skull: You can see your fainted Pokémon on your Pokémon page from the Main Menu. You may have to wait ' .
-          'for them to regain their strength, or catch some more Pokémon.' .
+          'You don\'t have enough eligible Pokémon to accept this challenge!' . "\n" .
+          'You can see your Pokémon on your Pokémon page from the Main Menu. You may have to wait for fainted ' .
+          'Pokémon to regain their strength, catch some more Pokémon, or send back an invite for a different ' .
+          'challenge type.' .
           ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :pokeball:' : '' )
         ),
-        'other' => $invitee_name . ' doesn\'t have enough revived Pokémon to accept your battle challenge right now.',
+        'other' => $invitee_name . ' doesn\'t have enough eligible Pokémon to accept your battle challenge right now.',
       ],
     ],
 

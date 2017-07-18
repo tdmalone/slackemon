@@ -26,12 +26,11 @@
     "xp_modifier": 0
   },
   "level": {
-    "comment": "TODO: Need to determine emoji.",
     "allow_legendaries": false,
     "battle_team": "user-defined",
     "damage_modifier": 1,
-    "emoji": "",
-    "enabled": false,
+    "emoji": ":trophy:",
+    "enabled": true,
     "level_limited": true,
     "pp_limit": true,
     "reverse_types": false,

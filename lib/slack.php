@@ -199,7 +199,7 @@ function slackemon_do_action_response( $message ) {
     $message = [ 'text' => $message ];
   }
 
-  // Unless we say otherwise, we always want to replace the original message
+  // Unless we say otherwise, we always want to replace the original message.
   if ( ! isset( $message['replace_original' ] ) ) {
     $message['replace_original'] = true;
   }
@@ -241,8 +241,8 @@ function slackemon_send_waiting_message_to_user( $user_id = USER_ID ) {
     slackemon_send2slack( $message );
     $_slackemon_waiting_message_sent = true;
 
-  } // If action
-} // Function slackemon_send_waiting_message_to_user
+  } // If action.
+} // Function slackemon_send_waiting_message_to_user.
 
 /** Does what it says on the tin. */
 function slackemon_get_slack_user_full_name( $user_id = USER_ID ) {
@@ -257,10 +257,10 @@ function slackemon_get_slack_user_full_name( $user_id = USER_ID ) {
     return $user->real_name;
   }
 
-  // If the user hasn't entered their name, fallback to a modification of their username
+  // If the user hasn't entered their name, fallback to a modification of their username.
   return ucwords( str_replace( [ '.', '-' ], ' ', $user->name ) );
 
-} // Function slackemon_get_user_full_name
+} // Function slackemon_get_user_full_name.
 
 /** Does what it says on the tin. */
 function slackemon_get_slack_user_first_name( $user_id = USER_ID ) {
@@ -279,7 +279,7 @@ function slackemon_get_slack_user_first_name( $user_id = USER_ID ) {
 
   return $user_first_name;
 
-} // Function get_user_first_name
+} // Function get_user_first_name.
 
 /** Does what it says on the tin. */
 function slackemon_get_slack_user_avatar_url( $user_id = USER_ID ) {
@@ -291,7 +291,7 @@ function slackemon_get_slack_user_avatar_url( $user_id = USER_ID ) {
 
   return false;
 
-} // Function slackemon_get_user_avatar_url
+} // Function slackemon_get_user_avatar_url.
 
 /**
  * Gets a user's e-mail address, either from the local config if set, or falling back to the Slack API.
@@ -305,7 +305,7 @@ function slackemon_get_slack_user_email_address( $user_id = USER_ID ) {
 
   return false;
 
-} // Function slackemon_get_user_email_address
+} // Function slackemon_get_user_email_address.
 
 /** Gets a Slack user's data from the Slack API. */
 function slackemon_get_slack_user( $user_id = USER_ID ) {
@@ -340,7 +340,7 @@ function slackemon_get_slack_user( $user_id = USER_ID ) {
 
   return false;
 
-} // Function slackemon_get_slack_user
+} // Function slackemon_get_slack_user.
 
 /** Gets ALL Slack user data from the Slack API. Cached for a day. */
 function slackemon_get_slack_users( $skip_cache = false ) {
@@ -356,6 +356,6 @@ function slackemon_get_slack_users( $skip_cache = false ) {
 
   return $slack_users;
 
-} // Function slackemon_get_slack_users
+} // Function slackemon_get_slack_users.
 
 // The end!
