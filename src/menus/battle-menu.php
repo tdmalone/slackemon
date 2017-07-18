@@ -183,8 +183,15 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
     }
 
     if ( isset( $challenge_types->level ) && $challenge_types->level->enabled ) {
-      $user_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $user_id )->level;
+
+      $_search_options = [
+        'sort_by' => 'level',
+        'user_id' => $user_id,
+      ];
+
+      $user_top_level = slackemon_get_top_player_pokemon( $_search_options )->level;
       $user_top_battle_team_level = slackemon_get_battle_team_highest_level( $user_id, true );
+
     }
 
     foreach ( $online_players as $player_id ) {
@@ -194,7 +201,12 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
       if ( isset( $challenge_types->level ) && $challenge_types->level->enabled ) {
 
-        $opponent_top_level = slackemon_get_top_player_pokemon( 'level', 1, null, $player_id )->level;
+        $_search_options = [
+          'sort_by' => 'level',
+          'user_id' => $player_id,
+        ];
+
+        $opponent_top_level = slackemon_get_top_player_pokemon( $_search_options )->level;
         $lowest_top_level   = min( $user_top_level, $opponent_top_level, 80 );
 
         // Generate level options, up to the lowest top level that the user or opponent has in their collection.
