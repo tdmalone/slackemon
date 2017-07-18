@@ -204,7 +204,7 @@ function slackemon_notify_item_spawn( $spawn ) {
 
       $this_message['attachments'][0]['pretext'] = str_replace(
         '[someone]',
-        $random_person->profile->first_name,
+        slackemon_get_slack_user_first_name( $random_person->id ),
         $this_message['attachments'][0]['pretext']
       );
 
