@@ -111,18 +111,18 @@ define( 'SLACKEMON_USER_BAN_CALLBACK_URL', getenv( 'SLACKEMON_USER_BAN_CALLBACK_
 // eg. Normal catch: 1 in 3 chance of flee.
 //     Initial wild battle: 1 in 9 chance of flee (i.e. normal times 3).
 //     At each move of wild Pokemon: eg. 1 in 18 chance of flee if Pokemon has 50% HP (1 in 9 / .5)
-define( 'SLACKEMON_BASE_FLEE_CHANCE',       getenv( 'SLACKEMON_BASE_FLEE_CHANCE'       ) ?: 3 );
-define( 'SLACKEMON_BATTLE_FLEE_MULTIPLIER', getenv( 'SLACKEMON_BATTLE_FLEE_MULTIPLIER' ) ?: 3 );
+define( 'SLACKEMON_BASE_FLEE_CHANCE',       (int) getenv( 'SLACKEMON_BASE_FLEE_CHANCE'       ) ?: 3 );
+define( 'SLACKEMON_BATTLE_FLEE_MULTIPLIER', (int) getenv( 'SLACKEMON_BATTLE_FLEE_MULTIPLIER' ) ?: 3 );
 
 // How long Pokemon remain catchable for before they flee.
 // Note that at this stage, only one Pokemon will ever spawn at once. So the higher this is, the less spawns.
-define( 'SLACKEMON_FLEE_TIME_LIMIT', getenv( 'SLACKEMON_FLEE_TIME_LIMIT' ) ?: MINUTE_IN_SECONDS * 5 );
+define( 'SLACKEMON_FLEE_TIME_LIMIT', (int) getenv( 'SLACKEMON_FLEE_TIME_LIMIT' ) ?: MINUTE_IN_SECONDS * 5 );
 
 // Roughly how many chances there are of a spawn each hour.
-define( 'SLACKEMON_HOURLY_SPAWN_RATE', getenv( 'SLACKEMON_HOURLY_SPAWN_RATE' ) ?: 10 );
+define( 'SLACKEMON_HOURLY_SPAWN_RATE', (int) getenv( 'SLACKEMON_HOURLY_SPAWN_RATE' ) ?: 10 );
 
 // At each spawn, the chance out of 100 of spawning an item instead of a Pokemon.
-define( 'SLACKEMON_ITEM_SPAWN_CHANCE', getenv( 'SLACKEMON_ITEM_SPAWN_CHANCE' ) ?:  5 );
+define( 'SLACKEMON_ITEM_SPAWN_CHANCE', (int) getenv( 'SLACKEMON_ITEM_SPAWN_CHANCE' ) ?:  5 );
 
 // Certain classes of Pokemon to exclude from spawns.
 // The defaults for all of these are `true`:
@@ -162,21 +162,21 @@ define( 'SLACKEMON_EXCLUDED_POKEMON', getenv( 'SLACKEMON_EXCLUDED_POKEMON' ) ?: 
 // The size of a player's battle team (aka Pokemon Party).
 // For wild battles, this determines how many Pokemon the trainer can select to have randomly chosen between.
 // For trainer battles, every Pokemon must be beaten, so this value determines how long these battles go for!
-define( 'SLACKEMON_BATTLE_TEAM_SIZE', getenv( 'SLACKEMON_BATTLE_TEAM_SIZE' ) ?: 3 );
+define( 'SLACKEMON_BATTLE_TEAM_SIZE', (int) getenv( 'SLACKEMON_BATTLE_TEAM_SIZE' ) ?: 3 );
 
 // How much battle experience gains are multiplied by.
 // This is separate to any other experience modifiers that may be afforded by certain items.
 // By default this is 1, and you could use it to eg. offer double experience (2) during a local event or party.
-define( 'SLACKEMON_EXP_GAIN_MODIFIER', getenv( 'SLACKEMON_EXP_GAIN_MODIFIER' ) ?: 1 );
+define( 'SLACKEMON_EXP_GAIN_MODIFIER', (int) getenv( 'SLACKEMON_EXP_GAIN_MODIFIER' ) ?: 1 );
 
 // The percentage per minute that Pokemon HP and PP restores after battle.
 // Restores only happen when a player is active (i.e. online and not in battle).
 // Example: .05 for 5% per minute.
-define( 'SLACKEMON_HP_RESTORE_RATE', getenv( 'SLACKEMON_HP_RESTORE_RATE' ) ?: .05 );
+define( 'SLACKEMON_HP_RESTORE_RATE', (float) getenv( 'SLACKEMON_HP_RESTORE_RATE' ) ?: .05 );
 
 // The number of times a user can swap Pokemon during a P2P battle.
 // 'Free swaps' after a Pokemon has fainted are not included in this total.
-define( 'SLACKEMON_BATTLE_SWAP_LIMIT', getenv( 'SLACKEMON_BATTLE_SWAP_LIMIT' ) ?: 5 );
+define( 'SLACKEMON_BATTLE_SWAP_LIMIT', (int) getenv( 'SLACKEMON_BATTLE_SWAP_LIMIT' ) ?: 5 );
 
 /**
  * Debugging configuration.
@@ -230,7 +230,7 @@ define( 'SLACKEMON_ANIMATED_GIF_BASE',
 // The number of seconds that will be waited for when calling a background command/action.
 // You will usually want 1 second for this, but some servers have been observed to need 2 seconds.
 // Keep in mind that too long will cause Slack itself to timeout (it allows up to 3 seconds for the *total* roundtrip).
-define( 'SLACKEMON_CURL_TIMEOUT', getenv( 'SLACKEMON_CURL_TIMEOUT' ) ?: 1 );
+define( 'SLACKEMON_CURL_TIMEOUT', (int) getenv( 'SLACKEMON_CURL_TIMEOUT' ) ?: 1 );
 
 // When running Slackemon on a server behind a proxy, you may find that calling background commands/actions takes
 // longer than it should. When in this situation, you can define a local URL such as 'http://localhost/'.
@@ -241,9 +241,9 @@ define( 'SLACKEMON_LOCAL_URL', getenv( 'SLACKEMON_LOCAL_URL' ) ?: SLACKEMON_INBO
 // In-message pagination configuration.
 // Don't set these values too high - you might hit the Slack attachment limit.
 // Also, higher values means longer load time for the relevant messages, including action button responses.
-define( 'SLACKEMON_ITEMS_PER_PAGE',   getenv( 'SLACKEMON_ITEMS_PER_PAGE'   ) ?:  5 );
-define( 'SLACKEMON_POKEMON_PER_PAGE', getenv( 'SLACKEMON_POKEMON_PER_PAGE' ) ?:  5 );
-define( 'SLACKEMON_POKEDEX_PER_PAGE', getenv( 'SLACKEMON_POKEDEX_PER_PAGE' ) ?: 20 );
+define( 'SLACKEMON_ITEMS_PER_PAGE',   (int) getenv( 'SLACKEMON_ITEMS_PER_PAGE'   ) ?:  5 );
+define( 'SLACKEMON_POKEMON_PER_PAGE', (int) getenv( 'SLACKEMON_POKEMON_PER_PAGE' ) ?:  5 );
+define( 'SLACKEMON_POKEDEX_PER_PAGE', (int) getenv( 'SLACKEMON_POKEDEX_PER_PAGE' ) ?: 20 );
 
 // The default fields that we generally pass through to Slack message attachments' 'mrkdwn_in' parameter. This
 // generally doesn't need to be changed, but is defined here so it can easily be re-used. A bug exists on Slack's
@@ -259,8 +259,8 @@ $default_mrkdwn_in = [
 define( 'SLACKEMON_MRKDWN_IN', getenv( 'SLACKEMON_MRKDWN_IN' ) ?: $default_mrkdwn_in );
 
 // Changing these values may not be fully supported at this stage.
-define( 'SLACKEMON_MAX_IVS',         getenv( 'SLACKEMON_MAX_IVS'         ) ?: 31 );
-define( 'SLACKEMON_MIN_IVS',         getenv( 'SLACKEMON_MIN_IVS'         ) ?:  0 );
-define( 'SLACKEMON_MAX_KNOWN_MOVES', getenv( 'SLACKEMON_MAX_KNOWN_MOVES' ) ?:  4 );
+define( 'SLACKEMON_MAX_IVS',         (int) getenv( 'SLACKEMON_MAX_IVS'         ) ?: 31 );
+define( 'SLACKEMON_MIN_IVS',         (int) getenv( 'SLACKEMON_MIN_IVS'         ) ?:  0 );
+define( 'SLACKEMON_MAX_KNOWN_MOVES', (int) getenv( 'SLACKEMON_MAX_KNOWN_MOVES' ) ?:  4 );
 
 // The end!

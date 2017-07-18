@@ -5,10 +5,28 @@
  * @package Slackemon
  */
 
-function slackemon_get_battle_team_status_attachment( $user_id = USER_ID, $mode = 'inviter' ) {
+/**
+ * Returns an attachment containing the status of a user's battle team. By default, this is intended to be displayed
+ * on the Battle menu (i.e. from the 'perspective' of an 'inviter'), but can also be used eg. on a battle invite by
+ * sending through 'perspective' => 'invitee' in the $options array.
+ *
+ * @param arr An array of options for this function. Valid keys are 'perspective', 'challenge_type', and
+ *            'quiet_on_success'.
+ * @return arr A valid Slack message attachment array.
+ */
+function slackemon_get_battle_team_status_attachment( $user_id = USER_ID, $options = [] ) {
+
+  $defaults = [
+    'perspective'      => 'inviter',
+    'challenge_type'   => null,
+    'quiet_on_success' => false,
+  ];
+
+  $options = array_merge( $defaults, $options );
 
   $battle_team = slackemon_get_battle_team( $user_id );
   $is_desktop  = slackemon_is_desktop( $user_id );
+  $pretext     = '';
 
   $faint_count      = 0;
   $low_hp_count     = 0;
@@ -26,21 +44,33 @@ function slackemon_get_battle_team_status_attachment( $user_id = USER_ID, $mode 
 
   }
 
-  if ( 'inviter' === $mode && ! slackemon_is_battle_team_full( $user_id ) ) {
+  if ( ! slackemon_is_battle_team_full( $user_id ) ) {
 
-    $pretext = (
-      ':medal: Winning Slackémon battles will level-up your Pokémon - ' .
-      'making them stronger _and_ getting you closer to evolving them.' . "\n" .
-      ':arrow_right: *To send a battle challenge, you first need to choose your Battle Team ' .
-      'of ' . SLACKEMON_BATTLE_TEAM_SIZE . '!*'
-    );
+    if ( 'inviter' === $options['perspective'] ) {
+
+      $pretext = (
+        ':medal: Winning Slackémon battles will level-up your Pokémon - ' .
+        'making them stronger _and_ getting you closer to evolving them.' . "\n" .
+        ':arrow_right: *To send a battle challenge, you first need to choose your Battle Team ' .
+        'of ' . SLACKEMON_BATTLE_TEAM_SIZE . '!*'
+      );
+
+    } else if ( 'invitee' === $options['perspective'] ) {
+
+      $pretext = (
+        ':warning: *You have not yet selected your full battle team of ' . SLACKEMON_BATTLE_TEAM_SIZE . ' ' .
+        'Pokémon!*' . "\n" .
+        'If you don\'t fill your team, random Pokémon will be selected from your collection.'
+      );
+
+    }
 
   } else if ( $faint_count === SLACKEMON_BATTLE_TEAM_SIZE ) {
 
     $pretext = (
       ':exclamation: *Your battle team has fainted!*' . "\n" .
       (
-        'invitee' === $mode ?
+        'invitee' === $options['perspective'] ?
         'You should change up your battle team before accepting this challenge - otherwise your team will be ' .
         'chosen at random!' :
         'To challenge someone to a battle, you\'ll need to change up your battle team, or wait for your ' .
@@ -54,9 +84,9 @@ function slackemon_get_battle_team_status_attachment( $user_id = USER_ID, $mode 
       ':exclamation: *' . $faint_count . ' of the Pokémon on your team ' .
       ( 1 === $faint_count ? 'has' : 'have' ) . ' fainted!*' . "\n" .
       (
-        'invitee' === $mode ?
-        'You should change up your team before accepting this challenge - otherwise your team will be chosen ' .
-        'at random.' :
+        'invitee' === $options['perspective'] ?
+        'You should change up your team before accepting this challenge - if not, fainted Pokémon will be replaced ' .
+        'randomly from your collection.' :
         'You should change up your team before your next battle - if not, fainted Pokémon will be replaced ' .
         'randomly from your collection.'
       )
@@ -68,7 +98,7 @@ function slackemon_get_battle_team_status_attachment( $user_id = USER_ID, $mode 
       ':exclamation: *' . $low_hp_count . ' of the Pokémon on your team ' .
       ( 1 === $low_hp_count ? 'does not have' : 'do not have' ) . ' much health left!*' . "\n" .
       (
-        'invitee' === $mode ?
+        'invitee' === $options['perspective'] ?
         'You should change up your team before accepting this challenge.' :
         'You should change up your team before your next battle - or wait for your Pokémon to regain their strength.'
       )
@@ -81,16 +111,21 @@ function slackemon_get_battle_team_status_attachment( $user_id = USER_ID, $mode 
       ( $is_desktop ? 'the Pokémon on your team' : 'your Pokémon' ) . ' ' .
       ( 1 === $not_max_hp_count ? 'is' : 'are' ) . ' not at full health.*' . "\n" .
       (
-        'invitee' === $mode ?
+        'invitee' === $options['perspective'] ?
         'You should change up your team before accepting this challenge.' :
         'You should change up your team before your next battle - or wait for your Pokémon to regain their strength.'
       )
     );
 
-  } else {
+  } else if ( ! $options['quiet_on_success'] ) {
 
     $pretext = ':white_check_mark: Your battle team is ready to go!';
 
+  }
+
+  // Return a blank array if we have nothing to say.
+  if ( ! $pretext ) {
+    return [];
   }
 
   $attachment = [
@@ -206,7 +241,7 @@ function slackemon_get_battle_general_attachment( $attachment_args ) {
 
   $battle_actions      = slackemon_get_battle_actions( $attachment_args );
   $opponent_first_name = slackemon_get_battle_opponent_first_name( $battle_data, $user_id );
-  $celebration_emoji   = ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :party_parrot:' : '' );  
+  $celebration_emoji   = ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ' :party_parrot:' : '' );
 
   // For friendly battles, we will end the battle now if it's over, as there's nothing else for the user to do.
   if ( slackemon_is_friendly_battle( $battle_data ) && slackemon_is_battle_over( $attachment_args ) ) {
@@ -985,7 +1020,7 @@ function slackemon_battle_has_ended_message( $user_id = USER_ID ) {
     ),
 
     'attachments' => [
-      slackemon_back_to_menu_attachment()
+      slackemon_back_to_menu_attachment(),
     ],
 
     'channel' => $user_id,
@@ -997,7 +1032,14 @@ function slackemon_battle_has_ended_message( $user_id = USER_ID ) {
 } // Function slackemon_battle_has_ended_message
 
 function slackemon_readable_challenge_type( $challenge_type ) {
+
+  // Challenge type values are usually arrays, but in case we get a string...
+  if ( is_string( $challenge_type ) ) {
+    $challenge_type = [ $challenge_type ];
+  }
+
   return slackemon_readable( join( ' ', $challenge_type ) );
+
 }
 
 // The end!

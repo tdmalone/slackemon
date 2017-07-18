@@ -138,25 +138,28 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
     ],
   ];
 
-  // JSON clone trick so we don't modify the original Pokemon object collection
+  // JSON clone trick so we don't modify the original Pokemon object collection.
   $sorted_pokemon = json_decode( json_encode( $player_data->pokemon ) );
 
-  // Exclude non-selected types, if relevant
+  // Exclude non-selected types, if relevant.
   if ( $type_mode && 'all-types' !== $type_mode ) {
+
     $sorted_pokemon = array_filter( $sorted_pokemon, function( $_pokemon ) use ( $type_mode ) {
+
       if ( in_array( ucfirst( $type_mode ), $_pokemon->types ) ) {
         return true;
       } else {
         return false;
       }
+
     });
   }
 
-  // Do sorting
+  // Do sorting.
   switch ( $sort_mode ) {
     case 'recent':
 
-      // Spawn timestamp, descending
+      // Spawn timestamp, descending.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
         return $pokemon1->ts < $pokemon2->ts ? 1 : -1;
       });
@@ -164,88 +167,104 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
     break;
     case 'number':
 
-      // Number, ascending, falling back to recent
+      // Number, ascending, falling back to recent.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
+
         if ( $pokemon1->pokedex != $pokemon2->pokedex ) {
           return $pokemon1->pokedex > $pokemon2->pokedex ? 1 : -1;
         } else {
-          return $pokemon1->ts < $pokemon2->ts ? 1 : -1; // Recent fallback
+          return $pokemon1->ts < $pokemon2->ts ? 1 : -1; // Recent fallback.
         }
+
       });
 
     break;
     case 'name':
 
-      // Name, ascending, falling back to recent
+      // Name, ascending, falling back to recent.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
+
         $compare = strcmp( $pokemon1->name, $pokemon2->name );
+
         if ( $compare !== 0 ) {
-          return $compare > 0 ? 1 : -1; // Name
+          return $compare > 0 ? 1 : -1; // Name.
         } else {
-          return $pokemon1->ts < $pokemon2->ts ? 1 : -1; // Recent fallback
+          return $pokemon1->ts < $pokemon2->ts ? 1 : -1; // Recent fallback.
         }
+
       });
 
     break;
     case 'cp':
 
-      // CP, descending, falling back to recent
+      // CP, descending, falling back to recent.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
+
         if ( $pokemon1->cp !== $pokemon2->cp ) {
-          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP
+          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP.
         } else {
-          return $pokemon1->ts < $pokemon2->ts ? 1 : -1; // Recent fallback
+          return $pokemon1->ts < $pokemon2->ts ? 1 : -1; // Recent fallback.
         }
+
       });
 
     break;
     case 'favourite':
 
-      // Favourite Pokemon first, falling back to CP
+      // Favourite Pokemon first, falling back to CP.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
+
         if ( $pokemon1->is_favourite !== $pokemon2->is_favourite ) {
-          return $pokemon2->is_favourite ? 1 : -1; // Is favourite
+          return $pokemon2->is_favourite ? 1 : -1; // Is favourite.
         } else {
-          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback
+          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback.
         }
+
       });
 
     break;
     case 'battle-team':
 
-      // Battle team members first, falling back to CP
+      // Battle team members first, falling back to CP.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
+
         if ( $pokemon1->is_battle_team !== $pokemon2->is_battle_team ) {
-          return $pokemon2->is_battle_team ? 1 : -1; // Is on battle team
+          return $pokemon2->is_battle_team ? 1 : -1; // Is on battle team.
         } else {
-          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback
+          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback.
         }
+
       });
 
     break;
     case 'level':
 
-      // Level, descending, falling back to CP
+      // Level, descending, falling back to CP.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
+
         if ( $pokemon1->level !== $pokemon2->level ) {
-          return $pokemon1->level < $pokemon2->level ? 1 : -1; // Level
+          return $pokemon1->level < $pokemon2->level ? 1 : -1; // Level.
         } else {
-          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback
+          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback.
         }
+
       });
 
     break;
     case 'move-power':
 
-      // Move Power, descending, 0falling back to CP
+      // Move Power, descending, 0falling back to CP.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
+
         $pokemon1_mp = slackemon_get_cumulative_move_power( $pokemon1->moves, $pokemon1->types );
         $pokemon2_mp = slackemon_get_cumulative_move_power( $pokemon2->moves, $pokemon2->types );
+
         if ( $pokemon1_mp !== $pokemon2_mp ) {
-          return $pokemon1_mp < $pokemon2_mp ? 1 : -1; // Move Power
+          return $pokemon1_mp < $pokemon2_mp ? 1 : -1; // Move Power.
         } else {
-          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback
+          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback.
         }
+
       });
 
     break;
@@ -253,11 +272,13 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
 
       // HP, descending, falling back to CP
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
+
         if ( $pokemon1->hp !== $pokemon2->hp ) {
-          return $pokemon1->hp < $pokemon2->hp ? 1 : -1; // HP
+          return $pokemon1->hp < $pokemon2->hp ? 1 : -1; // HP.
         } else {
-          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback
+          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback.
         }
+
       });
 
     break;
@@ -265,27 +286,33 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
 
       // IVs, descending, falling back to CP
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
+
         $pokemon1_ivs = slackemon_get_iv_percentage( $pokemon1->ivs );
         $pokemon2_ivs = slackemon_get_iv_percentage( $pokemon2->ivs );
+
         if ( $pokemon1_ivs !== $pokemon2_ivs ) {
-          return $pokemon1_ivs < $pokemon2_ivs ? 1 : -1; // IV percentage
+          return $pokemon1_ivs < $pokemon2_ivs ? 1 : -1; // IV percentage.
         } else {
-          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback
+          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback.
         }
+
       });
 
     break;
     case 'evs':
 
-      // EVs, descending, falling back to CP
+      // EVs, descending, falling back to CP.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
+
         $pokemon1_evs = slackemon_get_combined_evs( $pokemon1->evs );
         $pokemon2_evs = slackemon_get_combined_evs( $pokemon2->evs );
+
         if ( $pokemon1_evs !== $pokemon2_evs ) {
-          return $pokemon1_evs < $pokemon2_evs ? 1 : -1; // Combined EV total
+          return $pokemon1_evs < $pokemon2_evs ? 1 : -1; // Combined EV total.
         } else {
-          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback
+          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback.
         }
+
       });
 
     break;
@@ -294,45 +321,50 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
       // Happiness, descending, falling back to CP
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
         if ( $pokemon1->happiness !== $pokemon2->happiness ) {
-          return $pokemon1->happiness < $pokemon2->happiness ? 1 : -1; // Happiness
+          return $pokemon1->happiness < $pokemon2->happiness ? 1 : -1; // Happiness.
         } else {
-          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback
+          return $pokemon1->cp < $pokemon2->cp ? 1 : -1; // CP fallback.
         }
       });
 
     break;
     case 'held-item':
 
-      // Held item, ascending, falling back to recent
+      // Held item, ascending, falling back to recent.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
+
         if (
           isset( $pokemon1->held_item ) && $pokemon1->held_item &&
           isset( $pokemon2->held_item ) && $pokemon2->held_item
         ) {
+
           $pokemon1_item_name = slackemon_get_item_data( $pokemon1->held_item )->name;
           $pokemon2_item_name = slackemon_get_item_data( $pokemon2->held_item )->name;
-          $compare = strcmp( $pokemon1_item_name, $pokemon2_item_name );
+          $compare            = strcmp( $pokemon1_item_name, $pokemon2_item_name );
+
           if ( $compare !== 0 ) {
-            return $compare > 0 ? 1 : -1; // Item name
+            return $compare > 0 ? 1 : -1; // Item name.
           } else {
-            return $pokemon1->ts < $pokemon2->ts ? 1 : -1; // Recent fallback
+            return $pokemon1->ts < $pokemon2->ts ? 1 : -1; // Recent fallback.
           }
+
         } else if ( isset( $pokemon1->held_item ) && $pokemon1->held_item ) {
           return -1;
         } else if ( isset( $pokemon2->held_item ) && $pokemon2->held_item ) {
           return 1;
         } else {
-          return $pokemon1->ts < $pokemon2->ts ? 1 : -1; // Recent fallback
+          return $pokemon1->ts < $pokemon2->ts ? 1 : -1; // Recent fallback.
         }
+
       });
 
     break;
-  } // Switch sort_mode
+  } // Switch sort_mode.
 
-  // Do pagination
+  // Do pagination.
   $sorted_pokemon_page = slackemon_paginate( $sorted_pokemon, $current_page, SLACKEMON_POKEMON_PER_PAGE );
 
-  // Output Pokemon attachments
+  // Output Pokemon attachments.
   foreach ( $sorted_pokemon_page as $pokemon ) {
 
     $pokemon_data = slackemon_get_pokemon_data( $pokemon->pokedex );
@@ -341,13 +373,13 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
     // Is this Pokemon on our battle team?
     $is_battle_team = isset( $pokemon->is_battle_team ) && $pokemon->is_battle_team ? true : false;
 
-    // Emoji'fied types
+    // Emoji'fied types.
     $emojified_types = slackemon_emojify_types( join( ' ' , $pokemon->types ), false );
 
-    // Get all evolution possibilities
+    // Get all evolution possibilities.
     $evolution_possibilities = slackemon_can_user_pokemon_evolve( $pokemon, 'level-up', true );
 
-    // Build footer info
+    // Build footer info.
 
     $footer = $is_desktop ? 'Caught ' . slackemon_get_relative_time( $pokemon->ts, false ) . ' - ' : '';
     $footer .= slackemon_condensed_moveset( $pokemon->moves, $pokemon->types, ! $is_desktop );
@@ -545,15 +577,20 @@ function slackemon_get_unfavourite_message( $action ) {
 
   return $message;
 
-} // Function slackemon_get_unfavourite_message
+} // Function slackemon_get_unfavourite_message.
 
-function slackemon_get_battle_team_add_message( $action, $action_name = '' ) {
+function slackemon_get_battle_team_add_message( $action, $action_name, $is_successful ) {
 
-  $message = [];
-  $message['text'] = $action->original_message->text;
-  $message['attachments'] = $action->original_message->attachments;
+  if ( ! $is_successful ) {
+    return slackemon_battle_team_add_remove_denied_message( $action );
+  }
 
-  // When adding at the Battle menu, we just need to reload the battle menu
+  $message = [
+    'text'        => $action->original_message->text,
+    'attachments' => $action->original_message->attachments,
+  ];
+
+  // When adding at the Battle menu, we just need to reload the battle menu.
   if ( 'battle-team/add/from-battle-menu' === $action_name ) {
     return slackemon_get_battle_menu();
   }
@@ -564,38 +601,52 @@ function slackemon_get_battle_team_add_message( $action, $action_name = '' ) {
   // If it's not the current attachment and the battle team is now full, we loop through to find the 'add' button
   // and actually just remove it.
   foreach ( $message['attachments'] as $outer_key => $attachment ) {
+
     if ( $outer_key === $action->attachment_id - 1 ) {
+
       foreach ( $attachment->actions as $inner_key => $action_button ) {
         if ( $action_button->name === 'battle-team/add' ) {
-          $action_button->name = 'battle-team/remove';
+          $action_button->name  = 'battle-team/remove';
           $action_button->style = 'primary';
           $attachment->actions[ $inner_key ] = $action_button;
         }
       }
+
     } else if ( slackemon_is_battle_team_full() ) {
+
       if ( isset( $attachment->actions ) ) {
+
         foreach ( $attachment->actions as $inner_key => $action_button ) {
           if ( $action_button->name === 'battle-team/add' ) {
             $action_button = [];
             $attachment->actions[ $inner_key ] = $action_button;
           }
         }
+
       }
+
     }
+
     $message['attachments'][ $outer_key ] = $attachment;
-  }
+
+  } // Foreach attachments.
 
   return $message;
 
-} // Function slackemon_get_battle_team_add_message
+} // Function slackemon_get_battle_team_add_message.
 
-function slackemon_get_battle_team_remove_message( $action, $action_name = '' ) {
+function slackemon_get_battle_team_remove_message( $action, $action_name, $is_successful ) {
 
-  $message = [];
-  $message['text'] = $action->original_message->text;
-  $message['attachments'] = $action->original_message->attachments;
+  if ( ! $is_successful ) {
+    return slackemon_battle_team_add_remove_denied_message( $action );
+  }
 
-  // When removing at the Battle menu, we just need to reload the battle menu
+  $message = [
+    'text'        => $action->original_message->text,
+    'attachments' => $action->original_message->attachments,
+  ];
+
+  // When removing at the Battle menu, we just need to reload the battle menu.
   if ( 'battle-team/remove/from-battle-menu' === $action_name ) {
     return slackemon_get_battle_menu();
   }
@@ -607,38 +658,74 @@ function slackemon_get_battle_team_remove_message( $action, $action_name = '' ) 
   // button, and grab the Pokemon's spawn_ts from it. If we find an 'add' or 'remove' button already here,
   // we then skip. Otherwise, we add an 'add' button.
   foreach ( $message['attachments'] as $outer_key => $attachment ) {
+
     if ( $outer_key === $action->attachment_id - 1 ) {
+
       foreach ( $attachment->actions as $inner_key => $action_button ) {
         if ( 'battle-team/remove' === $action_button->name ) {
-          $action_button->name = 'battle-team/add';
+          $action_button->name  = 'battle-team/add';
           $action_button->style = '';
           $attachment->actions[ $inner_key ] = $action_button;
         }
       }
+
     } else if ( ! slackemon_is_battle_team_full() && isset( $attachment->actions ) ) {
+
       foreach ( $attachment->actions as $inner_key => $action_button ) {
+
         $spawn_ts = 0;
+
         if ( 'transfer' === $action_button->name ) {
           $spawn_ts = $action_button->value;
         } else if ( 'battle-team/remove' === $action_button->name || 'battle-team/add' === $action_button->name ) {
           continue 2;
         }
+
       }
+
       if ( isset( $spawn_ts ) && $spawn_ts ) {
         $attachment->actions[] = [
-          'name' => 'battle-team/add',
-          'text' => ':facepunch: Battle Team',
-          'type' => 'button',
+          'name'  => 'battle-team/add',
+          'text'  => ':facepunch: Battle Team',
+          'type'  => 'button',
           'value' => $spawn_ts,
           'style' => '',
         ];
       }
+
     }
+
     $message['attachments'][ $outer_key ] = $attachment;
-  }
+
+  } // Foreach attachments.
 
   return $message;
 
-} // Function slackemon_get_battle_team_remove_message
+} // Function slackemon_get_battle_team_remove_message.
+
+
+/** Returns the failure message when a battle team add/remove action could not be completed. */
+function slackemon_battle_team_add_remove_denied_message( $action ) {
+
+  $message = [
+    'text'        => $action->original_message->text,
+    'attachments' => $action->original_message->attachments,
+  ];
+
+  $failure_message = 'Oops! That didn\'t work. Please try again!';
+
+  if ( slackemon_is_player_in_battle() ) {
+    $failure_message = 'Oops! You can\'t change up your team during a battle!';
+  } else if ( slackemon_does_user_have_outstanding_invite( USER_ID, 'inviter' ) ) {
+    $failure_message = 'Oops! You can\'t change up your team after sending an invite.';
+  }
+
+  $message['attachments'][ $action->attachment_id - 1 ]->footer = (
+    ( slackemon_is_desktop() ? ':exclamation:' : '' ) . $failure_message
+  );
+
+  return $message;
+
+} // Function slackemon_battle_team_add_remove_denied_message.
 
 // The end!

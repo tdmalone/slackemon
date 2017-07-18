@@ -360,6 +360,7 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
 
 } // Function slackemon_do_catch
 
+/** Starts a battle with a wild Pokemon. See slackemon_start_battle() in battles.php for P2P battles. */
 function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) {
 
   // Are we already in battle?

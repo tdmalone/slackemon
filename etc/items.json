@@ -2,12 +2,12 @@
   "dawn-stone": {
     "requirements": [
       {
-        "pokedex": 281,
-        "gender": "male"
+        "gender": "male",
+        "pokedex": 281
       },
       {
-        "pokedex": 361,
-        "gender": "female"
+        "gender": "female",
+        "pokedex": 361
       }
     ]
   },
@@ -38,6 +38,60 @@
       {
         "pokedex": 513
       }
+    ]
+  },
+  "hyper-potion": {
+    "comment": "Sample only",
+    "effects": [
+      {
+        "effect-situation": "battle",
+        "effect-target": "holder",
+        "effect-type": "stat-increase",
+        "stages": "1",
+        "stat-name": "attack"
+      },
+      {
+        "effect-situation": "battle",
+        "effect-target": "opponent",
+        "effect-type": "stat-decrease",
+        "stages": "8",
+        "stat-name": "special-defense"
+      },
+      {
+        "effect-situation": "battle",
+        "effect-target": "opponent",
+        "effect-type": "move-weaken",
+        "move-type": "ice",
+        "value": ""
+      },
+      {
+        "effect-situation": "overworld",
+        "effect-target": "pokemon",
+        "effect-type": "ev-increase",
+        "stat-name": "attack",
+        "value": "10"
+      }
+    ],
+    "requirements": [
+      {
+        "hp": "<100%"
+      },
+      {
+        "status": "burned"
+      },
+      {
+        "pokemon": 234
+      }
+    ],
+    "situations": [
+      "overworld",
+      "battle",
+      "holdable",
+      "consumable"
+    ],
+    "targets": [
+      "single-pokemon",
+      "party"
     ]
   },
   "leaf-stone": {
@@ -142,60 +196,6 @@
       },
       {
         "pokedex": 515
-      }
-    ]
-  },
-  "hyper-potion": {
-    "comment": "Sample only",
-    "situations": [
-      "overworld",
-      "battle",
-      "holdable",
-      "consumable"
-    ],
-    "targets": [
-      "single-pokemon",
-      "party"
-    ],
-    "requirements": [
-      {
-        "hp": "<100%"
-      },
-      {
-        "status": "burned"
-      },
-      {
-        "pokemon": 234
-      }
-    ],
-    "effects": [
-      {
-        "effect-type": "stat-increase",
-        "effect-target": "holder",
-        "effect-situation": "battle",
-        "stat-name": "attack",
-        "stages": "1"
-      },
-      {
-        "effect-type": "stat-decrease",
-        "effect-target": "opponent",
-        "effect-situation": "battle",
-        "stat-name": "special-defense",
-        "stages": "8"
-      },
-      {
-        "effect-type": "move-weaken",
-        "effect-target": "opponent",
-        "effect-situation": "battle",
-        "move-type": "ice",
-        "value": ""
-      },
-      {
-        "effect-type": "ev-increase",
-        "effect-target": "pokemon",
-        "effect-situation": "overworld",
-        "stat-name": "attack",
-        "value": "10"
       }
     ]
   }
