@@ -189,8 +189,9 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
         'user_id' => $user_id,
       ];
 
-      $user_top_level = slackemon_get_top_player_pokemon( $_search_options )->level;
+      $user_top_level             = slackemon_get_top_player_pokemon( $_search_options )->level;
       $user_top_battle_team_level = slackemon_get_battle_team_highest_level( $user_id, true );
+      $is_legendary_in_team       = slackemon_is_legendary_in_battle_team( $user_id );
 
     }
 
@@ -198,7 +199,6 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
       $attachment           = slackemon_get_player_battle_attachment( $player_id );
       $this_option_groups   = $challenge_option_groups;
-      $is_legendary_in_team = slackemon_is_legendary_in_battle_team( $player_id );
 
       if ( isset( $challenge_types->level ) && $challenge_types->level->enabled ) {
 
@@ -223,7 +223,8 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
           $level_status = (
             $is_legendary_in_team || $user_top_battle_team_level > $i ?
-            $status_unavailable : $status_available
+            $status_unavailable :
+            $status_available
           );
 
           $level_prefix = $is_desktop ? $level_status . ' ' : '';
