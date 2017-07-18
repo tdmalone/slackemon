@@ -844,6 +844,7 @@ function slackemon_get_battle_team(
 
   // If our battle team isn't full, we need to fill it with random additions.
   // TODO: Need to make sure these random additions meet the challenge_type rules.
+  $challenge_type_data      = slackemon_get_battle_challenge_data( $challenge_type );
   $infinite_loop_protection = 0;
   while ( count( $battle_team ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
 
@@ -856,17 +857,26 @@ function slackemon_get_battle_team(
     $random_key = array_rand( $pokemon_collection );
     $_pokemon = $pokemon_collection[ $random_key ];
 
-    if ( ! isset( $battle_team[ 'ts' . $_pokemon->ts ] ) ) { // Ensure we don't add the same Pokemon twice.
-
-      if ( $exclude_fainted && 0 == $_pokemon->hp ) {
-        continue;
-      }
-
-      $battle_team[ 'ts' . $_pokemon->ts ] = $_pokemon;
-
+    // Ensure we don't add the same Pokemon twice.
+    if ( isset( $battle_team[ 'ts' . $_pokemon->ts ] ) ) {
+      continue;
     }
 
-  }
+    if ( $exclude_fainted && 0 == $_pokemon->hp ) {
+      continue;
+    }
+
+    if ( $challenge_type_data->level_limited && floor( $_pokemon->level ) > $challenge_type[1] ) {
+      continue;
+    }
+
+    if ( ! $challenge_type_data->allow_legendaries && slackemon_is_legendary( $_pokemon->pokedex ) ) {
+      continue;
+    }
+
+    $battle_team[ 'ts' . $_pokemon->ts ] = $_pokemon;
+
+  } // While battle_team < battle_team_size.
 
   // Don't allow a short team to be returned.
   if ( count( $battle_team ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
