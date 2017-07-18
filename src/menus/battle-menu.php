@@ -196,8 +196,9 @@ function slackemon_get_battle_menu_attachments( $user_id = USER_ID ) {
 
     foreach ( $online_players as $player_id ) {
 
-      $attachment         = slackemon_get_player_battle_attachment( $player_id );
-      $this_option_groups = $challenge_option_groups;
+      $attachment           = slackemon_get_player_battle_attachment( $player_id );
+      $this_option_groups   = $challenge_option_groups;
+      $is_legendary_in_team = slackemon_is_legendary_in_battle_team( $player_id );
 
       if ( isset( $challenge_types->level ) && $challenge_types->level->enabled ) {
 

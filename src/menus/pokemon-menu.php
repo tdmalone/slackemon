@@ -8,7 +8,7 @@
 function slackemon_get_pokemon_menu( $sort_page_value ) {
 
   $player_data = slackemon_get_player_data();
-  $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
+  $is_desktop  = slackemon_is_desktop();
 
   if ( ! count( $player_data->pokemon ) ) {
 
@@ -26,7 +26,8 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
 
   $message = [];
 
-  // Set up sorting
+  // Set up sorting.
+
   $valid_sorting_values = [
     'recent'      => ( $is_desktop ? ':clock2: '                   : '' ) . 'Recent',
     'number'      => ( $is_desktop ? ':hash: '                     : '' ) . 'Number',
@@ -42,16 +43,24 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
     'happiness'   => ( $is_desktop ? ':grinning: '                 : '' ) . 'Happiness',
     'held-item'   => ( $is_desktop ? ':gift: '                     : '' ) . 'Held Item',
   ];
+
   $valid_types = [ 'all-types' => 'All types' ];
-  $_types = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' ) );
+  $_types      = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' ) );
+
   foreach ( $_types->results as $_type ) {
-    if ( trim( basename( $_type->url ), '/' ) > 1000 ) { continue; } // Skip non-standard types (large IDs)
+
+    if ( trim( basename( $_type->url ), '/' ) > 1000 ) {
+      continue; // Skip non-standard types (large IDs).
+    }
+
     if ( $is_desktop ) {
       $valid_types[ $_type->name ] = slackemon_emojify_types( ucwords( $_type->name ), true, 'before' );
     } else {
       $valid_types[ $_type->name ] = ucwords( $_type->name );
     }
+
   }
+
   ksort( $valid_types );
 
   // Get the player's current set sort modes if they still exist as valid modes, or fallback to defaults
@@ -60,6 +69,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
     $player_data->sort_mode :
     'recent'
   );
+
   $type_mode = (
     isset( $player_data->type_mode ) && array_key_exists( $player_data->type_mode, $valid_types )  ?
     $player_data->type_mode :
@@ -68,7 +78,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
 
   if ( array_key_exists( $sort_page_value, $valid_sorting_values ) ) {
 
-    // Set sort mode based on sort_page_value, and persist it until the player changes it again
+    // Set sort mode based on sort_page_value, and persist it until the player changes it again.
     $sort_mode = $sort_page_value;
     slackemon_set_player_pokemon_sort_mode( $sort_mode );
 
@@ -79,25 +89,33 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
 
   }
 
-  // Set up pagination
-  // Default to page 1 if a page number wasn't sent through
+  // Set up pagination.
+  // Default to page 1 if a page number wasn't sent through.
   $current_page = is_numeric( $sort_page_value ) ? $sort_page_value : 1;
 
   $message['text'] = (
-    '*Pᴏᴋᴇ́ᴍᴏɴ*' . "\n" . // Pokemon
+    '*Pᴏᴋᴇ́ᴍᴏɴ*' . "\n" . // Pokemon.
     'You have *' . count( $player_data->pokemon ) . '* Pokémon.'
   );
 
   $message['attachments'] = [];
 
-  // Sort/types/search menus
+  // Sort/types/search menus.
+
   $sort_menu_options = [];
   foreach ( $valid_sorting_values as $value => $text ) {
-    $sort_menu_options[] = [ 'text' => $text, 'value' => $value ];
+    $sort_menu_options[] = [
+      'text'  => $text,
+      'value' => $value,
+    ];
   }
+
   $type_menu_options = [];
   foreach ( $valid_types as $value => $text ) {
-    $type_menu_options[] = [ 'text' => $text, 'value' => $value ];
+    $type_menu_options[] = [
+      'text'  => $text,
+      'value' => $value,
+    ];
   }
   $message['attachments'][] = [
     'fallback' => 'Sort by',
@@ -270,7 +288,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
     break;
     case 'hp':
 
-      // HP, descending, falling back to CP
+      // HP, descending, falling back to CP.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
 
         if ( $pokemon1->hp !== $pokemon2->hp ) {
@@ -284,7 +302,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
     break;
     case 'ivs':
 
-      // IVs, descending, falling back to CP
+      // IVs, descending, falling back to CP.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
 
         $pokemon1_ivs = slackemon_get_iv_percentage( $pokemon1->ivs );
@@ -318,7 +336,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
     break;
     case 'happiness':
 
-      // Happiness, descending, falling back to CP
+      // Happiness, descending, falling back to CP.
       usort( $sorted_pokemon, function( $pokemon1, $pokemon2 ) {
         if ( $pokemon1->happiness !== $pokemon2->happiness ) {
           return $pokemon1->happiness < $pokemon2->happiness ? 1 : -1; // Happiness.
@@ -414,7 +432,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
         $footer .= ' - ' . slackemon_appraise_ivs( $pokemon->ivs, false, ! $is_desktop );
       break;
 
-    } // Switch sort_mode
+    } // Switch sort_mode.
 
     $message['attachments'][] = [
       'text' => (
@@ -513,7 +531,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
       ),
     ];
 
-  } // Foreach sorted_pokemon
+  } // Foreach sorted_pokemon.
 
   $message['attachments'][] = slackemon_get_pagination_attachment(
     $sorted_pokemon, $current_page, 'pokemon/list', SLACKEMON_POKEMON_PER_PAGE
@@ -523,17 +541,18 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
 
   return $message;
 
-} // Function slackemon_get_pokemon_menu
+} // Function slackemon_get_pokemon_menu.
 
 function slackemon_get_favourite_message( $action ) {
 
-  $message = [];
-  $message['text'] = $action->original_message->text;
-  $message['attachments'] = $action->original_message->attachments;
+  $message = [
+    'text'        => $action->original_message->text,
+    'attachments' => $action->original_message->attachments,
+  ];
 
-  $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
+  $is_desktop = slackemon_is_desktop();
 
-  // Loop through each attachment. If the current attachment, find the 'favourite' button, & change it to 'unfavourite'.
+  // Loop through each attachment. If the current attachment, find the 'favourite' button; change it to 'unfavourite'.
   foreach ( $message['attachments'] as $outer_key => $attachment ) {
     if ( $outer_key === $action->attachment_id - 1 ) {
       foreach ( $attachment->actions as $inner_key => $action_button ) {
@@ -550,7 +569,7 @@ function slackemon_get_favourite_message( $action ) {
 
   return $message;
 
-} // Function slackemon_get_favourite_message
+} // Function slackemon_get_favourite_message.
 
 function slackemon_get_unfavourite_message( $action ) {
 
@@ -560,7 +579,7 @@ function slackemon_get_unfavourite_message( $action ) {
 
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
 
-  // Like adding, loop through each attachment and change the 'unfavourite' button to 'favourite' :)
+  // Like adding, loop through each attachment and change the 'unfavourite' button to 'favourite' :).
   foreach ( $message['attachments'] as $outer_key => $attachment ) {
     if ( $outer_key === $action->attachment_id - 1 ) {
       foreach ( $attachment->actions as $inner_key => $action_button ) {
@@ -702,7 +721,6 @@ function slackemon_get_battle_team_remove_message( $action, $action_name, $is_su
   return $message;
 
 } // Function slackemon_get_battle_team_remove_message.
-
 
 /** Returns the failure message when a battle team add/remove action could not be completed. */
 function slackemon_battle_team_add_remove_denied_message( $action ) {

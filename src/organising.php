@@ -676,7 +676,7 @@ function slackemon_set_player_pokemon_sort_mode( $sort_mode = 'recent', $user_id
 
 } // Function slackemon_set_player_pokemon_sort_mode.
 
-function slackemon_set_player_pokemon_type_mode( $type_mode = 'all_types', $user_id = USER_ID ) {
+function slackemon_set_player_pokemon_type_mode( $type_mode = 'all-types', $user_id = USER_ID ) {
 
   $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->type_mode = $type_mode;
