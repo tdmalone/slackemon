@@ -685,6 +685,15 @@ function slackemon_set_player_pokemon_type_mode( $type_mode = 'all-types', $user
 
 } // Function slackemon_set_player_pokemon_type_mode.
 
+function slackemon_set_player_pokemon_level_mode( $level_mode = 'all-levels', $user_id = USER_ID ) {
+
+  $player_data = slackemon_get_player_data( $user_id, true );
+  $player_data->level_mode = $level_mode;
+
+  return slackemon_save_player_data( $player_data, $user_id, true );
+
+} // Function slackemon_set_player_pokemon_type_mode.
+
 function slackemon_favourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
 
   $player_data = slackemon_get_player_data( $user_id, true );

@@ -63,7 +63,19 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
 
   ksort( $valid_types );
 
-  // Get the player's current set sort modes if they still exist as valid modes, or fallback to defaults
+  $valid_levels = [ 'all-levels' => 'All levels' ];
+
+  $level_range  = [
+    'from' => floor( slackemon_get_top_player_pokemon([ 'sort_by' => 'level', 'order' => 'ASC'  ])->level ),
+    'to'   => floor( slackemon_get_top_player_pokemon([ 'sort_by' => 'level', 'order' => 'DESC' ])->level ),
+  ];
+
+  for ( $i = $level_range['from']; $i <= $level_range['to']; $i++ ) {
+    $valid_levels[ 'level' . $i ] = $i;
+  }
+
+  // Get the player's current set sort modes if they still exist as valid modes, or fallback to defaults.
+
   $sort_mode = (
     isset( $player_data->sort_mode ) && array_key_exists( $player_data->sort_mode, $valid_sorting_values ) ?
     $player_data->sort_mode :
@@ -76,6 +88,12 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
     'all-types'
   );
 
+  $level_mode = (
+    isset( $player_data->level_mode ) && array_key_exists( $player_data->level_mode, $valid_levels )  ?
+    $player_data->level_mode :
+    'all-levels'
+  );
+
   if ( array_key_exists( $sort_page_value, $valid_sorting_values ) ) {
 
     // Set sort mode based on sort_page_value, and persist it until the player changes it again.
@@ -86,6 +104,11 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
 
     $type_mode = $sort_page_value;
     slackemon_set_player_pokemon_type_mode( $type_mode );
+
+  } else if ( array_key_exists( $sort_page_value, $valid_levels ) ) {
+
+    $level_mode = $sort_page_value;
+    slackemon_set_player_pokemon_level_mode( $level_mode );
 
   }
 
@@ -117,6 +140,15 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
       'value' => $value,
     ];
   }
+
+  $level_menu_options = [];
+  foreach ( $valid_levels as $value => $text ) {
+    $level_menu_options[] = [
+      'text'  => $text,
+      'value' => $value,
+    ];
+  }
+
   $message['attachments'][] = [
     'fallback' => 'Sort by',
     'color' => '#333333',
@@ -147,6 +179,21 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
             'value' => $type_mode,
           ],
         ],
+      ], [
+        'name' => 'pokemon/list',
+        'text' => 'Show level...',
+        'type' => 'select',
+        'options' => $level_menu_options,
+        'selected_options' => [
+          [
+            'text' => (
+              $level_mode === 'all-levels' ?
+              $valid_levels[ $level_mode ] :
+              'Level ' . str_replace( 'level', '', $level_mode ) . ' Pokémon only'
+            ),
+            'value' => $level_mode,
+          ],
+        ],
       ], /*[ // TODO
         'name' => 'pokemon/search',
         'text' => 'Search...',
@@ -166,11 +213,37 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
 
       if ( in_array( ucfirst( $type_mode ), $_pokemon->types ) ) {
         return true;
-      } else {
-        return false;
       }
 
     });
+  }
+
+  // Exclude non-selected levels, if relevant.
+  if ( $level_mode && 'all-levels' !== $level_mode ) {
+
+    $sorted_pokemon = array_filter( $sorted_pokemon, function( $_pokemon ) use ( $level_mode ) {
+
+      if ( $level_mode === 'level' . floor( $_pokemon->level ) ) {
+        return true;
+      }
+
+    });
+  }
+
+  if ( ! count( $sorted_pokemon ) ) {
+
+    $message['attachments'][] = [
+      'text'  => (
+        ':open_mouth: *Oh!* I couldn\'t find any Pokémon.' . "\n" .
+        'Perhaps try some different filters above, or go catch some!'
+      ),
+      'color' => '#333',
+    ];
+
+    $message['attachments'][] = slackemon_back_to_menu_attachment();
+
+    return $message;
+
   }
 
   // Do sorting.
