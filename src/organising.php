@@ -676,10 +676,19 @@ function slackemon_set_player_pokemon_sort_mode( $sort_mode = 'recent', $user_id
 
 } // Function slackemon_set_player_pokemon_sort_mode.
 
-function slackemon_set_player_pokemon_type_mode( $type_mode = 'all_types', $user_id = USER_ID ) {
+function slackemon_set_player_pokemon_type_mode( $type_mode = 'all-types', $user_id = USER_ID ) {
 
   $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->type_mode = $type_mode;
+
+  return slackemon_save_player_data( $player_data, $user_id, true );
+
+} // Function slackemon_set_player_pokemon_type_mode.
+
+function slackemon_set_player_pokemon_level_mode( $level_mode = 'all-levels', $user_id = USER_ID ) {
+
+  $player_data = slackemon_get_player_data( $user_id, true );
+  $player_data->level_mode = $level_mode;
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
