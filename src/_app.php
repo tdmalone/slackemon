@@ -5,7 +5,7 @@
  * @package Slackemon
  */
 
-define( 'SLACKEMON_VERSION', '0.0.47' );
+define( 'SLACKEMON_VERSION', '0.0.48' );
 
 require_once( __DIR__ . '/../lib/functions.php' );
 
