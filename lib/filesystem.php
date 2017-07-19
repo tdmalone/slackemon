@@ -251,6 +251,11 @@ function slackemon_file_put_contents( $filename, $data, $purpose, $warn_if_not_l
 
       $return = $result;
 
+      // Facilitate augmenting S3 with a temporary local cache.
+      if ( 'cache' === $purpose ) {
+        slackemon_file_put_contents( $filename, $data, 'local' );
+      }
+
     break; // Case aws.
 
   } // Switch slackemon_get_data_method.
@@ -434,12 +439,25 @@ function slackemon_rename( $old_filename, $new_filename, $purpose ) {
     case 'postgres':
     case 'aws':
 
-      // TODO: Need to track return values of each step here, and skip the next step and return false on failure
-      // Possibly should also, if the unlink fails, undo the put.
-
       $data = slackemon_file_get_contents( $old_filename, $purpose );
-      slackemon_file_put_contents( $new_filename, $data, $purpose, false ); // 'false' = no need to warn on no lock
-      slackemon_unlink( $old_filename, $purpose );
+
+      if ( slackemon_file_put_contents( $new_filename, $data, $purpose, false ) ) { // 'false' = not warn on no lock.
+        $return = slackemon_unlink( $old_filename, $purpose );
+
+        // If the unlink fails, undo the put.
+        if ( ! $return ) {
+          slackemon_unlink( $new_filename, $purpose );
+        }
+
+      } else {
+        $return = false;
+      }
+
+      // Augment S3 with a temporary local cache, if the file exists.
+      if ( $return && 'cache' === $purpose && slackemon_file_exists( $filename, 'local' ) ) {
+        slackemon_rename( $old_filename, $new_filename, 'local' );
+        slackemon_cache_debug( '', $filename, 'aws-rename-augmented' );
+      }
 
     break;
 
