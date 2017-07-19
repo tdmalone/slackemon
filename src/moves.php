@@ -277,7 +277,7 @@ function slackemon_get_move_type_effectiveness( $move, $defender, $inverse_type_
 
   return $type_effectiveness;
 
-} // Function slackemon_get_move_type_effectiveness
+} // Function slackemon_get_move_type_effectiveness.
 
 function slackemon_get_best_move( $attacker, $defender ) {
 
@@ -308,7 +308,7 @@ function slackemon_get_best_move( $attacker, $defender ) {
 
   return $move;
 
-} // Function slackemon_get_best_move
+} // Function slackemon_get_best_move.
 
 function slackemon_get_backup_move() {
 
@@ -318,9 +318,9 @@ function slackemon_get_backup_move() {
     'pp-current' => '999',
   ];
 
-  return json_decode( json_encode( $move ) ); // Return as a simple object
+  return json_decode( json_encode( $move ) ); // Return as a simple object.
 
-} // Function slackemon_get_backup_move
+} // Function slackemon_get_backup_move.
 
 function slackemon_get_move_stab_multipler( $move, $pokemon_types ) {
 
@@ -349,7 +349,7 @@ function slackemon_get_move_stab_multipler( $move, $pokemon_types ) {
 
   return $stab_multiplier;
 
-} // Function slackemon_get_move_stab_multipler
+} // Function slackemon_get_move_stab_multipler.
 
 /** Get the user's Pokemon that can learn a certain move. Must cache, because this is intensive. */
 function slackemon_get_user_teachable_pokemon( $move_name, $cache_mode = '', $user_id = USER_ID ) {
@@ -377,7 +377,7 @@ function slackemon_get_user_teachable_pokemon( $move_name, $cache_mode = '', $us
     foreach ( $_pokemon_data->moves as $teachable_move ) {
       if ( $teachable_move->move->name === $move_name ) {
 
-        // Before adding, check that the Pokemon doesn't already know this move
+        // Before adding, check that the Pokemon doesn't already know this move.
         foreach ( $_pokemon->moves as $existing_move ) {
           if ( $existing_move->name === $move_name ) {
             continue 2;
@@ -389,7 +389,7 @@ function slackemon_get_user_teachable_pokemon( $move_name, $cache_mode = '', $us
       }
     }
 
-    // We must unset the global Pokemon data cache, because we'll run out of memory if we don't
+    // We must unset the global Pokemon data cache, because we'll run out of memory if we don't.
     global $_cached_slackemon_pokemon_data;
     unset( $_cached_slackemon_pokemon_data[ $_pokemon->pokedex ] );
 
@@ -399,7 +399,7 @@ function slackemon_get_user_teachable_pokemon( $move_name, $cache_mode = '', $us
 
   return $user_teachable_pokemon;
 
-} // Function slackemon_get_user_teachable_pokemon
+} // Function slackemon_get_user_teachable_pokemon.
 
 function slackemon_delete_user_pokemon_move( $spawn_ts, $move_name, $user_id = USER_ID ) {
 
@@ -432,6 +432,6 @@ function slackemon_delete_user_pokemon_move( $spawn_ts, $move_name, $user_id = U
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_delete_user_pokemon_move
+} // Function slackemon_delete_user_pokemon_move.
 
 // The end!

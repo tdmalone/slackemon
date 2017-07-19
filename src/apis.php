@@ -178,17 +178,20 @@ function slackemon_get_item_data( $item_name_or_id ) {
     return false;
   }
 
-  // Potential item category rewrite
+  // Potential item category rewrite.
   if ( isset( $item_data->category->name ) ) {
     $item_data->original_category_name = $item_data->category->name;
     $item_data->category->name = slackemon_rewrite_item_category( $item_data->category->name, $item_data );
   }
 
-  // Supplementary item data
+  // Supplementary item data.
   $supplementary_item_data = slackemon_get_supplementary_item_data();
   if ( isset( $supplementary_item_data->{ $item_data->name } ) ) {
+
     $item_data->{ 'supplementary-data' } = $supplementary_item_data->{ $item_data->name };
+
     if ( isset( $item_data->{ 'supplementary-data' }->overrides ) ) {
+
       foreach ( $item_data->{ 'supplementary-data' }->overrides as $key => $value ) {
         $item_data->{ $key } = $value;
       }

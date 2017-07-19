@@ -10,7 +10,7 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
   $player_data = slackemon_get_player_data();
   $is_desktop  = slackemon_is_desktop();
 
-  // This cannot exceed 5 for desktop, otherwise Slack will not show the additional action buttons
+  // This cannot exceed 5 for desktop, otherwise Slack will not show the additional action buttons.
   $categories_per_pocket = $is_desktop ? 4 : 100;
 
   $items       = [];
@@ -18,7 +18,7 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
   $categories  = [];
   $attachments = [];
 
-  // Loop through each item, and get the count of each plus category unique counts
+  // Loop through each item, and get the count of each plus category unique counts.
   foreach ( $player_data->items as $item ) {
 
     $item_data = slackemon_get_item_data( $item->id );
@@ -33,11 +33,13 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
       ];
 
       if ( ! isset( $categories[ $item_data->category->name ] ) ) {
+
         $categories[ $item_data->category->name ] = [
           'unique_count' => 0,
           'total_count'  => 0,
           'first_image'  => slackemon_get_cached_image_url( $item_data->sprites->default ),
         ];
+
       }
 
       $categories[ $item_data->category->name ]['unique_count']++;
@@ -47,14 +49,17 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
     $items[ 'item' . $item->id ]['count']++;
     $categories[ $item_data->category->name ]['total_count']++;
 
-  } // Foreach items
+  } // Foreach items.
 
   // Did we request a particular category?
   if ( $category_name ) {
+
     $items = array_filter( $items, function( $item ) use ( $category_name ) {
       return $item['category'] === $category_name;
     });
+
     return slackemon_get_item_category_menu( $category_name, $items, $page_number );
+
   }
 
   $pockets_data = slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item-pocket/', [ 'json' => true ] )->results;
@@ -70,13 +75,15 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
         $pocket_categories[] = $category->name;
       }
 
-      // Support rewritten category names
+      // Support rewritten category names.
       $rewritten_category_names = slackemon_rewrite_item_category( $category->name );
       if ( $rewritten_category_names[0] !== $category->name || count( $rewritten_category_names ) > 1 ) {
         foreach ( $rewritten_category_names as $_cat ) {
+
           if ( isset( $categories[ $_cat ] ) ) {
             $pocket_categories[] = $_cat;
           }
+
         }
       }
 
@@ -150,13 +157,13 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
         'thumb_url' => $is_desktop ? $categories[ $category_chunk[ array_rand( $category_chunk ) ] ]['first_image'] : '',
       ];
 
-    } // Foreach category_chunk
+    } // Foreach category_chunk.
 
     if ( $chunk_count > 1 ) {
       $additional_pockets += $chunk_count - 1;
     }
 
-  } // Foreach pocket
+  } // Foreach pocket.
 
   $attachments[] = slackemon_back_to_menu_attachment();
 
@@ -172,11 +179,11 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
 
   return $message;
 
-} // Function slackemon_get_items_menu
+} // Function slackemon_get_items_menu.
 
 function slackemon_get_item_category_menu( $category_name, $items, $page_number ) {
 
-  // Sort alphabetically by name
+  // Sort alphabetically by name.
   usort( $items, function( $item1, $item2 ) {
     return strcmp( $item1['name'], $item2['name'] ) > 0 ? 1 : -1;
   });
@@ -197,7 +204,7 @@ function slackemon_get_item_category_menu( $category_name, $items, $page_number 
 
   $attachments = [];
 
-  // Do pagination
+  // Do pagination.
   $paged_items = slackemon_paginate( $items, $page_number, SLACKEMON_ITEMS_PER_PAGE );
 
   foreach ( $paged_items as $item ) {
@@ -224,6 +231,6 @@ function slackemon_get_item_category_menu( $category_name, $items, $page_number 
 
   return $message;
 
-} // Function slackemon_get_item_category_menu
+} // Function slackemon_get_item_category_menu.
 
 // The end!
