@@ -121,7 +121,6 @@
     "comment": "TODO: Could the emoji here get confusing in battle due to being same as the unseen Pokemon emoji?",
     "allow_legendaries": false,
     "battle_team": "random",
-    "reverse_types": false,
     "damage_modifier": 1,
     "emoji": ":grey_question:",
     "enabled": false,

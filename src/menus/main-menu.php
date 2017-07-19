@@ -313,9 +313,8 @@ function slackemon_get_latest_news() {
 
   // Developers please add new news items here at release time.
   $latest_news = [
-    ':facepunch: New battle options: challenge your teammates to a friendly match! :heart:',
-    ':one: You can now select a Battle Team Leader, who will always be sent out first in battle.',
-    ':star2: Legendaries are no longer allowed in some battles - <https://github.com/tdmalone/slackemon/releases/tag/v0.0.46|see release notes for more>.'
+    ':trophy: Level limited battles have arrived: train against players of any level!',
+    ':card_index_dividers: You can now filter your Pokémon by level in the Pokémon menu.',
   ];
 
   $latest_news = array_merge( explode( '|', SLACKEMON_ADDITIONAL_NEWS ), $latest_news );
