@@ -119,7 +119,22 @@ function slackemon_get_cached_url( $url, $options = [] ) {
 
   return $data;
 
-} // Function get_cached_url
+} // Function get_cached_url.
+
+/**
+ * Removes the cache of a URL. Useful to call if an unreadable response (such as an HTML-based gateway error) has been
+ * cached instead of the desired JSON response.
+ */
+function slackemon_remove_cached_url( $url ) {
+
+  $hash   = slackemon_calculate_hash( $url );
+  $return = slackemon_unlink( $hash['filename'], 'cache' );
+
+  slackemon_cache_debug( $url, $hash['filename'], $return ? 'removed' : 'remove-failed' );
+
+  return $return;
+
+} // Function slackemon_remove_cached_url.
 
 function slackemon_get_cached_image_url( $image_url ) {
 
@@ -285,7 +300,13 @@ function slackemon_cache_debug( $url, $filename, $cache_status, $additional_info
     return;
   }
 
-  slackemon_error_log( $url . ' - ' . $filename . ' - ' . $cache_status . ' - ' . $additional_info );
+  $log_message = $url . ' - ' . $filename . ' - ' . $cache_status;
+
+  if ( $additional_info ) {
+    $log_message .= ' - ' . $additional_info;
+  }
+
+  slackemon_error_log( $log_message );
 
   return;
 
