@@ -349,12 +349,20 @@ function slackemon_get_slack_users( $skip_cache = false ) {
     return [];
   }
 
-  $slack_users = json_decode( slackemon_get_cached_url(
-    'https://slack.com/api/users.list?token=' . SLACKEMON_SLACK_KEY,
-     [ 'expiry_age' => $skip_cache ? 1 : DAY_IN_SECONDS ]
-  ) )->members;
+  $url = 'https://slack.com/api/users.list?token=' . SLACKEMON_SLACK_KEY;
 
-  return $slack_users;
+  $cache_options = [
+    'expiry_age' => $skip_cache ? 1 : DAY_IN_SECONDS,
+    'json'       => true,
+  ];
+
+  $slack_users = slackemon_get_cached_url( $url, $cache_options );
+
+  if ( ! $slack_users ) {
+    return false;
+  }
+
+  return $slack_users->members;
 
 } // Function slackemon_get_slack_users.
 

@@ -45,7 +45,7 @@ function slackemon_get_pokemon_menu( $sort_page_value ) {
   ];
 
   $valid_types = [ 'all-types' => 'All types' ];
-  $_types      = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' ) );
+  $_types      = slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/', [ 'json' => true ] );
 
   foreach ( $_types->results as $_type ) {
 

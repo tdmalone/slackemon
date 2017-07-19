@@ -11,7 +11,7 @@ function slackemon_item_spawn( $trigger = [], $region = false, $timestamp = fals
   if ( $specific_id ) {
     $item_id = (int) $specific_id;
   } else {
-    $items_data  = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/' ) );
+    $items_data  = slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/', [ 'json' => true ] );
     $item_id     = random_int( 1, $items_data->count );
   }
   $item_data = slackemon_get_item_data( $item_id );
@@ -276,7 +276,7 @@ function slackemon_get_item_pick_up_message( $spawn_ts, $action, $user_id = USER
   } else {
 
     // Make the message a little bit more fun.
-    $flying_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/flying/' ) );
+    $flying_data    = slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/flying/', [ 'json' => true ] );
     $flying_pokemon = array_filter( $flying_data->pokemon, function( $_pokemon ) {
 
       $_pokedex_id = (int) basename( $_pokemon->pokemon->url );

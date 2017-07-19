@@ -127,13 +127,15 @@ function slackemon_spawn(
           // We need to do a bit of API wrangling for this
 
           // Get all types, then get a collection of Pokemon for the specific type we're after
-          $_all_types = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' ) );
+          $_all_types    = slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/', [ 'json' => true ] );
           $_desired_type = strtolower( $weather_types[ $weather_condition ] );
           foreach ( $_all_types->results as $_type ) {
+
             if ( $_desired_type === $_type->name ) {
-              $_weather_type_collection = json_decode( slackemon_get_cached_url( $_type->url ) )->pokemon;
+              $_weather_type_collection = slackemon_get_cached_url( $_type->url, [ 'json' => true ] )->pokemon;
               break;
             }
+
           }
 
           // Filter the collection to ensure it's not from the wrong region

@@ -401,7 +401,9 @@ function slackemon_get_battle_menu_pokemon_attachment( $pokemon, $user_id = USER
       ),
     ],
     'color' => (
-      $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : ''
+      $species_data ?
+      ( $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : '' ) :
+      ''
     ),
     'thumb_url' => (
       $is_desktop ?

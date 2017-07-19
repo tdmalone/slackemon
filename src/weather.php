@@ -17,9 +17,12 @@ function slackemon_get_weather( $cache_options = [] ) {
     return false;
   }
 
-  if ( ! isset( $cache_options['expiry_age'] ) ) {
-    $cache_options['expiry_age'] = HOUR_IN_SECONDS * 1;
-  }
+  $cache_defaults = [
+    'expiry_age' => HOUR_IN_SECONDS * 1,
+    'json'       => true,
+  ];
+
+  $cache_options = array_merge( $cache_defaults, $cache_options );
 
   $coords = explode( ',', SLACKEMON_WEATHER_LAT_LON );
 
@@ -33,13 +36,13 @@ function slackemon_get_weather( $cache_options = [] ) {
 
   $weather = slackemon_get_cached_url( $endpoint . '?' . http_build_query( $params ), $cache_options );
 
-  return json_decode( $weather );
+  return $weather;
 
-} // Function slackemon_get_weather
+} // Function slackemon_get_weather.
 
 function slackemon_get_weather_condition( $cache_options = [] ) {
 
-  // Documentation: http://openweathermap.org/weather-conditions
+  // Documentation: http://openweathermap.org/weather-conditions.
 
   $weather = slackemon_get_weather( $cache_options );
 

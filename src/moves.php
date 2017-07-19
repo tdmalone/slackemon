@@ -239,8 +239,9 @@ function slackemon_get_move_type_effectiveness( $move, $defender, $inverse_type_
 
   }
 
-  $type_data = slackemon_get_cached_url( 'http://pokeapi.co/api/v2/type/' . $move_data->type->name . '/' );
-  $relations = json_decode( $type_data )->damage_relations;
+  $type_url  = 'http://pokeapi.co/api/v2/type/' . $move_data->type->name . '/';
+  $type_data = slackemon_get_cached_url( $type_url, [ 'json' => true ] );
+  $relations = $type_data->damage_relations;
 
   // Adjust the type effectiveness as per the API data.
   // Note that if this is an inverse battle, type effectiveness is reversed, except for immunities, which don't apply

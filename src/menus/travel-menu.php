@@ -8,7 +8,7 @@
 function slackemon_get_travel_menu() {
 
   $regions = slackemon_get_regions();
-  //$habitats = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/pokemon-habitat/' ) )->results; (url/name) // TODO
+  //$habitats = slackemon_get_cached_url( 'http://pokeapi.co/api/v2/pokemon-habitat/', [ 'json' => true ] )->results; (url/name) // TODO
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
 
   $attachments = [];
@@ -17,10 +17,10 @@ function slackemon_get_travel_menu() {
 
     // Get a random Pokemon first discovered in this region, and make sure it's not an evolvee (i.e. it *can* be caught!)
     $random_pokemon = $region['generation_pokedex'][ array_rand( $region['generation_pokedex'] ) ];
-    $random_pokemon_species_data = json_decode( slackemon_get_cached_url( $random_pokemon->url ) );
+    $random_pokemon_species_data = slackemon_get_cached_url( $random_pokemon->url, [ 'json' => true ] );
     while ( $random_pokemon_species_data->evolves_from_species ) {
       $random_pokemon = $region['generation_pokedex'][ array_rand( $region['generation_pokedex'] ) ];
-      $random_pokemon_species_data = json_decode( slackemon_get_cached_url( $random_pokemon->url ) );
+      $random_pokemon_species_data = slackemon_get_cached_url( $random_pokemon->url, [ 'json' => true ] );
     }
     $random_pokemon_name   = $random_pokemon->name;
     $random_pokemon_number = trim( basename( $random_pokemon->url ), '/' );

@@ -57,11 +57,11 @@ function slackemon_get_items_menu( $category_name = '', $page_number = 1 ) {
     return slackemon_get_item_category_menu( $category_name, $items, $page_number );
   }
 
-  $pockets_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item-pocket/' ) )->results;
+  $pockets_data = slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item-pocket/', [ 'json' => true ] )->results;
 
   foreach ( $pockets_data as $pocket ) {
 
-    $pocket_data = json_decode( slackemon_get_cached_url( $pocket->url ) );
+    $pocket_data = slackemon_get_cached_url( $pocket->url, [ 'json' => true ] );
 
     $pocket_categories = [];
     foreach ( $pocket_data->categories as $category ) {

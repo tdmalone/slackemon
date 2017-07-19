@@ -140,7 +140,7 @@ function slackemon_get_player_data( $user_id = USER_ID, $for_writing = false ) {
   // Ensure player is not caught in a cancelled region if the available regions change.
   // TODO: Abstract this into a separate function.
   $regions = slackemon_get_regions();
-  if ( ! array_key_exists( $player_data->region, $regions ) ) {
+  if ( $regions && ! array_key_exists( $player_data->region, $regions ) ) {
 
     // Re-open the player file (for writing if it wasn't already open for writing).
     $player_data = json_decode( slackemon_file_get_contents( $player_filename, 'store', ! $for_writing ) );
@@ -486,11 +486,12 @@ function slackemon_is_player_dnd( $user_id = USER_ID, $skip_cache = false ) {
 
     // Set the cache options - use at least 1 second for expiry_age if skipping the cache, so that it still saves.
     $cache_options = [
-      'expiry_age' => ( $skip_cache ? 1 : MINUTE_IN_SECONDS * 5 ), 
+      'expiry_age' => ( $skip_cache ? 1 : MINUTE_IN_SECONDS * 5 ),
+      'json'       => true,
     ];
 
-    $url = $endpoint . '?' . http_build_query( $payload );
-    $dnd_data = json_decode( slackemon_get_cached_url( $url, $cache_options ) );
+    $dnd_url  = $endpoint . '?' . http_build_query( $payload );
+    $dnd_data = slackemon_get_cached_url( $dnd_url, $cache_options );
 
     // Assume the player isn't DND if we didn't get a response from Slack, because... not much else we can do!
     if ( ! $dnd_data ) {
@@ -581,7 +582,7 @@ function slackemon_scaffold_player_file( $spawn_count = 10, $user_id = USER_ID )
 
     // Use the same item spawn chance as the main spawner.
     if ( random_int( 1, 100 ) <= SLACKEMON_ITEM_SPAWN_CHANCE ) {
-      $items_data           = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/' ) );
+      $items_data           = slackemon_get_cached_url( 'http://pokeapi.co/api/v2/item/', [ 'json' => true ] );
       $spawn_specific_id    = 'item:' . random_int( 1, $items_data->count );
       $spawn_specific_level = false;
     } else {

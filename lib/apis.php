@@ -74,17 +74,22 @@ function slackemon_get_url( $url, $options = [] ) {
 function slackemon_get_cached_url( $url, $options = [] ) {
   global $data_folder;
 
+  $defaults = [
+    'curl_options' => [],
+    'expiry_age'   => 0,
+    'json'         => false,
+  ];
+
+  $options = array_merge( $defaults, $options );
+
   // Get our hash, sending through curl_options if set, to ensure the file hash is unique when an auth key is provided
-  $hash = slackemon_calculate_hash(
-    $url, $data_folder, isset( $options['curl_options'] ) ? $options['curl_options'] : []
-  );
+  $hash = slackemon_calculate_hash( $url, $data_folder, $options['curl_options'] );
 
   $file_exists = slackemon_file_exists( $hash['filename'], 'cache' );
 
   // By default, the cache does not expire, unless an optional parameter is provided setting the age
   $is_cache_expired = false;
   if (
-    isset( $options['expiry_age'] ) &&
     $options['expiry_age'] &&
     $file_exists &&
     slackemon_filemtime( $hash['filename'], 'cache' ) < time() - $options['expiry_age']
@@ -98,12 +103,23 @@ function slackemon_get_cached_url( $url, $options = [] ) {
 
     if ( $data ) {
       slackemon_cache_debug( $url, $hash['filename'], 'hit' );
+
+      if ( $options['json'] ) {
+
+        $data = json_decode( $data );
+
+        if ( ! $data ) {
+          slackemon_remove_cached_url( $url );
+        }
+      }
+
       return $data;
+
     }
     
     slackemon_cache_debug( $url, $hash['filename'], 'empty' );
 
-  }
+  } // If file_exists and not is_cache_expired.
 
   // If we've got here, the file doesn't exist, is empty, or has expired, so we need to retrieve, store, and return it.
 
@@ -113,11 +129,19 @@ function slackemon_get_cached_url( $url, $options = [] ) {
   $real_url = isset( $options['real_url'] ) && $options['real_url'] ? $options['real_url'] : $url;
 
   slackemon_cache_debug( $url, $hash['filename'], $is_cache_expired ? 'expired' : 'miss' );
-
   $data = slackemon_get_url( $real_url, $options );
+
+  if ( $options['json'] ) {
+    $json = json_decode( $data );
+
+    if ( ! $json ) {
+      return false;
+    }
+  }
+
   slackemon_file_put_contents( $hash['filename'], $data, 'cache' );
 
-  return $data;
+  return isset( $json ) ? $json : $data;
 
 } // Function get_cached_url.
 

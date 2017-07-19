@@ -65,7 +65,8 @@ function slackemon_get_nature_stat_modifications( $nature_name ) {
   }
 
   // Get and sort out nature data - because we don't have some stats, we apply the nature to others
-  $nature_data = json_decode( slackemon_get_cached_url( 'http://pokeapi.co/api/v2/nature/' . $nature_name .'/' ) );
+  $nature_url     = 'http://pokeapi.co/api/v2/nature/' . $nature_name .'/';
+  $nature_data    = slackemon_get_cached_url( $nature_url, [ 'json' => true ] );
   $increased_stat = $nature_data->increased_stat ? $nature_data->increased_stat->name : false;
   $decreased_stat = $nature_data->decreased_stat ? $nature_data->decreased_stat->name : false;
 

@@ -14,11 +14,10 @@ function slackemon_get_pokemon_data( $pokedex_number ) {
 
   $api_base     = 'http://pokeapi.co/api/v2'; // WARNING: All endpoints on this API must end in a forward slash.
   $pokemon_url  = $api_base . '/pokemon/' . $pokedex_number . '/';
-  $pokemon_data = json_decode( slackemon_get_cached_url( $pokemon_url ) );
+  $pokemon_data = slackemon_get_cached_url( $pokemon_url, [ 'json' => true ] );
 
   if ( ! $pokemon_data ) {
     slackemon_error_log( 'Error retrieving Pokemon data: ' . $pokemon_url );
-    slackemon_remove_cached_url( $pokemon_url );
     return false;
   }
 
@@ -37,11 +36,10 @@ function slackemon_get_pokemon_species_data( $pokedex_number ) {
 
   $api_base     = 'http://pokeapi.co/api/v2'; // WARNING: All endpoints on this API must end in a forward slash.
   $species_url  = $api_base . '/pokemon-species/' . $pokedex_number . '/';
-  $species_data = json_decode( slackemon_get_cached_url( $species_url ) );
+  $species_data = slackemon_get_cached_url( $species_url, [ 'json' => true ] );
 
   if ( ! $species_data ) {
     slackemon_error_log( 'Error retrieving Pokemon species data: ' . $species_url );
-    slackemon_remove_cached_url( $species_url );
     return false;
   }
 
@@ -64,11 +62,10 @@ function slackemon_get_pokemon_evolution_data( $pokedex_number ) {
     return false;
   }
 
-  $evolution_data = json_decode( slackemon_get_cached_url( $species_data->evolution_chain->url ) );
+  $evolution_data = slackemon_get_cached_url( $species_data->evolution_chain->url, [ 'json' => true ] );
 
   if ( ! $evolution_data ) {
     slackemon_error_log( 'Error retrieving Pokemon evolution data: ' . $species_data->evolution_chain->url );
-    slackemon_remove_cached_url( $species_data->evolution_chain->url );
     return false;
   }
 
@@ -91,11 +88,10 @@ function slackemon_get_pokemon_growth_rate_data( $pokedex_number ) {
     return false;
   }
 
-  $growth_rate_data = json_decode( slackemon_get_cached_url( $species_data->growth_rate->url ) );
+  $growth_rate_data = slackemon_get_cached_url( $species_data->growth_rate->url, [ 'json' => true ] );
 
   if ( ! $growth_rate_data ) {
     slackemon_error_log( 'Error retrieving Pokemon growth rate data: ' . $species_data->growth_rate->url );
-    slackemon_remove_cached_url( $species_data->growth_rate->url );
     return false;
   }
 
@@ -113,11 +109,10 @@ function slackemon_get_move_data( $move_name_or_id ) {
   }
 
   $move_url  = 'http://pokeapi.co/api/v2/move/' . $move_name_or_id . '/';
-  $move_data = json_decode( slackemon_get_cached_url( $move_url ) );
+  $move_data = slackemon_get_cached_url( $move_url, [ 'json' => true ] );
 
   if ( ! $move_data ) {
     slackemon_error_log( 'Error retrieving move data for move ' . $move_name_or_id );
-    slackemon_remove_cached_url( $move_url );
     return false;
   }
 
@@ -172,11 +167,10 @@ function slackemon_get_item_data( $item_name_or_id ) {
   }
 
   $item_url  = 'http://pokeapi.co/api/v2/item/' . $item_name_or_id . '/';
-  $item_data = json_decode( slackemon_get_cached_url( $item_url ) );
+  $item_data = slackemon_get_cached_url( $item_url, [ 'json' => true ] );
 
   if ( ! $item_data ) {
     slackemon_error_log( 'Error retrieving item data for item ' . $item_name_or_id . '.' );
-    slackemon_remove_cached_url( $item_url );
     return false;
   }
 
