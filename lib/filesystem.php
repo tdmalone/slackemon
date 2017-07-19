@@ -61,7 +61,7 @@ if (
  */
 function slackemon_file_get_contents( $filename, $purpose, $acquire_lock = false ) {
 
-  // Acquire a lock if we have asked for one; if we can't get one we must return false
+  // Acquire a lock if we have asked for one; if we can't get one we must return false.
   if ( 'store' === $purpose && $acquire_lock ) {
     if ( ! slackemon_lock_file( $filename ) ) {
       return false;
@@ -139,7 +139,7 @@ function slackemon_file_get_contents( $filename, $purpose, $acquire_lock = false
 
     break; // Case aws.
 
-  } // Switch slackemon_get_data_method
+  } // Switch slackemon_get_data_method.
 
   if ( isset( $return ) ) {
     return $return;
@@ -147,7 +147,7 @@ function slackemon_file_get_contents( $filename, $purpose, $acquire_lock = false
     return false;
   }
 
-} // Function slackemon_file_get_contents
+} // Function slackemon_file_get_contents.
 
 /**
  * Semi drop-in replacement for PHP's file_put_contents (only supports the required arguments for now) which abstracts
@@ -170,7 +170,7 @@ function slackemon_file_put_contents( $filename, $data, $purpose, $warn_if_not_l
     $data = implode( '', $data );
   }
 
-  // Warn if we're trying to write to a data store file that we don't own a lock on
+  // Warn if we're trying to write to a data store file that we don't own a lock on.
   if ( 'store' === $purpose && $warn_if_not_locked && ! slackemon_is_file_owned( $filename ) ) {
     slackemon_lock_debug( 'WARNING: Writing to ' . $filename . ' without a file lock', true );
   }
@@ -200,8 +200,8 @@ function slackemon_file_put_contents( $filename, $data, $purpose, $warn_if_not_l
         WHERE filename = '{$key['filename']}'"
       );
 
-      // If we got no result, it means there were no affected rows and thus this 'file' doesn't exist yet
-      // So, let's create it
+      // If we got no result, it means there were no affected rows and thus this 'file' doesn't exist yet.
+      // So, let's create it.
       if ( ! $result ) {
         $result = slackemon_pg_query(
           "INSERT INTO {$key['table']} ( filename, contents, modified )
@@ -253,7 +253,7 @@ function slackemon_file_put_contents( $filename, $data, $purpose, $warn_if_not_l
 
     break; // Case aws.
 
-  } // Switch slackemon_get_data_method
+  } // Switch slackemon_get_data_method.
 
   if ( isset( $return ) ) {
     return $return;
@@ -261,7 +261,7 @@ function slackemon_file_put_contents( $filename, $data, $purpose, $warn_if_not_l
     return false;
   }
 
-} // Function slackemon_file_put_contents
+} // Function slackemon_file_put_contents.
 
 /**
  * Drop-in replacement for PHP's file_exists, which abstracts access to either the local file system or an external
@@ -315,7 +315,7 @@ function slackemon_file_exists( $filename, $purpose ) {
 
     break;
 
-  } // Switch slackemon_get_data_method
+  } // Switch slackemon_get_data_method.
 
   if ( isset( $return ) ) {
     return $return;
@@ -323,7 +323,7 @@ function slackemon_file_exists( $filename, $purpose ) {
     return false;
   }
 
-} // Function slackemon_file_exists
+} // Function slackemon_file_exists.
 
 /**
  * Drop-in replacement for PHP's filemtime, which abstracts access to either the local file system or an external
@@ -397,7 +397,7 @@ function slackemon_filemtime( $filename, $purpose ) {
 
     break; // Case aws.
 
-  } // Switch slackemon_get_data_method
+  } // Switch slackemon_get_data_method.
 
   if ( isset( $return ) ) {
     return $return;
@@ -405,7 +405,7 @@ function slackemon_filemtime( $filename, $purpose ) {
     return false;
   }
 
-} // Function slackemon_filemtime
+} // Function slackemon_filemtime.
 
 /**
  * Semi drop-in replacement for PHP's rename() function, supporting S3. No support for the third $context parameter.
@@ -443,7 +443,7 @@ function slackemon_rename( $old_filename, $new_filename, $purpose ) {
 
     break;
 
-  } // Switch slackemon_get_data_method
+  } // Switch slackemon_get_data_method.
 
   if ( isset( $return ) ) {
     return $return;
@@ -451,7 +451,7 @@ function slackemon_rename( $old_filename, $new_filename, $purpose ) {
     return false;
   }
 
-} // Function slackemon_rename
+} // Function slackemon_rename.
 
 /**
  * Semi drop-in replacement for PHP's unlink() function, supporting S3. No support for the second $context parameter.
@@ -470,7 +470,7 @@ function slackemon_unlink( $filename, $purpose ) {
 
     case 'postgres':
 
-      $key = slackemon_get_pg_key( $filename );
+      $key    = slackemon_get_pg_key( $filename );
       $result = slackemon_pg_query( "DELETE FROM {$key['table']} WHERE filename = '{$key['filename']}'" );
 
       if ( $result ) {
@@ -505,11 +505,17 @@ function slackemon_unlink( $filename, $purpose ) {
 
       }
 
+      // Augment S3 with a temporary local cache, if the file exists.
+      if ( 'cache' === $purpose && slackemon_file_exists( $filename, 'local' ) ) {
+        slackemon_unlink( $filename, 'local' );
+        slackemon_cache_debug( '', $filename, 'aws-unlink-augmented' );
+      }
+
       $return = true;
 
     break; // Case aws.
 
-  } // Switch slackemon_get_data_method
+  } // Switch slackemon_get_data_method.
 
   if ( isset( $return ) ) {
     return $return;
@@ -517,7 +523,7 @@ function slackemon_unlink( $filename, $purpose ) {
     return false;
   }
 
-} // Function slackemon_unlink
+} // Function slackemon_unlink.
 
 /**
  * Sort of a replacement for PHP's glob() function, that supports S3's prefixes search if using S3 as the data cache.
@@ -593,7 +599,7 @@ function slackemon_get_files_by_prefix( $prefix, $purpose ) {
 
     break; // Case aws.
 
-  } // Switch slackemon_get_data_method
+  } // Switch slackemon_get_data_method.
 
   if ( isset( $return ) ) {
     return $return;
@@ -601,7 +607,7 @@ function slackemon_get_files_by_prefix( $prefix, $purpose ) {
     return false;
   }
 
-} // Function slackemon_get_files_by_prefix
+} // Function slackemon_get_files_by_prefix.
 
 /**
  * Abstracts the method we use to convert a filename to a database table and row.
@@ -629,7 +635,7 @@ function slackemon_get_pg_key( $filename ) {
 
   return $key;
 
-}
+} // Function slackemon_get_pg_key.
 
 /**
  * Abstracts the method we use to calculate the key for S3 storage.
@@ -673,12 +679,12 @@ function slackemon_get_data_method( $purpose ) {
 
   return $method;
 
-} // Function slackemon_get_data_method
+} // Function slackemon_get_data_method.
 
 function slackemon_lock_file( $filename ) {
   global $_slackemon_file_locks;
 
-  // If file locking is not enabled, just return true so we don't prevent things from running
+  // If file locking is not enabled, just return true so we don't prevent things from running.
   if ( ! SLACKEMON_ENABLE_FILE_LOCKING ) {
     return true;
   }
@@ -689,7 +695,7 @@ function slackemon_lock_file( $filename ) {
     slackemon_lock_debug( 'Waiting to acquire lock on ' . $filename . '...' );
     slackemon_send_waiting_message_to_user();
     sleep( 1 );
-    clearstatcache(); // Required to ensure the file_exists call doesn't rely on its cache
+    clearstatcache(); // Required to ensure the file_exists call doesn't rely on its cache.
   }
 
   if ( slackemon_file_put_contents( $lock_filename, time(), 'store', false ) ) {
@@ -701,7 +707,7 @@ function slackemon_lock_file( $filename ) {
     return false;
   }
 
-} // Function slackemon_lock_file
+} // Function slackemon_lock_file.
 
 function slackemon_unlock_file( $filename ) {
   global $_slackemon_file_locks;
@@ -721,7 +727,7 @@ function slackemon_unlock_file( $filename ) {
     return false;
   }
 
-} // Function slackemon_unlock_file
+} // Function slackemon_unlock_file.
 
 function slackemon_is_file_owned( $filename ) {
   global $_slackemon_file_locks;
@@ -746,7 +752,7 @@ function slackemon_remove_file_locks() {
     }
   }
 
-} // Function slackemon_remove_file_locks
+} // Function slackemon_remove_file_locks.
 
 function slackemon_get_lock_filename( $filename ) {
 
@@ -764,7 +770,7 @@ function slackemon_get_lock_filename( $filename ) {
 
   return $lock_filename;
 
-} // Function slackemon_get_lock_filename
+} // Function slackemon_get_lock_filename.
 
 function slackemon_lock_debug( $message, $force_debug = false ) {
 
@@ -796,9 +802,9 @@ function slackemon_lock_debug( $message, $force_debug = false ) {
     break;
   }
 
-  // Log the message
+  // Log the message.
   slackemon_error_log( $message . ' (' . $backtrace_function . ')' );
 
-} // Function slackemon_lock_debug
+} // Function slackemon_lock_debug.
 
 // The end!
