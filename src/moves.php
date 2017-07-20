@@ -129,6 +129,14 @@ function slackemon_calculate_move_damage( $move, $attacker, $defender, $options 
 
   $options = array_merge( $defaults, $options );
 
+  if ( is_array( $attacker ) ) {
+    $attacker = json_decode( json_encode( $attacker ) );
+  }
+
+  if ( is_array( $defender ) ) {
+    $defender = json_decode( json_encode( $defender ) );
+  }
+
   // Get move data
   $move_data = slackemon_get_move_data( $move->name );
 
@@ -279,12 +287,20 @@ function slackemon_get_move_type_effectiveness( $move, $defender, $inverse_type_
 
 } // Function slackemon_get_move_type_effectiveness.
 
-function slackemon_get_best_move( $attacker, $defender ) {
+function slackemon_get_best_move( $attacker, $defender = null ) {
 
   // TODO - make this smarter, obviously - probably calc the damage on the fly so we take advantage of types/stab etc.
 
   $highest_power = 0;
-  $move_name = '';
+  $move_name     = '';
+
+  if ( is_array( $attacker ) ) {
+    $attacker = json_decode( json_encode( $attacker ) );
+  }
+
+  if ( is_array( $defender ) ) {
+    $defender = json_decode( json_encode( $defender ) );
+  }
 
   foreach ( $attacker->moves as $_move ) {
 

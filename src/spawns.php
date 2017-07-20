@@ -324,6 +324,10 @@ function slackemon_spawn(
     slackemon_notify_spawn( $spawn, $specific_level );
   }
 
+  // Prime the cache to speed up the start of a catch battle.
+  $best_move = slackemon_get_best_move( $spawn );
+  slackemon_calculate_move_damage( $best_move, $spawn, $spawn );
+
   return $spawn;
 
 } // Function slackemon_spawn.
