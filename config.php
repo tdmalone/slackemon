@@ -172,7 +172,7 @@ define( 'SLACKEMON_EXP_GAIN_MODIFIER', (int) getenv( 'SLACKEMON_EXP_GAIN_MODIFIE
 // The percentage per minute that Pokemon HP and PP restores after battle.
 // Restores only happen when a player is active (i.e. online and not in battle).
 // Example: .05 for 5% per minute.
-define( 'SLACKEMON_HP_RESTORE_RATE', (float) getenv( 'SLACKEMON_HP_RESTORE_RATE' ) ?: .05 );
+define( 'SLACKEMON_HP_RESTORE_RATE', (float) getenv( 'SLACKEMON_HP_RESTORE_RATE' ) ?: .025 );
 
 // The number of times a user can swap Pokemon during a P2P battle.
 // 'Free swaps' after a Pokemon has fainted are not included in this total.

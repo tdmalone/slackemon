@@ -25,7 +25,7 @@ function slackemon_get_random_move( $pokemon_teachable_moves, $pokemon_current_m
     return false;
   }
 
-  // From the available moves, choose a random one and return its data
+  // From the available moves, choose a random one and return its data.
 
   $_rand     = random_int( 0, count( $available_moves ) - 1 );
   $move_data = slackemon_get_move_data( $available_moves[ $_rand ]->move->name );
@@ -36,11 +36,11 @@ function slackemon_get_random_move( $pokemon_teachable_moves, $pokemon_current_m
     'pp-current' => $move_data->pp,
   ];
 
-  return json_decode( json_encode( $new_move ) ); // Return as a simple object
+  return json_decode( json_encode( $new_move ) ); // Return as a simple object.
 
-} // Function slackemon_get_random_move
+} // Function slackemon_get_random_move.
 
-// Helper function to get multiple moves at once, while ensuring uniqueness
+// Helper function to get multiple moves at once, while ensuring uniqueness.
 function slackemon_get_random_moves( $pokemon_teachable_moves, $pokemon_existing_moves = [], $moves_to_teach = 2 ) {
 
   $new_moves = [];
@@ -49,10 +49,10 @@ function slackemon_get_random_moves( $pokemon_teachable_moves, $pokemon_existing
 
     $new_move = slackemon_get_random_move(
       $pokemon_teachable_moves,
-      array_merge( $pokemon_existing_moves, $new_moves ) // Ensure moves just taught are still excluded
+      array_merge( $pokemon_existing_moves, $new_moves ) // Ensure moves just taught are still excluded.
     );
 
-    // If a unique move could not be found, false is returned
+    // If a unique move could not be found, false is returned.
     if ( $new_move ) {
       $new_moves[] = $new_move;
     }
@@ -61,7 +61,7 @@ function slackemon_get_random_moves( $pokemon_teachable_moves, $pokemon_existing
 
   return $new_moves;
 
-} // Function slackemon_get_random_moves
+} // Function slackemon_get_random_moves.
 
 function slackemon_get_cumulative_move_power( $moves, $types ) {
 
@@ -77,11 +77,11 @@ function slackemon_get_cumulative_move_power( $moves, $types ) {
 
   return floor( $total_power );
 
-} // Function slackemon_get_cumulative_move_power
+} // Function slackemon_get_cumulative_move_power.
 
 function slackemon_sort_battle_moves( $moves, $types ) {
 
-  // Convert arguments to objects if arrays (as they will be if coming directly from a spawn)
+  // Convert arguments to objects if arrays (as they will be if coming directly from a spawn).
   if ( is_array( $moves[0] ) ) {
     $moves = json_decode( json_encode( $moves ) );
   }
@@ -89,9 +89,9 @@ function slackemon_sort_battle_moves( $moves, $types ) {
     $types = json_decode( json_encode( $types ) );
   }
 
-  // Sort moves by power (ascending), falling back to the default order (key, ascending)
+  // Sort moves by power (ascending), falling back to the default order (key, ascending).
   foreach ( $moves as $_key => $_move ) {
-    $_move->key = $_key; // We need to store the key to make sorting a lot simpler
+    $_move->key = $_key; // We need to store the key to make sorting a lot simpler.
     $_move->data = slackemon_get_move_data( $_move->name );
   }
   usort( $moves, function( $move1, $move2 ) use ( $types ) {
@@ -100,16 +100,16 @@ function slackemon_sort_battle_moves( $moves, $types ) {
     $move2_with_stab = $move2->data->power * slackemon_get_move_stab_multipler( $move2, $types );
 
     if ( $move1->data->power !== $move2->data->power ) {
-      return $move1->data->power > $move2->data->power ? 1 : -1; // Move power
+      return $move1->data->power > $move2->data->power ? 1 : -1; // Move power.
     } else if ( $move1_with_stab !== $move2_with_stab ) {
-      return $move1_with_stab > $move2_with_stab ? 1 : -1; // Move power with STAB taken into account
+      return $move1_with_stab > $move2_with_stab ? 1 : -1; // Move power with STAB taken into account.
     } else {
-      return $move1->key > $move2->key ? 1 : -1; // Default order (key, ascending)
+      return $move1->key > $move2->key ? 1 : -1; // Default order (key, ascending).
     }
 
   });
 
-  // Now that they're sorted, unset the stored key & data so we don't seriously pollute the player file when we next save
+  // Now that they're sorted, unset the stored key & data so we don't pollute the player file when we next save.
   foreach ( $moves as $_move ) {
     unset( $_move->key );
     unset( $_move->data );
@@ -117,7 +117,7 @@ function slackemon_sort_battle_moves( $moves, $types ) {
 
   return $moves;
 
-} // Function slackemon_sort_battle_moves
+} // Function slackemon_sort_battle_moves.
 
 function slackemon_calculate_move_damage( $move, $attacker, $defender, $options = [] ) {
 
@@ -134,7 +134,7 @@ function slackemon_calculate_move_damage( $move, $attacker, $defender, $options 
 
   if ( 'status' !== $move_data->damage_class->name ) {
 
-    // Calculate the move's type effectiveness
+    // Calculate the move's type effectiveness.
     $type_effectiveness = slackemon_get_move_type_effectiveness(
       $move, $defender, $options['inverse_type_effectiveness']
     );
@@ -221,7 +221,7 @@ function slackemon_calculate_move_damage( $move, $attacker, $defender, $options 
     'move_category'      => $move_data->meta->category->name,
   ]) );
 
-} // Function slackemon_calculate_move_damage
+} // Function slackemon_calculate_move_damage.
 
 function slackemon_get_move_type_effectiveness( $move, $defender, $inverse_type_effectiveness = false ) {
 
@@ -292,7 +292,7 @@ function slackemon_get_best_move( $attacker, $defender ) {
       continue;
     }
 
-    $_move_data = slackemon_get_move_data( $_move->name );
+    $_move_data  = slackemon_get_move_data( $_move->name );
     $_move_power = $_move_data->power ? $_move_data->power : 0;
 
     if ( $_move_power >= $highest_power ) {

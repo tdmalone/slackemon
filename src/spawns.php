@@ -326,7 +326,7 @@ function slackemon_spawn(
 
   return $spawn;
 
-} // Function slackemon_spawn
+} // Function slackemon_spawn.
 
 function slackemon_save_spawn_data( $spawn_data ) {
   global $data_folder, $_cached_slackemon_spawn_data;
