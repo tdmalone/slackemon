@@ -16,7 +16,7 @@ matrix:
   fast_finish: true
 
 install:
-  - travis_retry php composer install
+  - travis_retry composer install
 
 before_script:
   # Lint all PHP files except for dependencies.
