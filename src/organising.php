@@ -5,17 +5,17 @@
  * @package Slackemon
  */
 
-// Cronned function (through /slackemon happiness-updates) which should run once a day (probs at midnight)
+// Cronned function (through /slackemon happiness-updates) which should run once a day (probs at midnight).
 function slackemon_do_happiness_updates() {
 
-  // Increment friendship value by 1 for those Pokemon in the battle team
-  // We'll also increment by 1 for favourite Pokemon, divided by the total number of favourites
+  // Increment happiness value by 1 for those Pokemon in the battle team.
+  // We'll also increment by 1 for favourite Pokemon, divided by the total number of favourites.
   foreach ( slackemon_get_player_ids() as $player_id ) {
 
     $player_data    = slackemon_get_player_data( $player_id, true );
     $player_pokemon = $player_data->pokemon;
 
-    // Work out our total favourite count, so we can apply happiness increases appropriately
+    // Work out our total favourite count, so we can apply happiness increases appropriately.
     $total_favourites = 0;
     foreach ( $player_pokemon as $_pokemon ) {
       if ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite ) {
@@ -27,20 +27,25 @@ function slackemon_do_happiness_updates() {
 
       if ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) {
         $_pokemon->happiness++;
+
+        // Extra happiness for the battle team leader, since the trainer trusts them more.
+        if ( slackemon_get_battle_team_leader( $player_id ) == $_pokemon->ts ) {
+          $_pokemon->happiness++;
+        }
       }
 
       if ( isset( $_pokemon->is_favourite ) && $_pokemon->is_favourite ) {
         $_pokemon->happiness += 1 / $total_favourites;
       }
 
-      $_pokemon->happiness = min( 255, $_pokemon->happiness ); // Stay within the max bounds
+      $_pokemon->happiness = min( 255, $_pokemon->happiness ); // Stay within the max bounds.
 
-    } // Foreach player_pokemon
+    } // Foreach player_pokemon.
 
     slackemon_save_player_data( $player_data, $player_id, true );
 
-  } // Foreach player
-} // Function slackemon_do_happiness_updates
+  } // Foreach player.
+} // Function slackemon_do_happiness_updates.
 
 function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $more_stats = false ) {
 
@@ -48,7 +53,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
   $pokemon     = slackemon_get_player_pokemon_data( $spawn_ts );
   $is_desktop  = 'desktop' === slackemon_get_player_menu_mode();
 
-  // Error out if we didn't find the requested Pokemon
+  // Error out if we didn't find the requested Pokemon.
   if ( ! $pokemon ) {
     $message = [
       'text' => (
@@ -60,11 +65,11 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     return $message;
   }
 
-  // Get Pokedex data
+  // Get Pokedex data.
   $pokemon_data = slackemon_get_pokemon_data( $pokemon->pokedex );
   $species_data = slackemon_get_pokemon_species_data( $pokemon->pokedex );
 
-  // Description
+  // Description.
   foreach ( $species_data->flavor_text_entries as $text ) {
     if ( 'en' === $text->language->name ) {
       $pokemon_description = str_replace( "\n", ' ', $text->flavor_text );
@@ -72,7 +77,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     }
   }
 
-  // Held item
+  // Held item.
   if ( isset( $pokemon->held_item ) && $pokemon->held_item ) {
     $pokemon_description .= (
       "\n\n" .
@@ -81,10 +86,10 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     );
   }
 
-  // Generation
+  // Generation.
   $generation = str_replace( 'GENERATION-', 'Gen ', strtoupper( $species_data->generation->name ) );
 
-  // Genus
+  // Genus.
   $genus = '';
   foreach ( $species_data->genera as $genus ) {
     if ( 'en' === $genus->language->name ) {
@@ -107,22 +112,32 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
   if ( $more_stats ) {
 
     $pokemon_regions = [];
+
     foreach ( $species_data->pokedex_numbers as $_pokedex_entry ) {
-      if ( 'national' === $_pokedex_entry->pokedex->name ) { continue; }
-      if ( false !== strpos( $_pokedex_entry->pokedex->name, 'conquest' ) ) { continue; }
-      if ( false !== strpos( $_pokedex_entry->pokedex->name, 'conquest' ) ) { continue; }
-      $_region_name = $_pokedex_entry->pokedex->name;
-      $_region_name = str_replace( [ 'updated-', 'original-', 'extended-' ], '', $_region_name );
+
+      if ( 'national' === $_pokedex_entry->pokedex->name ) {
+        continue;
+      }
+
+      if ( false !== strpos( $_pokedex_entry->pokedex->name, 'conquest' ) ) {
+        continue;
+      }
+
+      $_region_name      = $_pokedex_entry->pokedex->name;
+      $_region_name      = str_replace( [ 'updated-', 'original-', 'extended-' ], '', $_region_name );
       $pokemon_regions[] = slackemon_readable( $_region_name );
+
     }
+
     $pokemon_regions = array_unique( $pokemon_regions );
     asort( $pokemon_regions );
 
     $pokemon_nature_stats = slackemon_get_nature_stat_modifications( $pokemon->nature );
     $pokemon_growth_rate  = slackemon_readable( $species_data->growth_rate->name );
 
-    $growth_rate_data = slackemon_get_pokemon_growth_rate_data( $pokemon->pokedex );
+    $growth_rate_data      = slackemon_get_pokemon_growth_rate_data( $pokemon->pokedex );
     $level_up_exp_required = 0;
+
     foreach ( $growth_rate_data->levels as $_level ) {
       if ( $_level->level == floor( $pokemon->level ) + 1 ) {
         $level_up_exp_required = $_level->experience - $pokemon->xp;
@@ -140,7 +155,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
 
         $possible_evolution = true;
 
-        // Skip this evolution method if it doesn't contain any of our currently available evolution methods
+        // Skip this evolution method if it doesn't contain any of our currently available evolution methods.
         if (
           ( 'level-up' !== $_evolution_detail->trigger->name && 'use-item' !== $_evolution_detail->trigger->name ) ||
           (
@@ -231,7 +246,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     $_nature_stat_name_increase = slackemon_readable( $pokemon_nature_stats['increase'], true, ! $is_desktop );
     $_nature_stat_name_decrease = slackemon_readable( $pokemon_nature_stats['decrease'], true, ! $is_desktop );
 
-    // Desktop is keeping these values in a two column layout, so we need to shorten a little
+    // Desktop is keeping these values in a two column layout, so we need to shorten a little.
     if ( $is_desktop ) {
       $_nature_stat_name_increase = str_replace( 'Special ', 'Sp ', $_nature_stat_name_increase );
       $_nature_stat_name_decrease = str_replace( 'Special ', 'Sp ', $_nature_stat_name_decrease );
@@ -271,7 +286,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
     ];
 
     $attachment_fields = [
-      $is_desktop ? [] : '', // Leave a blank line here on desktop
+      $is_desktop ? [] : '', // Leave a blank line here on desktop.
       $current_stats_attachment,
       $is_desktop ? '' : $base_stats_attachment,
       [
@@ -385,9 +400,9 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
       ),
     ];
 
-  } else { // More stats... else general stats
+  } else { // More stats... else general stats.
 
-    // Get all evolution possibilities
+    // Get all evolution possibilities.
     $evolution_possibilities = slackemon_can_user_pokemon_evolve( $pokemon, 'level-up', true );
 
     $attachment_fields = [
@@ -440,7 +455,11 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
         $is_desktop ?
         [
           'title' => 'Habitat',
-          'value' => isset( $species_data->habitat ) ? slackemon_readable( $species_data->habitat->name ) : 'Unspecified',
+          'value' => (
+            isset( $species_data->habitat ) ?
+            slackemon_readable( $species_data->habitat->name ) :
+            'Unspecified'
+          ),
           'short' => true,
         ] :
         ''
@@ -523,13 +542,13 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
         ] : []
       );
     
-    } // If not viewing from battle menu
-  } // If more_stats / else
+    } // If not viewing from battle menu.
+  } // If more_stats / else.
 
   $message['attachments'][ $action->attachment_id - 1 ] = [
     'color' => $pokemon->hp >= $pokemon->stats->hp * .1 ? slackemon_get_color_as_hex( $species_data->color->name ) : '',
     'text' => (
-      ( $is_desktop ? ':' . $pokemon->name . ': ' : '' ) .
+      ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ':' . $pokemon->name . ': ' : '' ) .
       '*' .
       slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
@@ -549,15 +568,18 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
       ) . "\n\n" .
       ( $more_stats ? '' : $pokemon_description )
     ),
-    'fields'  => $attachment_fields,
-    'footer'  => $attachment_footer,
-    'actions' => $attachment_actions,
-    'image_url' => slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' ),
+    'fields'    => $attachment_fields,
+    'footer'    => $attachment_footer,
+    'actions'   => $attachment_actions,
+    'image_url' => (
+      slackemon_get_cached_image_url( SLACKEMON_ANIMATED_GIF_BASE . '/ani-front/' . $pokemon->name . '.gif' )
+    ),
   ];
 
   // If this is being displayed immediately after a battle/catch, remove the spawn data & add a main menu link.
   if ( 'pokemon/view/caught' === $action_name ) {
 
+    array_shift( $message['attachments'] );
     array_shift( $message['attachments'] );
     array_shift( $message['attachments'] );
 
@@ -571,7 +593,8 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
 
   } else if ( 'pokemon/view/caught/battle' === $action_name ) {
 
-    // Only need to cut out one attachment here, because the first has already been removed by catching routines.
+    // Only need to cut two attachments here, because the first has already been removed by catching routines.
+    array_shift( $message['attachments'] );
     array_shift( $message['attachments'] );
     $message['attachments'][] = slackemon_back_to_menu_attachment();
 
@@ -579,7 +602,7 @@ function slackemon_get_pokemon_view_message( $spawn_ts, $action_name, $action, $
 
   return $message;
 
-} // Function slackemon_view_pokemon
+} // Function slackemon_view_pokemon.
 
 function slackemon_has_user_seen_pokemon( $user_id, $pokedex_number ) {
 
@@ -592,7 +615,7 @@ function slackemon_has_user_seen_pokemon( $user_id, $pokedex_number ) {
 
   return false;
 
-} // Function slackemon_has_user_seen_pokemon
+} // Function slackemon_has_user_seen_pokemon.
 
 function slackemon_has_user_caught_pokemon( $user_id, $pokedex_number ) {
 
@@ -609,7 +632,7 @@ function slackemon_has_user_caught_pokemon( $user_id, $pokedex_number ) {
 
   return false;
 
-} // Function slackemon_has_user_caught_pokemon
+} // Function slackemon_has_user_caught_pokemon.
 
 /** Removes (aka. transfers) Pokemon from a player's collection. */
 function slackemon_remove_pokemon( $spawn_timestamps, $user_id = USER_ID ) {
@@ -642,7 +665,7 @@ function slackemon_remove_pokemon( $spawn_timestamps, $user_id = USER_ID ) {
     return false;
   }
 
-} // Function slackemon_remove_pokemon
+} // Function slackemon_remove_pokemon.
 
 function slackemon_set_player_pokemon_sort_mode( $sort_mode = 'recent', $user_id = USER_ID ) {
 
@@ -651,16 +674,25 @@ function slackemon_set_player_pokemon_sort_mode( $sort_mode = 'recent', $user_id
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_set_player_pokemon_sort_mode
+} // Function slackemon_set_player_pokemon_sort_mode.
 
-function slackemon_set_player_pokemon_type_mode( $type_mode = 'all_types', $user_id = USER_ID ) {
+function slackemon_set_player_pokemon_type_mode( $type_mode = 'all-types', $user_id = USER_ID ) {
 
   $player_data = slackemon_get_player_data( $user_id, true );
   $player_data->type_mode = $type_mode;
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_set_player_pokemon_type_mode
+} // Function slackemon_set_player_pokemon_type_mode.
+
+function slackemon_set_player_pokemon_level_mode( $level_mode = 'all-levels', $user_id = USER_ID ) {
+
+  $player_data = slackemon_get_player_data( $user_id, true );
+  $player_data->level_mode = $level_mode;
+
+  return slackemon_save_player_data( $player_data, $user_id, true );
+
+} // Function slackemon_set_player_pokemon_type_mode.
 
 function slackemon_favourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
 
@@ -674,7 +706,7 @@ function slackemon_favourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_favourite_pokemon
+} // Function slackemon_favourite_pokemon.
 
 function slackemon_unfavourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
 
@@ -688,9 +720,22 @@ function slackemon_unfavourite_pokemon( $spawn_ts, $user_id = USER_ID ) {
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_unfavourite_pokemon
+} // Function slackemon_unfavourite_pokemon.
 
 function slackemon_add_to_battle_team( $spawn_ts, $user_id = USER_ID ) {
+
+  // Bow out if the user has an outstanding invite, as the inviter. They can't change their team after an invite
+  // has been sent.
+  if ( slackemon_does_user_have_outstanding_invite( $user_id, 'inviter' ) ) {
+    return false;
+  }
+
+  // Bow out if the user is currently in a battle. Technically changing the battle team during a battle shouldn't
+  // cause many issues because the current battle team is stored in the battle file, but probably better to be safe
+  // than sorry.
+  if ( slackemon_is_player_in_battle( $user_id ) ) {
+    return false;
+  }
 
   $player_data = slackemon_get_player_data( $user_id, true );
 
@@ -702,9 +747,22 @@ function slackemon_add_to_battle_team( $spawn_ts, $user_id = USER_ID ) {
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_add_to_battle_team
+} // Function slackemon_add_to_battle_team.
 
 function slackemon_remove_from_battle_team( $spawn_ts, $user_id = USER_ID ) {
+
+  // Bow out if the user has an outstanding invite, as the inviter. They can't change their team after an invite
+  // has been sent.
+  if ( slackemon_does_user_have_outstanding_invite( $user_id, 'inviter' ) ) {
+    return false;
+  }
+
+  // Bow out if the user is currently in a battle. Technically changing the battle team during a battle shouldn't
+  // cause many issues because the current battle team is stored in the battle file, but probably better to be safe
+  // than sorry.
+  if ( slackemon_is_player_in_battle( $user_id ) ) {
+    return false;
+  }
 
   $player_data = slackemon_get_player_data( $user_id, true );
 
@@ -716,7 +774,7 @@ function slackemon_remove_from_battle_team( $spawn_ts, $user_id = USER_ID ) {
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_remove_from_battle_team
+} // Function slackemon_remove_from_battle_team.
 
 function slackemon_is_battle_team_full( $user_id = USER_ID ) {
   
@@ -735,26 +793,47 @@ function slackemon_is_battle_team_full( $user_id = USER_ID ) {
     return false;
   }
 
-} // Function slackemon_is_battle_team_full
+} // Function slackemon_is_battle_team_full.
 
-function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false, $exclude_random_fillers = false ) {
+function slackemon_get_battle_team(
+  $user_id = USER_ID, $exclude_fainted = false, $exclude_random_fillers = false, $challenge_type = ['normal']
+) {
 
   $pokemon_collection = slackemon_get_player_data( $user_id )->pokemon;
   $battle_team = [];
 
-  // Check whether this user doesn't even have enough Pokemon in their collection to form a team
+  // Check whether this user doesn't even have enough Pokemon in their collection to form a team.
   if ( count( $pokemon_collection ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
-    return $battle_team;
+    return [];
   }
 
+  // Get the battle team Pokemon.
   foreach ( $pokemon_collection as $_pokemon ) {
     if ( isset( $_pokemon->is_battle_team ) && $_pokemon->is_battle_team ) {
       if ( $exclude_fainted && 0 == $_pokemon->hp ) { continue; }
-      $battle_team[ $_pokemon->ts ] = $_pokemon;
+      $battle_team[ 'ts' . $_pokemon->ts ] = $_pokemon;
     }
   }
 
-  // If our battle team is too big, we need to remove Pokemon from it
+  // Put the leader first, if there is one.
+  $battle_team_leader = slackemon_get_battle_team_leader( $user_id );
+  if ( $battle_team_leader ) {
+    uksort( $battle_team, function( $key1, $key2 ) use ( $battle_team_leader ) {
+
+      if ( $key1 === 'ts' . $battle_team_leader ) {
+        return -1;
+      }
+
+      if ( $key2 === 'ts' . $battle_team_leader ) {
+        return 1;
+      }
+
+      return 0;
+
+    });
+  }
+
+  // If our battle team is too big, we need to remove Pokemon from it.
   while ( count( $battle_team ) > SLACKEMON_BATTLE_TEAM_SIZE ) {
     array_pop( $battle_team );
   }
@@ -763,7 +842,9 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     return $battle_team;
   }
 
-  // If our battle team isn't full, we need to fill it with random additions
+  // If our battle team isn't full, we need to fill it with random additions.
+  // TODO: Need to make sure these random additions meet the challenge_type rules.
+  $challenge_type_data      = slackemon_get_battle_challenge_data( $challenge_type );
   $infinite_loop_protection = 0;
   while ( count( $battle_team ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
 
@@ -776,16 +857,134 @@ function slackemon_get_battle_team( $user_id = USER_ID, $exclude_fainted = false
     $random_key = array_rand( $pokemon_collection );
     $_pokemon = $pokemon_collection[ $random_key ];
 
-    if ( ! isset( $battle_team[ $_pokemon->ts ] ) ) { // Ensure we don't add the same Pokemon twice
-      if ( $exclude_fainted && 0 == $_pokemon->hp ) { continue; }
-      $battle_team[ $_pokemon->ts ] = $_pokemon;
+    // Ensure we don't add the same Pokemon twice.
+    if ( isset( $battle_team[ 'ts' . $_pokemon->ts ] ) ) {
+      continue;
     }
 
+    if ( $exclude_fainted && 0 == $_pokemon->hp ) {
+      continue;
+    }
+
+    if ( $challenge_type_data->level_limited && floor( $_pokemon->level ) > $challenge_type[1] ) {
+      continue;
+    }
+
+    if ( ! $challenge_type_data->allow_legendaries && slackemon_is_legendary( $_pokemon->pokedex ) ) {
+      continue;
+    }
+
+    $battle_team[ 'ts' . $_pokemon->ts ] = $_pokemon;
+
+  } // While battle_team < battle_team_size.
+
+  // Don't allow a short team to be returned.
+  if ( count( $battle_team ) < SLACKEMON_BATTLE_TEAM_SIZE ) {
+    return [];
   }
 
   return $battle_team;
 
-} // Function slackemon_get_battle_team
+} // Function slackemon_get_battle_team.
+
+/**
+ * Returns the ts (spawn timestamp) of the Pokemon that the user has set as their battle team leader.
+ *
+ * Note that if the leader has been removed from the team and no new leader has beens et, the old leader's ts will
+ * still be returned.
+ *
+ * @param string $user_id
+ * @return int|bool The ts of the Pokemon, or false if there is no leader set.
+ */
+function slackemon_get_battle_team_leader( $user_id = USER_ID ) {
+
+  $player_data = slackemon_get_player_data( $user_id );
+
+  if ( ! isset( $player_data->battle_team_leader ) ) {
+    return false;
+  }
+
+  return $player_data->battle_team_leader;
+
+} // Function slackemon_get_battle_team_leader.
+
+/**
+ * Sets the ts (spawn timestamp) of the Pokemon that the user wants as their battle team leader.
+ *
+ * @param string|int $spawn_ts
+ * @return bool Whether or not the action was successful.
+ */
+function slackemon_set_battle_team_leader( $spawn_ts, $user_id = USER_ID ) {
+
+  $player_data = slackemon_get_player_data( $user_id, true );
+
+  $player_data->battle_team_leader = (int) $spawn_ts;
+
+  return slackemon_save_player_data( $player_data, $user_id, true );
+
+} // Function slackemon_get_battle_team_leader.
+
+function slackemon_get_battle_team_highest_level( $user_id = USER_ID, $floor_result = false ) {
+
+  $battle_team = slackemon_get_battle_team( $user_id, false, true );
+
+  if ( ! $battle_team ) {
+    return false;
+  }
+
+  $highest_level = 1;
+
+  foreach ( $battle_team as $_pokemon ) {
+    if ( $_pokemon->level > $highest_level ) {
+      $highest_level = $_pokemon->level;
+    }
+  }
+
+  if ( $floor_result ) {
+    return floor( $highest_level );
+  }
+
+  return $highest_level;
+
+} // Function slackemon_get_battle_team_highest_level.
+
+function slackemon_get_battle_team_lowest_level( $user_id = USER_ID, $floor_result = false ) {
+
+  $battle_team = slackemon_get_battle_team( $user_id, false, true );
+
+  if ( ! $battle_team ) {
+    return false;
+  }
+
+  $lowest_level = 1;
+
+  foreach ( $battle_team as $_pokemon ) {
+    if ( $_pokemon->level < $lowest_level ) {
+      $lowest_level = $_pokemon->level;
+    }
+  }
+
+  if ( $floor_result ) {
+    return floor( $lowest_level );
+  }
+
+  return $lowest_level;
+
+} // Function slackemon_get_battle_team_lowest_level.
+
+function slackemon_is_legendary_in_battle_team( $user_id = USER_ID ) {
+
+  $battle_team = slackemon_get_battle_team( $user_id, false, true );
+
+  foreach ( $battle_team as $_pokemon ) {
+    if ( slackemon_is_legendary( $_pokemon->pokedex ) ) {
+      return true;
+    }
+  }
+
+  return false;
+
+} // Function slackemon_is_legendary_in_battle_team.
 
 function slackemon_get_pokemon_transfer_message( $spawn_ts, $action ) {
 
@@ -797,19 +996,22 @@ function slackemon_get_pokemon_transfer_message( $spawn_ts, $action ) {
     }
   }
 
-  // TODO: If we didn't find the Pokemon, return an error message saying the Pokemon may have already been transferred
+  // TODO: If we didn't find the Pokemon, return an error message saying the Pokemon may have already been transferred.
 
   $pokemon_data = slackemon_get_pokemon_data( $pokemon->pokedex );
   $species_data = slackemon_get_pokemon_species_data( $pokemon->pokedex );
 
-  $message = [];
-  $message['text'] = $action->original_message->text;
-  $message['attachments'] = $action->original_message->attachments;
+  $message = [
+    'text'        => $action->original_message->text,
+    'attachments' => $action->original_message->attachments,
+  ];
 
   $original_attachment = $message['attachments'][ $action->attachment_id - 1 ];
 
   $message['attachments'][ $action->attachment_id - 1 ] = [
+
     'color' => slackemon_get_color_as_hex( $species_data->color->name ),
+
     'text' => (
       ':white_check_mark: *' . slackemon_readable( $pokemon->name, false ) .
       slackemon_get_gender_symbol( $pokemon->gender ) .
@@ -817,16 +1019,18 @@ function slackemon_get_pokemon_transfer_message( $spawn_ts, $action ) {
       'to the Professor.' . "\n\n" . 
       '*+10 XP*: Transferred a Pokemon :outbox_tray:'
     ),
+
     'thumb_url' => slackemon_get_cached_image_url(
       'female' === $pokemon->gender && $pokemon_data->sprites->back_female ?
       $pokemon_data->sprites->back_female :
       $pokemon_data->sprites->back_default
     ),
+
   ];
 
   return $message;
 
-} // Function slackemon_get_pokemon_transfer_message
+} // Function slackemon_get_pokemon_transfer_message.
 
 function slackemon_get_bulk_transfer_pokemon( $user_id = USER_ID ) {
 
@@ -835,12 +1039,12 @@ function slackemon_get_bulk_transfer_pokemon( $user_id = USER_ID ) {
 
   foreach ( $duplicates as $pokemon ) {
 
-    // First Pokemon of this species? Create base data
+    // First Pokemon of this species? Create base data.
     if ( ! array_key_exists( $pokemon->pokedex, $collection ) ) {
 
       $evolution_chain = slackemon_get_evolution_chain( $pokemon->pokedex );
 
-      // If this Pokemon has a branched evolution chain, we will skip for now
+      // If this Pokemon has a branched evolution chain, we will skip for now.
       // TODO: We should probably use a better way of checking for this, rather than looking for a string in output ;)
       if ( false !== strpos( $evolution_chain, '(' ) ) {
         continue;
@@ -858,7 +1062,7 @@ function slackemon_get_bulk_transfer_pokemon( $user_id = USER_ID ) {
     $iv_percentage = slackemon_get_iv_percentage( $pokemon->ivs );
     $move_power    = slackemon_get_cumulative_move_power( $pokemon->moves, $pokemon->types );
 
-    // Weighting
+    // Weighting.
 
     $weighting = (
       $collection[ $pokemon->pokedex ]['evolves'] ?
@@ -873,22 +1077,22 @@ function slackemon_get_bulk_transfer_pokemon( $user_id = USER_ID ) {
     $weighting += slackemon_get_combined_evs( $pokemon->evs );
     $weighting += $pokemon->cp;
 
-    // Nerf the weighting if the move power is 0, because that's a fairly big issue
+    // Nerf the weighting if the move power is 0, because that's a fairly big issue.
     if ( ! $move_power ) {
       $weighting *= .5;
     }
 
-    // Update the heighest weighting, if applicable
+    // Update the heighest weighting, if applicable.
     if ( $weighting > $collection[ $pokemon->pokedex ]['highest_weighting'] ) {
       $collection[ $pokemon->pokedex ]['highest_weighting'] = $weighting;
     }
 
-    // Update the heighest level, if applicable
+    // Update the heighest level, if applicable.
     if ( $pokemon->level > $collection[ $pokemon->pokedex ]['highest_level'] ) {
       $collection[ $pokemon->pokedex ]['highest_level'] = $pokemon->level;
     }
 
-    // Add this Pokemon's stats to the duplicate collection
+    // Add this Pokemon's stats to the duplicate collection.
 
     $collection[ $pokemon->pokedex ]['pokemon'][] = [
       'iv'        => $iv_percentage,
@@ -897,9 +1101,10 @@ function slackemon_get_bulk_transfer_pokemon( $user_id = USER_ID ) {
       'data'      => $pokemon,
     ];
 
-  } // Foreach duplicates
+  } // Foreach duplicates.
 
   foreach ( $collection as $pokedex_id => $collection_data ) {
+
     foreach ( $collection_data['pokemon'] as $key => $pokemon ) {
       if ( $pokemon['weighting'] < $collection_data['highest_weighting'] ) {
         $collection[ $pokedex_id ]['pokemon'][ $key ]['transfer'] = true;
@@ -907,26 +1112,28 @@ function slackemon_get_bulk_transfer_pokemon( $user_id = USER_ID ) {
         $collection[ $pokedex_id ]['pokemon'][ $key ]['transfer'] = false;
       }
     }
+
   }
 
   return $collection;
 
-} // Function slackemon_get_bulk_transfer_pokemon
+} // Function slackemon_get_bulk_transfer_pokemon.
 
 function slackemon_do_bulk_transfer( $user_id = USER_ID ) {
 
   $collection = slackemon_get_bulk_transfer_pokemon( $user_id );
 
   $pokemon_to_transfer = [];
+
   foreach ( $collection as $collection_data ) {
     foreach ( $collection_data['pokemon'] as $pokemon ) {
 
-      // Don't transfer a favourite or battle team Pokemon
+      // Don't transfer a favourite or battle team Pokemon.
       if ( $pokemon['data']->is_favourite || $pokemon['data']->is_battle_team ) {
         continue;
       }
 
-      // Don't transfer a Pokemon holding an item
+      // Don't transfer a Pokemon holding an item.
       if ( isset( $pokemon['data']->held_item ) && $pokemon['data']->held_item ) {
         continue;
       }
@@ -939,57 +1146,64 @@ function slackemon_do_bulk_transfer( $user_id = USER_ID ) {
   }
 
   $transfer_count = slackemon_remove_pokemon( $pokemon_to_transfer, $user_id );
+
   return $transfer_count;
 
-} // Function slackemon_do_bulk_transfer
+} // Function slackemon_do_bulk_transfer.
 
 function slackemon_get_duplicate_pokemon( $user_id = USER_ID ) {
 
   $pokemon_collection = slackemon_get_player_data( $user_id )->pokemon;
 
-  $pokemon_by_id = [];
+  $pokemon_by_id     = [];
   $duplicate_pokemon = [];
 
   foreach ( $pokemon_collection as $pokemon ) {
+
     if ( ! isset( $pokemon_by_id[ $pokemon->pokedex ] ) ) {
       $pokemon_by_id[ $pokemon->pokedex ] = [];
     }
+
     $pokemon_by_id[ $pokemon->pokedex ][] = $pokemon;
+
   }
 
   foreach ( $pokemon_by_id as $potential_duplicates ) {
+
     if ( 1 === count( $potential_duplicates ) ) {
       continue;
     }
+
     foreach ( $potential_duplicates as $pokemon ) {
       $duplicate_pokemon[] = $pokemon;
     }
+
   }
 
   return $duplicate_pokemon;
 
-} // Function slackemon_get_duplicate_pokemon
+} // Function slackemon_get_duplicate_pokemon.
 
 /** Change the item a Pokemon is using. Can also be used to remove a held item by sending null as the item_id. */
 function slackemon_change_pokemon_held_item( $item_id, $spawn_ts, $user_id = USER_ID ) {
 
-  $pokemon = slackemon_get_player_pokemon_data( $spawn_ts );
+  $pokemon = slackemon_get_player_pokemon_data( $spawn_ts, null, $user_id );
   
-  // Return the old held item back to the bag
+  // Return the old held item back to the bag.
   if ( isset( $pokemon->held_item ) && $pokemon->held_item ) {
     slackemon_add_item( $pokemon->held_item, $user_id );
   }
 
-  // Get player data for writing, and re-get the same Pokemon from the new object
+  // Get player data for writing, and re-get the same Pokemon from the new object.
   $player_data = slackemon_get_player_data( $user_id, true );
   $pokemon     = slackemon_get_player_pokemon_data( $spawn_ts, $player_data );
 
-  // Update the held item on this Pokemon
+  // Update the held item on this Pokemon.
   $pokemon->held_item = $item_id;
 
   return slackemon_save_player_data( $player_data, $user_id, true );
 
-} // Function slackemon_change_pokemon_held_item
+} // Function slackemon_change_pokemon_held_item.
 
 /**
  * Sorts a player's Pokemon collection by one or more criteria.
@@ -997,7 +1211,7 @@ function slackemon_change_pokemon_held_item( $item_id, $spawn_ts, $user_id = USE
  */
 function slackemon_sort_player_pokemon( &$player_pokemon, $sort_by ) {
 
-  // Accept a string as well as an array
+  // Accept a string as well as an array.
   if ( is_string( $sort_by ) ) {
     $sort_by = [ $sort_by ];
   }
@@ -1006,23 +1220,31 @@ function slackemon_sort_player_pokemon( &$player_pokemon, $sort_by ) {
     foreach ( $sort_by as $sort_criteria ) {
 
       if ( is_bool( $pokemon1->{ $sort_criteria } ) ) {
+
         if ( $pokemon1->{ $sort_criteria } !== $pokemon2->{ $sort_criteria } ) {
           return $pokemon2->{ $sort_criteria } ? 1 : -1;
         }
+
       } else if ( is_numeric( $pokemon1->{ $sort_criteria } ) ) {
+
         return $pokemon1->{ $sort_criteria } < $pokemon2->{ $sort_criteria } ? 1 : -1;
+
       } else if ( is_string( $pokemon1->{ $sort_criteria } ) ) {
+
         $compare = strcmp( $pokemon1->{ $sort_criteria }, $pokemon2->{ $sort_criteria } );
-        if ( $compare !== 0 ) {
+
+        if ( 0 !== $compare ) {
           return $compare > 0 ? 1 : -1;
         }
+
       }
 
-    } // Foreach sort_criteria
+    } // Foreach sort_criteria.
+
   });
 
   return $result;
 
-} // Function slackemon_sort_player_pokemon
+} // Function slackemon_sort_player_pokemon.
 
 // The end!

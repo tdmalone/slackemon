@@ -16,8 +16,9 @@ function slackemon_get_url( $url, $options = [] ) {
   $curl = curl_init();
   curl_setopt( $curl, CURLOPT_URL, $url );
   curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
-  curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, false ); // TODO: http://php.net/manual/en/function.curl-setopt.php#110457
+  curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, false ); // TODO http://php.net/manual/en/function.curl-setopt.php#110457
   curl_setopt( $curl, CURLOPT_USERAGENT, $user_agent );
+  curl_setopt( $curl, CURLOPT_NOSIGNAL, 1 ); // Avoid SIGALRM issues on some servers due to intentional use of timeouts
 
   if ( isset( $options['curl_options'] ) ) {
     foreach( $options['curl_options'] as $key => $value ) {

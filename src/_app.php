@@ -5,15 +5,17 @@
  * @package Slackemon
  */
 
-define( 'SLACKEMON_VERSION', '0.0.44' );
+define( 'SLACKEMON_VERSION', '0.0.49' );
 
 require_once( __DIR__ . '/../lib/functions.php' );
 
 require_once( __DIR__ . '/apis.php'       );
+require_once( __DIR__ . '/battle-ui.php'  );
 require_once( __DIR__ . '/battles.php'    );
 require_once( __DIR__ . '/catching.php'   );
 require_once( __DIR__ . '/data.php'       );
 require_once( __DIR__ . '/evolution.php'  );
+require_once( __DIR__ . '/invites.php'    );
 require_once( __DIR__ . '/items.php'      );
 require_once( __DIR__ . '/moves.php'      );
 require_once( __DIR__ . '/options.php'    );

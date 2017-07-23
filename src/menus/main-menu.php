@@ -40,8 +40,9 @@ function slackemon_get_main_menu() {
 
   if ( $weather_condition ) {
     switch ( $weather_condition ) {
-      case 'Sunny':       $weather_emoji = ':sunny:';      break; // Day version of 'Clear'
-      case 'Clear':       $weather_emoji = ':sparkles:';   break; // Night version of 'Clear'
+
+      case 'Sunny':       $weather_emoji = ':sunny:';      break; // Day version of 'Clear'.
+      case 'Clear':       $weather_emoji = ':sparkles:';   break; // Night version of 'Clear'.
       case 'Cloudy':      $weather_emoji = ':cloud:';      break;
       case 'Windy';       $weather_emoji = ':dash:';       break;
       case 'Raining':     $weather_emoji = ':rain_cloud:'; break;
@@ -50,6 +51,7 @@ function slackemon_get_main_menu() {
       case 'Hailing';     $weather_emoji = ':snowflake:';  break;
       case 'Cold';        $weather_emoji = ':droplet:';    break;
       case 'Hot';         $weather_emoji = ':fire:';       break;
+
       default:
         if (
           false !== strpos( $weather_condition, 'Fog' ) ||
@@ -67,7 +69,8 @@ function slackemon_get_main_menu() {
 
   $message = [
     'text' => (
-      ':pokeball: *Welcome to Slackémon, ' . slackemon_get_slack_user_first_name() . '!*'. "\n" .
+      ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball: ' : '' ) .
+      '*Welcome to Slackémon, ' . slackemon_get_slack_user_first_name() . '!*'. "\n" .
       ':part_alternation_mark: ' . number_format( $player_data->xp ) . ' XP     ' .
       ( $is_desktop ? '' : '     ' ) .
       ':world_map: ' . slackemon_readable( slackemon_get_player_region() ) .
@@ -98,7 +101,6 @@ function slackemon_get_main_menu() {
           ( $is_desktop ? ' (' . $total_caught . ' total)' : '' )
         ),
         'color' => 'good',
-        'mrkdwn_in' => [ 'text' ],
       ], [
         'text' => (
           slackemon_is_player_muted() ?
@@ -118,7 +120,7 @@ function slackemon_get_main_menu() {
               ) : (
                 $most_recent_pokemon ?
                 'Your last catch was ' .
-                ':' . $most_recent_pokemon->name . ': ' .
+                ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $most_recent_pokemon->name . ': ' : '' ) .
                 '*' . slackemon_readable( $most_recent_pokemon->name, false ) .
                 slackemon_get_gender_symbol( $most_recent_pokemon->gender ) . '*' .
                 (
@@ -136,88 +138,83 @@ function slackemon_get_main_menu() {
           'danger' :
           ( $most_recent_pokemon ? slackemon_get_color_as_hex( $most_recent_species_data->color->name ) : '' )
         ),
-        'mrkdwn_in' => [ 'text' ],
       ], (
         count( $latest_news ) ?
         [
-          'color' => '#333333',
-          'text' => '*Lᴀᴛᴇsᴛ Nᴇᴡs*' . "\n" . join( "\n", $latest_news ), // Latest News
-          'mrkdwn_in' => [ 'text' ],
+          'color'     => '#333333',
+          'text'      => '*Lᴀᴛᴇsᴛ Nᴇᴡs*' . "\n" . join( "\n", $latest_news ), // Latest News.
         ] :
         []
       ), [
-        'text' => '*Mᴀɪɴ Mᴇɴᴜ*', // Main Menu
-        'mrkdwn_in' => [ 'text' ],
-        'color' => '#333333',
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-        'actions' => [
+        'text'        => '*Mᴀɪɴ Mᴇɴᴜ*', // Main Menu.
+        'color'       => '#333333',
+        'actions'     => [
           [
-            'name' => 'pokemon/list',
-            'text' => ( $is_desktop ? ':pikachu_bounce:' : ':monkey:' ) . ' Pokémon',
-            'type' => 'button',
+            'name'  => 'pokemon/list',
+            'text'  => ( SLACKEMON_ENABLE_CUSTOM_EMOJI && $is_desktop ? ':pikachu_bounce:' : ':monkey:' ) . ' Pokémon',
+            'type'  => 'button',
             'value' => 'main',
           ], (
             count( $player_data->items ) ?
             [
-              'name' => 'items',
-              'text' => ':handbag: Bag',
-              'type' => 'button',
+              'name'  => 'items',
+              'text'  => ':handbag: Bag',
+              'type'  => 'button',
               'value' => 'main',
             ] :
             []
           ), (
             count( $player_data->pokemon ) >= SLACKEMON_BATTLE_TEAM_SIZE ?
             [
-              'name' => 'battles',
-              'text' => ':facepunch: Battles',
-              'type' => 'button',
+              'name'  => 'battles',
+              'text'  => ':facepunch: Battles',
+              'type'  => 'button',
               'value' => 'main',
             ] :
             []
           ), (
             count( $available_regions ) > 1 ?
             [
-              'name' => 'travel',
-              'text' => ':world_map: Travel',
-              'type' => 'button',
+              'name'  => 'travel',
+              'text'  => ':world_map: Travel',
+              'type'  => 'button',
               'value' => 'main',
             ] :
             []
           ), [
-            'name' => 'achievements',
-            'text' => ':sports_medal: Achievements',
-            'type' => 'button',
+            'name'  => 'achievements',
+            'text'  => ':sports_medal: Achievements',
+            'type'  => 'button',
             'value' => 'main',
           ],
         ],
       ], [
         'fallback' => SLACKEMON_ACTION_CALLBACK_ID,
-        'footer' => (
+        'footer'   => (
           $version_string . ' - ' .
           $players_online . ' player' . ( 1 === $players_online ? '' : 's' ) . ' online'
         ),
-        'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-        'actions' => [
+        'actions'     => [
           (
             slackemon_is_player_in_battle() ?
             [] :
             [
-              'name' => 'mute',
-              'text' => slackemon_is_player_muted() ? ':mute: Offline' : ':loud_sound: Online',
-              'type' => 'button',
+              'name'  => 'mute',
+              'text'  => slackemon_is_player_muted() ? ':mute: Offline' : ':loud_sound: Online',
+              'type'  => 'button',
               'value' => slackemon_is_player_muted() ? 'unmute' : 'mute',
               'style' => slackemon_is_player_muted() ? 'danger' : 'primary',
             ]
           ), [
-            'name' => 'menu_mode',
-            'text' => $is_desktop ? ':desktop_computer: Mobile Off' : ':iphone: Mobile On',
-            'type' => 'button',
+            'name'  => 'menu_mode',
+            'text'  => $is_desktop ? ':desktop_computer: Mobile Off' : ':iphone: Mobile On',
+            'type'  => 'button',
             'value' => $is_desktop ? 'mobile' : 'desktop',
             'style' => $is_desktop ? '' : 'primary',
           ], [
-            'name' => 'tools',
-            'text' => ':hammer: Tools',
-            'type' => 'button',
+            'name'  => 'tools',
+            'text'  => ':hammer: Tools',
+            'type'  => 'button',
             'value' => 'main',
           ],
         ],
@@ -227,11 +224,19 @@ function slackemon_get_main_menu() {
 
   return $message;
 
-} // Function slackemon_get_main_menu
+} // Function slackemon_get_main_menu.
 
-function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
-
-  // Supports main, pokemon, items, battles, travel, achievements, and tools.
+/**
+ * Returns an attachment (or optionally, actions) that can generally be dropped in anywhere to allow the user to
+ * return to the main menu (or optionally, additional top-level menus).
+ *
+ * @param arr $menus                 An array of strings of menu names that buttons will be output for. Accepts any of
+ *                                   main, pokemon, items, battles, travel, achievements, and tools. Defaults to main.
+ * @param str $attachment_or_actions Whether or not a full attachment will be returned or just an array of actions.
+ *                                   Accepts 'actions' or 'attachment'; defaults to 'attachment'.
+ * @return arr An array representing either a single attachment, OR an array of action button arrays.
+ */
+function slackemon_back_to_menu_attachment( $menus = [ 'main' ], $attachment_or_actions = 'attachment' ) {
 
   $is_desktop = 'desktop' === slackemon_get_player_menu_mode();
   $actions    = [];
@@ -277,24 +282,27 @@ function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
     }
 
     $actions[] = [
-      'name' => $action_name,
-      'text' => $menu_emoji . ' ' . ucfirst( $menu ) .' Menu',
-      'type' => 'button',
+      'name'  => $action_name,
+      'text'  => $menu_emoji . ' ' . ucfirst( $menu ) .' Menu',
+      'type'  => 'button',
       'value' => 'main',
     ];
 
+  } // Foreach menus.
+
+  if ( 'actions' === $attachment_or_actions ) {
+    return $actions;
   }
 
   $attachment = [
     'fallback' => 'Back to Menu',
-    'color' => '#333333',
-    'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-    'actions' => $actions,
+    'color'    => '#333333',
+    'actions'  => $actions,
   ];
 
   return $attachment;
 
-} // Function slackemon_back_to_menu_attachment
+} // Function slackemon_back_to_menu_attachment.
 
 /**
  * Returns latest news to be displayed on the main menu.
@@ -303,9 +311,11 @@ function slackemon_back_to_menu_attachment( $menus = [ 'main' ] ) {
  */
 function slackemon_get_latest_news() {
 
+  // Developers please add new news items here at release time.
   $latest_news = [
-    // Developers please add new news items here at release time.
-    ':radioactive_sign: The *move deleter* has arrived! Your Pokémon can \'forget\' moves in the Tools menu.',
+    ':facepunch: New battle options: challenge your teammates to a friendly match! :heart:',
+    ':one: You can now select a Battle Team Leader, who will always be sent out first in battle.',
+    ':star2: Legendaries are no longer allowed in some battles - <https://github.com/tdmalone/slackemon/releases/tag/v0.0.46|see release notes for more>.'
   ];
 
   $latest_news = array_merge( explode( '|', SLACKEMON_ADDITIONAL_NEWS ), $latest_news );

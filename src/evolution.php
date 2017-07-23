@@ -301,7 +301,8 @@ function slackemon_start_evolution_message( $spawn_ts, $action, $user_id = USER_
 
   // Clear the attachment footer & actions; add an evolving status message
   // We do this first so that there's something showing while the evolution GIF loads
-  $original_attachment->text   .= "\n\n" . '*Eᴠᴏʟᴠɪɴɢ your ' . slackemon_readable( $pokemon->name ) . '...* :loading:';
+  $original_attachment->text   .= "\n\n" . '*Eᴠᴏʟᴠɪɴɢ your ' . slackemon_readable( $pokemon->name ) . '...* ';
+  $original_attachment->text   .= slackemon_get_loading_indicator( $user_id, false );
   $original_attachment->footer  = '';
   $original_attachment->actions = [];
   $original_attachment->image_url = slackemon_get_cached_image_url(
@@ -371,8 +372,7 @@ function slackemon_end_evolution_message( $spawn_ts, $action, $user_id = USER_ID
       '*+100 XP*: Bonus - ' . $total_caught_species . 'th of this species!' . "\n" :
       ''
     ) .
-    "\n" .
-    ':loading:'
+    "\n" . slackemon_get_loading_indicator( $user_id )
   );
 
   // Backup and clear the fields and footer, so that the evolution message is the focus
@@ -393,7 +393,7 @@ function slackemon_end_evolution_message( $spawn_ts, $action, $user_id = USER_ID
   sleep( 2 );
 
   // Now that the user has seen the evolution message, remove the loading GIF and add the fields & footer back in
-  $attachment['text'] = str_replace( ':loading:', '', $attachment['text'] );
+  $attachment['text']   = str_replace( slackemon_get_loading_indicator( $user_id ), '', $attachment['text'] );
   $attachment['fields'] = $_fields_backup;
   $attachment['footer'] = $_footer_backup;
 

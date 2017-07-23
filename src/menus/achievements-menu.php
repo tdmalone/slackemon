@@ -60,11 +60,15 @@ function slackemon_get_achievements_menu( $current_page ) {
     $gender_symbols = [ '♂', '♀' ];
 
     $message['text'] .= (
-      ( $entry->caught ? ':' . $species_data->name . ':' : ':grey_question:' ) . ' ' .
-      '#' . $entry->id . ' - ' . 
+      (
+        $entry->caught ?
+        ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':' . $species_data->name . ':' : ':heavy_check_mark:' ) :
+        ':grey_question:'
+      ) . ' ' .
+      '#' . $entry->id . ' • ' . 
       '*' . $readable_name . '*' .
-      ( ! $is_desktop && in_array( substr( $readable_name, -1, 1 ), $gender_symbols ) ? '' : ' ' ) . '- ' .
-      'Seen ' . $entry->seen . ', Caught ' . $entry->caught .
+      ( ! $is_desktop && in_array( substr( $readable_name, -1, 1 ), $gender_symbols ) ? '' : ' ' ) . '• ' .
+      $entry->seen . ' seen, ' . $entry->caught . ' caught' .
       "\n"
     );
 
@@ -77,54 +81,54 @@ function slackemon_get_achievements_menu( $current_page ) {
     if ( $total_pages > 5 ) {
       $pagination_actions = [
         [
-          'name' => 'achievements',
-          'text' => ':rewind:',
-          'type' => 'button',
+          'name'  => 'achievements',
+          'text'  => ':rewind:',
+          'type'  => 'button',
           'value' => '1',
           'style' => 1 == $current_page ? 'primary' : '',
         ], (
           $total_pages == $current_page ?
           [
-            'name' => 'achievements',
-            'text' => $current_page - 2,
-            'type' => 'button',
+            'name'  => 'achievements',
+            'text'  => $current_page - 2,
+            'type'  => 'button',
             'value' => $current_page - 2,
           ] :
           ''
         ), (
           1 == $current_page ?
           '' : [
-            'name' => 'achievements',
-            'text' => $current_page - 1,
-            'type' => 'button',
+            'name'  => 'achievements',
+            'text'  => $current_page - 1,
+            'type'  => 'button',
             'value' => $current_page - 1,
           ]
         ), [
-          'name' => 'achievements',
-          'text' => $current_page,
-          'type' => 'button',
+          'name'  => 'achievements',
+          'text'  => $current_page,
+          'type'  => 'button',
           'value' => $current_page,
           'style' => 'primary',
         ], (
           $total_pages == $current_page ?
           '' : [
-            'name' => 'achievements',
-            'text' => $current_page + 1,
-            'type' => 'button',
+            'name'  => 'achievements',
+            'text'  => $current_page + 1,
+            'type'  => 'button',
             'value' => $current_page + 1,
           ]
         ), (
           1 == $current_page ?
           [
-            'name' => 'achievements',
-            'text' => $current_page + 2,
-            'type' => 'button',
+            'name'  => 'achievements',
+            'text'  => $current_page + 2,
+            'type'  => 'button',
             'value' => $current_page + 2,
           ] : ''
         ), [
-          'name' => 'achievements',
-          'text' => ':fast_forward:',
-          'type' => 'button',
+          'name'  => 'achievements',
+          'text'  => ':fast_forward:',
+          'type'  => 'button',
           'value' => $total_pages,
           'style' => $total_pages == $current_page ? 'primary' : '',
         ],
@@ -133,9 +137,9 @@ function slackemon_get_achievements_menu( $current_page ) {
       $pagination_actions = [];
       for ( $i = 1; $i <= $total_pages; $i++ ) {
         $pagination_actions[] = [
-          'name' => 'achievements',
-          'text' => $i,
-          'type' => 'button',
+          'name'  => 'achievements',
+          'text'  => $i,
+          'type'  => 'button',
           'value' => $i,
           'style' => $i == $current_page ? 'primary' : '',
         ];
@@ -169,43 +173,61 @@ function slackemon_get_achievements_menu( $current_page ) {
     $player_count++;
 
     $caught = 0;
-    $seen = 0;
+    $seen   = 0;
 
     foreach ( $player_data->pokedex as $pokedex_entry ) {
-      if ( $pokedex_entry->caught ) { $caught++; }
-      if ( $pokedex_entry->seen ) { $seen++; }
+
+      if ( $pokedex_entry->caught ) {
+        $caught++;
+      }
+
+      if ( $pokedex_entry->seen ) {
+        $seen++;
+      }
+
     }
 
     $full_name = slackemon_get_slack_user_full_name( $player_id );
-    $emoji = (
-      slackemon_is_player_active( $player_id ) ?
-      ':green_circle:' : (
-        slackemon_is_player_in_battle( $player_id ) ?
-        ':yellow_circle:' :
-        ':black_circle:'
-      )
-    );
+
+    $emoji = '';
+
+    if ( SLACKEMON_ENABLE_CUSTOM_EMOJI ) {
+      $emoji = (
+        slackemon_is_player_active( $player_id ) ?
+        ':green_circle:' : (
+          slackemon_is_player_in_battle( $player_id ) ?
+          ':yellow_circle:' :
+          ':black_circle:'
+        )
+      );
+    }
 
     $leaderboard .= (
       $emoji . ' *#' . $player_count . '*. ' .
       '*' . $full_name . '*' .
       ( $is_desktop ? ': ' : "\n" . '             ' ) .
       number_format( $player_data->xp ) . ' XP' .
-      ( $is_desktop ? ' - ' : "\n" . '             ' ) .
+      ( $is_desktop ? ' • ' : "\n" . '             ' ) .
       $caught . ' caught, ' .
       $seen . ' seen' .
-      ( $is_desktop ? ' - ' : "\n" . '             ' ) .
-      floor( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate' .
+      (
+        $player_data->battles->participated ?
+        ( $is_desktop ? ' • ' : "\n" . '             ' ) .
+        floor( $player_data->battles->won / $player_data->battles->participated * 100 ) . '% trainer battle win rate' :
+        ''
+      ) .
       ( $is_desktop ? "\n" : "\n\n" )
     );
 
   } // Foreach players
 
-  $leaderboard .= (
-    ( $is_desktop ? "\n" : '' ) .
-    '_Players in green are online and available to battle!_' . "\n" .
-    '_Players in yellow are currently battling._'
-  );
+  if ( SLACKEMON_ENABLE_CUSTOM_EMOJI ) {
+    $leaderboard .= (
+      ( $is_desktop ? "\n" : '' ) .
+      '_Players in green are online and available to battle!_' . "\n" .
+      '_Players in yellow are currently battling._'
+    );
+  }
 
   $message['attachments'][] = [
     'pretext' => $leaderboard,

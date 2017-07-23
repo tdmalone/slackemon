@@ -19,6 +19,11 @@ function slackemon_send2slack( $payload, $hook_url = '' ) {
   // Unlike Slack, default to mrkdwn being turned on if we haven't explicitly turned it off
   $payload['mrkdwn'] = isset( $payload['mrkdwn'] ) ? $payload['mrkdwn'] : true;
 
+  // Prepare attachments, including ensuring mrkdwn is switched on for each one & parsing in an action callback ID.
+  if ( isset( $payload['attachments'] ) ) {
+    $payload['attachments'] = slackemon_prepare_attachments_for_slack( $payload['attachments'] );
+  }
+
   // Attempt to include a username and icon, if we have one
   // Note that in responses to Slack app response_url's, username and icon replacements are ignored by Slack
   if ( defined( 'COMMAND' ) ) {
@@ -74,8 +79,8 @@ function slackemon_send2slack( $payload, $hook_url = '' ) {
   $result = slackemon_get_url(
     $hook_url,
     [
-      'curl_options' => $curl_options,
-      'skip_error_reporting' => true, // We must skip error reporting, because error sending uses send2slack()!
+      'curl_options'         => $curl_options,
+      'skip_error_reporting' => true, // We must skip error reporting, because error sending uses this function!
     ]
   );
 
@@ -98,6 +103,11 @@ function slackemon_post2slack( $payload ) {
 
   // Add Slack API token
   $payload['token'] = SLACKEMON_SLACK_KEY;
+
+  // Prepare attachments, including ensuring mrkdwn is switched on for each one & parsing in an action callback ID.
+  if ( isset( $payload['attachments'] ) ) {
+    $payload['attachments'] = slackemon_prepare_attachments_for_slack( $payload['attachments'] );
+  }
 
   // Attempt to include a username and icon, if we have one
   // Note that responses to Slack app response_url's, username and icon replacements are ignored
@@ -138,13 +148,77 @@ function slackemon_post2slack( $payload ) {
 
   return $response;
 
-} // Function slackemon_post2slack
+} // Function slackemon_post2slack.
+
+/**
+ * Prepares attachments to be sent to Slack. This is used to set some defaults which we know we will always want,
+ * including ensuring mrkdwn is switched on for every property we might want to use it in, and parsing in our action
+ * callback ID if we have included actions.
+ *
+ * Designed to be called by slackemon_send2slack and slackemon_post2slack.
+ * 
+ * @param arr $attachments The current attachments on the message. Accepts either an array of arrays or an array of
+ *                         objects.
+ * @return arr The modified attachments.
+ */
+function slackemon_prepare_attachments_for_slack( $attachments ) {
+
+  // Bow out now if we received no attachments or an otherwise invalid payload.
+  if ( ! is_array( $attachments ) || ! count( $attachments ) ) {
+    return $attachments;
+  }
+
+  foreach ( $attachments as &$_attachment ) {
+
+    if ( is_array( $_attachment ) ) {
+      $_attachment['mrkdwn_in'] = SLACKEMON_MRKDWN_IN;
+
+      if ( isset( $_attachment['actions'] ) ) {
+        $_attachment['callback_id'] = SLACKEMON_ACTION_CALLBACK_ID;
+      }
+    }
+
+    if ( is_object( $_attachment ) ) {
+      $_attachment->mrkdwn_in = SLACKEMON_MRKDWN_IN;
+
+      if ( isset( $_attachment->actions ) ) {
+        $_attachment->callback_id = SLACKEMON_ACTION_CALLBACK_ID;
+      }
+    }
+
+  }
+
+  return $attachments;
+
+} // Function slackemon_prepare_attachments_for_slack.
+
+function slackemon_do_action_response( $message ) {
+  global $data_folder;
+
+  if ( is_string( $message ) ) {
+    $message = [ 'text' => $message ];
+  }
+
+  // Unless we say otherwise, we always want to replace the original message.
+  if ( ! isset( $message['replace_original' ] ) ) {
+    $message['replace_original'] = true;
+  }
+
+  $result = slackemon_send2slack( $message );
+
+  if ( 'development' === APP_ENV ) {
+    file_put_contents( $data_folder . '/last-action-response', $result );
+  }
+
+  return $result;
+
+} // Function slackemon_do_action_response.
 
 /**
  * Assists with long-waiting actions, including while waiting to acquire a file lock, by advising the user and ensuring
  * they don't involve any further actions. Only updates once per session.
  */
-function slackemon_send_waiting_message_to_user() {
+function slackemon_send_waiting_message_to_user( $user_id = USER_ID ) {
   global $_slackemon_waiting_message_sent;
 
   if ( $_slackemon_waiting_message_sent ) {
@@ -160,13 +234,15 @@ function slackemon_send_waiting_message_to_user() {
       $attachment->actions = [];
     }
 
-    $message->attachments[ $action->attachment_id - 1 ]->footer = 'Loading... :loading:';
+    $message->attachments[ $action->attachment_id - 1 ]->footer = (
+      'Loading... ' . slackemon_get_loading_indicator( $user_id, false )
+    );
 
     slackemon_send2slack( $message );
     $_slackemon_waiting_message_sent = true;
 
-  } // If action
-} // Function slackemon_send_waiting_message_to_user
+  } // If action.
+} // Function slackemon_send_waiting_message_to_user.
 
 /** Does what it says on the tin. */
 function slackemon_get_slack_user_full_name( $user_id = USER_ID ) {
@@ -181,10 +257,10 @@ function slackemon_get_slack_user_full_name( $user_id = USER_ID ) {
     return $user->real_name;
   }
 
-  // If the user hasn't entered their name, fallback to a modification of their username
+  // If the user hasn't entered their name, fallback to a modification of their username.
   return ucwords( str_replace( [ '.', '-' ], ' ', $user->name ) );
 
-} // Function slackemon_get_user_full_name
+} // Function slackemon_get_user_full_name.
 
 /** Does what it says on the tin. */
 function slackemon_get_slack_user_first_name( $user_id = USER_ID ) {
@@ -203,7 +279,7 @@ function slackemon_get_slack_user_first_name( $user_id = USER_ID ) {
 
   return $user_first_name;
 
-} // Function get_user_first_name
+} // Function get_user_first_name.
 
 /** Does what it says on the tin. */
 function slackemon_get_slack_user_avatar_url( $user_id = USER_ID ) {
@@ -215,7 +291,7 @@ function slackemon_get_slack_user_avatar_url( $user_id = USER_ID ) {
 
   return false;
 
-} // Function slackemon_get_user_avatar_url
+} // Function slackemon_get_user_avatar_url.
 
 /**
  * Gets a user's e-mail address, either from the local config if set, or falling back to the Slack API.
@@ -229,7 +305,7 @@ function slackemon_get_slack_user_email_address( $user_id = USER_ID ) {
 
   return false;
 
-} // Function slackemon_get_user_email_address
+} // Function slackemon_get_user_email_address.
 
 /** Gets a Slack user's data from the Slack API. */
 function slackemon_get_slack_user( $user_id = USER_ID ) {
@@ -264,7 +340,7 @@ function slackemon_get_slack_user( $user_id = USER_ID ) {
 
   return false;
 
-} // Function slackemon_get_slack_user
+} // Function slackemon_get_slack_user.
 
 /** Gets ALL Slack user data from the Slack API. Cached for a day. */
 function slackemon_get_slack_users( $skip_cache = false ) {
@@ -280,6 +356,6 @@ function slackemon_get_slack_users( $skip_cache = false ) {
 
   return $slack_users;
 
-} // Function slackemon_get_slack_users
+} // Function slackemon_get_slack_users.
 
 // The end!

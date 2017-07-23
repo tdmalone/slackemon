@@ -5,7 +5,9 @@
  * @package Slackemon
  */
 
-function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, $force_battle_result = '', $user_id = USER_ID ) {
+function slackemon_get_catch_message(
+  $spawn_ts, $action, $from_battle = false, $force_battle_result = '', $user_id = USER_ID
+) {
 
   $catch_attempt_ts = time();
   $spawn_data       = slackemon_get_spawn_data( $spawn_ts, slackemon_get_player_region( $user_id ), $user_id );
@@ -26,7 +28,7 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
   // Add a new actions attachment
   $message['attachments'][] = [
     'title' => 'Trying to catch ' . slackemon_readable( $spawn_data->name ) . '...',
-    'text'  => ':pokeball_bounce:',
+    'text'  => SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball_bounce:' : '',
   ];
 
   if ( ! $catch_too_late && 'flee' !== $force_battle_result ) {
@@ -242,8 +244,6 @@ function slackemon_get_catch_message( $spawn_ts, $action, $from_battle = false, 
           )
         )
       ),
-      'callback_id' => SLACKEMON_ACTION_CALLBACK_ID,
-      'mrkdwn_in' => [ 'text' ],
       'actions' => [
         [
           'name' => 'menu',
@@ -291,15 +291,10 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
     } else if ( 'catch' === $force_battle_result ) {
       $is_caught = true;
     } else if ( $battle_hash ) {
-
-      $hp_percentage_integer = $opponent_pokemon->hp / $opponent_pokemon->stats->hp;
-      $is_caught = (
-        random_int( 1, SLACKEMON_BASE_FLEE_CHANCE * SLACKEMON_BATTLE_FLEE_MULTIPLIER / $hp_percentage_integer ) > 1
-      );
-
+      $is_caught = ! slackemon_should_wild_battle_pokemon_flee( $opponent_pokemon );
     } else {
 
-      // Eg. `random_int( 1, 4 )` for a 1 in 4 chance of NOT catching
+      // Eg. `random_int( 1, 4 )` for a 1 in 4 chance of fleeing.
       $is_caught = random_int( 1, SLACKEMON_BASE_FLEE_CHANCE ) > 1;
 
     }
@@ -335,11 +330,12 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
   // Add entry to player's collection
   $spawn_data->is_battle_team = false;
   $spawn_data->is_favourite   = false;
-  unset( $spawn_data->trigger ); // We don't need this anymore
-  unset( $spawn_data->users   ); // We don't need this anymore
+  unset( $spawn_data->trigger ); // We don't need this anymore.
+  unset( $spawn_data->flags   ); // We don't need this anymore.
+  unset( $spawn_data->users   ); // We don't need this anymore.
   $player_data->pokemon[] = $spawn_data;
 
-  // Find the correct Pokedex entry to increment, and do the XP add too
+  // Find the correct Pokedex entry to increment, and do the XP add too.
   foreach ( $player_data->pokedex as $pokedex_entry ) {
     if ( $spawn_data->pokedex == $pokedex_entry->id ) {
 
@@ -371,6 +367,7 @@ function slackemon_do_catch( $spawn_ts, $catch_attempt_ts, $user_id = USER_ID, $
 
 } // Function slackemon_do_catch
 
+/** Starts a battle with a wild Pokemon. See slackemon_start_battle() in battles.php for P2P battles. */
 function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) {
 
   // Are we already in battle?
@@ -408,7 +405,7 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
         'actions' => [
           [
             'name' => 'catch',
-            'text' => ':pokeball: Throw Pokéball',
+            'text' => ( SLACKEMON_ENABLE_CUSTOM_EMOJI ? ':pokeball: ' : '' ) . 'Throw Pokéball',
             'type' => 'button',
             'value' => $spawn['ts'],
             'style' => 'primary',
@@ -421,37 +418,49 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
     return $message;
   }
 
-  $battle_ts = time();
+  $battle_ts  = time();
   $inviter_id = $user_id;
   $invitee_id = $spawn_ts;
 
-  $battle_hash = slackemon_get_battle_hash( $battle_ts, $inviter_id, $invitee_id );
+  $battle_hash = slackemon_generate_battle_hash( $battle_ts, $inviter_id, $invitee_id );
   $spawn_data  = slackemon_get_spawn_data( $spawn_ts, slackemon_get_player_region( $user_id ), $user_id );
 
-  // Start with a random Pokemon from the team, for now (until we code in choosing at the start)
-  $inviter_pokemon = $battle_team[ array_rand( $battle_team ) ];
+  // If we have a battle team leader, start with them. Otherwise, start with a random Pokemon from the team.
+  $inviter_team_leader = slackemon_get_battle_team_leader( $inviter_id );
+  if ( $inviter_team_leader && isset( $battle_team[ 'ts' . $inviter_team_leader ] ) ) {
+    $inviter_pokemon = slackemon_get_player_pokemon_data( $inviter_team_leader, null, $inviter_id );
+  } else {
+    $inviter_pokemon = $battle_team[ array_rand( $battle_team ) ];
+  }
 
-  // Wild Pokemon, naturally, battles as itself
+  // Wild Pokemon, naturally, battles as itself!
   $invitee_pokemon = $spawn_data;
 
   $battle_data = [
-    'ts' => $battle_ts,
-    'hash' => $battle_hash,
-    'type' => 'wild',
-    'users' => [
+    'ts'             => $battle_ts,
+    'hash'           => $battle_hash,
+    'type'           => 'wild',
+    'challenge_type' => [ 'normal' ], // Different challenge types are not supported for wild battles.
+    'users'          => [
       $inviter_id => [
-        'team' => [ $inviter_pokemon ],
-        'status' => [ 'current' => $inviter_pokemon->ts ],
+        'team'   => [ 'ts' . $inviter_pokemon->ts => $inviter_pokemon ],
+        'status' => [
+          'current'         => $inviter_pokemon->ts,
+          'swaps_remaining' => SLACKEMON_BATTLE_SWAP_LIMIT,
+        ],
         'response_url' => RESPONSE_URL,
       ],
       $invitee_id => [
-        'team' => [ $invitee_pokemon ],
-        'status' => [ 'current' => $invitee_pokemon->ts ],
+        'team'   => [ 'ts' . $invitee_pokemon->ts => $invitee_pokemon ],
+        'status' => [
+          'current' => $invitee_pokemon->ts,
+          'swaps_remaining' => SLACKEMON_BATTLE_SWAP_LIMIT,
+        ],
         'response_url' => false,
       ],
     ],
     'last_move_ts' => $battle_ts,
-    'turn' => $invitee_id,
+    'turn'         => $invitee_id,
   ];
 
   // Set player in battle
@@ -468,10 +477,15 @@ function slackemon_start_catch_battle( $spawn_ts, $action, $user_id = USER_ID ) 
     'attachments' => slackemon_get_battle_attachments( $battle_hash, $inviter_id, 'first', '' ),
   ], RESPONSE_URL );
 
-  // Wild Pokemon gets to move first
+  // Wild Pokemon gets to move first.
   sleep( 4 ); // Wait before the computer moves...
   $move = slackemon_get_best_move( $invitee_pokemon, $inviter_pokemon );
-  slackemon_do_battle_move( $move->name, $battle_hash, $action, true, $invitee_id );
+
+  $options = [
+    'is_first_move' => true,
+  ];
+
+  slackemon_do_battle_move( $move->name, $battle_hash, $action, $invitee_id, $options );
 
 } // Function slackemon_start_catch_battle
 
