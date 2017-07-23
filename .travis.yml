@@ -31,8 +31,8 @@ after_success:
   # -Z flag to cause build failure if coverage reports fail.
   # HT: https://docs.codecov.io/docs/about-the-codecov-bash-uploader)
   - if [ "7.0" = "$TRAVIS_PHP_VERSION" ]; then
-      travis_retry bash <(curl -s https://codecov.io/bash) -f tests/logs/clover.xml -Z
-      travis_retry php vendor/bin/codacycoverage clover tests/logs/clover.xml
+      travis_retry bash <(curl -s https://codecov.io/bash) -f tests/logs/clover.xml -Z;
+      travis_retry php vendor/bin/codacycoverage clover tests/logs/clover.xml;
     fi
 
 notifications:
