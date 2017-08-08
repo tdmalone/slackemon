@@ -10,8 +10,12 @@ function slackemon_get_catch_message(
 ) {
 
   $catch_attempt_ts = time();
-  $spawn_data = slackemon_get_spawn_data( $spawn_ts, slackemon_get_player_region( $user_id ), $user_id );
-  $catch_too_late = 'flee-late' === $force_battle_result || $spawn_ts < $catch_attempt_ts - SLACKEMON_FLEE_TIME_LIMIT;
+  $spawn_data       = slackemon_get_spawn_data( $spawn_ts, slackemon_get_player_region( $user_id ), $user_id );
+  
+  $catch_too_late   = (
+    'flee-late' === $force_battle_result ||
+    $spawn_ts < $catch_attempt_ts - SLACKEMON_FLEE_TIME_LIMIT
+  );
 
   // Initial 'catching...' message
   $message = [];
@@ -33,7 +37,10 @@ function slackemon_get_catch_message(
     slackemon_send2slack( $message );
 
     if ( 'catch' === $force_battle_result ) {
-      // Don't wait here - it's obvious from a battle ending that this is going to be a catch
+
+      // Don't wait as long here - it's obvious from a battle win that this is going to be a successful catch.
+      sleep( 1 );
+
     } else {
       sleep( 5 );
     }
