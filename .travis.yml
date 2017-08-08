@@ -1,10 +1,15 @@
 language: php
 
+cache:
+  directories:
+    - vendor
+
 php:
   - 7.0
   - 7.1
   - nightly
 
+# Save time by only cloning the latest commit.
 git:
   depth: 1
 
@@ -15,11 +20,10 @@ matrix:
   fast_finish: true
 
 install:
-  - travis_retry curl -s http://getcomposer.org/installer | php
-  - travis_retry php composer.phar install --no-interaction
+  - travis_retry composer install
 
 before_script:
-  # Lint all PHP files except for dependencies
+  # Lint all PHP files except for dependencies.
   - find . -name '*.php' -type f ! -path './vendor/*' | while read file;do php -l "${file}" || exit 1;done
 
 script:
@@ -27,9 +31,13 @@ script:
   - php vendor/bin/phpunit
 
 after_success:
-  # -Z flag to cause build failure if coverage reports fail (https://docs.codecov.io/docs/about-the-codecov-bash-uploader)
-  - travis_retry bash <(curl -s https://codecov.io/bash) -f tests/logs/clover.xml -Z
-  - travis_retry php vendor/bin/codacycoverage clover tests/logs/clover.xml
+  # Upload code coverage reports (but only once per build, not for every PHP version).
+  # -Z flag to cause build failure if coverage reports fail.
+  # HT: https://docs.codecov.io/docs/about-the-codecov-bash-uploader)
+  - if [ "7.0" = "$TRAVIS_PHP_VERSION" ]; then
+      travis_retry bash <(curl -s https://codecov.io/bash) -f tests/logs/clover.xml -Z;
+      travis_retry php vendor/bin/codacycoverage clover tests/logs/clover.xml;
+    fi
 
 notifications:
   slack:
