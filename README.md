@@ -56,7 +56,7 @@ Setup of Slackémon is _not_ quick. This may be worked on further in the future.
     * [Download ZIP](https://github.com/tdmalone/slackemon/archive/master.zip) or clone with Git: `git clone https://github.com/tdmalone/slackemon.git`
         * You may need to install depdendencies as well by running `composer install`. If you don't have Composer, [get it here](https://getcomposer.org/download/) first. If you're not going to be developing Slackémon, you can speed up the install of depdendencies by instead running `composer install --no-dev`.
     * Install with Composer: `composer require tdmalone/slackemon`
-    * [Deploy with Docker](https://github.com/tdmalone/slackemon/wiki/Installing-with-Docker)
+    * [Deploy with Docker](https://github.com/tdmalone/slackemon/wiki/Installing-on-Docker)
     * [Deploy with Heroku](https://github.com/tdmalone/slackemon/wiki/Installing-on-Heroku)
 1. Log in to your Slack team, and visit https://api.slack.com/apps?new_app=1 to create a new App. You can call it whatever you like, but 'Slackémon' usually works best! You can then proceed to set up the app features through Slack's interface.
 1. Set up Slack's Interactive Messages
