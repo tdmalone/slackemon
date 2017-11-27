@@ -5,7 +5,7 @@
  * @package Slackemon
  */
 
-// Before starting, determine if we're receiving an inbound action or option request from our Slack app.
+// Before starting, determine if we're receiving an inbound action or option request from Slack app.
 $payload = json_decode( file_get_contents( 'php://input' ) );
 if ( ! $payload && isset( $_REQUEST['payload'] ) ) {
   $payload = json_decode( $_REQUEST['payload'] );

@@ -11,14 +11,14 @@ function slackemon_get_player_region( $user_id = USER_ID ) {
 
   if ( isset( $player_data->region ) ) {
     return $player_data->region;
-  } else {
-    return SLACKEMON_DEFAULT_REGION;
   }
+
+  return SLACKEMON_DEFAULT_REGION;
 
 } // Function slackemon_get_player_region
 
 function slackemon_set_player_region( $region = false, $user_id = USER_ID ) {
-  
+
   // Default region
   if ( ! $region ) {
     $region = SLACKEMON_DEFAULT_REGION;

@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
-set -x               # Output to stdout every command that is run.
-docker-compose stop  # Stop the Docker Compose containers.
+# Safer bash scripts.
+set -euxo pipefail
+
+# Stop the Docker Compose containers.
+docker-compose stop
 
 # Run user stop script, if it exists.
 if [ -f `dirname $0`/stop.local ]; then

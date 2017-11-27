@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
-set -x                                 # Output to stdout every command that is run.
-docker-compose up -d --remove-orphans  # Start the Docker Compose containers detached from the
-                                       # current terminal, removing any previous containers.
+# Safer bash scripts.
+set -euxo pipefail
+
+# Start the Docker Compose containers detached from the current terminal, removing any previous
+# containers.
+docker-compose up -d --remove-orphans
 
 # Run user start script, if it exists.
 if [ -f `dirname $0`/start.local ]; then

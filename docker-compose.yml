@@ -3,7 +3,7 @@ services:
   php:
     image: tdmalone/slackemon
     restart: always
-    volumes: 
+    volumes:
       - ./:/slackemon
     env_file:
       - .env
@@ -28,7 +28,7 @@ services:
       - PGDATA=/var/lib/postgresql/data/pgdata
     env_file:
       - .env
-    
+
   cronjob:
     image: appropriate/curl
     restart: always

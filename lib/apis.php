@@ -100,7 +100,7 @@ function slackemon_get_cached_url( $url, $options = [] ) {
       slackemon_cache_debug( $url, $hash['filename'], 'hit' );
       return $data;
     }
-    
+
     slackemon_cache_debug( $url, $hash['filename'], 'empty' );
 
   }
@@ -135,7 +135,7 @@ function slackemon_get_cached_image_url( $image_url ) {
 
   $hash = slackemon_calculate_hash( $image_url, __DIR__ . '/../' . SLACKEMON_IMAGE_CACHE_FOLDER );
   $hash['filename'] .= ( 'aws' === SLACKEMON_IMAGE_CACHE_METHOD ? '.aws' : '' );
-  
+
   // If the 'local' option is in use, this is where the image will be found
   $local_url = SLACKEMON_INBOUND_URL . SLACKEMON_IMAGE_CACHE_FOLDER . '/' . $hash['path'];
 
@@ -175,7 +175,7 @@ function slackemon_get_local_cached_image_url( $image_url, $hash, $local_url ) {
     slackemon_cache_debug( $image_url, $hash['filename'], 'image-error-no-data-at-url' );
     return false;
   }
-  
+
   slackemon_cache_debug( $image_url, $hash['filename'], 'image-miss', $local_url );
   file_put_contents( $hash['filename'], $image_data );
 
@@ -205,6 +205,7 @@ function slackemon_get_s3_cached_image_url( $image_url, $hash ) {
     }
 
     try {
+
       $result = $slackemon_s3->putObject([
         'Bucket' => SLACKEMON_IMAGE_CACHE_BUCKET,
         'Key'    => $remote_key,
@@ -216,6 +217,7 @@ function slackemon_get_s3_cached_image_url( $image_url, $hash ) {
         ],
         'CacheControl' => YEAR_IN_SECONDS,
       ]);
+
     } catch ( Aws\S3\Exception\S3Exception $e ) {
 
       // Log an event and return the original image URL in case of exception
